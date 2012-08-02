@@ -29,10 +29,10 @@ public:
   unsigned int flags; // for faces, capsules, spheres only
 
   Box3f bbox;
-  void Render() const;
+
+  float* GetRotMatrix() const; // rotation matrix for capsules
 private:
   void UpdateBBox();
-  float* GetRotMatrix() const; // rotation matrix for capsules
 };
 
 class BrfBody
@@ -47,7 +47,8 @@ public:
 
   std::vector<BrfBodyPart> part;
 
-  void Render() const;
+  bool IsAnimable() const{return false;}
+
   Box3f bbox;
 private:
   void UpdateBBox();

@@ -31,17 +31,23 @@ public:
   void Export(char *f);
 
   // to dysplay the animation...
-  void Render() const;
-  void Render(int, int) const; // render a bone
-
+  bool IsAnimable() const{return true;}
 
   static Box3f bbox;
   static void SetSkeleton(BrfSkeleton* sk);
   static int curFrame; // frame currently being shown
   //bool capped; // if true, ATTENTION, animation was capped at MAXFRAMES
+
+  int Break(std::vector<BrfAnimation> &res) const;
+  int Break(std::vector<BrfAnimation> &res, char* aniFile) const;
+
+
 private:
   static BrfSkeleton* skel;
   void EnlongFrames(int nframes);
+  int FirstIndex() const;
+  int LastIndex() const;
+
 };
 
 #endif // BRFANIMATION_H

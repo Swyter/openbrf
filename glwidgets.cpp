@@ -7,13 +7,40 @@
 #include "brfdata.h"
 #include "glwidgets.h"
 
-/*void GLWidget::tabChanged(int k){
-  if (k>=0) displaying=TokenEnum(k);
-  selectNone();
-  update();
-}*/
+#include <wrap\gl\space.h>
 
-void setShadowMode(bool on){
+static float floatMod(float a,int b){
+  if (b<=0) return 0;
+  int ia=int((float)floor((double)a));
+  return (a-ia) + ia%b; // which is >=0.0f but <b
+}
+
+void GLWidget::renderBrfItem (const BrfMesh& p){
+  float fi;
+  if (runningState==STOP) fi=1;
+  else fi = floatMod( relTime*runningSpeed, p.frame.size()-3) +2;
+  if (fi>=(float)p.frame.size()) fi=(float)p.frame.size()-1;
+  renderMesh(p,fi);
+}
+
+void GLWidget::renderBrfItem (const BrfBody& p){
+  renderBody(p);
+}
+void GLWidget::renderBrfItem (const BrfAnimation& p){
+  float fi = floatMod( relTime*runningSpeed , p.frame.size() );
+  if (!reference) return;
+  renderAnimation(p,*reference->getOneSkeleton( int(p.nbones ) ),fi);
+}
+void GLWidget::renderBrfItem (const BrfSkeleton& p){
+  renderSkeleton(p);
+}
+
+template <class T> void ciao(T t);
+
+void ciao(int t){}
+
+
+void GLWidget::setShadowMode(bool on) const{
   if (on) {
     glPushMatrix();
     float c[4]={0.175f,0.175f,0.175f,1};
@@ -35,23 +62,65 @@ void setShadowMode(bool on){
   }
 }
 
-void setWireframeMode(bool on){
+static float* vecf(float ff){
+  static float f[4]; f[0]=f[1]=f[2]=ff; f[3]=1; return f;
+}
+
+void GLWidget::setWireframeLightingTextureMode(bool on, bool light, bool texture) const{
+
   if (on) {
-    float c[4]={0.5f,0.5f,0.5f,1};
-    glLightfv(GL_LIGHT0,GL_DIFFUSE,c);
-    float d[4]={0.0f,0.0f,0.0f,1};
-    glLightfv(GL_LIGHT0,GL_SPECULAR,d);
+    glLightfv(GL_LIGHT0,GL_DIFFUSE, (light)?vecf(0.6f):vecf(0.0f) );
+    glLightfv(GL_LIGHT0,GL_SPECULAR, vecf(0) ) ;
+
+    glLightfv(GL_LIGHT0,GL_AMBIENT,(light)?vecf(0.0) :vecf(0.55));
     glPolygonMode(GL_FRONT,GL_LINE);
     glPolygonOffset(-0.1f,-1);
     glEnable(GL_POLYGON_OFFSET_LINE);
   } else {
     glDisable(GL_POLYGON_OFFSET_LINE);
-    float c[4]={0.8,0.8,0.8,1};
-    glLightfv(GL_LIGHT0,GL_DIFFUSE,c);
-    glLightfv(GL_LIGHT0,GL_SPECULAR,c);
+
+    glLightfv(GL_LIGHT0,GL_DIFFUSE, (light)?vecf(0.75):vecf(0.0));
+    glLightfv(GL_LIGHT0,GL_SPECULAR,(light)?vecf(0.15):vecf(0.0));
+    glLightfv(GL_LIGHT0,GL_AMBIENT, (light)?vecf(0.1 ):vecf(1  ));
     glPolygonMode(GL_FRONT,GL_FILL);
   }
 }
+
+
+// SLOTS
+void GLWidget::setWireframe(int i){
+  useWireframe = i; update();
+}
+void GLWidget::setLighting(int i){
+  useLighting = i; update();
+}
+void GLWidget::setTexture(int i){
+  useTexture = i; update();
+}
+void GLWidget::setPlay(){
+  runningState=PLAY;
+  update();
+}
+void GLWidget::setPause(){
+  runningState=PAUSE;
+  update();
+}
+void GLWidget::setStop(){
+  runningState=STOP;
+  relTime=0;
+  update();
+}
+void GLWidget::setColorPerVert(){
+  colorMode=1; update();
+}
+void GLWidget::setColorPerRig(){
+  colorMode=2; update();
+}
+void GLWidget::setColorPerWhite(){
+  colorMode=0; update();
+}
+
+
 void GLWidget::setSelection(const QModelIndexList &newsel, int k){
   if (k>=0) displaying=TokenEnum(k);
 
@@ -61,29 +130,11 @@ void GLWidget::setSelection(const QModelIndexList &newsel, int k){
     selGroup[i->row() ] = true;
     selected = i->row();
   }
-
-  //x.merge(newsel,QItemSelectionModel::Toggle);
-  //int tmp=0;
-  /*
-  for (QItemSelection::ConstIterator i=newsel.constBegin(); i!=newsel.constEnd(); i++){
-    QItemSelectionRange r = *i;
-    QModelIndexList il = r.indexes();
-    for (QModelIndexList::ConstIterator ite=il.constBegin(); ite!=il.constEnd(); ite++){
-      selGroup[ite->row() ] = true;
-      selected = ite->row();
-    }
+  if (k==ANIMATION) {
+    runningState= PLAY;
+    relTime=0;
   }
 
- for (QItemSelection::ConstIterator i=deselected.constBegin(); i!=deselected.constEnd(); i++){
-    QItemSelectionRange r = *i;
-    QModelIndexList il = r.indexes();
-    for (QModelIndexList::ConstIterator ite=il.constBegin(); ite!=il.constEnd(); ite++){
-      selGroup[ite->row() ] = false;
-      if (selected==ite->row()) selected=-1;
-      tmp++;
-    }
-  }
-*/
   update();
 }
 
@@ -99,6 +150,13 @@ GLWidget::GLWidget(QWidget *parent)
   timer->setSingleShot(false);
   timer->start();
 
+  useWireframe=false; useLighting=useTexture=true;
+  colorMode=1;
+
+  relTime=0;
+  runningState = STOP;
+  runningSpeed = 1/75.0f;
+
   connect(timer, SIGNAL(timeout()), this, SLOT(onTimer()));
 
 }
@@ -110,35 +168,38 @@ GLWidget::~GLWidget()
 }
 
 void GLWidget::onTimer(){
-  if (displaying==ANIMATION) {
+
+  QTime qtime = QTime::currentTime();
+  int time =( qtime.msec()+qtime.second()*1000 +qtime.minute()*60000);
+  static int lasttime=-1;
+  if (lasttime==-1) lasttime=time;
+  //BrfAnimation::curFrame = BrfMesh::curFrame = time;
+
+  if (animating && runningState==PLAY) {
+    relTime += (time-lasttime);
     update();
   }
+  lasttime=time;
 }
 
 QSize GLWidget::minimumSizeHint() const
 {
-    return QSize(50, 50);
+    return QSize(150, 350);
 }
 
 QSize GLWidget::sizeHint() const
 {
-    return QSize(600, 600);
+    return QSize(800, 800);
 }
-
-/*void GLWidget::setXRotation(int angle)
-{
-    updateGL();
-}*/
 
 
 void GLWidget::initializeGL()
 {
-    //glShadeModel(GL_FLAT);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 }
 
-#include<wrap\gl\space.h>
+
 
 void  GLWidget::selectNone(){
   for (int i=0; i<MAXSEL; i++) selGroup[i]=false;
@@ -174,29 +235,34 @@ void BrfRigging::SetColorGl()const{
   //glColor3f(boneColor[2][0],boneColor[2][1],boneColor[2][2]);
 }
 
-void BrfMesh::Render() const {
-  int framei=0;
+void GLWidget::renderMesh(const BrfMesh &m, float frame) const {
+
+  int framei = (int) frame;
+
   glEnable(GL_COLOR_MATERIAL);
   glColor3f(1,1,1);
-  if (!isRigged) glDisable(GL_COLOR_MATERIAL);
+  if ((!m.isRigged && colorMode==2)|| colorMode==0) glDisable(GL_COLOR_MATERIAL);
 
-  for (int pass=0; pass<2; pass++) {
-  setWireframeMode(pass==0);
+
+  for (int pass=(useWireframe)?0:1; pass<2; pass++) {
+  setWireframeLightingTextureMode(pass==0, useLighting, useTexture);
   glBegin(GL_TRIANGLES);
-  for (unsigned int i=0; i<face.size(); i++) {
+  for (unsigned int i=0; i<m.face.size(); i++) {
     for (int j=0; j<3; j++) {
-      rigging[ vert[face[i].index[j]].index ].SetColorGl();
+      if (colorMode==2)
+        m.rigging[ m.vert[ m.face[i].index[j] ].index ].SetColorGl();
+      else glColor3ubv( (GLubyte*)&m.vert[ m.face[i].index[j] ].col );
 
       //glNormal(vert[face[i].index[j]].__norm);
-      glNormal(frame[framei].norm[      face[i].index[j]        ]);
-      glVertex(frame[framei].pos [ vert[face[i].index[j]].index ]);
+      glNormal(m.frame[framei].norm[      m.face[i].index[j]        ]);
+      glVertex(m.frame[framei].pos [ m.vert[m.face[i].index[j]].index ]);
     }
   }
   glEnd();
   }
 }
 
-void drawSphereWire(){
+void GLWidget::renderSphereWire() const{
   for (int i=0; i<10; i++) {
     glBegin(GL_LINE_STRIP);
     float ci = (float)cos(2.0*i/10.0*3.1415);
@@ -220,7 +286,7 @@ void drawSphereWire(){
     glEnd();
   }
 }
-void drawOcta(){
+void GLWidget::renderOcta() const{
   glBegin(GL_TRIANGLE_FAN);
   glNormal3f(0,0,+1);
   glVertex3f(0,0,+1);
@@ -253,29 +319,29 @@ void drawOcta(){
 
 }
 
-void BrfSkeleton::Render(int i, int lvl) const{
+void GLWidget::renderBone(const BrfSkeleton &s, int i, int lvl) const{
   glPushMatrix();
-  glTranslate(bone[i].t);
-  glMultMatrixf(bone[i].fullMatrix());
+  glTranslate(s.bone[i].t);
+  glMultMatrixf(s.bone[i].fullMatrix());
   //glMultMatrixf(bone[i].mat);
   glPushMatrix();
     glColor3ub(255-lvl*30,255-lvl*30,255);
     glScalef(0.04,0.06,0.12);
-    drawOcta();
+    renderOcta();
   glPopMatrix();
-  for (unsigned int k=0; k<bone[i].next.size(); k++){
-    Render(bone[i].next[k],lvl+1);
+  for (unsigned int k=0; k<s.bone[i].next.size(); k++){
+    renderBone(s,s.bone[i].next[k],lvl+1);
 
   }
   glPopMatrix();
 }
 
-//static FILE* tmpHack=NULL;
 
-void BrfAnimation::Render(int i, int lvl) const{
-  int fi= (curFrame)%(int)frame.size();
+void GLWidget::renderBone(const BrfAnimation &a,const BrfSkeleton &s, float frame, int i, int lvl) const{
+  int fi= (int) frame;
+  //int fi= (glWidget->frame/100)%(int)frame.size();
 
-  vcg::Point4f p = frame[fi].rot[i];
+  vcg::Point4f p = a.frame[fi].rot[i];
   vcg::Quaterniond qua(p[1],p[2],p[3],p[0]);
   qua.Normalize();
   qua.Invert();
@@ -292,7 +358,7 @@ void BrfAnimation::Render(int i, int lvl) const{
 
   glPushMatrix();
 
-  glTranslate(skel->bone[i].t);
+  glTranslate(s.bone[i].t);
 
   if (lvl!=0); glMultMatrixd((const GLdouble *) mat.V());
 
@@ -313,27 +379,30 @@ void BrfAnimation::Render(int i, int lvl) const{
   glPushMatrix();
     glColor3ub(255-lvl*30,255-lvl*30,255);
     glScalef(0.04,0.06,0.12);
-    drawOcta();
+    renderOcta();
   glPopMatrix();
-  for (unsigned int k=0; k<skel->bone[i].next.size(); k++){
-    Render(skel->bone[i].next[k],lvl+1);
+  for (unsigned int k=0; k<s.bone[i].next.size(); k++){
+    renderBone(a,s,  frame,  s.bone[i].next[k],lvl+1);
   }
   glPopMatrix();
 }
 
 
-void BrfSkeleton::Render() const{
+void GLWidget::renderSkeleton(const BrfSkeleton &s) const{
   glEnable(GL_COLOR_MATERIAL);
-  Render(root,0);
+  setWireframeLightingTextureMode(false,true,false);
+  renderBone(s,s.root,0);
 
   setShadowMode(true);
-  Render(root,0);
+  renderBone(s,s.root,0);
   setShadowMode(false);
 }
 
-void BrfAnimation::Render() const{
-  if (!skel) return;
-  if (skel->bone.size()!=(unsigned int)nbones) return;
+void GLWidget::renderAnimation(const BrfAnimation &a, const BrfSkeleton &s, float frame) const{
+  setWireframeLightingTextureMode(false,true,false);
+
+  //if (!skel) return;
+  if (s.bone.size()!=(unsigned int)a.nbones) return;
 
   //static bool once=true;
   //if (once)  tmpHack=fopen("debug.txt","wt");
@@ -342,11 +411,11 @@ void BrfAnimation::Render() const{
   //if (curFrame>=(int)frame.size()) return;
   glEnable(GL_COLOR_MATERIAL);
 
-  int fi= (curFrame)%(int)frame.size();
+  int fi= (int)frame;// (glWidget->frame/100)%(int)frame.size();
   //if (capped) fi=0;
   glPushMatrix();
-  glTranslate(frame[fi].tra);
-  Render(skel->root,0);
+  glTranslate(a.frame[fi].tra);
+  renderBone(a,s,frame,s.root,0);
   glPopMatrix();
 
   //if (once) {
@@ -354,49 +423,49 @@ void BrfAnimation::Render() const{
   //  once=false;
   //}
   setShadowMode(true);
-  glTranslate(frame[fi].tra);
-  Render(skel->root,0);
+  glTranslate(a.frame[fi].tra);
+  renderBone(a,s,frame,s.root,0);
   setShadowMode(false);
 }
 
-void BrfBodyPart::Render() const{
+void GLWidget::renderBodyPart(const BrfBodyPart &b) const{
 
   glDisable(GL_LIGHTING);
-  switch(type){
-    case MANIFOLD: glColor3f(1,1,1); break;
-    case FACE: glColor3f(0.75f,1,0.75f); break;
-    case SPHERE: glColor3f(1,0.75f,0.75f); break;
-    case CAPSULE: glColor3f(0.75,0.75f,1); break;
+  switch(b.type){
+    case BrfBodyPart::MANIFOLD: glColor3f(1,1,1); break;
+    case BrfBodyPart::FACE: glColor3f(0.75f,1,0.75f); break;
+    case BrfBodyPart::SPHERE: glColor3f(1,0.75f,0.75f); break;
+    case BrfBodyPart::CAPSULE: glColor3f(0.75,0.75f,1); break;
     default: break;
   }
 
-  if (type==MANIFOLD || type==FACE) {
-    for (unsigned int i=0; i<face.size(); i++) {
+  if (b.type==BrfBodyPart::MANIFOLD || b.type==BrfBodyPart::FACE) {
+    for (unsigned int i=0; i<b.face.size(); i++) {
       glBegin(GL_LINE_LOOP);
-      for (unsigned int j=0; j<face[i].size(); j++)
-        glVertex(pos[face[i][j]]);
+      for (unsigned int j=0; j<b.face[i].size(); j++)
+        glVertex(b.pos[b.face[i][j]]);
       glEnd();
     }
   }
-  else if (type==SPHERE) {
+  else if (b.type==BrfBodyPart::SPHERE) {
     glPushMatrix();
-    glTranslate(center);
-    glScalef(radius,radius,radius);
-    drawSphereWire();
+    glTranslate(b.center);
+    glScalef(b.radius,b.radius,b.radius);
+    renderSphereWire();
     glPopMatrix();
-  } else if (type==CAPSULE) {
+  } else if (b.type==BrfBodyPart::CAPSULE) {
     glPushMatrix();
-    glTranslate((center+dir)/2);
-    glMultMatrixf((GLfloat*)GetRotMatrix());
-    glScalef(1,radius,radius);
-    drawSphereWire();
+    glTranslate((b.center+b.dir)/2);
+    glMultMatrixf((GLfloat*)b.GetRotMatrix());
+    glScalef(1,b.radius,b.radius);
+    renderSphereWire();
     glPopMatrix();
   }
 
 }
 
-void BrfBody::Render() const{
-  for (unsigned int i=0; i<part.size(); i++) part[i].Render();
+void GLWidget::renderBody(const BrfBody& b) const{
+  for (unsigned int i=0; i<b.part.size(); i++) renderBodyPart(b.part[i]);
 }
 
 template<class BrfType>
@@ -404,7 +473,6 @@ void GLWidget::renderSelected(const std::vector<BrfType>& v){
   Box3f bbox;
   int max=v.size();
   if (max>MAXSEL) max=MAXSEL;
-
 
   for (int i=0; i<max; i++) if (selGroup[i]) {
       bbox.Add( v[i].bbox );
@@ -414,11 +482,16 @@ void GLWidget::renderSelected(const std::vector<BrfType>& v){
   glScalef(s,s,s);
   glTranslate(-bbox.Center() );
 
-  for (int i=0; i<max; i++) if (selGroup[i]) v[i].Render();
+
+  animating=false;
+  for (int i=0; i<max; i++) if (selGroup[i]) {
+    renderBrfItem(v[i]);
+    if (v[i].IsAnimable()) animating=true;
+  }
 
 }
 
-int GLWidget::SelIndex(){
+int GLWidget::selIndex() const{
   for (int i=0; i<MAXSEL; i++) if (selGroup[i]) return i;
   return -1;
 }
@@ -456,12 +529,10 @@ void GLWidget::paintGL()
   glFrontFace(GL_CW);
 
   if (data) {
+
     if ( (displaying == ANIMATION) && reference) {
-      int si = SelIndex();
+      int si = selIndex();
       if (si>=0 && si<(int)data->animation.size()) {
-        QTime qtime = QTime::currentTime();
-        int time =( qtime.msec()+qtime.second()*1000 +qtime.minute()*60000) /100 ;
-        BrfAnimation::curFrame=time;
         BrfAnimation::SetSkeleton( reference->getOneSkeleton( int(data->animation[si].nbones ) ) );
       }
     }

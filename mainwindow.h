@@ -5,6 +5,8 @@
 #include "brfdata.h"
 #include "glwidgets.h"
 #include "selector.h"
+#include "guipanel.h"
+
 //namespace Ui
 //{
 //    class MainWindow;
@@ -22,24 +24,47 @@ public:
     BrfData reference;
 
  private slots:
+
+    void closeEvent(QCloseEvent *event);
     //void newFile();
-    void open();
-    void save();
-    void saveAs();
-    void openRecentFile();
+    bool open();
+    bool save();
+    bool saveAs();
+    bool openRecentFile();
     void about();
+    void breakAni(int which, bool useIni);
+    void onChangeMeshMaterial(QString newName);
+    void onChangeMeshFlags(QString flags);
+    bool exportBrf();
+    bool exportPly();
+    bool exportSkelMod();
+    bool importSkelMod();
+    bool importMeshPly();
+    bool importBrf();
+    void moveUpSel();
+    void moveDownSel();
+    void renameSel();
+    void deleteSel();
+    void duplicateSel();
 
 private:
     GLWidget *glWidget;
     Selector *selector;
     QSettings *settings;
+    GuiPanel *guiPanel;
 
     void createActions();
     void createMenus();
-    void loadFile(const QString &fileName);
-    void saveFile(const QString &fileName);
+    bool loadFile(const QString &fileName);
+    bool saveFile(const QString &fileName);
     void setCurrentFile(const QString &fileName);
     void updateRecentFileActions();
+    QString askExportFilename(QString, QString ext );
+    QString askImportFilename(QString ext);
+
+    QString askExportFilename(QString);
+    QString askImportFilename();
+
     QString strippedName(const QString &fullFileName);
 
     QString curFile;
@@ -60,6 +85,11 @@ private:
 
     void dragEnterEvent(QDragEnterEvent *event);
     void dropEvent(QDropEvent *event);
+
+    bool maybeSave();
+    void setModified(bool mod);
+    void updateTitle();
+    bool isModified;
 
 };
 
