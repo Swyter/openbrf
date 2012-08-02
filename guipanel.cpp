@@ -576,7 +576,7 @@ switch (TokenEnum(k)){
     myClear(ui->leMatSpec);
 
     myClear(ui->leMatFlags);
-    myClear(ui->leMatRendOrd);
+    //myClear(ui->leMatRendOrd);
     myClear(ui->leMatCoeff);
     myClear(ui->leMatR);
     myClear(ui->leMatG);
@@ -595,7 +595,7 @@ switch (TokenEnum(k)){
       mySetText(ui->leMatSpec,  m.spec );
 
       mySetText(ui->leMatFlags, StringH(m.flags) );
-      mySetText(ui->leMatRendOrd, m.renderOrder );
+      //mySetText(ui->leMatRendOrd, m.RenderOrder() );
       mySetText(ui->leMatCoeff, StringF(m.specular) );
       mySetText(ui->leMatR, StringF( m.r ));
       mySetText(ui->leMatG, StringF( m.g ));

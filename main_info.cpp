@@ -3,7 +3,7 @@
 
 #include <QtGui>
 
-char* applVersion = "0.0.63";
+char* applVersion = "0.0.64";
 QString IniData::tokenFullName(int k){
 
   switch (k){
@@ -150,9 +150,9 @@ void MainWindow::aboutCheckboard(){
   case 3:
     mot = QString(tr("I cannot understand the texture format of  file \"%1\".")).arg(glWidget->lastMatErr.texName);
     longmot = QString(tr("I'm supposed to understand .dds textures of formats DXT1 (maybe), DXT3, and DXT5.<br>"
-                      "But some kinds of DXT1 texture confuse me, and too big textures too."
+                      "But some kinds of DXT1 texture confuse me, and too big textures too.<br>Also, if graphic drivers are not up to date, I might ignore how to intepret DXT formats."
                       ));
-    cure = QString(tr("Maybe just accept the fact... it should still show the texture in game."));
+    cure = QString(tr("Try updating the drivers. Else, maybe just accept the fact... it should still show the texture in game."));
     ingame=false;
   }
   //if (t!=0)

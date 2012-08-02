@@ -1,7 +1,7 @@
 #include "brfData.h"
 
 #include "ioSMD.h"
-
+#include "qdebug.h"
 #include "vcg/math/quaternion.h"
 
 // everything is scaled up when expoerted, down when imported...
@@ -80,6 +80,18 @@ static bool expect(FILE* f, char* what){
   return true;
 }
 
+static bool expectLine(FILE* f, char* what){
+  static char str[255];
+  fscanf(f, "%s\n", str);
+  if (strcmp(str,what)){
+    expectedErr = what;
+    foundErr = str;
+    lastErr = 4;
+    return false;
+  }
+  return true;
+}
+
 static bool fscanln(FILE*f, char *ln){
   int i=0;
   while (1) {
@@ -90,14 +102,16 @@ static bool fscanln(FILE*f, char *ln){
 }
 
 static bool ioSMD_ImportTriangles(FILE*f, BrfMesh &m ){
-  if (!expect(f,"triangles")) return false;
   int pi=0;
   m.frame.resize(1);
   m.frame[0].time=0;
 
+  if (!expectLine(f,"triangles")) return false;
+
   while (1){
-    char matName[255];
-    fscanf(f,"%s\n", matName);
+    char matName[4096];
+    fscanln(f, matName); //
+    //fscanf(f,"%s\n", matName);
     if (strcmp(matName,"end")==0) break;
     sprintf(m.material,"%s",matName);
     for (int w=0; w<3; w++) {
@@ -105,7 +119,7 @@ static bool ioSMD_ImportTriangles(FILE*f, BrfMesh &m ){
       Point3f p;
       Point3f n;
       Point2f t;
-      char line[512];
+      char line[4096];
       BrfRigging r;
       int nr=0;
       fscanln(f, line);
@@ -124,7 +138,8 @@ static bool ioSMD_ImportTriangles(FILE*f, BrfMesh &m ){
       p/=SCALE;
       if (nr>nMaxBones ) nMaxBones = nr;
       if (nr>4) { nr=4;}
-      assert ( nread==9 || nread == 9+1+nr*2);
+      if  (!( nread==9 || nread == 9+1+nr*2)) qDebug("[%s] (w:%d f:%d),",line,w,m.face.size());
+      assert( nread==9 || nread == 9+1+nr*2);
       for (int k = nr; k<4; k++) {
         r.boneIndex[k]=-1; r.boneWeight[k]=0;
       }
@@ -198,15 +213,17 @@ static bool ioSMD_ImportBoneStruct(FILE*f,BrfSkeleton &s ){
   int v=-1;
   if (!expect(f,"version")) return false;
   fscanf(f, "%d\n",&v);
-  if (!expect(f,"nodes")) return false;
+  if (!expectLine(f,"nodes")) return false;
   if (v!=1) { versionErr = v; lastErr=3; return false;}
   bool rootFound = false;
   while (1) {
     int a, b;
-    char st[255];
-    int res= fscanf(f,"%d \"%s %d\n",&a, st, &b);
+    char line[4096];
+    char st[4096];
+    fscanln(f,line);
+    int res = sscanf(line,"%d \"%s %d",&a, st, &b);
     if (res<3) {
-      if (!expect(f,"end")) return false;
+      assert(strcmp(line,"end")==0);
       break;
     }
     // remove ending '"'
@@ -217,7 +234,9 @@ static bool ioSMD_ImportBoneStruct(FILE*f,BrfSkeleton &s ){
       if (rootFound) continue; // ignore extra roots;
       rootFound=true;
     }
-    if (a<=(int)s.bone.size()) s.bone.resize(a+1);
+    //qDebug("bone a=%d, b=%d",a,b);
+    if (a>=(int)s.bone.size()) s.bone.resize(a+1);
+    //qDebug("size %d, a=%d",s.bone.size(),a);
     s.bone[a].attach=b;
     sprintf(s.bone[a].name,"%s",st);
   }
@@ -325,7 +344,7 @@ int ioSMD::Export(const wchar_t*filename, const BrfAnimation &a, const BrfSkelet
 int ioSMD::Import(const wchar_t*filename, BrfMesh &m , BrfSkeleton &s){
   lastErr = 0;
   nMaxBones = 0;
-  FILE* f=_wfopen(filename,L"rb");
+  FILE* f=_wfopen(filename,L"rt");
   if (!f) return(lastErr=1);
 
   if (!ioSMD_ImportBoneStruct(f,s)) return lastErr;
@@ -352,7 +371,7 @@ int ioSMD::Import(const wchar_t*filename, BrfMesh &m , BrfSkeleton &s){
 int ioSMD::Import(const wchar_t*filename, BrfAnimation &a, BrfSkeleton &s){
 
   lastErr = 0;
-  FILE* f=_wfopen(filename,L"rb");
+  FILE* f=_wfopen(filename,L"rt");
   if (!f) return(lastErr=1);
 
   if (!ioSMD_ImportBoneStruct(f,s)) return lastErr;
@@ -391,7 +410,7 @@ char* ioSMD::LastErrorString(){
   switch(lastErr) {
   case 1: return "File not found"; break;
   case 2: return "Cannot open file for writing"; break;
-  case 3: sprintf(res,"Version %d no supported?",versionErr); return res; break;
+  case 3: sprintf(res,"Version %d not supported",versionErr); return res; break;
   case 4: sprintf(res,"Expected '%s' found '%s'",expectedErr, foundErr); return res; break;
   case 0: return "(no error)"; break;
   default: return "undocumented error"; break;

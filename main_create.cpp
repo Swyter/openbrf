@@ -662,6 +662,8 @@ void MainWindow::createConnections(){
   connect(guiPanel->ui->labBackM, SIGNAL(linkActivated(QString)), this, SLOT(navigateLeft()) ) ;
   connect(guiPanel->ui->labBackT, SIGNAL(linkActivated(QString)), this, SLOT(navigateLeft()) ) ;
   connect(guiPanel->ui->labBackS, SIGNAL(linkActivated(QString)), this, SLOT(navigateLeft()) ) ;
+  connect(guiPanel->ui->labShaFallback, SIGNAL(linkActivated(QString)), this, SLOT(navigateRight()) ) ;
+
   // edit material
   connect(guiPanel->ui->leMatR,SIGNAL(textEdited(QString)), this, SLOT(updateDataMaterial()));
   connect(guiPanel->ui->leMatG,SIGNAL(textEdited(QString)), this, SLOT(updateDataMaterial()));
@@ -674,9 +676,12 @@ void MainWindow::createConnections(){
   connect(guiPanel->ui->leMatShader,SIGNAL(textChanged(QString)), this, SLOT(updateDataMaterial()));
   connect(guiPanel->ui->leMatSpec,SIGNAL(textChanged(QString)), this, SLOT(updateDataMaterial()));
   connect(guiPanel->ui->leMatFlags,SIGNAL(textEdited(QString)), this, SLOT(updateDataMaterial()));
-  connect(guiPanel->ui->leMatRendOrd,SIGNAL(editingFinished()), this, SLOT(updateDataMaterial()));
+  //connect(guiPanel->ui->leMatRendOrd,SIGNAL(editingFinished()), this, SLOT(updateDataMaterial()));
+
+
   //connect(guiPanel, SIGNAL(dataMaterialChanged()), this, SLOT(updateDataMaterial()));
   connect(guiPanel->ui->buFlagMes, SIGNAL(clicked()), this, SLOT(setFlagsMesh()));
+  connect(guiPanel->ui->buFlagTex, SIGNAL(clicked()), this, SLOT(setFlagsTexture()));
   connect(guiPanel->ui->buFlagMat, SIGNAL(clicked()), this, SLOT(setFlagsMaterial()));
   connect(guiPanel->ui->buFlagBody, SIGNAL(clicked()), this, SLOT(setFlagsBody()));
 

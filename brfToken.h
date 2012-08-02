@@ -19,6 +19,7 @@ public:
   ObjCoord(int _fi,int _oi, int  _t):fi(_fi),oi(_oi),t(_t){}
   ObjCoord():fi(0),oi(0),t(NONE){}
   static ObjCoord Invalid(){return ObjCoord(-1,-1,NONE);}
+  bool isValid() const {return fi!=-1;}
   int fi; // file index
   int oi; // object index inside that file
   int  t; // token index

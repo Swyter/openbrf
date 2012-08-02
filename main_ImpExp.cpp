@@ -180,8 +180,8 @@ bool MainWindow::exportRiggedMesh(){
   int i = selector->firstSelected();
   if (i<0) return false;
   if (i>(int)brfdata.mesh.size()) return false;
-  int si = currentDisplaySkeleton();
-  if (si<0) {
+  const BrfSkeleton* s = currentDisplaySkeleton();
+  if (!s) {
     QMessageBox::information(this,
       tr("Open Brf"),
       tr("Cannot export animation without a proper skeleton!\n")
@@ -189,7 +189,6 @@ bool MainWindow::exportRiggedMesh(){
     return false;
   }
   const BrfMesh &m(brfdata.mesh[i]);
-  const BrfSkeleton& s(reference.skeleton[si]);
 
   QString fn = askExportFilename(brfdata.mesh[ i ].name,
     "Studiomdl Data rigged mesh (*.SMD);;"
@@ -199,10 +198,10 @@ bool MainWindow::exportRiggedMesh(){
   int res;
   char *errorSt;
   if (fn.endsWith(".ma",Qt::CaseInsensitive)) {
-    res = IoMB::Export(fn.toStdWString().c_str(), m, s, currentDisplayFrame() );
+    res = IoMB::Export(fn.toStdWString().c_str(), m, *s, currentDisplayFrame() );
     errorSt = IoMB::LastErrorString();
   } else {
-    res = ioSMD::Export(fn.toStdWString().c_str(), m, s, currentDisplayFrame() );
+    res = ioSMD::Export(fn.toStdWString().c_str(), m, *s, currentDisplayFrame() );
     errorSt = ioSMD::LastErrorString();
 
   }
@@ -219,25 +218,23 @@ bool MainWindow::exportRiggedMesh(){
 
 bool MainWindow::exportSkeletonAndSkin(){
 
-  BrfSkeleton s;
+  BrfSkeleton *s;
   int skinNumber=-1;
 
   if (selector->currentTabName()==SKELETON) {
     int i = selector->firstSelected();
     assert(i>=0 && i<(int)brfdata.skeleton.size());
-    s = brfdata.skeleton[i];
+    s = &(brfdata.skeleton[i]);
   }
   else if (selector->currentTabName()==ANIMATION) {
-    int i = currentDisplaySkeleton();
-    if (i<0) {
+    s = currentDisplaySkeleton();
+    if (!s) {
       QMessageBox::information(this,
         tr("Open Brf"),
         tr("Cannot export animation without a proper skeleton!\n")
       );
       return false;
     }
-    assert(i<(int)reference.skeleton.size());
-    s = reference.skeleton[i];
     skinNumber = currentDisplaySkin();
   }
   else assert(0);
@@ -249,7 +246,7 @@ bool MainWindow::exportSkeletonAndSkin(){
   BrfMesh m = reference.GetCompleteSkin(skinNumber);
 
   QString fn = askExportFilename(
-    QString(s.name)+"_skin_"+char(skinNumber+'A'),
+    QString(s->name)+"_skin_"+char(skinNumber+'A'),
     "Studiomdl Data skinned rest-pose (*.SMD);;"
     "Maya skinned rest-pose (*.MA)"
   );
@@ -258,9 +255,9 @@ bool MainWindow::exportSkeletonAndSkin(){
   int res;
 
   if (fn.endsWith(".ma",Qt::CaseInsensitive)) {
-    res = IoMB::Export(fn.toStdWString().c_str(),m,s,0);
+    res = IoMB::Export(fn.toStdWString().c_str(),m,*s,0);
   } else {
-    res = ioSMD::Export(fn.toStdWString().c_str(), m, s, 0);
+    res = ioSMD::Export(fn.toStdWString().c_str(), m,*s, 0);
   }
   if (res) {
     QMessageBox::information(this,
@@ -278,20 +275,19 @@ bool MainWindow::exportAnimation(){
   assert(selector->currentTabName()==ANIMATION);
   assert(i>=0 && i<(int)brfdata.animation.size());
   BrfAnimation &a(brfdata.animation[ i ]);
-  int si = currentDisplaySkeleton();
-  if (si<0) {
+  BrfSkeleton const *s = currentDisplaySkeleton();
+  if (!s) {
     QMessageBox::information(this,
       tr("Open Brf"),
       tr("Cannot export animation without a proper skeleton!\n")
     );
     return false;
   }
-  BrfSkeleton const &s( reference.skeleton[ si ] );
 
   QString fn = askExportFilename(brfdata.animation[ i ].name,"Studiomdl Data Animation (*.SMD)");
   if (fn.isEmpty()) return false;
 
-  int res = ioSMD::Export(fn.toStdWString().c_str(), a, s);
+  int res = ioSMD::Export(fn.toStdWString().c_str(), a, *s);
   if (res) {
     QMessageBox::information(this,
       tr("Open Brf"),
