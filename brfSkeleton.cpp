@@ -1,3 +1,5 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 #include <vector>
 #include <vcg/math/matrix44.h>
 #include <vcg/math/quaternion.h>

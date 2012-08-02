@@ -1,3 +1,5 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 
 #ifndef __VCGLIB_TRIMESH_GENERIC_EXPORT
 #define __VCGLIB_TRIMESH_GENERIC_EXPORT

@@ -1,3 +1,5 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 #include "askUnrefTextureDialog.h"
 #include "ui_askUnrefTextureDialog.h"
 

@@ -1,3 +1,5 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 
 #ifndef TABLEMODEL_H
 #define TABLEMODEL_H

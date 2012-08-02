@@ -1,3 +1,5 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 #ifndef BRFSKELETON_H
 #define BRFSKELETON_H
 

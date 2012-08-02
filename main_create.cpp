@@ -1,3 +1,5 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 #include "brfData.h"
 #include "glwidgets.h"
 #include "selector.h"
@@ -34,6 +36,8 @@ void MainWindow::createMenus()
     editMenu->addAction(editPasteModificationAct);
     editMenu->addAction(editPasteTimingsAct);
     editMenu->addAction(editPasteFrameAct);
+		editMenu->addAction(editPasteTextcoordsAct);
+		editMenu->addAction(editPasteAniLowerPartsAct);
 
     QMenu* importMenu=menuBar()->addMenu(tr("&Import"));
 
@@ -304,7 +308,8 @@ void MainWindow::createMenus()
 
     optionMenu->addAction(registerMime);
     optionMenu->addAction(aboutCheckboardAct);
-    optionMenu->addAction(aboutAct);
+		optionMenu->addAction(aboutCurrentShaderAct);
+		optionMenu->addAction(aboutAct);
 }
 
 void MainWindow::createActions()
@@ -360,6 +365,14 @@ void MainWindow::createActions()
     editPasteRiggingAct->setStatusTip(tr("Make a rigging for current mesh(-es) similar to one of the meshes in the clipboard."));
     editPasteRiggingAct->setEnabled(false);
 
+		editPasteTextcoordsAct = new QAction(tr("Paste text coordinates"), this);
+		editPasteTextcoordsAct->setStatusTip(tr("Copy the texture coordiante from the mesh in the clipboard."));
+		editPasteTextcoordsAct->setEnabled(false);
+
+		editPasteAniLowerPartsAct = new QAction(tr("Paste lower parts of animations"), this);
+		editPasteAniLowerPartsAct->setStatusTip(tr("Copy lower parts of this ani from the animation in the clipboard."));
+		editPasteAniLowerPartsAct->setEnabled(false);
+
     editPasteModificationAct = new QAction(tr("Paste modifications"), this);
     editPasteModificationAct->setStatusTip(tr("Move vertices of current mesh according to a 2 frame mesh animation."));
     editPasteModificationAct->setEnabled(false);
@@ -380,7 +393,9 @@ void MainWindow::createActions()
     connect(editPasteFrameAct, SIGNAL(triggered()), this, SLOT(editPasteFrame()));
     connect(editPasteRiggingAct, SIGNAL(triggered()), this, SLOT(editPasteRigging()));
     connect(editPasteModificationAct, SIGNAL(triggered()), this, SLOT(editPasteMod()));
-    connect(editPasteTimingsAct, SIGNAL(triggered()), this, SLOT(editPasteTimings()));
+		connect(editPasteAniLowerPartsAct, SIGNAL(triggered()), this, SLOT(editPasteAniLowerParts()));
+		connect(editPasteTimingsAct, SIGNAL(triggered()), this, SLOT(editPasteTimings()));
+		connect(editPasteTextcoordsAct, SIGNAL(triggered()), this, SLOT(editPasteTextcoords()));
 
     saveAsAct = new QAction(tr("Save &As..."), this);
     //saveAsAct->setShortcuts(QKeySequence::SaveAs);
@@ -399,10 +414,13 @@ void MainWindow::createActions()
     exitAct->setStatusTip(tr("Exit the application"));
     connect(exitAct, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
 
-    aboutCheckboardAct = new QAction(tr("Why the checkerboard pattern?"), this);
+		aboutCurrentShaderAct = new QAction(tr("Shaders diagnostics"),this);
+		aboutCurrentShaderAct->setStatusTip(tr("Tell me about the shader that is being used now."));
+		aboutCheckboardAct = new QAction(tr("Why the checkerboard pattern?"), this);
     aboutCheckboardAct->setStatusTip(tr("Diagnose why I'm seeing a checkboard pattern instead of my texture."));
     aboutCheckboardAct->setVisible(false);
     connect(aboutCheckboardAct, SIGNAL(triggered()), this, SLOT(aboutCheckboard()));
+		connect(aboutCurrentShaderAct, SIGNAL(triggered()), this, SLOT(aboutCurrentShader()));
 
 
     aboutAct = new QAction(tr("About"), this);

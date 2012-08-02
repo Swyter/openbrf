@@ -1,3 +1,5 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 #ifndef ASKTRANSFORMDIALOG_H
 #define ASKTRANSFORMDIALOG_H
 

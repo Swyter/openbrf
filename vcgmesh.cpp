@@ -1,3 +1,7 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
+
+
 // everything VCG mesh related is implemented here
 
 #include <QGLWidget>

@@ -1,6 +1,7 @@
 #version 120
 //#define varying out
 
+%1
 
 varying vec3 lightDir;
 varying vec4 color;
@@ -13,7 +14,7 @@ uniform float usePerVertColor;
 void main(){
 	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 	lightDir = vec3(0.0,0.0,1.0)*gl_NormalMatrix;
-	color = (usePerVertColor>0)?gl_Color:vec4(1.0,1.0,1.0,1.0);
+	color = (usePerVertColor>0.0)?gl_Color:vec4(1.0,1.0,1.0,1.0);
 	tc = gl_MultiTexCoord0.st;
 	lightDir =  normalize( vec3(0.0,0.0,1.0) * gl_NormalMatrix );
 	norm =  normalize( gl_Normal );

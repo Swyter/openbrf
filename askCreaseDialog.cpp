@@ -1,3 +1,5 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 #include "askCreaseDialog.h"
 #include "ui_askCreaseDialog.h"
 

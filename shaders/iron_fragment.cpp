@@ -1,5 +1,7 @@
 #version 120
 
+%1
+
 uniform vec3 spec_col;
 uniform sampler2D samplRgb;
 

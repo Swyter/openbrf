@@ -841,7 +841,7 @@ Ni siquiera serán cargadas por el juego...</translation>
 <context>
     <name>GLWidget</name>
     <message>
-        <location filename="../glwidgets.cpp" line="+1057"/>
+        <location filename="../glwidgets.cpp" line="+1094"/>
         <source>Scene mode: navigate with mouse and WASD (levitate with wheel, zoom in with shift)</source>
         <translation>Modo Escena: navega con el ratón y WASD (levita mediante la rueda del ratón, zoom con mayús)</translation>
     </message>
@@ -911,7 +911,7 @@ Ni siquiera serán cargadas por el juego...</translation>
     </message>
     <message>
         <location line="+18"/>
-        <location line="+1063"/>
+        <location line="+1060"/>
         <location line="+303"/>
         <location line="+239"/>
         <location line="+353"/>
@@ -921,7 +921,7 @@ Ni siquiera serán cargadas por el juego...</translation>
         <translation>Propiedades</translation>
     </message>
     <message>
-        <location line="-2305"/>
+        <location line="-2302"/>
         <source>Set material used by this mesh.</source>
         <translation>Asigna el material usado por este modelo.</translation>
     </message>
@@ -947,21 +947,21 @@ Ni siquiera serán cargadas por el juego...</translation>
     </message>
     <message>
         <location line="+25"/>
-        <location line="+1019"/>
+        <location line="+1016"/>
         <location line="+1019"/>
         <source>000000000000; </source>
         <translation>000000000000; </translation>
     </message>
     <message>
-        <location line="-2022"/>
-        <location line="+981"/>
+        <location line="-2019"/>
+        <location line="+978"/>
         <location line="+717"/>
         <location line="+302"/>
         <source>Flags:</source>
         <translation>Insignia:</translation>
     </message>
     <message>
-        <location line="-1978"/>
+        <location line="-1975"/>
         <source>Diffuse texture name (depends on material)</source>
         <translation>Nombre de la textura difusa (depende del material)</translation>
     </message>
@@ -972,12 +972,12 @@ Ni siquiera serán cargadas por el juego...</translation>
     </message>
     <message>
         <location line="+19"/>
-        <location line="+2469"/>
+        <location line="+2466"/>
         <source>faces:</source>
         <translation>Cara:</translation>
     </message>
     <message>
-        <location line="-2450"/>
+        <location line="-2447"/>
         <source>Number of triangles of this mesh.</source>
         <translation>Número de triángulos de esta malla.</translation>
     </message>
@@ -1002,7 +1002,7 @@ Ni siquiera serán cargadas por el juego...</translation>
         <translation>Número de cuadros (&gt; que 1 para los modelos con animación por vértices).</translation>
     </message>
     <message>
-        <location line="+25"/>
+        <location line="+22"/>
         <source>frames:</source>
         <translation>Cuadro:</translation>
     </message>
@@ -1436,7 +1436,7 @@ Ni siquiera serán cargadas por el juego...</translation>
     </message>
     <message>
         <location line="+143"/>
-        <source>&lt;a href=&quot;link&quot;&gt;Fallback:&lt;/a&gt;</source>
+        <source>&lt;a href=&quot;link&quot;&gt;Fallback&lt;/a&gt;:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1448,12 +1448,12 @@ Ni siquiera serán cargadas por el juego...</translation>
         <translation></translation>
     </message>
     <message>
-        <location line="-2603"/>
+        <location line="-2600"/>
         <source>Mesh flags</source>
         <translation>Insignias de Modelo</translation>
     </message>
     <message>
-        <location line="+314"/>
+        <location line="+311"/>
         <source>Vertex Anim.</source>
         <translation type="unfinished">Anim Vértice</translation>
     </message>
@@ -1949,15 +1949,15 @@ p, li { white-space: pre-wrap; }
 (error:%2)</translation>
     </message>
     <message>
-        <location line="+30"/>
-        <location filename="../mainwindow.cpp" line="+1064"/>
-        <location line="+1"/>
         <location filename="../mainwindow.ui" line="+14"/>
+        <location filename="../main_ImpExp.cpp" line="+30"/>
+        <location filename="../mainwindow.cpp" line="+1146"/>
+        <location line="+1"/>
         <source>OpenBRF</source>
         <translation>OpenBRF</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location filename="../main_ImpExp.cpp" line="+1"/>
         <source>Mesh &quot;%1&quot; has multiple materials\objects.
 Import a separate mesh per material\object?</source>
         <translation>El modelo &quot;%1&quot; tiene multiple materiales/objetos.
@@ -1987,7 +1987,7 @@ al que añadir un fotograma o cuadro.</translation>
     </message>
     <message>
         <location line="+10"/>
-        <location filename="../mainwindow.cpp" line="+893"/>
+        <location filename="../mainwindow.cpp" line="+898"/>
         <source>Vertex number mismatch... using texture-coord matching instead of vertex-ordering</source>
         <translation>El número de vértices no concuerda... se usarán las coordenadas de textura para ordenarlos.</translation>
     </message>
@@ -2104,7 +2104,7 @@ al que añadir un fotograma o cuadro.</translation>
         <translation>Al ensamblar una animación de vértices:</translation>
     </message>
     <message>
-        <location line="+38"/>
+        <location line="+43"/>
         <source>merge vertices and pos</source>
         <translation>Unir vértices y posiciones</translation>
     </message>
@@ -3036,16 +3036,17 @@ al que añadir un fotograma o cuadro.</translation>
         <translation>&lt;i&gt;No puedo mostrar la textura real porque:&lt;/i&gt;&lt;br&gt;&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;&lt;br&gt;%2&lt;br&gt;&lt;br&gt;&lt;b&gt;Solución: &lt;/b&gt;%3</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="-1888"/>
-        <location line="+565"/>
-        <location line="+1059"/>
+        <location filename="../mainwindow.cpp" line="-1975"/>
+        <location line="+590"/>
+        <location line="+367"/>
+        <location line="+754"/>
         <location line="+11"/>
         <location line="+412"/>
         <source>OpenBrf</source>
         <translation>OpenBRF</translation>
     </message>
     <message>
-        <location line="-2046"/>
+        <location line="-2133"/>
         <source>%1 been modified.
 Save changes?</source>
         <translation>%1 ha sido modificado.
@@ -3062,7 +3063,7 @@ Save changes?</source>
         <translation>El conjunto de datos</translation>
     </message>
     <message>
-        <location line="+221"/>
+        <location line="+229"/>
         <source>Set %1 mesh materials to &quot;%2&quot;</source>
         <translation>Asigna los materiales del modelo %1 a &quot;%2&quot;</translation>
     </message>
@@ -3080,7 +3081,7 @@ Save changes?</source>
 </translation>
     </message>
     <message>
-        <location line="+34"/>
+        <location line="+51"/>
         <source>Invalid frame %1</source>
         <translation>Cuadro %1 inválido</translation>
     </message>
@@ -3157,9 +3158,32 @@ Save changes?</source>
         <translation>Selecciona un conjunto:</translation>
     </message>
     <message>
-        <location line="+58"/>
+        <location line="+57"/>
         <source>Vertex unified.</source>
         <translation>Vértices unificados.</translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Mesh %1 will be 
+split in %2 sub-meshes!.
+
+Proceed?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Only one component found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Mesh separated into %1 pieces.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+29"/>
+        <source>Autofixed rigid parts.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+20"/>
@@ -3183,7 +3207,7 @@ o discordancia en la vinculación esqueletal).
         <translation>(en canal alfa)</translation>
     </message>
     <message>
-        <location line="+26"/>
+        <location line="+28"/>
         <source>Learnt how to femininize an armour
 from %1 examples!</source>
         <translation>¡Se aprendió a feminizar armaduras desde %1 ejemplos!</translation>
@@ -3203,12 +3227,12 @@ Overwrite it?</source>
 ¿Quieres sobreescribirlo?</translation>
     </message>
     <message>
-        <location line="+88"/>
+        <location line="+89"/>
         <source>Normals recomputed with %1% hard edges.</source>
         <translation>Normales recalculadas con %1% bordes marcados retocados.</translation>
     </message>
     <message>
-        <location line="+116"/>
+        <location line="+120"/>
         <source>Shift animation timings</source>
         <translation>Ajustar los tiempos de la animación</translation>
     </message>
@@ -3598,11 +3622,13 @@ Las direcciones no se guardarán...</translation>
         <location line="+4"/>
         <location line="+1"/>
         <location line="+19"/>
+        <location line="+152"/>
+        <location line="+10"/>
         <source>Exact meaning of this flag is unknown.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="-28"/>
+        <location line="-190"/>
         <location line="+2"/>
         <location line="+6"/>
         <location line="+20"/>
@@ -3742,7 +3768,13 @@ Las direcciones no se guardarán...</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location line="+0"/>
         <location line="+1"/>
+        <source>Unclear meaining, usually only set for face textures</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
         <source>Size V (?)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3804,16 +3836,26 @@ especulares</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Alpha test</source>
-        <translation type="unfinished">Test Alfa</translation>
-    </message>
-    <message>
-        <location line="+0"/>
-        <source>Enable alpha testing (for cutouts).</source>
+        <location line="+10"/>
+        <source>Unknown (for alpha test?)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+50"/>
+        <source>Alpha test:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Alpha testing (for cutouts). Pixels more transparent than a given number will be not drawn.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alpha test</source>
+        <translation type="obsolete">Test Alfa</translation>
+    </message>
+    <message>
+        <location line="-59"/>
         <source>Uniform lighting</source>
         <translation type="unfinished">Luz Uniforme</translation>
     </message>
@@ -3900,17 +3942,7 @@ Desplazamiento</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+3"/>
-        <source>Alpha test value</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+0"/>
-        <source>If alpha test: discard stuff more transparent than this value</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+2"/>
+        <location line="+5"/>
         <source>Material flags</source>
         <translation>Insignias de material</translation>
     </message>
@@ -4152,12 +4184,12 @@ en la línea %3:
     </message>
     <message>
         <location line="+2"/>
-        <location line="+418"/>
+        <location line="+426"/>
         <source>Rename</source>
         <translation>Renombrar</translation>
     </message>
     <message>
-        <location line="-414"/>
+        <location line="-422"/>
         <source>Remove</source>
         <translation>Eliminar</translation>
     </message>
@@ -4412,11 +4444,16 @@ en la línea %3:
         <translation>Aplicar una transformación geométrica.</translation>
     </message>
     <message>
+        <location line="+54"/>
+        <source>Recompute tangent dirs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Apply a gemoetric transform.</source>
         <translation type="obsolete">Aplicar una transformación sobre el espacio tridimensional.</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="-52"/>
         <source>Rescale</source>
         <translation>Re-escalar</translation>
     </message>
@@ -4474,6 +4511,26 @@ en la línea %3:
         <location line="+1"/>
         <source>Unify identical vertices and pos.</source>
         <translation>Unifica vertices y posiciones idénticas</translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Quick fix rigging of rigid-parts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Attempts to fix rigging of small-parts, making them rigid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Split into connected sub-meshes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Create a separate mesh for each connected component of this mesh.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+2"/>
@@ -4576,12 +4633,11 @@ en la línea %3:
         <translation>Tiñe todo el modelo de un color uniforme.</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>Recmopute tangent dirs</source>
-        <translation>Recalcular direcciones tangentes</translation>
+        <translation type="obsolete">Recalcular direcciones tangentes</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+3"/>
         <source>(Tangent dirs are needed for bump-mapping)</source>
         <translation>(Las direcciones tangentes son necerarias para aplicar mapas de desplazamiento)</translation>
     </message>
@@ -4631,7 +4687,7 @@ en la línea %3:
         <translation>Realizar una modificación del esqueleto del modelo</translation>
     </message>
     <message>
-        <location line="+80"/>
+        <location line="+82"/>
         <source>[Right-Click]: tools for %1. Multiple selections with [Shift]-[Ctrl].</source>
         <translation>[Click Derecho]: Herramientas para %1. Selecciones múltiples con [Máyus]-[Ctrl]</translation>
     </message>
@@ -4651,7 +4707,7 @@ en la línea %3:
         <translation>Usado por...</translation>
     </message>
     <message>
-        <location line="+93"/>
+        <location line="+95"/>
         <source>Backfacing faces</source>
         <translation>Caras Internas</translation>
     </message>

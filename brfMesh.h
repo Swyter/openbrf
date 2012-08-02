@@ -1,3 +1,5 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 #ifndef BRF_MESH
 #define BRF_MESH
 // a BRF mesh....
@@ -132,7 +134,8 @@ public:
   void NormalizeRigging();
   void DiscardRigging();
   void DiscardTangentField();
-  bool CopyModification(const BrfMesh& mod);
+	bool CopyModification(const BrfMesh& mod);
+	bool CopyTextcoords(const BrfMesh& b);
   void SetDefault();
   void MakeSingleQuad(float x, float y, float dx, float dy);
   void AddToBody(BrfBodyPart &dest);

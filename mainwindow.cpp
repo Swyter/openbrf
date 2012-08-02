@@ -1,3 +1,5 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 #include <QtGui>
 #include <QDebug>
 #include <algorithm>
@@ -1912,16 +1914,22 @@ void MainWindow::onClipboardChange(){
       if (!clipboard.mesh[i].isRigged) allRigged = false;
     editPasteRiggingAct->setEnabled(allRigged && clipboard.mesh.size()>0);
 
+
     // maybe it was a single frame mesh?
     editPasteFrameAct->setEnabled((clipboard.mesh.size()==1) && (clipboard.mesh[0].frame.size()==1));
 
+		editPasteTextcoordsAct->setEnabled(clipboard.mesh.size()==1);
     editPasteModificationAct->setEnabled(true);
 
   } else {
     editPasteRiggingAct->setEnabled(false);
     editPasteFrameAct->setEnabled(false);
     editPasteModificationAct->setEnabled(false);
+		editPasteFrameAct->setEnabled(false);
+		editPasteTextcoordsAct->setEnabled(false);
   }
+
+	editPasteAniLowerPartsAct->setEnabled((clipboard.animation.size()==1));
 
   editPasteTimingsAct->setEnabled(
       (
@@ -1998,6 +2006,35 @@ void MainWindow::loadSystemClipboard(){
   f.close();
   //
 }
+
+void MainWindow::editPasteAniLowerParts(){
+	QModelIndexList list= selector->selectedList();
+
+	if (clipboard.animation.size()!=1) return;
+
+	for (int j=0; j<list.size(); j++){
+		brfdata.animation[list[j].row()].CopyLowerParts(clipboard.animation[0]);
+	}
+
+	setModified(true);
+	updateGui();
+	updateGl();
+
+
+}
+
+void MainWindow::editPasteTextcoords(){
+
+	QModelIndexList list= selector->selectedList();
+	for (int j=0; j<list.size(); j++){
+		brfdata.mesh[list[j].row()].CopyTextcoords(clipboard.mesh[0]);
+	}
+
+
+	updateSel();
+	setModified(true);
+}
+
 
 void MainWindow::editPasteRigging(){
 
@@ -2443,10 +2480,12 @@ void MainWindow::breakAni(int which, bool useIni){
       }
       //settings->setValue("LastModulePath",QFileInfo(fileName).absolutePath());
       wchar_t newTxt[2048];
-      int res = ani.Break(brfdata.animation, fileName.toStdWString().c_str(),newTxt );
+			vector<BrfAnimation> resVec;
+			int res = ani.Break(resVec, fileName.toStdWString().c_str(),newTxt );
 
       if (res==0) statusBar()->showMessage(tr("Nothing to split (or could not split)."));
       else {
+				for (uint i=0; i<resVec.size(); i++) insert(resVec[i]);
         updateSel();
         inidataChanged();
 

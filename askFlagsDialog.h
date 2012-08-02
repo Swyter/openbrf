@@ -1,3 +1,5 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 #ifndef ASKFLAGSDIALOG_H
 #define ASKFLAGSDIALOG_H
 

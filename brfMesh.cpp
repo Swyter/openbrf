@@ -1,3 +1,5 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 
 #include <vector>
 #include <set>
@@ -230,7 +232,9 @@ void BrfMesh::FixRigidObjectsInRigging(){
 
 	for (int i=0; i<npos; i++) {
 		int j = uf[i];
-		if (isOk[j]) rigging[i] = rig[j];
+		//if (frame[0].pos[i].Y()>bbox.Center().Y()+bbox.Dim().Y()*0.1) {
+			if (isOk[j]) rigging[i] = rig[j];
+		//}
 	}
 }
 
@@ -1422,6 +1426,35 @@ void BrfMesh::SelectAbsent(const BrfMesh& brf, int fi){
 }
 
 
+bool BrfMesh::CopyTextcoords(const BrfMesh& b){
+	int fi = 0;
+	int fib = 0;
+	for (unsigned int i=0; i<face.size(); i++)
+	for (int w=0; w<3; w++){
+		Point3f posA =  frame[fi].pos[ vert[ face[i].index[w] ].index ]*0.75
+									+ frame[fi].pos[ vert[ face[i].index[(w+1)%3] ].index ]*0.125
+									+ frame[fi].pos[ vert[ face[i].index[(w+2)%3] ].index ]*0.125;
+
+		float mindist = -1;
+		int minw = 0;
+		int mini = 0;
+		for (unsigned int ib=0; ib<b.face.size(); ib++)
+		for (int wb=0; wb<3; wb++){
+			Point3f posB =  b.frame[fib].pos[ b.vert[ b.face[ib].index[wb] ].index ]*0.75
+										+ b.frame[fib].pos[ b.vert[ b.face[ib].index[(wb+1)%3] ].index ]*0.125
+										+ b.frame[fib].pos[ b.vert[ b.face[ib].index[(wb+2)%3] ].index ]*0.125;
+			float dist = (posA-posB).SquaredNorm();
+			if ((mindist==-1)||(dist<mindist)){
+				mindist = dist;
+				mini = ib;
+				minw = wb;
+			}
+		}
+
+		vert[ face[i].index[w] ].ta = vert[ face[i].index[w] ].tb = b.vert[ b.face[mini].index[minw] ].ta;
+
+	}
+}
 
 void BrfMesh::CopyTextcoord(const BrfMesh &brf, const BrfMesh &newbrf, int fi){
   int nbad=0, ngood=0;

@@ -1,3 +1,5 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 #ifndef BRFMATERIAL_H
 #define BRFMATERIAL_H
 #include "vcg/space/box3.h"

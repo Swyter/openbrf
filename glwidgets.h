@@ -1,15 +1,16 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 #ifndef GLWIDGETS_H
 #define GLWIDGETS_H
 
 #include <QGLWidget>
-#include <QGLShaderProgram>
 #include <QtGui>
 #include "brfData.h"
 #include "iniData.h"
 #include "ddsData.h"
 
 class BrfData;
-
+class QGLShaderProgram;
 //typedef std::map< std::string, std::string > MapSS;
 
 class GLWidget : public QGLWidget
@@ -187,12 +188,16 @@ protected:
     bool skeletalAnimation();
 
 
+
+
 public:
 
     QString texturePath[3];
     QString locateOnDisk(QString nome, const char*ext, BrfMaterial::Location *loc);
     void forgetChachedTextures();
-    enum{MAXSEL=2000};
+		QString getCurrentShaderDescriptor() const;
+		QString getCurrentShaderLog() const;
+		enum{MAXSEL=2000};
     bool selGroup[MAXSEL];
     int selIndex() const;
 
@@ -217,6 +222,8 @@ private:
     int viewmode;
     int viewmodeMult;
     int dummyRgbTexture, dummySpecTexture, dummyNormTexture, checkboardTexture;
+
+
     float currViewmodeHelmet;
     float currViewmodeInterior;
     vcg::Point3f lastCenter;
@@ -224,15 +231,19 @@ private:
     float closingUp;
     QString renderedTexture;
     // fragment programs
-    enum { NM_PLAIN = 0, NM_ALPHA, NM_IRON, NM_SHINE, NM_MODES};
+		enum { NM_PLAIN = 0, NM_ALPHA, NM_IRON, NM_SHINE, SHADER_IRON, SHADER_MODES, SHADER_FIXEDFUNC };
 		//unsigned int
-		QGLShaderProgram
-				fragProgramIron,
-				programNormalMap[NM_MODES][NM_MODES];
+		QGLShaderProgram* shaderProgram[SHADER_MODES][SHADER_MODES];
+		bool shaderTried[SHADER_MODES][SHADER_MODES];
+		QString shaderLog[SHADER_MODES][SHADER_MODES];
+		int lastUsedShader;
+		int lastUsedShaderBumpgreen;
 
-		void newShaderProgram(QGLShaderProgram& s, const char* prefix, const char* vs, const char* fs);
+		//void newShaderProgram(QGLShaderProgram& s, const QStirng prefix, const QStirng vs, const QStirng fs);
 
-    void initFramPrograms();
+		QGLShaderProgram* initFramPrograms(int mode, bool green);
+
+
 };
 
 #endif // GLWIDGETS_H

@@ -1,3 +1,5 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 #include "brfData.h"
 
 #include "ioSMD.h"
@@ -34,6 +36,7 @@ float* matrix2euler(const Matrix44f &_m){
   Matrix44f m = _m;
   m = inv*m.transpose()*inv;
   m.ToEulerAngles(res[0], res[1], res[2]);
+	if (res[1]!=res[1]) res[1]=-M_PI/2;
   if (fabs(fabs(res[1])-M_PI/2)<0.000001) {
     // ouch: pivot angle... let's try everythin...
     float best = 1000;

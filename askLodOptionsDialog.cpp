@@ -1,3 +1,5 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 #include <QPushButton>
 #include "askLodOptionsDialog.h"
 #include "ui_askLodOptionsDialog.h"

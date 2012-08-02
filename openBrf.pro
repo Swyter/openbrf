@@ -1,6 +1,7 @@
-# -------------------------------------------------
-# Project created by QtCreator 2009-07-25T15:50:47
-# -------------------------------------------------
+#
+# OpenBRF -- by marco tarini. Provided under GNU General Public License
+#
+
 QT += opengl
 QT += xml
 
