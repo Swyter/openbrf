@@ -62,15 +62,15 @@ void MainWindow::about()
                    "[Darwin], [dreamterror], [ealabor], [eierkopf], [EvolutiveBrain],"
                    "[Fei Dao], [foxyman], [Freddex], [FrisianDude], "
                    "[Geroj], [GetAssista], [giles], [Gothic Knight], [havarez], "
-                   "[Highelf], [HokieBT], [killkhergit], [Konar], [Llew], "
-                   "[LordRaglan], [Lumos], [MadVader], [Merlkir], [mysstick], "
+                   "[Highelf], [HokieBT], [Jai], [killkhergit], [Konar], [Llew], "
+                   "[LordRaglan], [Lumos], [MadVader], [Mekelan], [Merlkir], [mysstick], "
                    "[octoburn], [pagan], [Percus], [RATMdude92], [Red River],"
-                   "[Septa Scarabae], [Shik], [Silver Wolf], [Swyter], "
-                   "[Triglav], [Tul], [Ursca], [yellowmosquito], [xenoargh]")
+                   "[Septa Scarabae], [Silesian], [Shik], [Silver Wolf], [Swyter], "
+                   "[Triglav], [Tul], [Ursca], [Vornne], [yellowmosquito], [Yoshiboy], [xenoargh]")
               .arg("<br>[amade], [Swyter]!")
               .arg(QString("<br> [foxyman] <i>(%1)</i><br>"
                            " [Swyter] <i>(Español)</i>").arg(tr("additional code and Chinese")))
-              .arg("0.0.45")
+              .arg("0.0.48")
             ,QMessageBox::Ok, this);
     msg.setLocale(QLocale::system());
   //msg.layout()->addWidget(&lab);
@@ -80,7 +80,7 @@ void MainWindow::about()
 }
 
 void MainWindow::optionAutoFixTextureShowInfo(){
-   QMessageBox::about(this, tr("Open-Brf"),
+   QMessageBox::about(this, "OpenBRF",
             tr("<b>What is this autofix DXT texture option?</b><br>"
                "<p>"
                "Many DDS texture creation programs/plugins around will output DXT1 textures "

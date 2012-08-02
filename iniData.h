@@ -139,7 +139,7 @@ private:
   std::vector< std::vector< ObjCoordV > > usedByV[N_TOKEN];
   std::vector< std::vector< UsedInType > > usedInV[N_TOKEN];
 
-  QString tr(char*) const;
+  static QString tr(char*);
 
 };
 

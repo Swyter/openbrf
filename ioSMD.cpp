@@ -122,7 +122,8 @@ static bool ioSMD_ImportTriangles(FILE*f, BrfMesh &m ){
         &(r.boneIndex[3]), &(r.boneWeight[3])
       );
       p/=SCALE;
-      if (nr>4) { nMaxBones = nr; nr=4;}
+      if (nr>nMaxBones ) nMaxBones = nr;
+      if (nr>4) { nr=4;}
       assert ( nread==9 || nread == 9+1+nr*2);
       for (int k = nr; k<4; k++) {
         r.boneIndex[k]=-1; r.boneWeight[k]=0;
@@ -398,7 +399,7 @@ char* ioSMD::LastErrorString(){
 }
 
 bool ioSMD::Warning(){
-  return true; //nMaxBones>4;
+  return nMaxBones>4;
 }
 
 char* ioSMD::LastWarningString(){

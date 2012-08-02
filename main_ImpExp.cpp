@@ -11,6 +11,20 @@
 #include "ioMB.h"
 #include "ioOBJ.h"
 
+void MainWindow::moduleSelect(){
+
+  QString oldDir = modPath();
+  QString dir = QFileDialog::getExistingDirectory(
+    this,tr("Select Module folder"),oldDir,
+    QFileDialog::ShowDirsOnly //| QFileDialog::DontResolveSymlink
+  );
+  if (!dir.isEmpty())
+  if (!guessPaths(dir+"/Resource")) {
+    QMessageBox::warning(this,"OpenBRF",tr("Not a recognized module folder"));
+  }
+}
+
+
 bool MainWindow::exportMeshGroup(){
   int i = selector->firstSelected();
   if (i<0) return false;

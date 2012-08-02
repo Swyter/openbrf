@@ -108,11 +108,20 @@ public:
   char res[1000];
   char to[255][255];
   QString path;
+  QString trymeFirstPath;
   QString errorString;
 
+  TextFile(){
+    trymeFirstPath = "";
+  }
+
   void open(QString filename) throw (int){
-    qf.setFileName(QString("%1/%2").arg(path).arg(filename));
     line = 0;
+    if (!trymeFirstPath.isEmpty()){
+      qf.setFileName(QString("%1/%2").arg(trymeFirstPath).arg(filename));
+      if (qf.open(QIODevice::ReadOnly)) return;
+    }
+    qf.setFileName(QString("%1/%2").arg(path).arg(filename));
     if (!qf.open(QIODevice::ReadOnly)) {
       error(tr("cannot open file"));
     }
@@ -198,7 +207,7 @@ private:
 
 };
 
-QString IniData::tr(char* s) const {return QTextBrowser::tr(s);}
+QString IniData::tr(char* s) {return QTextBrowser::tr(s);}
 
 IniData::ModuleTxtNameList::ModuleTxtNameList(int _tok, int _txtF):brfToken(_tok),txtIndex(_txtF){
   name.clear();
@@ -211,7 +220,7 @@ void IniData::ModuleTxtNameList::appendNon0(const QString &s){
 }
 
 QString IniData::ModuleTxtNameList::test(){
-  return QString("%1 %2 from '%3' <font size=-1>('%4', '%5', '%6'...)</font>\n\n")
+  return QString(tr("%1 %2 from '%3' <font size=-1>('%4', '%5', '%6'...)</font>\n\n"))
       .arg(name.size())
       .arg(IniData::tokenFullName(brfToken))
       .arg(txtFileName[txtIndex])
@@ -241,7 +250,9 @@ bool IniData::readModuleTxts(const QString &pathMod, const QString& pathData){
     tf.open(txtFileName[txtFile]);
     ModuleTxtNameList list(MESH, txtFile);
 
-    tf.expectLine("itemsfile version 2");
+    tf.nextLine();//tf.expectLine("itemsfile version 2");
+    int ver = tf.intT(3,2,3);
+    if (ver==3) isWarband = true;
     tf.nextLine();
     int n = tf.intT(1,0,10000);
 
@@ -250,8 +261,12 @@ bool IniData::readModuleTxts(const QString &pathMod, const QString& pathData){
       int tmp = tf.intT(4,0,10);
       for (int j=0; j<tmp; j++)
         list.append( QString(tf.stringT(5+j*2)) );
+      if (ver == 3) {
+        tf.nextLine();
+        if (tf.intT(1)!=0) tf.nextLine();
+      }
       tf.nextLine();
-      tf.skipLines( tf.intT(1,0,5) );
+      tf.skipLines( tf.intT(1,0,10) );
       tf.nextLine();
     }
     txtNameList.push_back(list);
@@ -452,6 +467,7 @@ bool IniData::readModuleTxts(const QString &pathMod, const QString& pathData){
     // data path
     ///////////////////////
     tf.path = pathData;
+    tf.trymeFirstPath = pathMod+"/Data";
     {
       // READING FLORA_KINDS
       int txtFile = TXTFILE_FLORA_KINDS;
@@ -988,7 +1004,7 @@ ObjCoord IniData::indexOf(const QString &name, int kind){
     if (k>0) st.truncate(k);
     use_list = MESH_NO_EXT;
   }
-  assert(!indexing[use_list].empty());
+  //assert(!indexing[use_list].empty());
   map<QString,ObjCoord>::iterator p=(indexing[use_list]).find(st);
   if (p==indexing[use_list].end()) return ObjCoord(-1,-1,NONE);
   else
@@ -1077,10 +1093,7 @@ bool IniData::loadAll(int howFast){
     if (updated>=3){
 
       isWarband = false; // we try MAB first...
-      if (!readModuleTxts(modPath,mabPath+"/Data")) {
-        isWarband = true;
-        if (!readModuleTxts(modPath,mabPath+"/Data")) res=false;
-      }
+      if (!readModuleTxts(modPath,mabPath+"/Data")) res = false;
       // remove duplicates
       for (int i=0; i<int(txtNameList.size()); i++)
         txtNameList[i].name=txtNameList[i].name.toSet().toList();

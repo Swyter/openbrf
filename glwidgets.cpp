@@ -1,3 +1,5 @@
+
+#include <GL/glew.h>
 #include <QtGui>
 #include <QtOpenGL>
 
@@ -128,7 +130,7 @@ void GLWidget::renderFloor(){
 
     const int H = 550; // floor size
     const float h = -0.1; // floor size
-    glEnable(GL_BLEND);
+
     //glDisable(GL_CULL_FACE);
     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
     if (0) {
@@ -140,18 +142,19 @@ void GLWidget::renderFloor(){
       glVertex3f(-H, h, -H);
     glEnd();
     }
-    glDisable(GL_BLEND);
+
   }
   //glEnable(GL_CULL_FACE);
 
   //glDisable(GL_FOG);
 
   const int K = 50; // floor size
-
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
   glDisable(GL_LIGHTING);
-  float c[4]={0.6f*bg_r,0.6f*bg_g,0.6f*bg_b,1.0f};
-  float bg[4]={bg_r,bg_g,bg_b,1.0f};
-  glColor3fv(c);
+  float c[4]={0.6f*bg_r,0.6f*bg_g,0.6f*bg_b,0.5f};
+  float bg[4]={bg_r,bg_g,bg_b,0.0f};
+  glColor4fv(c);
   glEnable(GL_FOG);
   glFogfv(GL_FOG_COLOR,bg);
   glFogf(GL_FOG_DENSITY,0.125f);
@@ -180,6 +183,7 @@ void GLWidget::renderFloor(){
 
   glPopMatrix();
   glDisable(GL_FOG);
+  glDisable(GL_BLEND);
 }
 
 int GLWidget::getFrameNumber() const{
@@ -305,32 +309,65 @@ void GLWidget::enableDefMaterial(){
   float tmps[4]={0,0,0,0};
   glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,tmps);
   glDisable(GL_ALPHA_TEST);
+  glUseProgram(0);
 }
 
 void GLWidget::enableMaterial(const BrfMaterial &m){
 
   // try to guess what the shader will do using flags
   bool alphaCutout = false;
-  bool alphaShine = false;
-  if (m.flags & (1<<5)) alphaShine = true;
+  bool alphaShine = true;
+  //if (m.flags & (1<<4)) alphaShine = true;
   if (m.flags & ((7<<12) | (1<<6) ) )  alphaCutout = true;
-  if (!alphaShine && !alphaCutout) alphaShine = true;
-  if (alphaShine && alphaCutout) alphaShine = false;
+  //if (!alphaShine && !alphaCutout) alphaShine = true;
+  //if (alphaShine && alphaCutout) alphaShine = false;
 
   if (alphaCutout) {
     //glEnable(GL_BLEND);
     glEnable(GL_ALPHA_TEST);
-    glAlphaFunc(GL_LESS,0.5);
-    if (m.flags & (1<<12)) glAlphaFunc(GL_LESS,1/127.0);
+    glAlphaFunc(GL_GREATER,0.5);
+    if (m.flags & (1<<12)) glAlphaFunc(GL_GREATER,1/127.0);
   }
 
-  if (m.diffuseA[0]!=0) glEnable(GL_TEXTURE_2D); else glDisable(GL_TEXTURE_2D);
+  //if (m.diffuseA[0]!=0) glEnable(GL_TEXTURE_2D); else glDisable(GL_TEXTURE_2D);
 
   glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL,GL_SEPARATE_SPECULAR_COLOR);
 
-  glMateriali(GL_FRONT_AND_BACK,GL_SHININESS,(int)m.specular);
-  float tmps[4]={m.r,m.g,m.b,1};
-  glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,tmps);
+  //glMateriali(GL_FRONT_AND_BACK,GL_SHININESS,(int)m.specular);
+  //float tmps[4]={m.r,m.g,m.b,1};
+  //glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,tmps);
+
+  if (QString(m.spec)!="none") alphaShine = false;
+  if (alphaShine){
+    static GLuint prg = 666666;
+    if (prg==666666) {
+
+      GLuint shd = glCreateShader(GL_FRAGMENT_SHADER);
+      prg = glCreateProgram();
+      const char* shaderSource =
+      "uniform vec3 spec_col;\n"
+      "sampler2D sampl;\n"
+      "void main(){\n"
+      "  vec4 tex = texture( sampl,gl_TexCoord[0].st);\n"
+      "  gl_FragColor.rgb = tex.rgb*(gl_Color.rgb "
+      "                 + gl_SecondaryColor.rgb*spec_col*tex.a*0.5);\n"
+      "  gl_FragColor.a = 1; "
+      "}\n";
+      glShaderSource(shd, 1, &shaderSource, 0);
+      glCompileShader(shd);
+      glAttachShader(prg,shd);
+      glLinkProgram(prg);
+    }
+    float ones[4]={1,1,1,1};
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
+    glLightfv(GL_LIGHT0,GL_SPECULAR, ones);
+    glMateriali(GL_FRONT_AND_BACK,GL_SHININESS, (int)m.specular);
+    glUseProgram(prg);
+    glUniform3f(1,m.r,m.g,m.b);
+  }
+
+
+
 
 }
 
@@ -529,12 +566,12 @@ void GLWidget::setMaterialName(QString st){
   if (m) {
     lastMatErr.texName=QString("%1.dds").arg(st);
     QString s = locateOnDisk(QString(m->diffuseA),".dds",&(m->location));
+    if (inferMaterial) enableMaterial(*m );
     if (!s.isEmpty()) setTextureName(s);
     else {
       setMaterialError(2); // file not found
       setCheckboard();
     }
-    //enableMaterial(*m); MATERIAL!!!
   }
   else {
     setMaterialError(1); // material not found
@@ -660,6 +697,7 @@ GLWidget::GLWidget(QWidget *parent, IniData &_inidata)
   selRefSkel = 0;
   showAlpha=NOALPHA;
   commonBBox = false;
+  inferMaterial = true;
 
   relTime=0;
   runningState = STOP;
@@ -806,8 +844,9 @@ QSize GLWidget::sizeHint() const
 
 void GLWidget::initializeGL()
 {
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
+  glewInit();
+  glEnable(GL_DEPTH_TEST);
+  glEnable(GL_CULL_FACE);
 }
 
 
@@ -1195,6 +1234,14 @@ void GLWidget::setCommonBBoxOn(){
 }
 void GLWidget::setCommonBBoxOff(){
   commonBBox = false;
+  update();
+}
+void GLWidget::setInferMaterialOn(){
+  inferMaterial = true;
+  update();
+}
+void GLWidget::setInferMaterialOff(){
+  inferMaterial = false;
   update();
 }
 
