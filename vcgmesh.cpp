@@ -192,7 +192,8 @@ typedef  vcg::tri::TriEdgeCollapseQuadric< CMesh,  MyTriEdgeCollapse, tri::QInfo
             inline MyTriEdgeCollapse(  const EdgeType &p, int i) :TECQ(p,i){}
 };
 
-bool VcgMesh::simplify(int percFaces){
+int VcgMesh::simplify(int percFaces){
+  int origFn = mesh.fn;
   tri::TriEdgeCollapseQuadricParameter &qparams = MyTriEdgeCollapse::Params() ;
   MyTriEdgeCollapse::SetDefaultParams();
   qparams.QualityThr  =.3;
@@ -204,6 +205,9 @@ bool VcgMesh::simplify(int percFaces){
   qparams.ScaleIndependent	= true;
   qparams.PreserveBoundary	= false;
   qparams.PreserveTopology	= false;
+  qparams.BoundaryWeight  = 50;
+
+
   //qparams.QualityThr	= atof(argv[i]+2);
   //qparams.NormalThrRad = math::ToRad(atof(argv[i]+2));
   //qparams.BoundaryWeight  = atof(argv[i]+2);
@@ -241,7 +245,7 @@ bool VcgMesh::simplify(int percFaces){
   tri::Allocator<CMesh>::CompactFaceVector(mesh);
   tri::Allocator<CMesh>::CompactVertexVector(mesh);
 
-  return true;
+  return 100*mesh.fn / ((origFn)?origFn:1);
 
 
 }
@@ -551,10 +555,14 @@ static Point3f _flipZ(const Point3f p){
 
 void VcgMesh::add(const BrfMesh &b, int fi){
   mesh.Clear();
-  if ((int)b.frame.size()>=fi) fi=b.frame.size()-1;
+  if ((int)b.frame.size()<=fi) fi=b.frame.size()-1;
 
   mesh.textures.push_back(b.material);
   CMesh::FaceIterator f=vcg::tri::Allocator<CMesh>::AddFaces( mesh , b.face.size() );
+  lastMask =
+    vcg::tri::io::Mask::IOM_VERTNORMAL |
+    vcg::tri::io::Mask::IOM_VERTCOLOR;
+
 #if 0
   // one vcg::vert per brf::pos
   CMesh::VertexIterator v=vcg::tri::Allocator<CMesh>::AddVertices( mesh , b.frame[0].pos.size() );
@@ -563,13 +571,14 @@ void VcgMesh::add(const BrfMesh &b, int fi){
     for (int h=0; h<3; h++) {
       int vi = b.face[k].index[2-h];
       f->V(h) = &(mesh.vert[0]) + b.vert[ vi ].index;
-      f->WC(h) = Int2Col(b.vert[ vi ].col);
+      //f->WC(h) = Int2Col(b.vert[ vi ].col);
       f->WT(h).P() = b.vert[vi].ta;
 
       int pi = b.vert[ vi ].index;
       f->V(h)->N() = b.frame[0].norm[ pi ];
       f->V(h)->P() = b.frame[0].pos [ pi ];
     }
+    lastMask |= vcg::tri::io::Mask::IOM_WEDGTEXCOORD;
   }
 #else
 #if 1
@@ -593,6 +602,8 @@ void VcgMesh::add(const BrfMesh &b, int fi){
       v->C() = Int2Col( b.vert[ k ].col );
       v->T().P() = _flipY(  b.vert[ k ].ta );
   }
+  lastMask |= vcg::tri::io::Mask::IOM_VERTTEXCOORD;
+
 #else
   // three vcg::vert per face
 #endif

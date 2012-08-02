@@ -622,6 +622,7 @@ switch (TokenEnum(k)){
         ui->viewRefAni->setVisible( true );
       }
       if (m->hasVertexColor) ui->rbVertexcolor->setEnabled(true);
+      //if (m->)
       if (m->frame.size()>1) ui->meshDataAni->setVisible(true);
 
       for (unsigned int fi=0; fi < m->frame.size(); fi++)
@@ -724,9 +725,11 @@ switch (TokenEnum(k)){
 void GuiPanel::updateMaterial(QString a){
 
   if (ui->boxMaterial->hasFrame()) {
-    QString s = inidata.mat2tex(a);
+    bool bump;
+    QString s = inidata.mat2tex(a,&bump);
     if (s.isEmpty()) s="<not found>";
     ui->boxTexture  ->setText( s );
+    ui->cbNormalmap->setEnabled(bump);
   } else
     ui->boxTexture  ->setText( "<various>" );
 }

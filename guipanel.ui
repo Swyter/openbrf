@@ -411,7 +411,7 @@
      <x>10</x>
      <y>230</y>
      <width>181</width>
-     <height>191</height>
+     <height>331</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -486,7 +486,7 @@
       <property name="minimumSize">
        <size>
         <width>0</width>
-        <height>55</height>
+        <height>62</height>
        </size>
       </property>
       <property name="baseSize">
@@ -534,7 +534,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>20</y>
+         <y>14</y>
          <width>72</width>
          <height>18</height>
         </rect>
@@ -569,7 +569,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>40</y>
+         <y>44</y>
          <width>72</width>
          <height>18</height>
         </rect>
@@ -598,6 +598,22 @@
        </property>
        <property name="shortcut">
         <string>Ctrl+T</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="cbNormalmap">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>29</y>
+         <width>76</width>
+         <height>17</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Normalmap</string>
        </property>
        <property name="checked">
         <bool>true</bool>

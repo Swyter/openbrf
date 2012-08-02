@@ -24,7 +24,7 @@ public:
   static bool gotNormals();
   static bool gotMaterialName();
 
-  static bool simplify(int percfaces);
+  static int simplify(int percfaces);
 
   static const char *lastErrString();
 };

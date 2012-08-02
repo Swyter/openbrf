@@ -65,7 +65,7 @@ void MainWindow::about()
                    "[Geroj], [GetAssista], [giles], [Gothic Knight], [Hatonastick], "
                    "[havarez], "
                    "[Highelf], [Highlander], [HokieBT], [Jai], [killkhergit], "
-                   "[Konar], [Llew], "
+                   "[Konar], [Llew], [Lord_Cheap], "
                    "[LordRaglan], [Lumos], [MadVader], [Mandible], [Mekelan], "
                    "[Merlkir], [mr.master], "
                    "[mysstick], "
@@ -77,7 +77,7 @@ void MainWindow::about()
               .arg(QString("<br> [foxyman] <i>(%1)</i><br>"
                            " [Swyter] <i>(Español)</i><br>"
                            " [Vlejundo] <i>(Deutsche)</i><").arg(tr("additional code and Chinese")))
-              .arg("0.0.56")
+              .arg("0.0.57")
             ,QMessageBox::Ok, this);
     msg.setLocale(QLocale::system());
   //msg.layout()->addWidget(&lab);

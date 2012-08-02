@@ -162,7 +162,7 @@ void BrfMesh::AddALittleOfBreast(int framei){
     float s = max(s0,s1);
     if (s>0) {
       s = pow( s ,0.3);
-      q.Z()+=s*0.016;
+      q.Z()+=s*0.013;
     }
   }
 }

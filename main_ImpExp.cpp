@@ -25,21 +25,52 @@ void MainWindow::moduleSelect(){
 }
 
 
-/*
-void MainWindow::simpify(){
-  int i = selector->firstSelected();
-  if (i<0) return;// false;
-  if (i>(int)brfdata.mesh.size()) return;// false;
-  if (selector->currentTabName()!=MESH) return;// false;
-  VcgMesh::add(brfdata.mesh[ i ], 0 );
-  VcgMesh::simplify(25);
-  BrfMesh res;
-  res = VcgMesh::toBrfMesh();
-  sprintf(res.name,"%s.LOD1",brfdata.mesh[ i ].name);
-  insert(res);
+
+void MainWindow::meshComputeLod(){
+  if (selector->currentTabName()!=MESH) return;
+  std::vector<BrfMesh> resvec;
+
+  std::vector<int> sel;
+  for (int k=0; k<selector->selectedList().size(); k++) {
+    sel.push_back(selector->selectedList()[k].row());
+  }
+  std::sort(sel.begin(), sel.end());
+
+
+  for (int k=selector->selectedList().size()-1; k>=0; k--) {
+    int i=sel[k];
+    if (i<0) continue;
+    if (i>(int)brfdata.mesh.size()) return;
+
+    BrfMesh &m (brfdata.mesh[i]);
+
+    std::vector<BrfMesh> mvec; mvec.push_back(m);
+    float  amount = 1;
+
+    for (int lod=1; lod<=4; lod++) {
+      VcgMesh::add( m , 0 );
+      amount*=0.50;
+      VcgMesh::simplify(int(amount*100));
+
+      BrfMesh res = VcgMesh::toBrfMesh();
+      if (m.isRigged) res.TransferRigging(mvec,0,0); else res.rigging.clear();
+      res.isRigged = m.isRigged;
+      res.flags = m.flags;
+      sprintf(res.material,"%s", m.material);
+      res.hasVertexColor = m.hasVertexColor;
+      sprintf(res.name,"%s.lod%d",m.name,lod);
+      resvec.push_back(res);
+    }
+    for (uint ii=0; ii<resvec.size(); ii++){
+      brfdata.mesh.insert(brfdata.mesh.begin()+i+ii+1,resvec[ii]);
+    }
+    inidataChanged();
+    updateSel();
+    selector->selectOne(MESH, i);
+  }
   //return true;
 }
-*/
+
 
 
 bool MainWindow::exportMeshGroup(){

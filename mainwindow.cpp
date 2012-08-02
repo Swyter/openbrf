@@ -1058,6 +1058,9 @@ void MainWindow::meshFemininize(){
     m.MorphFrame(masculineFrame,feminineFrame,femininizer);
     m.AddALittleOfBreast(feminineFrame);
     m.ComputeNormals(feminineFrame);
+    m.frame[0].time = 0;
+    m.frame[1].time = (usingWarband)?0:10;
+    m.frame[2].time = (usingWarband)?10:20;
     ndone++;
   }
   if (ndone){

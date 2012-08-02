@@ -64,6 +64,7 @@ public slots:
    void setWireframe(int i);
    void setLighting(int i);
    void setTexture(int i);
+   void setNormalmap(int i);
    void setFloor(int i);
    void setRuler(int i);
    void setRulerLenght(int i);
@@ -96,7 +97,7 @@ public slots:
    void setInferMaterialOff();
 public:
 
-bool useWireframe, useLighting, useTexture , useFloor, useRuler;
+bool useWireframe, useLighting, useTexture , useNormalmap, useFloor, useRuler;
 bool ghostMode;
 bool fixTexturesOnSight;
 int colorMode, rulerLenght;
@@ -165,10 +166,11 @@ protected:
     // rendering mode (just changes of openGL status):
     void setShadowMode(bool on) const;
     void setWireframeLightingMode(bool on, bool light, bool text) const;
-    void setTextureName(QString st, int origin);
+    void setTextureName(QString st, int origin, int texUnit);
     static bool fixTextureFormat(QString st);
     void setMaterialName(QString st);
-    void setCheckboard();
+    void setCheckboardTexture();
+    void setDummyTexture();
     void initializeGL();
 
     bool skeletalAnimation();
@@ -196,6 +198,7 @@ private:
     QTimer *timer;
 
     bool animating;
+    bool bumpmapActivated;
 
     int viewmode;
     int viewmodeMult;
@@ -205,8 +208,10 @@ private:
     float lastScale;
     float closingUp;
     QString renderedTexture;
-    unsigned int fragProgramIron;
-    void initFramProgramIron();
+    unsigned int
+        fragProgramIron,
+        programNormalMapPlain, programNormalMapIron, programNormalMapAlpha;
+    void initFramPrograms();
 };
 
 #endif // GLWIDGETS_H

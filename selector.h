@@ -87,6 +87,7 @@ private:
     *meshTuneColorAct,
     *meshComputeAoAct,
     *meshFemininizeAct,
+    *meshComputeLodAct,
 
 
     *renameAct,

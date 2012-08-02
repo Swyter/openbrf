@@ -227,6 +227,9 @@ Selector::Selector(QWidget *parent)
   meshFemininizeAct = new QAction(tr("Add femininized frame"),this);
   meshFemininizeAct->setStatusTip(tr("Build a feminine frame for this armour(s)"));
 
+  meshComputeLodAct = new QAction(tr("Compute LODs"), this);
+  meshComputeLodAct->setStatusTip(tr("Tries to compute a LOD pyramid"));
+
   meshRecolorAct = new QAction(tr("Color uniform"), this);
   meshRecolorAct->setStatusTip(tr("Set per vertex color as a uniform color"));
 
@@ -254,6 +257,7 @@ Selector::Selector(QWidget *parent)
   connect(meshRecolorAct,SIGNAL(triggered()),parent,SLOT(meshRecolor()));
   connect(meshTuneColorAct,SIGNAL(triggered()),parent,SLOT(meshTuneColor()));
   connect(meshComputeAoAct, SIGNAL(triggered()), parent, SLOT(meshComputeAo()));
+  connect(meshComputeLodAct, SIGNAL(triggered()), parent, SLOT(meshComputeLod()));
   connect(meshFemininizeAct,SIGNAL(triggered()),parent,SLOT(meshFemininize()));
   connect(meshRecomputeNormalsAndUnify,  SIGNAL(triggered()),parent,SLOT(meshRecomputeNormalsAndUnify()));
   connect(meshUnify,  SIGNAL(triggered()),parent,SLOT(meshUnify()));
@@ -564,8 +568,10 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
      //contextMenu->addAction(scaleAct);
      contextMenu->addAction(meshRecomputeNormalsAndUnify);
      contextMenu->addAction(meshUnify);
-     if (!nosel)  contextMenu->addAction(meshToBody);
-     if (!onesel && !nosel)  contextMenu->addAction(meshMerge);
+     contextMenu->addAction(meshComputeLodAct);
+
+     contextMenu->addAction(meshToBody);
+     if (!onesel)  contextMenu->addAction(meshMerge);
      contextMenu->addAction(meshMountOnBone);
      QMenu *m = contextMenu->addMenu(tr("Backfacing faces"));
      m->addAction(meshRemoveBackfacing);
