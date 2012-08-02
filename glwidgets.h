@@ -118,7 +118,7 @@ protected:
 
     // rendering of stuff
     template<class BrfType> void renderSelected(const std::vector<BrfType>& p);
-    // unified renering of BrfItems...
+    // unified rendering of BrfItems...
     void renderBrfItem(const BrfMesh& p);
     void renderBrfItem(const BrfAnimation& p);
     void renderBrfItem(const BrfBody& p);
@@ -126,6 +126,8 @@ protected:
     void renderBrfItem(const BrfTexture& p);
     void renderBrfItem(const BrfMaterial& p);
 
+    void enableMaterial(const BrfMaterial& m);
+    void enableDefMaterial();
 
     // basic rendering of Brf Items & c:
     void renderMesh(const BrfMesh& p, float frame);

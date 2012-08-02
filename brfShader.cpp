@@ -1,4 +1,5 @@
 #include <vector>
+#include <stdio.h>
 #include <vcg/space/point4.h>
 #include <vcg/space/point3.h>
 #include <vcg/space/point2.h>

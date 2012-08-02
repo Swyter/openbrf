@@ -2,6 +2,7 @@
 #include <vector>
 #include <set>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <vcg/space/box3.h>
 #include <vcg/math/matrix44.h>
@@ -16,6 +17,8 @@ using namespace vcg;
 
 #include "saveLoad.h"
 typedef vcg::Point3f Pos;
+
+extern int globVersion;
 
 void BrfMesh::TowardZero(float x,float y, float z){
   for (unsigned int f=0; f<frame.size(); f++) {
@@ -34,8 +37,15 @@ void BrfMesh::Scale(float xNeg, float xPos, float yPos, float yNeg, float zNeg, 
       frame[f].pos[i][1]*=(frame[f].pos[i][1]<0)?yNeg:yPos;
       frame[f].pos[i][2]*=(frame[f].pos[i][2]<0)?zNeg:zPos;
     }
+    for (unsigned int i=0; i<frame[f].norm.size(); i++) {
+      int j = vert[i].index;
+      frame[f].norm[i][0]/=(frame[f].pos[j][0]<0)?xNeg:xPos;
+      frame[f].norm[i][1]/=(frame[f].pos[j][1]<0)?yNeg:yPos;
+      frame[f].norm[i][2]/=(frame[f].pos[j][2]<0)?zNeg:zPos;
+      frame[f].norm[i].Normalize();
+    }
   }
-  ComputeNormals();
+
   AdjustNormDuplicates();
 }
 
@@ -160,6 +170,8 @@ void BrfMesh::RemoveBackfacingFaces(){
 }
 
 
+
+
 void BrfMesh::ComputeNormals(){
   for (unsigned int fi=0; fi<frame.size(); fi++) {
     for (unsigned int vi=0; vi<vert.size(); vi++){
@@ -210,6 +222,20 @@ void BrfMesh::Transform(float *f){
   AdjustNormDuplicates();
   UpdateBBox();
 
+}
+
+void BrfMesh::ShrinkAroundBones(const BrfSkeleton& s, int nframe){
+  std::vector<vcg::Matrix44f> m = s.GetBoneMatrices();
+  vcg::Point3f z(0,0,0);
+  for (int pi=0; pi<(int)rigging.size(); pi++){
+    BrfRigging &rig(rigging[pi]);
+    int j = pi;
+    frame[nframe].pos[j]=z;
+    for (int i=0; i<4; i++) {
+      if (rig.boneWeight[i]>0)
+        frame[nframe].pos[j] +=( m[ rig.boneIndex[i] ]*z)*rig.boneWeight[i];
+    };
+  }
 }
 
 void BrfMesh::Unskeletonize(const BrfSkeleton& from){
@@ -563,7 +589,26 @@ void BrfMesh::RemoveUnreferenced(){
   UpdateBBox();
 }
 
+void BrfMesh::RemoveSeamsFromNormals(double crease)
+{
+  std::vector<vcg::Point3f> np(frame[0].pos.size()); // norm per pos
+  for (unsigned int fi=0; fi<frame.size(); fi++){
+    for (unsigned int i=0; i<np.size(); i++) np[i].SetZero();
+    for (unsigned int i=0; i<vert.size(); i++) {
+      int j = vert[i].index;
+      np[ j ]+=frame[fi].norm[i];
+    }
+    for (unsigned int i=0; i<np.size(); i++) np[i].Normalize();
 
+    for (unsigned int i=0; i<vert.size(); i++) {
+      int j = vert[i].index;
+      if (np[j]*frame[fi].norm[i]>crease)
+        frame[fi].norm[i]= np[j];
+    }
+
+  }
+  AdjustNormDuplicates();
+}
 
 void BrfMesh::UnifyVert(bool careForNormals, float crease){
   typedef std::set< MyIndexVertClass > Set;
@@ -1153,6 +1198,10 @@ void BrfMesh::Save(FILE*f) const{
   SaveUint(f , flags);
   SaveString(f, material); // material used
 
+  if (globVersion != 0) {
+    if (flags>>16 == 2) globVersion = 2; else globVersion = 1;
+  }
+
   SaveVector(f, frame[0].pos);
 
   std::vector<TmpRigging> tmpRig;
@@ -1544,13 +1593,15 @@ void BrfMesh::Bend(int j, float range){
   }
 }
 
-extern int globVersion;
 
 unsigned int BrfVert::SizeOnDisk(){
   if (globVersion == 0 )
     return 4+4+12+8+8;
-  else
+  else if (globVersion == 1 )
     return 4+4+12+12+1+8;
+  else {
+    return 4+4+12+8;
+  }
 }
 
 
@@ -1565,29 +1616,35 @@ bool BrfVert::Load(FILE*f){
   }
   else if (globVersion == 1) {
     // warband files
-    LoadInt(f , index); //index=0;
+    LoadInt(f , index);
     LoadUint(f , col );
     LoadPoint(f,__norm);
 
     // only old warband files has the following 2:
-    //LoadPoint(f,tang);
-    //LoadByte(f,ti);
+    LoadPoint(f,tang);
+    LoadByte(f,ti);
 
     //static FILE*_f =fopen("testLoadV.txt","wt"); fprintf(_f,"%d ",int(p2));//TEST
 
+    LoadPoint(f,ta); ta[1]=1-ta[1]; tb = ta;
+  } else if (globVersion == 2) {
+    // warband files
+    LoadInt(f , index);
+    LoadUint(f , col );
+    LoadPoint(f,__norm);
     LoadPoint(f,ta); ta[1]=1-ta[1]; tb = ta;
   }
   return true;
 }
 void BrfVert::Save(FILE*f) const{
-  if (globVersion <= 0) {
+  if (globVersion == 0) {
     SaveInt(f , index);
     SaveUint(f , col ); // color x vert! as 4 bytes AABBGGRR
     SavePoint(f, __norm );
     SavePoint(f, vcg::Point2f(ta[0],1-ta[1]) );
     SavePoint(f, vcg::Point2f(tb[0],1-tb[1]) );
-  } else {
-    SaveInt(f , index); //index=0;
+  } else if (globVersion == 1){
+    SaveInt(f , index);
     SaveUint(f , col );
     SavePoint(f,__norm);
     Point3f t = tang; if (t == Point3f(0,0,0)) t = __norm^Point3f(0,0,1);
@@ -1595,6 +1652,11 @@ void BrfVert::Save(FILE*f) const{
     unsigned char tj = ti;
     if (tj==255) tj=0;
     SaveByte(f,tj);  //fprintf(_f,"%d ",int(p2));
+    SavePoint(f, vcg::Point2f(ta[0],1-ta[1]) );
+  } else {
+    SaveInt(f , index);
+    SaveUint(f , col );
+    SavePoint(f,__norm);
     SavePoint(f, vcg::Point2f(ta[0],1-ta[1]) );
   }
 }
@@ -1679,7 +1741,13 @@ bool BrfMesh::Skip(FILE* f){
   if (!LoadString(f, name)) return false;
   //printf(" -skipping \"%s\"...\n",name);
   //SkipString(f);
-  ::Skip<int>(f); // flags
+  //::Skip<int>(f); // flags
+  unsigned int _flags;
+  LoadUint(f,_flags);
+  if (globVersion != 0) {
+    if (_flags>>16 == 2) globVersion = 2; else globVersion = 1;
+  }
+
   if (!LoadString(f, material)) return false;
   SkipVectorB< Point3f >(f); // pos
   SkipVectorR< TmpRigging >(f);
@@ -1716,6 +1784,11 @@ bool BrfMesh::Load(FILE*f){
   if (!LoadString(f, material)) return false; // material used
   frame.resize(1); // first frame (and only one, iff no vertex animation)
   frame[0].time =0;
+
+  if (globVersion != 0) {
+    if (flags>>16 == 2) globVersion = 2; else globVersion = 1;
+  }
+
   if (!LoadVector(f, frame[0].pos)) return false;
 
   vector<TmpRigging> tmpRig;

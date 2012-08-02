@@ -29,8 +29,8 @@ using namespace std;
 class BrfData {
 public:
   BrfData();
-  BrfData(char*f,int verbose=1, int stopAt=N_TOKEN);
-  BrfData(FILE*f,int verbose=1, int stopAt=N_TOKEN);
+  BrfData(char*f,int verbose=1);
+  BrfData(FILE*f,int verbose=1);
   vector<BrfMesh> mesh;
   vector<BrfTexture> texture;
   vector<BrfShader> shader;
@@ -38,8 +38,8 @@ public:
   vector<BrfSkeleton> skeleton;
   vector<BrfAnimation> animation;
   vector<BrfBody> body;
-  bool Load(FILE*f,int verbose=1, int stopAt=N_TOKEN);
-  bool Load(char*filename,int verbose=1, int stopAt=N_TOKEN);
+  bool Load(FILE*f,int verbose=1, int imposeVers = -1);
+  bool Load(char*filename,int verbose=1, int imposeVers = -1);
   bool LoadFast(char*filename, bool ultrafast); // skips most data
   bool LoadMat(FILE *f);
   void Clear();
@@ -60,7 +60,7 @@ private:
   //template<class BrfType> bool LoadAll(FILE *f, vector<BrfType> &v, int k);
   template<class BrfType> void SaveAll(FILE *f, const vector<BrfType> &v) const;
   int lastLoaded;
-  void LoadVersion(FILE *f);
+  void LoadVersion(FILE *f,int imposeVers);
 
 };
 

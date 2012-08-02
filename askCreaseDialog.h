@@ -7,6 +7,7 @@ namespace Ui {
     class AskCreaseDialog;
 }
 class QSlider;
+class QCheckBox;
 
 class AskCreaseDialog : public QDialog {
     Q_OBJECT
@@ -14,6 +15,7 @@ public:
     AskCreaseDialog(QWidget *parent = 0);
     ~AskCreaseDialog();
     QSlider* slider();
+    QCheckBox* checkbox();
 
 protected:
     void changeEvent(QEvent *e);

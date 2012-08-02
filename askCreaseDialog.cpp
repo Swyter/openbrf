@@ -15,6 +15,7 @@ AskCreaseDialog::~AskCreaseDialog()
 }
 
 QSlider* AskCreaseDialog::slider() {return m_ui->slider; }
+QCheckBox* AskCreaseDialog::checkbox() {return m_ui->seamsCB; }
 
 
 void AskCreaseDialog::changeEvent(QEvent *e)

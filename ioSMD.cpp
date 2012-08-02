@@ -64,6 +64,7 @@ float* matrix2euler(const Matrix44f &_m){
 
 
 static int lastErr;
+static int nMaxBones;
 char *expectedErr, *foundErr;
 int versionErr;
 
@@ -121,6 +122,7 @@ static bool ioSMD_ImportTriangles(FILE*f, BrfMesh &m ){
         &(r.boneIndex[3]), &(r.boneWeight[3])
       );
       p/=SCALE;
+      if (nr>4) { nMaxBones = nr; nr=4;}
       assert ( nread==9 || nread == 9+1+nr*2);
       for (int k = nr; k<4; k++) {
         r.boneIndex[k]=-1; r.boneWeight[k]=0;
@@ -321,6 +323,7 @@ int ioSMD::Export(const char*filename, const BrfAnimation &a, const BrfSkeleton 
 
 int ioSMD::Import(const char*filename, BrfMesh &m , BrfSkeleton &s){
   lastErr = 0;
+  nMaxBones = 0;
   FILE* f=fopen(filename,"rb");
   if (!f) return(lastErr=1);
 
@@ -392,5 +395,17 @@ char* ioSMD::LastErrorString(){
   case 0: return "(no error)"; break;
   default: return "undocumented error"; break;
   }
+}
+
+bool ioSMD::Warning(){
+  return true; //nMaxBones>4;
+}
+
+char* ioSMD::LastWarningString(){
+  static char res[255];
+  sprintf(res,
+    "WARNING: found vertices rigged to %d bones.\n"
+    "In M&B, limit is 4.",nMaxBones);
+  return res;
 }
 

@@ -289,6 +289,42 @@ void GLWidget::renderBrfItem (const BrfMesh& p){
   }
 }
 
+#define GL_LIGHT_MODEL_COLOR_CONTROL  0x81F8
+#define GL_SEPARATE_SPECULAR_COLOR  0x81FA
+
+void GLWidget::enableDefMaterial(){
+  float tmps[4]={0,0,0,0};
+  glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,tmps);
+  glDisable(GL_ALPHA_TEST);
+}
+
+void GLWidget::enableMaterial(const BrfMaterial &m){
+
+  // try to guess what the shader will do using flags
+  bool alphaCutout = false;
+  bool alphaShine = false;
+  if (m.flags & (1<<5)) alphaShine = true;
+  if (m.flags & ((7<<12) | (1<<6) ) )  alphaCutout = true;
+  if (!alphaShine && !alphaCutout) alphaShine = true;
+  if (alphaShine && alphaCutout) alphaShine = false;
+
+  if (alphaCutout) {
+    //glEnable(GL_BLEND);
+    glEnable(GL_ALPHA_TEST);
+    glAlphaFunc(GL_LESS,0.5);
+    if (m.flags & (1<<12)) glAlphaFunc(GL_LESS,1/127.0);
+  }
+
+  if (m.diffuseA[0]!=0) glEnable(GL_TEXTURE_2D); else glDisable(GL_TEXTURE_2D);
+
+  glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL,GL_SEPARATE_SPECULAR_COLOR);
+
+  glMateriali(GL_FRONT_AND_BACK,GL_SHININESS,(int)m.specular);
+  float tmps[4]={m.r,m.g,m.b,1};
+  glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,tmps);
+
+}
+
 void GLWidget::renderBrfItem (const BrfBody& p){
   renderBody(p);
 }
@@ -489,6 +525,7 @@ void GLWidget::setMaterialName(QString st){
       setMaterialError(2); // file not found
       setCheckboard();
     }
+    //enableMaterial(*m); MATERIAL!!!
   }
   else {
     setMaterialError(1); // material not found
@@ -647,14 +684,14 @@ void GLWidget::setViewmode(int i){
       lastCenter +
       vcg::Point3f(sin(ph)*dist/lastScale*K,0.6,cos(ph)*dist/lastScale*K);
     //qDebug("Scale = %f",lastScale);
-    emit(displayInfo("Scene mode: navigate with mouse and WASD (levitate with wheel, zoom in with shift)", 10000));
+    emit(displayInfo(tr("Scene mode: navigate with mouse and WASD (levitate with wheel, zoom in with shift)"), 10000));//revised foxyman
   } else {
     //setFocusPolicy(Qt::NoFocus);
     setFocusPolicy(Qt::WheelFocus);
     if (i==1)
-    emit(displayInfo("Helmet mode: for objects with vertical Z axis, like M&B helmets or weapons.", 8000));
+    emit(displayInfo(tr("Helmet mode: for objects with vertical Z axis, like M&B helmets or weapons."), 8000));//revised foxyman
     else
-    emit(displayInfo("Default mode: rotate objects with mouse, zoom in/out with wheel.", 8000));
+    emit(displayInfo(tr("Default mode: rotate objects with mouse, zoom in/out with wheel."), 8000));//revised foxyman
   }
   update();
 }
@@ -868,6 +905,7 @@ void GLWidget::renderRiggedMesh(const BrfMesh& m,  const BrfSkeleton& s, const B
   }
   glEnd();
   }
+  enableDefMaterial();
 }
 
 void GLWidget::renderMesh(const BrfMesh &m, float frame){
@@ -902,6 +940,7 @@ void GLWidget::renderMesh(const BrfMesh &m, float frame){
   glEnd();
   }
   glDisable(GL_TEXTURE_2D);
+  enableDefMaterial();
 }
 
 void GLWidget::renderCylWire() const{

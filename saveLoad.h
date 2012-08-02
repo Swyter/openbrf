@@ -1,4 +1,5 @@
 #include <vcg/space/point4.h>
+#include <stdio.h>
 
 // small helper functions for saving/loading stuff into a brf file
 

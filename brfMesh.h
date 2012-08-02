@@ -104,6 +104,7 @@ public:
   void Reskeletonize(const BrfSkeleton& from, const BrfSkeleton& to);
   void ReskeletonizeHuman(const BrfSkeleton& from, const BrfSkeleton& to, float bonusArm = 0);
   void TransferRigging(const std::vector<BrfMesh>& from, int nf, int nfb);
+  void ShrinkAroundBones(const BrfSkeleton& s, int nframe);
   void NormalizeRigging();
   void DiscardRigging();
   bool CopyModification(const BrfMesh& mod);
@@ -161,10 +162,12 @@ public:
 
   bool IsAnimable() const;
   void ComputeNormals();
+
   void UnifyPos();
   void UnifyVert(bool careForNormals, float crease=0);
   void UnifyVertNormPerPos(bool careForNormals, float crease=0);
   void DivideVert();
+  void RemoveSeamsFromNormals(double crease);
   void AfterLoad();
   bool hasVertexColor;
 
