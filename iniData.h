@@ -49,7 +49,7 @@ public:
   void updateBeacuseBrfDataSaved();
 
 
-  QString mat2tex(const QString &s, bool *hasBump);
+  QString mat2tex(const QString &s, bool *hasBump, bool *hasSpec);
   QString stats();
 
   bool loadAll(int howFast);

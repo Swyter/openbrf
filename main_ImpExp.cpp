@@ -42,15 +42,37 @@ void MainWindow::meshComputeLod(){
     if (i<0) continue;
     if (i>(int)brfdata.mesh.size()) return;
 
-    BrfMesh &m (brfdata.mesh[i]);
+    BrfMesh m = (brfdata.mesh[i]);
+    m.UnifyPos();
+    m.UnifyVert(false,0);
 
     std::vector<BrfMesh> mvec; mvec.push_back(m);
-    float  amount = 1;
+    //float  amount = 1;
 
-    for (int lod=1; lod<=4; lod++) {
+    // find correct name
+    QString st(m.name);
+    QString partname = st;
+    QString partnumber = st;
+    int k = st.lastIndexOf('.');
+    if (k!=-1) {
+      partname.truncate(k);
+      partnumber = st.right(st.length()-k-1);
+      bool ok;
+      partnumber.toInt(&ok);
+      if (!ok) k=-1;
+      partnumber = QString(".")+partnumber;
+    }
+    if (k==-1) {
+      partname = st;
+      partnumber.clear();
+    }
+
+
+
+    for (int lod=1; lod<=N_LODS; lod++) if (lodBuild[lod-1]){
       VcgMesh::add( m , 0 );
-      amount*=0.50;
-      VcgMesh::simplify(int(amount*100));
+      float amount =lodPercent[lod-1];
+      VcgMesh::simplify((int)amount);
 
       BrfMesh res = VcgMesh::toBrfMesh();
       if (m.isRigged) res.TransferRigging(mvec,0,0); else res.rigging.clear();
@@ -58,15 +80,21 @@ void MainWindow::meshComputeLod(){
       res.flags = m.flags;
       sprintf(res.material,"%s", m.material);
       res.hasVertexColor = m.hasVertexColor;
-      sprintf(res.name,"%s.lod%d",m.name,lod);
+      sprintf(res.name,"%s.lod%d%s",partname.toAscii().data(),lod,partnumber.toAscii().data());
+      res.UnifyPos();
+      res.UnifyVert(false,0);
+      res.ComputeNormals();
+      res.ComputeTangents();
       resvec.push_back(res);
     }
     for (uint ii=0; ii<resvec.size(); ii++){
       brfdata.mesh.insert(brfdata.mesh.begin()+i+ii+1,resvec[ii]);
     }
     inidataChanged();
+    setModified(true);
     updateSel();
     selector->selectOne(MESH, i);
+
   }
   //return true;
 }

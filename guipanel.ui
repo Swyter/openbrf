@@ -411,7 +411,7 @@
      <x>10</x>
      <y>230</y>
      <width>181</width>
-     <height>331</height>
+     <height>361</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -486,7 +486,7 @@
       <property name="minimumSize">
        <size>
         <width>0</width>
-        <height>62</height>
+        <height>76</height>
        </size>
       </property>
       <property name="baseSize">
@@ -534,7 +534,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>14</y>
+         <y>-2</y>
          <width>72</width>
          <height>18</height>
         </rect>
@@ -569,7 +569,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>44</y>
+         <y>59</y>
          <width>72</width>
          <height>18</height>
         </rect>
@@ -585,7 +585,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>-2</y>
+         <y>12</y>
          <width>81</width>
          <height>20</height>
         </rect>
@@ -613,10 +613,23 @@
         </rect>
        </property>
        <property name="text">
-        <string>Normalmap</string>
+        <string>BumpMap</string>
        </property>
        <property name="checked">
         <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="cbSpecularmap">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>44</y>
+         <width>70</width>
+         <height>17</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>SpecMap</string>
        </property>
       </widget>
      </widget>
@@ -757,6 +770,9 @@
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
+      <zorder>cbRefani</zorder>
+      <zorder>label_21</zorder>
+      <zorder>viewMeshRendering</zorder>
      </widget>
     </item>
     <item>

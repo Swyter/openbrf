@@ -192,6 +192,8 @@ public:
   void ComputeNormals();
   void ComputeNormals(int framei);
 
+  void ComputeTangents();
+
   void UnifyPos();
   void UnifyVert(bool careForNormals, float crease=0);
   void UnifyVertNormPerPos(bool careForNormals, float crease=0);

@@ -152,6 +152,7 @@ private:
     void meshTuneColorDo(int,int,int,int);
     void meshFemininize();
     void meshComputeLod();
+    void meshRecomputeTangents();
     void learnFemininzation(); // from current selection
 
     void setFlagsMaterial();
@@ -176,6 +177,8 @@ private:
     void optionLanguageSet3();
     void optionLanguageSet4();
     void optionLanguageSetCustom();
+    void optionSetBgColor();
+    void optionLodSettings();
 
     void mab2tldHead();
     void tld2mabHead();
@@ -196,11 +199,15 @@ private:
 
     void onActionTriggered(QAction* q);
     void repeatLastCommand();
+    void setUseOpenGL2(bool);
+    void setNormalmap(int);
+    void setSpecularmap(int);
 
 public slots:
     void displayInfo(QString st, int howlong);
 
 private:
+    bool askIfUseOpenGL2(bool extra);
     bool goTo(ObjCoord o);
     //std::map< std::string, std::string > mapMT;// map material to textures
     GLWidget *glWidget;
@@ -367,9 +374,12 @@ private:
     QAction *optionLanguageCustom;
     QAction *optionInferMaterialOn;
     QAction *optionInferMaterialOff;
+    QAction *optionUseOpenGL2;
     QAction *optionAoBrightness[5];
     QAction *optionAoFromAbove[2];
     QAction *optionLearnFeminization;
+    QAction *optionBgColor;
+    QAction *optionLodSettingsAct;
 
     QAction *tldMenuAction;
 
@@ -398,6 +408,12 @@ private:
     void updateTitle();
     bool isModified;
     QString lastImpExpFormat;
+    // parameters for lodding
+
+    enum {N_LODS = 4};
+    bool lodBuild[N_LODS];
+    float lodPercent[N_LODS];
+    QColor background;
 
     QLabel* modStatus; // widget in status bar
 

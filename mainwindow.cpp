@@ -15,6 +15,7 @@
 #include "askSelectBrfDialog.h"
 #include "askIntervalDialog.h"
 #include "askHueSatBriDialog.h"
+#include "askLodOptionsDialog.h"
 #include <QtGui>
 #include <QDebug>
 #include <algorithm>
@@ -36,7 +37,7 @@ void MainWindow::onActionTriggered(QAction *q){
     setNextActionAsRepeatable = false;
     if (q==repeatLastCommandAct) return;
 
-    //qDebug("Triggred action: %s\n",q->text().toAscii().data());
+    qDebug("Triggred action: %s\n",q->text().toAscii().data());
     qDebug("Command to be repeatable: \"%s\"\n",q->text().toAscii().data());
     repeatableAction = q;
     tokenOfRepeatableAction = selector->currentTabName();
@@ -648,6 +649,8 @@ MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),inidata(brfdata)
   selector = new Selector(this);
   selector->reference=&reference;
 
+
+
   isModified=false;
 
   createMiniViewOptions();
@@ -665,7 +668,6 @@ MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),inidata(brfdata)
   cancelNavStack();
 
   createConnections();
-
 
   reference.Load(QString("%1/%2").arg(QCoreApplication::applicationDirPath()).arg("reference.brf").toStdWString().c_str());
   setCentralWidget(main);
@@ -688,6 +690,8 @@ MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),inidata(brfdata)
   setLocale(QLocale::system());
 
   setLanguage( curLanguage );
+
+  glWidget->setDefaultBgColor(background,true);
 
   connect(this->menuBar(), SIGNAL(triggered(QAction*)),this, SLOT(onActionTriggered(QAction *)));
 
@@ -1324,7 +1328,16 @@ void MainWindow::meshDiscardRig(){
   updateGl();
 }
 
-
+void MainWindow::meshRecomputeTangents(){
+  QModelIndexList list= selector->selectedList();
+  for (int j=0; j<list.size(); j++){
+    BrfMesh &m(brfdata.mesh[list[j].row()]);
+    m.ComputeTangents();
+    setModified(true);
+  }
+  updateGui();
+  updateGl();
+}
 
 void MainWindow::meshRecolor(){
   QColor color = QColorDialog::getColor(Qt::white, this);
@@ -1623,6 +1636,7 @@ void MainWindow::renameSel(){
         QLineEdit::Normal,
         QString(commonPrefix), &ok
       );
+      if ((t==TEXTURE) && (!newPrefix.contains('.'))) newPrefix+=".dds";
     }
     else {
       int ps = commonPrefix.size();
@@ -2353,10 +2367,73 @@ void MainWindow::saveOptions() const {
   settings->setValue("curLanguage",(int)curLanguage);
   settings->setValue("aoBrightness",(int)currAoBrightnessLevel());
   settings->setValue("aoAboveLevel",(int)currAoFromAboveLevel());
+
+  settings->setValue("lod1",lodBuild[0]);
+  settings->setValue("lod2",lodBuild[1]);
+  settings->setValue("lod3",lodBuild[2]);
+  settings->setValue("lod4",lodBuild[3]);
+
+  settings->setValue("lod1Perc",lodPercent[0]);
+  settings->setValue("lod2Perc",lodPercent[1]);
+  settings->setValue("lod3Perc",lodPercent[2]);
+  settings->setValue("lod4Perc",lodPercent[3]);
+
+  settings->setValue("background",background);
+
+  settings->setValue("useOpenGl2",(int)optionUseOpenGL2->isChecked());
+
+
 }
 
 QString MainWindow::modPath() const{
   return mabPath+"/Modules/"+modName;
+}
+
+void MainWindow::setUseOpenGL2(bool b){
+  if (b==glWidget->useOpenGL2) return;
+  if (b && askIfUseOpenGL2(false)) {
+    glWidget->setUseOpenGL2(true);
+    optionUseOpenGL2->setChecked(true);
+    statusBar()->showMessage("OpenGL2.0 activated",8000);
+  } else {
+    glWidget->setUseOpenGL2(false);
+    optionUseOpenGL2->setChecked(false);
+    guiPanel->ui->cbNormalmap->setChecked(false);
+    guiPanel->ui->cbSpecularmap->setChecked(false);
+  }
+}
+
+
+void MainWindow::setNormalmap(int k){
+  if (!glWidget) return;
+  if (k) {
+    // setting normalmaps... need to enable opengl2.0
+    if (glWidget->useOpenGL2 || askIfUseOpenGL2(true)) {
+      glWidget->setUseOpenGL2(true);
+      optionUseOpenGL2->setChecked(true);
+      glWidget->setNormalmap(true);
+    } else {
+      guiPanel->ui->cbNormalmap->setChecked(false);
+    }
+  } else {
+    glWidget->setNormalmap(false);
+  }
+}
+
+void MainWindow::setSpecularmap(int k){
+  if (!glWidget) return;
+  if (k) {
+    // setting normalmaps... need to enable opengl2.0
+    if (glWidget->useOpenGL2 || askIfUseOpenGL2(true)) {
+      glWidget->setUseOpenGL2(true);
+      optionUseOpenGL2->setChecked(true);
+      glWidget->setSpecularmap(true);
+    } else {
+      guiPanel->ui->cbSpecularmap->setChecked(false);
+    }
+  } else {
+    glWidget->setSpecularmap(false);
+  }
 }
 
 void MainWindow::loadOptions(){
@@ -2410,14 +2487,14 @@ void MainWindow::loadOptions(){
   glWidget->commonBBox = k;
   }
 
-  {
+  /* {
   int k=1;
   QVariant s =settings->value("inferMaterial");
   if (s.isValid()) k = s.toInt();
   optionInferMaterialOff->setChecked(k==0);
   optionInferMaterialOn->setChecked(k==1);
   glWidget->inferMaterial = k;
-  }
+  }*/
 
   {
   int k=2;
@@ -2428,11 +2505,45 @@ void MainWindow::loadOptions(){
   }
 
   {
+  int k=0;
+  QVariant s =settings->value("useOpenGl2");
+  if (s.isValid()) k = s.toInt();
+  glWidget->setUseOpenGL2(k);
+  //optionUseOpenGL2->blockSignals(true);
+  optionUseOpenGL2->setChecked(k);
+  //optionUseOpenGL2->blockSignals(false);
+  this->guiPanel->ui->cbNormalmap->setChecked(k);
+  this->guiPanel->ui->cbSpecularmap->setChecked(k);
+  glWidget->setSpecularmap(k);
+  glWidget->setNormalmap(k);
+
+  }
+
+  {
   int k=1;
   QVariant s =settings->value("aoAboveLevel");
   if (s.isValid()) k = s.toInt();
   for (int h=0; h<2; h++)
   optionAoFromAbove[h]->setChecked(h==k);
+  }
+
+
+  for (int i=0,defaultVal=5000; i<4; i++,defaultVal/=2){
+    bool k=true;
+    QVariant s =settings->value(QString("lod%1").arg(i+1));
+    if (s.isValid()) k = s.toBool();
+    lodBuild[i]=k;
+    float f=defaultVal/100.0;
+    QVariant s2 =settings->value(QString("lod%1Perc").arg(i+1));
+    if (s2.isValid()) f = s2.toDouble();
+    lodPercent[i]=f;
+  }
+
+  {
+    QColor k(128,128,128);
+    QVariant s =settings->value("background");
+    if (s.isValid()) k = s.value<QColor>();
+    background = k;
   }
 
   modName = settings->value("modName").toString();
@@ -2503,6 +2614,7 @@ bool MainWindow::editRef()
     return true;
   }
 }
+
 
 void MainWindow::inidataChanged(){
   selector->iniDataWaitsSaving = true;
@@ -3189,6 +3301,27 @@ QString MainWindow::strippedName(const QString &fullFileName)
     return QFileInfo(fullFileName).fileName();
 }
 
+void MainWindow::optionLodSettings(){
+  AskLodOptionsDialog *d = new AskLodOptionsDialog(this);
+  d->setData(lodPercent, lodBuild);
+  if (d->exec()==QDialog::Accepted){
+    d->getData(lodPercent, lodBuild);
+    statusBar()->showMessage(tr("New Lod parameters set"));
+  }
+  statusBar()->showMessage(tr("Cancelled"));
+}
+
+void MainWindow::optionSetBgColor(){
+  QColor color = QColorDialog::getColor(QColor(128,128,128,255), this);
+  if (!color.isValid()) return;
+  else {
+    background = color;
+    glWidget->setDefaultBgColor(background,!editingRef);
+  }
+
+}
+
+    
 #include "askFlagsDialog.h"
 
 

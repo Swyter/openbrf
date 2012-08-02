@@ -233,6 +233,9 @@ Selector::Selector(QWidget *parent)
   meshRecolorAct = new QAction(tr("Color uniform"), this);
   meshRecolorAct->setStatusTip(tr("Set per vertex color as a uniform color"));
 
+  meshRecomputeTangentsAct = new QAction(tr("Recmopute tangent dirs"), this);
+  meshRecomputeTangentsAct->setStatusTip(tr("(Tangent dirs are needed for bump-mapping)"));
+
   meshTuneColorAct = new QAction(tr("Tune colors HSB"), this);
   meshTuneColorAct->setStatusTip(tr("Then Hue Saturation and Brightness of per-vertex colors"));
 
@@ -267,6 +270,7 @@ Selector::Selector(QWidget *parent)
   connect(meshMountOnBone,SIGNAL(triggered()),parent,SLOT(meshMountOnBone()));
   connect(meshRemoveBackfacing,SIGNAL(triggered()),parent,SLOT(meshRemoveBack()));
   connect(meshAddBackfacing,SIGNAL(triggered()),parent,SLOT(meshAddBack()));
+  connect(meshRecomputeTangentsAct,SIGNAL(triggered()),parent,SLOT(meshRecomputeTangents()));
 
 
   //connect(exportAnyBrfAct, SIGNAL(triggered()),parent,SLOT(exportBrf()));
@@ -567,6 +571,7 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
      contextMenu->addAction(transformAct);
      //contextMenu->addAction(scaleAct);
      contextMenu->addAction(meshRecomputeNormalsAndUnify);
+     contextMenu->addAction(meshRecomputeTangentsAct);
      contextMenu->addAction(meshUnify);
      contextMenu->addAction(meshComputeLodAct);
 

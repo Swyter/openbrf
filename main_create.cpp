@@ -78,6 +78,16 @@ void MainWindow::createMenus()
     toolMenu->addAction(repeatLastCommandAct);
 
     QMenu* optionMenu=menuBar()->addMenu(tr("&Settings"));
+
+    optionUseOpenGL2 = new QAction(tr("Use OpenGL 2.0"),this);
+    optionUseOpenGL2->setCheckable(true);
+    optionUseOpenGL2->setToolTip(tr("Allows to preview bumpmapping etc. This can create compatibility problems on some (older?) graphic card"));
+    connect(optionUseOpenGL2, SIGNAL(toggled(bool)), this, SLOT(setUseOpenGL2(bool)));
+    optionMenu->addAction(optionUseOpenGL2);
+
+    optionMenu->addSeparator();
+
+
     QMenu* onImport = optionMenu->addMenu(tr("On import meshes"));
 
     QMenu* onAssemble = optionMenu->addMenu(tr("On assemble vertex animations"));
@@ -172,6 +182,8 @@ void MainWindow::createMenus()
     group3->setExclusive(true);
     autoZoom->addActions(group3->actions());
 
+
+    /*
     QMenu* inferMaterial = optionMenu->addMenu(tr("Mesh rendering"));
     optionInferMaterialOn = new QAction(tr("infer settings from Material flags"),this);
     optionInferMaterialOn->setToolTip(tr("E.g. alpha-transparency will depend on Material flags"));
@@ -184,6 +196,7 @@ void MainWindow::createMenus()
     group4->addAction(optionInferMaterialOff);
     group4->setExclusive(true);
     inferMaterial->addActions(group4->actions());
+    */
 
     QActionGroup* group2=new QActionGroup(this);
     group2->addAction(optionAssembleAniMatchTc);
@@ -222,9 +235,19 @@ void MainWindow::createMenus()
     
     onAssemble->addActions(group2->actions());
 
+    optionLodSettingsAct = new QAction(tr("On building LOD pyramids..."),this);
+    optionLodSettingsAct->setToolTip(tr("Set the way OpenBRF build LODs pyramids"));
+    connect(optionLodSettingsAct, SIGNAL(triggered()), this, SLOT(optionLodSettings()));
+    optionMenu->addAction(optionLodSettingsAct);
+
+    optionBgColor = new QAction(tr("Background color..."),this);
+    optionBgColor->setToolTip(tr("Sets the background color"));
+    connect(optionBgColor, SIGNAL(triggered()), this, SLOT(optionSetBgColor()));
+    optionMenu->addAction(optionBgColor);
+
     optionMenu->addSeparator();
     optionMenu->addAction(editRefAct);
-    optionMenu->addSeparator();
+    optionMenu->addSeparator();    
 
     QMenu* lang = optionMenu->addMenu(tr("Language"));
     lang -> addAction( optionLanguage[0] = new QAction(tr("System default"),this) );
@@ -252,6 +275,7 @@ void MainWindow::createMenus()
       optionMenu-> addAction(optionLearnFeminization);
       connect(optionLearnFeminization, SIGNAL(triggered()), this, SLOT(learnFemininzation()));
     }
+
 
     optionMenu-> addSeparator();
 
@@ -562,8 +586,8 @@ void MainWindow::createConnections(){
   connect(optionAutoZoomUseGlobal, SIGNAL(triggered()), glWidget, SLOT(setCommonBBoxOn()) );
   connect(optionAutoZoomUseSelected, SIGNAL(triggered()), glWidget, SLOT(setCommonBBoxOff()) );
 
-  connect(optionInferMaterialOff, SIGNAL(triggered()), glWidget, SLOT(setInferMaterialOff()) );
-  connect(optionInferMaterialOn , SIGNAL(triggered()), glWidget, SLOT(setInferMaterialOn()) );
+  //connect(optionInferMaterialOff, SIGNAL(triggered()), glWidget, SLOT(setInferMaterialOff()) );
+  //connect(optionInferMaterialOn , SIGNAL(triggered()), glWidget, SLOT(setInferMaterialOn()) );
 
   connect(importStaticMeshAct,SIGNAL(triggered()),this,SLOT(importStaticMesh()));
   connect(importRiggedMeshAct,SIGNAL(triggered()),this,SLOT(importRiggedMesh()));
@@ -581,7 +605,8 @@ void MainWindow::createConnections(){
 
   connect(guiPanel->ui->cbLighting        ,SIGNAL(stateChanged(int)),glWidget,SLOT(setLighting(int)));
   connect(guiPanel->ui->cbTexture         ,SIGNAL(stateChanged(int)),glWidget,SLOT(setTexture(int)));
-  connect(guiPanel->ui->cbNormalmap       ,SIGNAL(stateChanged(int)),glWidget,SLOT(setNormalmap(int)));
+  connect(guiPanel->ui->cbNormalmap       ,SIGNAL(stateChanged(int)),this,SLOT(setNormalmap(int)));
+  connect(guiPanel->ui->cbSpecularmap     ,SIGNAL(stateChanged(int)),this,SLOT(setSpecularmap(int)));
   connect(guiPanel->ui->cbFloor           ,SIGNAL(stateChanged(int)),glWidget,SLOT(setFloor(int)));
   connect(guiPanel->ui->cbWireframe       ,SIGNAL(stateChanged(int)),glWidget,SLOT(setWireframe(int)));
   connect(guiPanel->ui->cbRuler           ,SIGNAL(stateChanged(int)),glWidget,SLOT(setRuler(int)));

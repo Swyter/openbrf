@@ -207,6 +207,7 @@ void BrfData::ForgetTextureLocations(){
   for (unsigned int i=0; i<material.size(); i++) {
     material[i].rgbLocation=BrfMaterial::UNKNOWN;
     material[i].bumpLocation=BrfMaterial::UNKNOWN;
+    material[i].specLocation=BrfMaterial::UNKNOWN;
   }
 }
 

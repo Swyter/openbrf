@@ -11,7 +11,7 @@ using namespace vcg;
 BrfMaterial::BrfMaterial()
 {
   bbox.SetNull();
-  bumpLocation = rgbLocation= UNKNOWN;
+  specLocation = bumpLocation = rgbLocation= UNKNOWN;
 
 }
 
@@ -29,6 +29,9 @@ void BrfMaterial::SetDefault(){
 }
 bool BrfMaterial::HasBump() const {
   return (strcmp(bump,"none")!=0);
+}
+bool BrfMaterial::HasSpec() const {
+  return (strcmp(spec,"none")!=0);
 }
 
 bool BrfMaterial::Skip(FILE*f
