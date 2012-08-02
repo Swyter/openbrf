@@ -142,6 +142,9 @@ Selector::Selector(QWidget *parent)
   shiftAniAct = new QAction(tr("Shift time interval"), this);
   shiftAniAct->setStatusTip(tr("Shift a time interval for this animation"));
 
+  bodyMakeQuadDominantAct = new QAction(tr("Make quad-dominant"), this);
+  bodyMakeQuadDominantAct->setStatusTip(tr("Try to merge most triangles into fewer quads (more efficient!)"));
+
   meshRecomputeNormalsAndUnify = new QAction(tr("Recompute normals"), this);
   meshRecomputeNormalsAndUnify->setStatusTip(tr("Recompute normals for this model, and unify pos and vertices"));
 
@@ -201,6 +204,7 @@ Selector::Selector(QWidget *parent)
   connect(scaleAct, SIGNAL(triggered()),parent,SLOT(scale()));
   connect(exportBodyAct, SIGNAL(triggered()), parent, SLOT(exportCollisionBody()));
   connect(shiftAniAct, SIGNAL(triggered()),parent,SLOT(shiftAni()));
+  connect(bodyMakeQuadDominantAct, SIGNAL(triggered()),parent,SLOT(bodyMakeQuadDominant()));
 
   connect(discardAniAct,SIGNAL(triggered()),parent,SLOT(meshDiscardAni()));
   connect(discardColAct,SIGNAL(triggered()),parent,SLOT(meshDiscardCol()));
@@ -233,7 +237,7 @@ Selector::Selector(QWidget *parent)
 
     tab[ti]->setModel(tableModel[ti]);
 
-    if (ti==MESH || ti==MATERIAL || ti==TEXTURE || ti==SKELETON ) {
+    if (ti==MESH || ti==MATERIAL || ti==BODY || ti==TEXTURE || ti==SKELETON ) {
       tab[ti]->setSelectionMode(QAbstractItemView::ExtendedSelection);
       tab[ti]->setStatusTip(QString(tr("[Right-Click]: tools for %1. Multiple selections with [Shift]-[Ctrl].")).arg(IniData::tokenFullName(ti)));
     }
@@ -464,6 +468,7 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
      if (!sep) menu.addSeparator(); sep=true;
      menu.addAction(flipAct);
      menu.addAction(transformAct);
+     menu.addAction(bodyMakeQuadDominantAct);
    }
    if (t==ANIMATION) {
      if (onesel) {

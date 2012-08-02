@@ -28,7 +28,7 @@ public:
   QString mabPath;
   QString name() const;
 
-  bool updated;
+  int updated; // 0 = no. 1 = fast only (only Mat,Tex). 2 = full
   int nRefObjects() const;
   int nObjects() const;
 

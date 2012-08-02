@@ -87,6 +87,7 @@ RESOURCES += resource.qrc
 
 TRANSLATIONS += translations/openbrf_zh.ts
 TRANSLATIONS += translations/openbrf_en.ts
+TRANSLATIONS += translations/openbrf_es.ts
 
 RC_FILE = openBrf.rc
 

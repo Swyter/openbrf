@@ -9,6 +9,7 @@
 void AskModErrorDialog::refresh(){
   iniDataReady=false;
   firstPaintDone=false;
+  inidata->updated=0;
   setup();
 }
 

@@ -1,3 +1,5 @@
+// everything VCG mesh related is implemented here
+
 #include <QGLWidget>
 
 #include <vector>
@@ -26,9 +28,11 @@ struct MyUsedTypes : public UsedTypes<	Use<CVertex>		::AsVertexType,
 
 class CVertex : public Vertex< MyUsedTypes, vertex::BitFlags, vertex::Coord3f,
                                     vertex::Normal3f, vertex::Color4b, vertex::TexCoord2f >{};
-class CFace   : public Face<   MyUsedTypes, face::VertexRef, //face::Normal3f ,
+class CFace   : public Face<   MyUsedTypes, face::VertexRef,
                                     face::BitFlags, //face::WedgeTexCoord2f,
                                     //face::Normal3f, // just for obj importing
+                                    vcg::face::Normal3f, vcg::face::BitFlags, vcg::face::FFAdj,
+                                    vcg::face::Qualityf,
                                     face::WedgeTexCoord2f> {};
 class CMesh   : public vcg::tri::TriMesh< vector<CVertex>, vector<CFace> > {
 public:
@@ -38,6 +42,102 @@ public:
     face[i].V(2) = &(vert[vk]);
   }
 };
+
+// MAKE QUAD DOMINANT FOR BrfBodyParts
+#include "brfBody.h"
+#include <vcg/complex/trimesh/update/normal.h>
+#include <vcg/complex/trimesh/update/topology.h>
+#include <vcg/complex/trimesh/bitquad_creation.h>
+
+static bool noDegenerate(const std::vector<int> &v){
+  for (int i=2; i<v.size(); i++){
+    if (v[i]==v[0]) return false;
+    if (v[i]==v[i-1]) return false;
+    if (v[i-1]==v[0]) return false;
+  }
+  return true;
+}
+
+void BodyPart2Mesh(const BrfBodyPart &bp, CMesh &m ){
+  int nt = 0; // number of triangles
+  for (uint i=0; i<bp.face.size(); i++){
+    const std::vector<int> &f (bp.face[i]);
+    if (noDegenerate(f))
+    nt+=bp.face[i].size()-2;
+  }
+  vcg::tri::Allocator<CMesh>::AddVertices( m , bp.pos.size() );
+  vcg::tri::Allocator<CMesh>::AddFaces( m , nt );
+  for (uint i=0; i<bp.pos.size(); i++){
+    m.vert[i].P() = bp.pos[i];
+  }
+
+  // build faces, splitting polys in tris
+  nt = 0;
+  for (uint i=0; i<bp.face.size(); i++){
+    const std::vector<int> &f (bp.face[i]);
+    if (noDegenerate(f))
+    for (uint j=2; j<f.size(); j++){
+      assert(f[0]!=f[1]);
+      assert(f[1]!=f[2]);
+      assert(f[2]!=f[0]);
+      m.face[nt].V(0) = (&(m.vert[0]))+f[0];
+      m.face[nt].V(1) = (&(m.vert[0]))+f[j-1];
+      m.face[nt].V(2) = (&(m.vert[0]))+f[j];
+      nt++;
+    }
+  }
+  vcg::tri::UpdateNormals<CMesh>::PerFaceNormalized(m);
+  vcg::tri::UpdateTopology<CMesh>::FaceFace(m);
+
+}
+
+void Mesh2BodyPart(CMesh  &m, BrfBodyPart &bp  ){
+  bp.pos.resize(m.vert.size());
+  for (uint i=0; i<bp.pos.size(); i++){
+     bp.pos[i]=m.vert[i].P();
+  }
+  bp.face.resize(0);
+  for (uint i=0; i<m.face.size(); i++) m.face[i].ClearV();
+
+
+  for (uint i=0; i<m.face.size(); i++) {
+
+    CFace &f(m.face[i]);
+    CVertex* v0 = &(m.vert[0]);
+    if (!f.IsV()) {
+      for (int w=0; w<3; w++) {
+        if (f.IsF(w)) { // faux edge
+          // add a quad
+          std::vector<int> v(0);
+          v.push_back(f.V0(w)-v0);
+          v.push_back(f.FFp(w)->V2(f.FFi(w))-v0); // opposite vertex
+          v.push_back(f.V1(w)-v0);
+          v.push_back(f.V2(w)-v0);
+          f.SetV();
+          f.FFp(w)->SetV();
+          bp.face.push_back(v);
+        }
+      }
+      if (!f.IsV()){
+        //add a tri
+        std::vector<int> v(0);
+        v.push_back(f.V(0)-v0);
+        v.push_back(f.V(1)-v0);
+        v.push_back(f.V(2)-v0);
+        f.SetV();
+        bp.face.push_back(v);
+      }
+    }
+  }
+}
+
+void BrfBodyPart::MakeQuadDominant(){
+  CMesh m;
+  BodyPart2Mesh(*this,m);
+  vcg::tri::BitQuadCreation<CMesh>::MakeDominant(m,1);
+  vcg::tri::BitQuadCreation<CMesh>::SplitNonFlatQuads(m,5 );
+  Mesh2BodyPart(m,*this);
+}
 
 CMesh mesh;
 

@@ -102,6 +102,7 @@ private:
     *transformAct,
     *scaleAct,
     *shiftAniAct,
+    *bodyMakeQuadDominantAct,
 
     *sortEntriesAct,
 

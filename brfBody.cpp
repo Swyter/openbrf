@@ -45,6 +45,11 @@ void BrfBodyPart::Flip(){
   }
 }
 
+void BrfBody::MakeQuadDominant(){
+  for (unsigned int i=0; i<part.size(); i++)
+    if (part[i].type==BrfBodyPart::MANIFOLD) part[i].MakeQuadDominant();
+}
+
 void BrfBody::Flip(){
   for (unsigned int i=0; i<part.size(); i++) part[i].Flip();
 }

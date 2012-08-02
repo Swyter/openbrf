@@ -45,6 +45,7 @@ public:
   void InferTypeFromString(char* str);
   void Flip();
   void Transform(float * m);
+  void MakeQuadDominant();
 
 private:
   Point3f Baricenter() const;
@@ -72,6 +73,8 @@ public:
 
   bool ExportOBJ(const wchar_t *fn) const;
   bool ImportOBJ(const wchar_t *fn);
+  void MakeQuadDominant();
+
 private:
   void UpdateBBox();
 };
