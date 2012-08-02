@@ -270,10 +270,10 @@ static bool ioSMD_ImportPose(FILE* f, BrfSkeleton &s,  T& pose, int &time){
     int res = fscanf(f,"%d",&i);
     if (res==0) break; // opefully it is an "end"
     //assert(i<(int)s.bone.size());
-    if (i>=(int)s.bone.size()) continue; // ignore rotation for non-existing bones
     float r[3];
     vcg::Point3f t;
     fscanf(f,"%f %f %f %f %f %f", &(t[0]),&(t[2]),&(t[1]), r+0, r+1, r+2);
+    if (i>=(int)s.bone.size()) continue; // ignore rotation for non-existing bones
     s.bone[i].t = t/SCALE;
     pose.setRotationMatrix( euler2matrix(r) , i );
   }

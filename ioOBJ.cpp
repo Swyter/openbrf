@@ -179,39 +179,39 @@ bool BrfMesh::LoadOBJ(char* fn){
     QString s = QString("%1").arg(st);
     s = s.trimmed();
     if (s.startsWith("usemtl ")) {
-      char* cp = s.toAscii().data();
+      char cp[512]; sprintf(cp,"%s",s.toAscii().data());
       sscanf( cp, "usemtl %s", material);
       curMM.second=QString("%1").arg(material);
       newMM= true;
       setGotMaterialName(true);
     }
     else if (s.startsWith("v ")) {
-      char* cp = s.toAscii().data();
+      char cp[512]; sprintf(cp,"%s",s.toAscii().data());
       Point3f p;
       sscanf( cp,"v %f %f %f",&(p[0]),&(p[1]),&(p[2])); p[0]=-p[0];
       frame[0].pos.push_back(p);
     }
     else if (s.startsWith("vn ")) {
-      char* cp = s.toAscii().data();
+      char cp[512]; sprintf(cp,"%s",s.toAscii().data());
       Point3f p;
       sscanf( cp,"vn %f %f %f",&(p[0]),&(p[1]),&(p[2])); p[0]=-p[0];
       norm.push_back(p);
     }
     else if (s.startsWith("vt ")) {
-      char* cp = s.toAscii().data();
+      char cp[512]; sprintf(cp,"%s",s.toAscii().data());
       Point2f p;
       sscanf( cp,"vt %f %f",&(p[0]),&(p[1])); p[1]=1-p[1];
       ta.push_back(p);
     }
     else if (s.startsWith("s ")) {
-      char* cp = s.toAscii().data();
+      char cp[512]; sprintf(cp,"%s",s.toAscii().data());
       char meshName[4096];
       sscanf( cp, "s %s", meshName);
       curMM.first=QString("%1").arg(meshName);
       newMM= true;
     }
     else if (s.startsWith("f ")) {
-      char* cp = s.toAscii().data();
+      char cp[512]; sprintf(cp,"%s",s.toAscii().data());
 
 
       if (newMM) {

@@ -45,7 +45,7 @@ public:
   const char* getName(ObjCoord);
   unsigned int getSize(ObjCoord);
 
-  void updateBeacuseBrfDataChanged();
+  void updateBeacuseBrfDataSaved();
 
 
   QString mat2tex(const QString &s);
@@ -123,6 +123,7 @@ private:
     QStringList name;
     QString test();
     void append(const QString& s);
+    void appendLRx(const QString& s);
     void appendNon0(const QString& s);
   };
   std::vector<ModuleTxtNameList> txtNameList;

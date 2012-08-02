@@ -676,7 +676,8 @@ template<class BrfType> void MainWindow::insert( vector<BrfType> &v, const BrfTy
     v.insert( v.begin()+i, o);
     newpos=i;
   }
-  selector->updateData(brfdata);
+  inidataChanged();
+  updateSel();
   selectOne(BrfType::tokenIndex(), newpos);
 }
 
@@ -691,7 +692,8 @@ template<class BrfType> void MainWindow::insertOrReplace( vector<BrfType> &v, co
   int i = _findByName(v,st);
   if (i>=0) {
     v[i]=o;
-    selector->updateData(brfdata);
+    inidataChanged();
+    updateSel();
     selectOne(BrfType::tokenIndex(), i);
   }
   else insert(v,o);
@@ -1035,6 +1037,34 @@ void MainWindow::scale(){
 }
 
 
+char* cutAtDot(const char* c){
+  static QString s;
+  s.clear(); s+=c;
+  int k = s.lastIndexOf('.');
+  if (k>0) s.truncate(k);
+  return s.toAscii().data();
+}
+
+void MainWindow::meshToBody(){
+  QModelIndexList list= selector->selectedList();
+  if (selector->currentTabName()==MESH && list.size()>0) {
+    BrfBody b;
+    BrfBodyPart bp;
+    for (int j=0; j<list.size(); j++){
+      BrfMesh &m (brfdata.mesh[list[j].row()]);
+      m.AddToBody(bp);
+      if (j==0) sprintf(b.name,"bo_%s",cutAtDot(m.name));
+    }
+    b.part.push_back(bp);
+    b.MakeQuadDominant();
+    b.UpdateBBox();
+
+    insert(b);
+    setModified(true);
+  }
+
+}
+
 void MainWindow::bodyMakeQuadDominant(){
   QModelIndexList list= selector->selectedList();
   if (selector->currentTabName()==BODY && list.size()>0) {
@@ -1219,6 +1249,7 @@ void MainWindow::moveUpSel(){
   }
   selector->updateData(brfdata);
   selector->moveSel(-1);
+  inidataChanged();
   setModified(true);
 }
 void MainWindow::moveDownSel(){
@@ -1238,6 +1269,7 @@ void MainWindow::moveDownSel(){
   if (res) {
     selector->updateData(brfdata);
     selector->moveSel(+1);
+    inidataChanged();
     setModified(true);
   }
 }
@@ -1321,7 +1353,9 @@ void MainWindow::renameSel(){
       _setName(name,newName);
       }
       setModified(true);
-      selector->updateData(brfdata);
+      inidataChanged();
+      updateSel();
+
     }
   }
 }
@@ -1342,7 +1376,8 @@ void MainWindow::deleteSel(){
     if (i>=(int)res) i=res-1;
     selector->selectOne(selector->currentTabName(),i);
   }
-  selector->updateData(brfdata);
+  inidataChanged();
+  updateSel();
   setModified(true);
 }
 
@@ -1461,6 +1496,7 @@ void MainWindow::sortEntries(){
     default: return ; //assert(0);
   }
   setModified(true);
+  inidataChanged();
   updateSel();
   updateGui();
 }
@@ -1596,7 +1632,10 @@ void MainWindow::duplicateSel(){
     case BODY: _dup(brfdata.body, i); break;
     default: assert(0);
   }
-  selector->updateData(brfdata);
+
+  inidataChanged();
+  updateSel();
+
   selector->moveSel(+1);
   setModified(true);
 }
@@ -1761,7 +1800,9 @@ void MainWindow::breakAni(int which, bool useIni){
     if (!useIni) {
       int res = ani.Break(brfdata.animation);
       if (res>0) {
-        selector->updateData(brfdata);
+        updateSel();
+        inidataChanged();
+
         setModified(true);
         //selector->setCurrentIndex(100);
 
@@ -1788,7 +1829,9 @@ void MainWindow::breakAni(int which, bool useIni){
 
       if (res==0) statusBar()->showMessage(tr("Nothing to split (or could not split)."));
       else {
-        selector->updateData(brfdata);
+        updateSel();
+        inidataChanged();
+
         setModified(true);
         //selector->setCurrentIndex(2);
 
@@ -1857,8 +1900,10 @@ void MainWindow::optionLanguageSet3(){setLanguage(3);}
 void MainWindow::optionLanguageSetCustom(){
   if (maybeSave()) {
     nextTranlationFilename = askImportFilename("QLinguist translation file (*.qm)");
-    if (!nextTranlationFilename.isEmpty())
-    qApp->exit(101);
+    if (!nextTranlationFilename.isEmpty()) {
+      glWidget->forgetChachedTextures();
+      qApp->exit(101);
+    }
   }
 }
 
@@ -1869,6 +1914,8 @@ void MainWindow::setLanguage(int k){
     if (!maybeSave()) return;
 
     curLanguage = k;
+
+    glWidget->forgetChachedTextures();
 
     // quit and restart
     qApp->exit(101);
@@ -2005,22 +2052,29 @@ bool MainWindow::editRef()
     curFile = curFileBackup;
     brfdata = brfdataBackup;
     setEditingRef(false);
-    updateTitle();
-    selector->setup(brfdata);
+    findCurFileInIni();
+
+    updateSel();
 
     return true;
   } else {
     if (!maybeSave()) return false;
+    selector->setIniData(NULL,-1);
     curFileBackup = curFile;
     brfdataBackup = brfdata;
     curFile = QString("%1/%2").arg(QCoreApplication::applicationDirPath()).arg("reference.brf").toAscii().data();
     brfdata = reference;
+    updateSel();
     setEditingRef(true);
-    selector->setup(brfdata);
     statusBar()->showMessage(tr("Editing reference file..."), 2000);
     updateTitle();
     return true;
   }
+}
+
+void MainWindow::inidataChanged(){
+  selector->iniDataWaitsSaving = true;
+  selector->setIniData(NULL,curFileIndex);
 }
 
 bool MainWindow::loadFile(const QString &_fileName)
@@ -2031,7 +2085,7 @@ bool MainWindow::loadFile(const QString &_fileName)
 
   if (!maybeSave()) return false;
   setEditingRef(false);
-  setCurrentFile(fileName);
+
   if (!brfdata.Load(fileName.toStdWString().c_str())) {
      QMessageBox::information(this, "OpenBRF",
                               tr("Cannot load %1.").arg(fileName));
@@ -2039,7 +2093,9 @@ bool MainWindow::loadFile(const QString &_fileName)
      return false;
   } else  {
     //tryLoadMaterials();
-    selector->setup(brfdata);
+    setCurrentFile(fileName);
+    updateSel();
+
     //glWidget->selectNone();
     //selector->setCurrentIndex(100); // for some reason, if I set the 0 message is not sent
     int first = brfdata.FirstToken();
@@ -2073,7 +2129,10 @@ bool MainWindow::saveFile(const QString &fileName)
      statusBar()->showMessage(tr("File saved!"), 2000);
      if (curFileIndex>=0 && curFileIndex<(int)inidata.file.size()){
        inidata.file[curFileIndex]=brfdata; // update ini file
-       inidata.updateBeacuseBrfDataChanged();
+       inidata.updateBeacuseBrfDataSaved();
+       selector->iniDataWaitsSaving = false;
+       selector->setIniData(&inidata,curFileIndex);
+       updateSel();
      }
      setModified(false);
      return true;
@@ -2315,22 +2374,26 @@ bool MainWindow::guessPaths(QString fn){
 }
 
 bool MainWindow::loadIni(int lvl){
+  
   QTime qtime;
   qtime.start();
 
-  bool res = inidata.loadAll(lvl); // only tex mat etc
+  bool res = inidata.loadAll(lvl); // if lvl == 2 only tex mat etc
 
   cancelNavStack();
 
-  guiPanel->setIniData(inidata);
   statusBar()->showMessage( tr("%5 %1 brf files from module.ini of \"%3\"-- %2 msec total [%4 text/mat/shad]").
       arg(inidata.file.size()).arg(qtime.elapsed()).arg(modName).arg(inidata.nRefObjects())
       .arg((res)?tr("scanned"):tr("ERRORS found while scanning")),6000);
+
+  guiPanel->setIniData(inidata);
+  findCurFileInIni();
 
   if (lvl==4) {
     if (!res) QMessageBox::warning(this,"OpenBRF",inidata.errorStringOnScan);
     updateSel();
   }
+
 
   return true;
 }
@@ -2354,17 +2417,24 @@ void MainWindow::setCurrentFile(const QString &fileName)
   // try to guess mab path and module...
   guessPaths(QFileInfo(fileName).canonicalPath() );
 
-  curFileIndex = inidata.findFile(fileName);
+  findCurFileInIni();
+}
+
+void MainWindow::findCurFileInIni()
+{
+  curFileIndex = inidata.findFile(curFile);
   if (curFileIndex>=0) {
     selector->setIniData(&inidata,curFileIndex);
   } else {
     selector->setIniData(NULL,-1);
   }
 
+  if (curFileIndex == -1) selector->setIniData(NULL,-1);
+  else selector->setIniData(&inidata,curFileIndex);
+
   updateTitle();
 
 }
-
 MainWindow::~MainWindow()
 {
   saveOptions();
@@ -2523,7 +2593,6 @@ bool MainWindow::refreshIni(){
   bool res = loadIni(tmp);
   updateGl();
   updateGui();
-  updateSel();
   return res;
 
 }
@@ -2581,9 +2650,12 @@ void MainWindow::newFile(){
     brfdata.Clear();
     curFile.clear();
     curFileIndex = -1;
-    selector->setup( brfdata );
-    setEditingRef(false);
+    updateGui();
+    updateGl();
+    updateSel();
     updateTitle();
+    inidataChanged();
+    setEditingRef(false);
   }
 }
 

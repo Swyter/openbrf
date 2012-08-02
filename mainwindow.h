@@ -129,6 +129,7 @@ private:
     void meshRecomputeNormalsAndUnify();
     void meshUnify();
     void meshMerge();
+    void meshToBody();
     void meshMountOnBone();
     void meshRemoveBack();
     void meshAddBack();
@@ -241,10 +242,11 @@ private:
     void saveOptions() const;
     void loadOptions();
 
-
+    void inidataChanged(); // call me when brf content changed
     void updateGl();
     void updateGui();
     void updateSel();
+    void findCurFileInIni();
 
     int afterMeshImport() const; // 0:nothing   1:merge   2:normal recompute and merge
     int assembleAniMode() const; // 0:trust vertex order   1:trust vertex coords

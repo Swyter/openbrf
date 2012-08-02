@@ -50,7 +50,7 @@
  </data>
  <data>
   <variable>activebuildconfiguration</variable>
-  <value type="QString">Language</value>
+  <value type="QString">Release</value>
  </data>
  <data>
   <variable>buildConfiguration-Debug</variable>
@@ -497,6 +497,7 @@
    </valuelist>
    <value key="abstractProcess.command" type="QString"></value>
    <value key="abstractProcess.workingDirectory" type="QString">C:/projects/qtCreator/openBrf</value>
+   <value key="workingDirectory" type="QString">$BUILDDIR</value>
   </valuemap>
  </data>
  <data>
@@ -546,6 +547,7 @@
    </valuelist>
    <value key="abstractProcess.command" type="QString"></value>
    <value key="abstractProcess.workingDirectory" type="QString">C:/projects/qtCreator/openBrf</value>
+   <value key="workingDirectory" type="QString">$BUILDDIR</value>
   </valuemap>
  </data>
  <data>

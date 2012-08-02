@@ -29,6 +29,7 @@ public:
   BrfData* reference;
   const BrfData* data;
   const IniData* iniData;
+  bool iniDataWaitsSaving;
   int iniFileIndex;
   void selectOne(int kind, int i);
 
@@ -71,9 +72,11 @@ private:
     *meshRecomputeNormalsAndUnify,
     *meshUnify,
     *meshMerge,
+    *meshToBody,
     *meshMountOnBone,
     *meshRemoveBackfacing,
     *meshAddBackfacing,
+
 
     *renameAct,
     *removeAct,
@@ -126,7 +129,8 @@ private:
     *usedInCoreAct[2],
     *usedInNoTxtAct,
     *usedInAct[N_TXTFILES*2],
-    *usedInNotInModule;
+    *usedIn_NotInModule,
+    *usedIn_SaveFirst;
 
 };
 
