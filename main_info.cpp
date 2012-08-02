@@ -66,7 +66,7 @@ void MainWindow::about()
                    "[Triglav], [Tul], [Ursca], [yellowmosquito], [xenoargh]")
               .arg("[amade], [Swyter]!")
               .arg(QString("[foxyman] (%1)").arg(tr("additional code and Chinese")))
-              .arg("0.0.40")
+              .arg("0.0.41")
             ,QMessageBox::Ok, this);
     msg.setLocale(QLocale::system());
   //msg.layout()->addWidget(&lab);

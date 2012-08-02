@@ -85,8 +85,8 @@ INCLUDEPATH += "C:\projects\vcglib"
 INCLUDEPATH += "C:\libs\lib3ds-1.3.0"
 RESOURCES += resource.qrc
 
-TRANSLATIONS += openbrf_zh.ts
-TRANSLATIONS += openbrf_en.ts
+TRANSLATIONS += translations/openbrf_zh.ts
+TRANSLATIONS += translations/openbrf_en.ts
 
 RC_FILE = openBrf.rc
 

@@ -23,6 +23,7 @@ void MainWindow::createMenus()
     editMenu->addAction(editCutAct);
     editMenu->addAction(editCopyAct);
     editMenu->addAction(editPasteAct);
+    editMenu->addAction(editAddToCopyAct);
     editMenu->addSeparator();
     editMenu->addAction(editCutFrameAct);
     editMenu->addAction(editCopyFrameAct);
@@ -30,8 +31,9 @@ void MainWindow::createMenus()
     editMenu->addSeparator();
     editMenu->addAction(editPasteRiggingAct);
     editMenu->addAction(editPasteModificationAct);
+    editMenu->addAction(editPasteTimingsAct);
 
-    QMenu* importMenu=menuBar()->addMenu(tr("&Import")); //revised foxyman
+    QMenu* importMenu=menuBar()->addMenu(tr("&Import"));
 
     importMenu->addAction(importStaticMeshAct);
     importMenu->addAction(importRiggedMeshAct);
@@ -49,29 +51,29 @@ void MainWindow::createMenus()
     importMenu->addSeparator();
     importMenu->addAction(importBrfAct);
 
-    QMenu* moduleMenu=menuBar()->addMenu(tr("Module")); //revised foxyman
+    QMenu* moduleMenu=menuBar()->addMenu(tr("Module"));
     moduleMenu->addAction(refreshIniAct);
     moduleMenu->addAction(checkIniAct);
     moduleMenu->addAction(searchIniAct);
     //moduleMenu->addAction(searchBrfAct);
-    QMenu* navMenu = moduleMenu->addMenu(tr("Navigate"));//revised foxyman
+    QMenu* navMenu = moduleMenu->addMenu(tr("Navigate"));
     navMenu->addAction(navigateRightAct);
     navMenu->addAction(navigateLeftAct);
     //navMenu->addAction(navigateDownAct);
     //navMenu->addAction(navigateUpAct);
 
-    QMenu* toolMenu = menuBar()->addMenu(tr("&Tools"));//revised foxyman
+    QMenu* toolMenu = menuBar()->addMenu(tr("&Tools"));
     toolMenu->addAction(sortEntriesAct);
 
-    QMenu* optionMenu=menuBar()->addMenu(tr("&Settings"));//revised foxyman
-    QMenu* onImport = optionMenu->addMenu(tr("On import meshes"));//revised foxyman
+    QMenu* optionMenu=menuBar()->addMenu(tr("&Settings"));
+    QMenu* onImport = optionMenu->addMenu(tr("On import meshes"));
 
-    QMenu* onAssemble = optionMenu->addMenu(tr("On assemble vertex animations"));//revised foxyman
+    QMenu* onAssemble = optionMenu->addMenu(tr("On assemble vertex animations"));
 
 
-    QMenu *tldSpecial = new QMenu(tr("TLD easteregg"));//revised foxyman
-    mab2tldHeadAct = new QAction(tr("Make head TLD mode"),this);//revised foxyman
-    tld2mabHeadAct = new QAction(tr("And back"),this); //revised foxyman
+    QMenu *tldSpecial = new QMenu("TLD easteregg");
+    mab2tldHeadAct = new QAction("Make head TLD mode",this);
+    tld2mabHeadAct = new QAction("And back",this);
     connect(tld2mabHeadAct,SIGNAL(triggered()),this,SLOT(tld2mabHead()));
     connect(mab2tldHeadAct,SIGNAL(triggered()),this,SLOT(mab2tldHead()));
     tldSpecial->addAction(mab2tldHeadAct);
@@ -79,8 +81,8 @@ void MainWindow::createMenus()
 
     tldSpecial->addSeparator();
 
-    mab2tldArmorAct = new QAction(tr("Make TLD armour"),this);//revised foxyman
-    tld2mabArmorAct = new QAction(tr("Unmake it"),this);//revised foxyman
+    mab2tldArmorAct = new QAction("Make TLD armour",this);
+    tld2mabArmorAct = new QAction("Unmake it",this);
     connect(tld2mabArmorAct,SIGNAL(triggered()),this,SLOT(tld2mabArmor()));
     connect(mab2tldArmorAct,SIGNAL(triggered()),this,SLOT(mab2tldArmor()));
     tldSpecial->addAction(mab2tldArmorAct);
@@ -104,11 +106,11 @@ void MainWindow::createMenus()
     menuBar()->removeAction(tldMenuAction);
     //tldSpecial->hide();
 
-    optionAfterMeshLoadMerge = new QAction(tr("merge vertices and pos"),this);//revised foxyman
+    optionAfterMeshLoadMerge = new QAction(tr("merge vertices and pos"),this);
     optionAfterMeshLoadMerge->setCheckable(true);
-    optionAfterMeshLoadRecompute = new QAction(tr("recompute normals and merge"),this);//revised foxyman
+    optionAfterMeshLoadRecompute = new QAction(tr("recompute normals and merge"),this);
     optionAfterMeshLoadRecompute->setCheckable(true);
-    optionAfterMeshLoadNothing = new QAction(tr("do nothing"),this);//revised foxyman
+    optionAfterMeshLoadNothing = new QAction(tr("do nothing"),this);
     optionAfterMeshLoadNothing->setCheckable(true);
 
 
@@ -121,12 +123,12 @@ void MainWindow::createMenus()
     onImport->addActions(group->actions());
 
 
-    optionAssembleAniMatchVert = new QAction(tr("trust vertex order to be the same"),this);//revised foxyman
-    optionAssembleAniMatchVert->setStatusTip(tr("Use this option if you feel lucky and hope that vertex order was preserved between the frames."));//revised foxyman
+    optionAssembleAniMatchVert = new QAction(tr("trust vertex order to be the same"),this);
+    optionAssembleAniMatchVert->setStatusTip(tr("Use this option if you feel lucky and hope that vertex order was preserved between the frames."));
     optionAssembleAniMatchVert->setCheckable(true);
-    optionAssembleAniMatchTc   = new QAction(tr("trust texture coordinates to be unique"),this);//revised foxyman
+    optionAssembleAniMatchTc   = new QAction(tr("trust texture coordinates to be unique"),this);
     optionAssembleAniMatchTc->setCheckable(true);
-    optionAssembleAniMatchTc->setStatusTip(tr("Use this option if you think that each vertex can be identified uniquely by its texture coords (best option)"));//revised foxyman
+    optionAssembleAniMatchTc->setStatusTip(tr("Use this option if you think that each vertex can be identified uniquely by its texture coords (best option)"));
 
     optionAssembleAniQuiverMode = new QAction(tr("quiver mode - start with max arrows"),this);
     optionAssembleAniQuiverMode->setStatusTip(tr("When you add a frame: what is not in the exact same position as the 1st frame disappears"));
@@ -147,10 +149,10 @@ void MainWindow::createMenus()
     autoFix->addAction(optionAutoFixTextureInfo);
 */
 
-    QMenu* autoZoom = optionMenu->addMenu(tr("Auto zoom-and-recenter"));//reviesd foxyman
-    optionAutoZoomUseSelected = new QAction(tr("according to selected object(s) only"),this);//revised foxyman
+    QMenu* autoZoom = optionMenu->addMenu(tr("Auto zoom-and-recenter"));
+    optionAutoZoomUseSelected = new QAction(tr("according to selected object(s) only"),this);
     optionAutoZoomUseSelected->setCheckable(true);
-    optionAutoZoomUseGlobal = new QAction(tr("according to all objects in file"),this);//revised foxyman
+    optionAutoZoomUseGlobal = new QAction(tr("according to all objects in file"),this);
     optionAutoZoomUseGlobal->setCheckable(true);
     QActionGroup* group3=new QActionGroup(this);
     group3->addAction(optionAutoZoomUseSelected);
@@ -178,10 +180,14 @@ void MainWindow::createMenus()
     lang -> addAction( optionLanguage[2] = new QAction(QString("%1%2(%3%4)")
       .arg(QChar(20013)).arg(QChar(25991)).arg(QChar(31616)).arg(QChar( 20307))
     ,this ) );
+    lang -> addSeparator();
+    lang -> addAction( optionLanguageCustom = new QAction(tr("Test a custom translation file..."),this) );
+
     for (int i=0; i<3; i++) optionLanguage[i]->setCheckable(true);
     connect(optionLanguage[0],SIGNAL(triggered()), this, SLOT(optionLanguageSet0()));
     connect(optionLanguage[1],SIGNAL(triggered()), this, SLOT(optionLanguageSet1()));
     connect(optionLanguage[2],SIGNAL(triggered()), this, SLOT(optionLanguageSet2()));
+    connect(optionLanguageCustom,SIGNAL(triggered()), this, SLOT(optionLanguageSetCustom()));
     optionMenu-> addSeparator();
 
     //optionMenu->addAction(registerMime);
@@ -211,6 +217,8 @@ void MainWindow::createActions()
     editCutAct->setShortcuts(QKeySequence::Cut);
     editCopyAct = new QAction(tr("Copy"), this);
     editCopyAct->setStatusTip(tr("Copy currently selected objects in the clipboard."));
+    editAddToCopyAct = new QAction(tr("Add to Clipboard"), this);
+    editAddToCopyAct->setStatusTip(tr("Add currently selected objects to clipboard."));
     editCopyAct->setShortcuts(QKeySequence::Copy);
     editPasteAct = new QAction(tr("Paste"), this);
     editPasteAct->setStatusTip(tr("Paste objects from the clipboard into currect BRF."));
@@ -235,15 +243,21 @@ void MainWindow::createActions()
     editPasteModificationAct->setStatusTip(tr("Move vertices of current mesh according to a 2 frame mesh animation."));
     editPasteModificationAct->setEnabled(false);
 
+    editPasteTimingsAct = new QAction(tr("Paste timings"), this);
+    editPasteTimingsAct->setStatusTip(tr("Paste timings of vertex or skeletal animation in clipboard into other animation(s)."));
+    editPasteTimingsAct->setEnabled(false);
+
     connect(editCutAct, SIGNAL(triggered()), this, SLOT(editCut()));
     connect(editCopyAct, SIGNAL(triggered()), this, SLOT(editCopy()));
     connect(editPasteAct, SIGNAL(triggered()), this, SLOT(editPaste()));
+    connect(editAddToCopyAct, SIGNAL(triggered()), this, SLOT(editAddToCopy()));
 
     connect(editCutFrameAct, SIGNAL(triggered()), this, SLOT(editCutFrame()));
     connect(editCopyFrameAct, SIGNAL(triggered()), this, SLOT(editCopyFrame()));
     connect(editPasteFrameAct, SIGNAL(triggered()), this, SLOT(editPasteFrame()));
     connect(editPasteRiggingAct, SIGNAL(triggered()), this, SLOT(editPasteRigging()));
     connect(editPasteModificationAct, SIGNAL(triggered()), this, SLOT(editPasteMod()));
+    connect(editPasteTimingsAct, SIGNAL(triggered()), this, SLOT(editPasteTimings()));
 
     saveAsAct = new QAction(tr("Save &As..."), this);
     //saveAsAct->setShortcuts(QKeySequence::SaveAs);
@@ -301,35 +315,35 @@ void MainWindow::createActions()
     importBrfAct = new QAction(tr("Anything from a BRF"),this);
     importBrfAct->setStatusTip(tr("Import all content form another BRF file into current one."));
     addNewMaterialAct = new QAction(tr("New Material"),this);
-    addNewMaterialAct->setStatusTip(tr("Make a new Material object."));//revised foxyman
+    addNewMaterialAct->setStatusTip(tr("Make a new Material object."));
     addNewTextureAct = new QAction(tr("New Texture"),this);
-    addNewTextureAct->setStatusTip(tr("Make a new Texture object from a dds texture"));//revised foxyman
+    addNewTextureAct->setStatusTip(tr("Make a new Texture object from a dds texture"));
     addNewShaderAct = new QAction(tr("New Shader"),this);
-    addNewShaderAct->setStatusTip(tr("Enlist a new Shader"));//revised foxyman
+    addNewShaderAct->setStatusTip(tr("Enlist a new Shader"));
 
 
     navigateRightAct = new QAction(tr("follow link"),this);
     navigateRightAct->setShortcut(tr("ctrl+right"));
-    navigateRightAct->setStatusTip(tr("Go from a mesh to used material; go from a material to used textures/shader"));//revised foxyman
+    navigateRightAct->setStatusTip(tr("Go from a mesh to used material; go from a material to used textures/shader"));
     navigateRightAct->setShortcutContext(Qt::ApplicationShortcut);
     navigateLeftAct = new QAction(tr("follow back-link"),this);
     navigateLeftAct->setShortcut(tr("ctrl+left"));
-    navigateLeftAct->setStatusTip(tr("Go back to the mesh (from a material) or material (from texture or shaders)."));//revised foxyman
+    navigateLeftAct->setStatusTip(tr("Go back to the mesh (from a material) or material (from texture or shaders)."));
     navigateDownAct = new QAction(tr("next back-link"),this);
     navigateUpAct = new QAction(tr("prev back-link"),this);
     searchBrfAct = new QAction(tr("Find"),this);
     searchBrfAct->setShortcut(tr("ctrl+F"));
     refreshIniAct = new QAction(tr("Refresh ini"),this);
-    refreshIniAct->setStatusTip(tr("Reload ini files, brf files inside it, and dds textures"));//revised foxyman
+    refreshIniAct->setStatusTip(tr("Reload ini files, brf files inside it, and dds textures"));
     refreshIniAct->setShortcut(tr("F5"));
 
     checkIniAct = new QAction(tr("Scan module for errors"),this);
     checkIniAct->setShortcut(tr("ctrl+E"));
-    checkIniAct->setStatusTip(tr("Scan module.ini and included brf files for inconsistencies."));//revised foxyman
+    checkIniAct->setStatusTip(tr("Scan module.ini and included brf files for inconsistencies."));
 
     searchIniAct = new QAction(tr("Find in module"),this);
     searchIniAct->setShortcut(tr("ctrl+F"));
-    searchIniAct->setStatusTip(tr("Look for an object in all brf listed inside current module.ini."));//revised foxyman
+    searchIniAct->setStatusTip(tr("Look for an object in all brf listed inside current module.ini."));
 
     connect(navigateRightAct, SIGNAL(triggered()), this, SLOT(navigateRight()));
     connect(navigateLeftAct, SIGNAL(triggered()), this, SLOT(navigateLeft()));
@@ -341,7 +355,7 @@ void MainWindow::createActions()
     connect(searchIniAct, SIGNAL(triggered()), this, SLOT(searchIni()));
 
     registerMime = new QAction(tr("Register BRF extension"),this);
-    registerMime->setStatusTip(tr("Make so that clicking on a brf file opens OpenBRF."));//revised foxyman
+    registerMime->setStatusTip(tr("Make so that clicking on a brf file opens OpenBRF."));
     connect(registerMime, SIGNAL(triggered()), this, SLOT(registerExtension()));
 }
 
@@ -354,12 +368,12 @@ void MainWindow::createMiniViewOptions(){
 
   QPushButton* viewmode[3];
   QButtonGroup* bg=new QButtonGroup(this);
-  viewmode[0] = new QPushButton(tr("default"),this);//revised foxyman
-  viewmode[0]->setStatusTip(tr("Default mode: rotate objects with mouse, zoom in/out with wheel."));//revised foxyman
-  viewmode[1] = new QPushButton(tr("helmet"),this);//revised foxyman
-  viewmode[1]->setStatusTip(tr("Helmet mode: for objects with vertical Z axis, like M&B helmets or weapons."));//revised foxyman
-  viewmode[2] = new QPushButton(tr("scene"),this);//revised foxyman
-  viewmode[2]->setStatusTip(tr("Scene mode: navigate with mouse and WASD (levitate with wheel, zoom with shift)"));//revised foxyman
+  viewmode[0] = new QPushButton(tr("default"),this);
+  viewmode[0]->setStatusTip(tr("Default mode: rotate objects with mouse, zoom in/out with wheel."));
+  viewmode[1] = new QPushButton(tr("helmet"),this);
+  viewmode[1]->setStatusTip(tr("Helmet mode: for objects with vertical Z axis, like M&B helmets or weapons."));
+  viewmode[2] = new QPushButton(tr("scene"),this);
+  viewmode[2]->setStatusTip(tr("Scene mode: navigate with mouse and WASD (levitate with wheel, zoom with shift)"));
   bg->setExclusive(true);
 
   comboViewmodeSelector = new QWidget(this);
@@ -370,12 +384,12 @@ void MainWindow::createMiniViewOptions(){
 
   QPushButton* viewmodemult[2];
   comboViewmodeBG=new QButtonGroup(this);
-  viewmodemult[0] = new QPushButton(tr("combo"),this);//revised foxyman
-  viewmodemult[0]->setStatusTip(tr("See objects combined, when selecting multiple things"));//revised foxyman
-  viewmodemult[1] = new QPushButton(tr("aside"),this);//revisd foxyman
-  viewmodemult[1]->setStatusTip(tr("See object side-to-side, when selecting multiple things"));//revised foxyman
+  viewmodemult[0] = new QPushButton(tr("combo"),this);
+  viewmodemult[0]->setStatusTip(tr("See objects combined, when selecting multiple things"));
+  viewmodemult[1] = new QPushButton(tr("aside"),this);
+  viewmodemult[1]->setStatusTip(tr("See object side-to-side, when selecting multiple things"));
   comboViewmodeBG->setExclusive(true);
-  QLabel* viewmodemultLabel = new QLabel(tr("mult-view:"));//revised foxyman
+  QLabel* viewmodemultLabel = new QLabel(tr("mult-view:"));
   comboViewmodeSelector->layout()->addWidget(viewmodemultLabel);
 
 
@@ -393,7 +407,7 @@ void MainWindow::createMiniViewOptions(){
     comboViewmodeBG->addButton(viewmodemult[i],i);
   }
 
-  QLabel* viewmodeLabel = new QLabel(tr("view-mode:"));//revised foxyman
+  QLabel* viewmodeLabel = new QLabel(tr("view-mode:"));
   QFont f =viewmodeLabel->font(); f.setPixelSize(10); f.setItalic(true);
   viewmodeLabel->setFont(f);
   viewmodemultLabel->setFont(f);

@@ -1797,7 +1797,7 @@
      </rect>
     </property>
     <property name="statusTip">
-     <string>Click to open file containing this enviornment map.</string>
+     <string>Click to open file containing this environment map.</string>
     </property>
     <property name="text">
      <string>&lt;a href=&quot;link&quot;&gt;Enviro&lt;/a&gt;:</string>

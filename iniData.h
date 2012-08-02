@@ -22,7 +22,7 @@ public:
 
 
   QString mat2tex(const QString &s);
-  bool load(bool faster);
+  bool loadAll(bool faster);
 
   QString modPath;
   QString mabPath;

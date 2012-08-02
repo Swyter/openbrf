@@ -48,9 +48,16 @@ int GLWidget::getRefSkeleton() const{
   if (displaying == MESH ) {
     if (selRefAnimation>=0) {
       BrfAnimation *a=&(reference->animation[selRefAnimation]);
-      int si = reference->getOneSkeleton( int(a->nbones ), selRefSkel );
-      return si;
+      return reference->getOneSkeleton( int(a->nbones ), selRefSkel );
     }
+  }
+  if (displaying == ANIMATION ) {
+    if (data)
+    if ((selected>=0) && (selected<(int)data->animation.size())) {
+      BrfAnimation &a( data->animation[selected]);
+      return reference->getOneSkeleton( int(a.nbones ), selRefSkel );
+    }
+
   }
   return selRefSkel;
 }
@@ -458,7 +465,7 @@ void GLWidget::setCheckboard(){
 
 bool GLWidget::fixTextureFormat(QString st){
 
-  FILE* f = fopen(st.toAscii().data(),"r+b");
+  FILE* f = _wfopen(st.toStdWString().c_str(),L"rb");
   if (!f) return false;
   unsigned int h[22]; // header
   fread(h,4 , 22,f); // 4 = sizeof uint
@@ -684,14 +691,14 @@ void GLWidget::setViewmode(int i){
       lastCenter +
       vcg::Point3f(sin(ph)*dist/lastScale*K,0.6,cos(ph)*dist/lastScale*K);
     //qDebug("Scale = %f",lastScale);
-    emit(displayInfo(tr("Scene mode: navigate with mouse and WASD (levitate with wheel, zoom in with shift)"), 10000));//revised foxyman
+    emit(displayInfo(tr("Scene mode: navigate with mouse and WASD (levitate with wheel, zoom in with shift)"), 10000));
   } else {
     //setFocusPolicy(Qt::NoFocus);
     setFocusPolicy(Qt::WheelFocus);
     if (i==1)
-    emit(displayInfo(tr("Helmet mode: for objects with vertical Z axis, like M&B helmets or weapons."), 8000));//revised foxyman
+    emit(displayInfo(tr("Helmet mode: for objects with vertical Z axis, like M&B helmets or weapons."), 8000));
     else
-    emit(displayInfo(tr("Default mode: rotate objects with mouse, zoom in/out with wheel."), 8000));//revised foxyman
+    emit(displayInfo(tr("Default mode: rotate objects with mouse, zoom in/out with wheel."), 8000));
   }
   update();
 }

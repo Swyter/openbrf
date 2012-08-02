@@ -27,6 +27,7 @@ public:
     bool loadFile(const QString &fileName);
 
     static int getLanguageOption();
+    QString getNextTranslatorFilename(){return nextTranlationFilename;};
 
 private:
     BrfData brfdata;
@@ -110,12 +111,14 @@ private:
     void addToRefMesh(int);
     void editCut();
     void editCopy(bool deselect=true);
+    void editAddToCopy();
     void editPaste();
     void editCutFrame();
     void editCopyFrame();
     void editPasteFrame();
     void editPasteRigging();
     void editPasteMod();
+    void editPasteTimings();
     void sortEntries();
     void meshRecomputeNormalsAndUnifyDoIt();
     void meshRecomputeNormalsAndUnify_onSlider(int i);
@@ -146,6 +149,7 @@ private:
     void optionLanguageSet0();
     void optionLanguageSet1();
     void optionLanguageSet2();
+    void optionLanguageSetCustom();
 
     void mab2tldHead();
     void tld2mabHead();
@@ -177,6 +181,7 @@ private:
     QString lastSearchString;
 
     int curLanguage; // 0 = use default
+    QString nextTranlationFilename; // which file to load next time (post mortem msg)
     void setLanguage(int k);
 
     bool scanBrfForMaterials(const QString fname);
@@ -254,8 +259,10 @@ private:
     QAction *separatorAct;
     QAction *editCutAct;
     QAction *editCopyAct;
+    QAction *editAddToCopyAct;
     QAction *editPasteAct;
     QAction *editPasteRiggingAct;
+    QAction *editPasteTimingsAct;
     QAction *editPasteModificationAct;
     QAction *editCutFrameAct;
     QAction *editCopyFrameAct;
@@ -294,6 +301,7 @@ private:
     QAction *optionAutoZoomUseGlobal;
     QAction *optionAutoZoomUseSelected;
     QAction *optionLanguage[3];
+    QAction *optionLanguageCustom;
 
     QAction *tldMenuAction;
 

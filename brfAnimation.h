@@ -33,7 +33,7 @@ public:
   bool Skip(FILE*f);
   void Save(FILE*f) const;
 
-  void Export(char *f);
+  void Export(const wchar_t *f);
 
   // to dysplay the animation...
   bool IsAnimable() const{return true;}
@@ -41,7 +41,7 @@ public:
   static Box3f bbox;
 
   int Break(std::vector<BrfAnimation> &res) const;
-  int Break(std::vector<BrfAnimation> &res, char* aniFile, char *fn2) const;
+  int Break(std::vector<BrfAnimation> &res, const wchar_t* aniFile, wchar_t *fn2) const;
 
   bool SaveSMD(FILE *f) const;
   bool LoadSMD(FILE *f);
@@ -53,6 +53,9 @@ public:
   bool Reskeletonize(const BrfSkeleton& from, const BrfSkeleton& to);
 
   void ShiftIndexInterval(int i);
+
+  void GetTimings(std::vector<int> &v);
+  void SetTimings(const std::vector<int> &v);
 
 private:
   void EnlongFrames(int nframes);

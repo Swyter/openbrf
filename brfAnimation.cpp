@@ -349,13 +349,13 @@ void BrfAnimation::ShiftIndexInterval(int d){
   for (unsigned int i=0; i<frame.size(); i++) frame[i].index+=d;
 }
 
-int BrfAnimation::Break(vector<BrfAnimation> &vect, char* fn, char *fn2) const{
+int BrfAnimation::Break(vector<BrfAnimation> &vect, const wchar_t* fn, wchar_t *fn2) const{
 
   int res=0;
-  FILE *fin=fopen(fn,"rt");
+  FILE *fin=_wfopen(fn,L"rt");
   //static char fn2[1024];
-  sprintf(fn2,"%s [after splitting %s].txt",fn,name);
-  FILE *fout=fopen(fn2,"wt");
+  swprintf(fn2,L"%ls [after splitting %s].txt",fn,name);
+  FILE *fout=_wfopen(fn2,L"wt");
   if (!fin) return -1;
   if (!fout) return -2;
   int n=0;
@@ -432,6 +432,23 @@ int BrfAnimation::Break(vector<BrfAnimation> &vect) const{
   return res;
 }
 
+
+void BrfAnimation::GetTimings(std::vector<int> &v){
+  v.resize(frame.size());
+  for (unsigned int i=0; i<frame.size(); i++){
+    v[i]= frame[i].index;
+  }
+}
+
+void BrfAnimation::SetTimings(const std::vector<int> &v){
+  int last = 0;
+  for (unsigned int i=0; i<frame.size(); i++){
+    if (i<v.size()) frame[i].index = last = v[i] ;
+    else { last+=10; frame[i].index = last;}
+  }
+}
+
+
 bool BrfAnimation::Skip(FILE*f){
   if (!LoadString(f, name)) return false;
   SkipVectorR<TmpBone4>(f);
@@ -457,12 +474,6 @@ bool BrfAnimation::Load(FILE*f, int verbose){
 
   TmpBone2BrfFrame(tmpBone4v, tmpCas3v, frame);
 
-  /*FILE *ff = fopen("before.txt","wt");
-  for (unsigned int i=0; i<tmpBone4v.size(); i++) {
-    fprintf(ff,"(Bone %d) ",i); tmpBone4v[i].Export(ff);
-  }
-  fclose(ff);*/
-
   //Export("tmpAni.txt");
   return true;
 }
@@ -485,8 +496,8 @@ void BrfAnimation::Save(FILE *f) const{
 
 }
 
-void BrfAnimation::Export(char* fn){
-  FILE* f = fopen(fn,"wt");
+void BrfAnimation::Export(const wchar_t* fn){
+  FILE* f = _wfopen(fn,L"wt");
   fprintf(f,"%s -- %d bones  %u frames...\n",name, nbones,frame.size());
   for (unsigned int j=0; j<frame.size(); j++) {
     for (int i=0; i<nbones; i++) {

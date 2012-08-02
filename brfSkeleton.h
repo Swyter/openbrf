@@ -91,7 +91,7 @@ public:
 
 private:
 
-  void Export(char *f); // for intrnal use
+  void Export(const wchar_t *f); // for intrnal use
   void SetBoneMatrices(const BrfAnimationFrame &fr, int boneIndex,
                        std::vector<vcg::Matrix44<float> > &boneMatrV, const vcg::Matrix44<float>  &curr) const;
   void SetBoneMatrices(int boneIndex,
