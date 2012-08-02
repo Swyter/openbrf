@@ -3,7 +3,8 @@
 # -------------------------------------------------
 QT += opengl
 QT += xml
-#RC_FILE = openBrf.rc
+
+# RC_FILE = openBrf.rc
 TARGET = openBrf
 TEMPLATE = app
 SOURCES += main.cpp \
@@ -39,7 +40,8 @@ SOURCES += main.cpp \
     main_create.cpp \
     main_ImpExp.cpp \
     brfHitBox.cpp \
-    ioMD3.cpp
+    ioMD3.cpp \
+    askNewUiPictureDialog.cpp
 HEADERS += mainwindow.h \
     glwidgets.h \
     saveLoad.h \
@@ -71,7 +73,8 @@ HEADERS += mainwindow.h \
     ddsData.h \
     askCreaseDialog.h \
     ioOBJ.h \
-    ioMD3.h
+    ioMD3.h \
+    askNewUiPictureDialog.h
 FORMS += guipanel.ui \
     askBoneDialog.ui \
     askSkelDialog.ui \
@@ -80,21 +83,16 @@ FORMS += guipanel.ui \
     askModErrorDialog.ui \
     askTransformDialog.ui \
     askCreaseDialog.ui \
-    mainwindow.ui
+    mainwindow.ui \
+    askNewUiPictureDialog.ui
 INCLUDEPATH += "C:\projects\vcglib"
 INCLUDEPATH += "C:\libs\lib3ds-1.3.0"
 RESOURCES += resource.qrc
-
 TRANSLATIONS += translations/openbrf_zh.ts
 TRANSLATIONS += translations/openbrf_en.ts
 TRANSLATIONS += translations/openbrf_es.ts
-
 RC_FILE = openBrf.rc
-
 win32 { 
     DEFINES += NOMINMAX
     DEFINES += _CRT_SECURE_NO_DEPRECATE
 }
-
-#QMAKE_CXXFLAGS_RELEASE += -Wno-uninitialized
-

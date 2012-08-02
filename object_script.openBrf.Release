@@ -33,6 +33,7 @@ INPUT(
 ./release\main_ImpExp.o
 ./release\brfHitBox.o
 ./release\ioMD3.o
+./release\askNewUiPictureDialog.o
 ./release\moc_mainwindow.o
 ./release\moc_glwidgets.o
 ./release\moc_selector.o
@@ -45,5 +46,6 @@ INPUT(
 ./release\moc_askModErrorDialog.o
 ./release\moc_askTransformDialog.o
 ./release\moc_askCreaseDialog.o
+./release\moc_askNewUiPictureDialog.o
 ./release\qrc_resource.o
 );

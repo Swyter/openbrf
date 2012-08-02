@@ -2,15 +2,20 @@
 #include "mainwindow.h"
 
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
 
   Q_INIT_RESOURCE(resource);
 
   QString nextTranslator;
 
+
+  char* argv_2[]={"OpenBrf"}; int argc_2=1;
+  QApplication app(argc_2,argv_2); //argc, argv);
+  QStringList arguments = QCoreApplication::arguments();
+
+
   while (1){
-  QApplication app(argc, argv);
 
   QTranslator translator;
 
@@ -34,6 +39,8 @@ int main(int argc, char *argv[])
 
   MainWindow w;
   w.show();
+
+  if (arguments.size()>=2) w.loadFile(arguments[1]); arguments.clear();
 
   if (app.exec()==101) {
     nextTranslator = w.getNextTranslatorFilename();

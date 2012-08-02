@@ -60,6 +60,7 @@ private:
     void breakAni(int which, bool useIni);
     void shiftAni();
     void bodyMakeQuadDominant();
+    void bodyMerge();
     void reskeletonize();
     void transferRigging();
     void flip();
@@ -99,6 +100,7 @@ private:
     bool exportAnimation();
     bool importCollisionBody();
     bool addNewMaterial();
+    bool addNewUiPicture();
     bool addNewTexture();
     bool addNewShader();
 
@@ -217,10 +219,18 @@ private:
     void insert(const BrfMaterial &m);
     void insert(const BrfShader &s);
     void insert(const BrfBody &s);
+    void insertOrReplace(const BrfMesh &m);
+    void insertOrReplace(const BrfSkeleton &s);
+    void insertOrReplace(const BrfAnimation &a);
+    void insertOrReplace(const BrfTexture &m);
+    void insertOrReplace(const BrfMaterial &m);
+    void insertOrReplace(const BrfShader &s);
+    void insertOrReplace(const BrfBody &s);
     void selectOne(int kind, int i);
 
     template<class BrfType> void insert( vector<BrfType> &v, const BrfType &o);
-
+    template<class BrfType> void insertOrReplace( vector<BrfType> &v, const BrfType &o);
+    template<class BrfType> void objectMergeSelected(vector<BrfType> &v);
     void saveOptions() const;
     void loadOptions();
 
@@ -318,7 +328,8 @@ private:
       *importBrfAct,
       *addNewMaterialAct,
       *addNewShaderAct,
-      *addNewTextureAct;
+      *addNewTextureAct,
+      *addNewUiPictureAct;
 
     enum { MaxRecentFiles = 10 };
     QAction *recentFileActs[MaxRecentFiles];

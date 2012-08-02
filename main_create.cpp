@@ -48,6 +48,7 @@ void MainWindow::createMenus()
     importMenu->addAction(addNewMaterialAct);
     importMenu->addAction(addNewTextureAct);
     importMenu->addAction(addNewShaderAct);
+    importMenu->addAction(addNewUiPictureAct);
     importMenu->addSeparator();
     importMenu->addAction(importBrfAct);
 
@@ -323,6 +324,9 @@ void MainWindow::createActions()
     addNewShaderAct = new QAction(tr("New Shader"),this);
     addNewShaderAct->setStatusTip(tr("Enlist a new Shader"));
 
+    addNewUiPictureAct = new QAction(tr("New Menu Background"),this);
+    addNewUiPictureAct->setStatusTip(tr("Add a Menu Background (Mesh, Material, and Texture)"));
+
 
     navigateRightAct = new QAction(tr("follow link"),this);
     navigateRightAct->setShortcut(tr("ctrl+right"));
@@ -479,6 +483,7 @@ void MainWindow::createConnections(){
   connect(addNewMaterialAct, SIGNAL(triggered()),this,SLOT(addNewMaterial()));
   connect(addNewShaderAct, SIGNAL(triggered()),this,SLOT(addNewShader()));
   connect(addNewTextureAct, SIGNAL(triggered()),this,SLOT(addNewTexture()));
+  connect(addNewUiPictureAct, SIGNAL(triggered()),this,SLOT(addNewUiPicture()));
 
   connect(guiPanel->ui->cbLighting        ,SIGNAL(stateChanged(int)),glWidget,SLOT(setLighting(int)));
   connect(guiPanel->ui->cbTexture         ,SIGNAL(stateChanged(int)),glWidget,SLOT(setTexture(int)));

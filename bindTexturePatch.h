@@ -57,6 +57,69 @@ static void forgetChachedTextures(){
   qgl_dds_cache()->clear();
 }
 
+bool loadDDSHeader(QFile &f, DdsData &data,  DDSFormat &ddsHeader){
+
+  f.open(QIODevice::ReadOnly);
+
+  data.sx = data.sy = data.bind = data.mipmap = data.filesize = data.ddxversion=0;
+
+  char tag[4];
+  f.read(&tag[0], 4);
+  if (strncmp(tag,"DDS ", 4) != 0) {
+      qWarning("QGLContext::bindTexture(): not a DDS image file.");
+
+      return false;
+  }
+
+  f.read((char *) &ddsHeader, sizeof(DDSFormat));
+
+
+
+  int factor =4;
+  switch(ddsHeader.ddsPixelFormat.dwFourCC) {
+  default:
+      qWarning("QGLContext::bindTexture() DDS image format not supported.");
+      return false;
+  case FOURCC_DXT1:
+      factor = 2;
+      data.ddxversion=1;
+
+      break;
+  case FOURCC_DXT3:
+      data.ddxversion=3;
+      break;
+  case FOURCC_DXT5:
+      data.ddxversion=5;
+      break;
+  }
+
+
+  if (ddsHeader.dwMipMapCount == 0) ddsHeader.dwMipMapCount=1;
+
+  data.mipmap=ddsHeader.dwMipMapCount;
+
+
+  int bufferSize;
+  if (ddsHeader.dwMipMapCount > 1)
+      bufferSize = ddsHeader.dwLinearSize * factor;
+  else
+      bufferSize = ddsHeader.dwLinearSize;
+
+  data.filesize= f.size(); //bufferSize+4+sizeof(ddsHeader);
+  data.sx = ddsHeader.dwWidth;
+  data.sy = ddsHeader.dwHeight;
+
+  return true;
+}
+
+
+bool loadOnlyDDSHeader(const QString &fileName, DdsData &data){
+  QFile f(fileName);
+  DDSFormat unused;
+
+  return loadDDSHeader(f,data,unused);
+}
+
 static bool myBindTexture(const QString &fileName, DdsData &data)
 {
     if (!qt_glCompressedTexImage2DARB) {
@@ -74,44 +137,21 @@ static bool myBindTexture(const QString &fileName, DdsData &data)
     }
 
     QFile f(fileName);
-    f.open(QIODevice::ReadOnly);
 
-    data.sx = data.sy = data.bind = data.mipmap = data.filesize = data.ddxversion=0;
 
-    char tag[4];
-    f.read(&tag[0], 4);
-    if (strncmp(tag,"DDS ", 4) != 0) {
-        qWarning("QGLContext::bindTexture(): not a DDS image file.");
-
-        return false;
-    }
 
     DDSFormat ddsHeader;
-    f.read((char *) &ddsHeader, sizeof(DDSFormat));
+    if (!loadDDSHeader(f, data, ddsHeader )) return false;
 
-    int factor = 4;
-    int bufferSize = 0;
+
     int blockSize = 16;
-    GLenum format;
+    GLenum format=4;
+    int factor = 4;
 
-    switch(ddsHeader.ddsPixelFormat.dwFourCC) {
-    default:
-        qWarning("QGLContext::bindTexture() DDS image format not supported.");
-        return false;
-    case FOURCC_DXT1:
-        format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
-        factor = 2;
-        blockSize = 8;
-        data.ddxversion=1;
-        break;
-    case FOURCC_DXT3:
-        format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
-        data.ddxversion=3;
-        break;
-    case FOURCC_DXT5:
-        format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-        data.ddxversion=5;
-        break;
+    switch(data.ddxversion){
+    case 1: format = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT; blockSize=8; factor = 2; break;
+    case 3: format = GL_COMPRESSED_RGBA_S3TC_DXT3_EXT; break;
+    case 5: format = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT; break;
     }
 
     if (!ddsHeader.dwLinearSize) {
@@ -120,18 +160,12 @@ static bool myBindTexture(const QString &fileName, DdsData &data)
         ddsHeader.dwLinearSize = ddsHeader.dwHeight * ddsHeader.dwWidth * factor / 4;
     }
 
-    if (ddsHeader.dwMipMapCount == 0) ddsHeader.dwMipMapCount=1;
-
-    data.mipmap=ddsHeader.dwMipMapCount;
-
+    int bufferSize;
     if (ddsHeader.dwMipMapCount > 1)
         bufferSize = ddsHeader.dwLinearSize * factor;
     else
         bufferSize = ddsHeader.dwLinearSize;
 
-    data.filesize=bufferSize+4+sizeof(ddsHeader);
-    data.sx = ddsHeader.dwWidth;
-    data.sy = ddsHeader.dwHeight;
 
     GLubyte *pixels = (GLubyte *) malloc(bufferSize*sizeof(GLubyte));
     f.seek(ddsHeader.dwSize + 4);
@@ -160,12 +194,14 @@ static bool myBindTexture(const QString &fileName, DdsData &data)
                  "compression extensions.");
         return false;
     }
+
     // load mip-maps
     for(int i = 0; i < (int) ddsHeader.dwMipMapCount; ++i) {
         if (w == 0) w = 1;
         if (h == 0) h = 1;
 
         size = ((w+3)/4) * ((h+3)/4) * blockSize;
+
         //glCompressedTexImage2DARB
         qt_glCompressedTexImage2DARB
                                     (GL_TEXTURE_2D, i, format, w, h, 0,

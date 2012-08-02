@@ -30,6 +30,54 @@ void BrfMesh::TowardZero(float x,float y, float z){
   }
 }
 
+void BrfMesh::SetDefault(){
+  flags = 0;
+  name[0]=material[0]=0;
+  frame.resize(1);
+  frame[0].pos.resize(0);
+  frame[0].norm.resize(0);
+  vert.resize(0);
+  face.resize(0);
+  rigging.resize(0);
+}
+
+void BrfMesh::MakeSingleQuad(float x, float y, float dx, float dy){
+  frame.resize(1);
+  frame[0].pos.resize(4);
+  frame[0].norm.resize(4);
+  frame[0].tang.resize(4);
+  vcg::Point3f n(0,1,0);
+  vcg::Point3f t(0,0,0);
+  vert.resize(4);
+  for (int i=0; i<4; i++) {
+    BrfVert &v(vert[i]);
+    v.col=0xFFFFFFFF;
+    v.index = i;
+    v.tang = t;
+    v.__norm = n;
+    v.ti=0;
+    v.ta=v.tb=vcg::Point2f( i/2, 1-i%2 );
+    frame[0].norm[i] = n;
+    frame[0].tang[i] = t;
+  }
+  frame[0].pos[0]=vcg::Point3f(x,   0, y   );
+  frame[0].pos[1]=vcg::Point3f(x,   0, y+dy);
+  frame[0].pos[2]=vcg::Point3f(x+dx,0, y   );
+  frame[0].pos[3]=vcg::Point3f(x+dx,0, y+dy);
+
+  face.resize(2);
+  face[0].index[2]=0;
+  face[0].index[1]=1;
+  face[0].index[0]=3;
+  face[1].index[2]=3;
+  face[1].index[1]=2;
+  face[1].index[0]=0;
+
+  UpdateBBox();
+  isRigged = false;
+
+}
+
 void BrfMesh::Scale(float xNeg, float xPos, float yPos, float yNeg, float zNeg, float zPos){
   for (unsigned int f=0; f<frame.size(); f++) {
     for (unsigned int i=0; i<frame[f].pos.size(); i++) {

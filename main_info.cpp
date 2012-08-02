@@ -70,7 +70,7 @@ void MainWindow::about()
               .arg("<br>[amade], [Swyter]!")
               .arg(QString("<br> [foxyman] <i>(%1)</i><br>"
                            " [Swyter] <i>(Español)</i>").arg(tr("additional code and Chinese")))
-              .arg("0.0.42")
+              .arg("0.0.44")
             ,QMessageBox::Ok, this);
     msg.setLocale(QLocale::system());
   //msg.layout()->addWidget(&lab);

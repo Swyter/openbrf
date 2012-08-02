@@ -108,6 +108,8 @@ public:
   void NormalizeRigging();
   void DiscardRigging();
   bool CopyModification(const BrfMesh& mod);
+  void SetDefault();
+  void MakeSingleQuad(float x, float y, float dx, float dy);
 
 
   BrfMesh(){}
