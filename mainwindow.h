@@ -151,6 +151,7 @@ private:
     void meshComputeAo();
     void meshTuneColorDo(int,int,int,int);
     void meshFemininize();
+    void meshComputeLod();
     void learnFemininzation(); // from current selection
 
     void setFlagsMaterial();

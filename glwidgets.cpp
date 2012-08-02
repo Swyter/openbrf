@@ -217,9 +217,9 @@ void GLWidget::renderTexture(const char* name, bool addExtension){
   BrfMaterial::Location loc = BrfMaterial::UNKNOWN;
   renderedTexture = locateOnDisk( name, (addExtension)?".dds":"", &loc );
   if (!renderedTexture.isEmpty()) {
-    setTextureName(renderedTexture, loc);
+    setTextureName(renderedTexture, loc, 0);
   } else {
-    setCheckboard();
+    setCheckboardTexture();
     lastMatErr.texName=QString("%1%2").arg(name).arg((addExtension)?".dds":"");
     setMaterialError(2); // file not found
   }
@@ -332,26 +332,122 @@ void GLWidget::enableDefMaterial(){
 
 }
 
-void GLWidget::initFramProgramIron(){
+#define STRINGIFY(X) #X
+
+int newShaderProgram(const char* prefix, const char* vs, const char* fs) {
+  GLuint prog = glCreateProgram();
+  if (!prefix) prefix = "";
+  if (fs) {
+    const char* sourcef = (QString(prefix)+QString(fs)).toAscii().data();
+    GLuint shdf = glCreateShader(GL_FRAGMENT_SHADER);
+    qDebug("%s",sourcef);
+    glShaderSource(shdf, 1, &sourcef, 0);
+    glCompileShader(shdf);
+    glAttachShader(prog,shdf);
+  }
+  if (vs) {
+    const char* sourcev = (QString(prefix)+QString(vs)).toAscii().data();
+    GLuint shdv = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(shdv, 1, &sourcev, 0);
+    glCompileShader(shdv);
+    glAttachShader(prog,shdv);
+  }
+  glLinkProgram(prog);
+
+  return prog;
+}
+
+void GLWidget::initFramPrograms(){
 
   fragProgramIron = 0;
+  programNormalMapIron = 0;
+  programNormalMapAlpha = 0;
+
   if (!glCreateShader || !glCreateProgram || !glCompileShader
       || !glAttachShader || !glAttachShader || !glShaderSource) return;
-  GLuint shd = glCreateShader(GL_FRAGMENT_SHADER);
-  fragProgramIron = glCreateProgram();
-  const char* shaderSource =
-    "uniform vec3 spec_col;\n"
-    "sampler2D sampl;\n"
-    "void main(){\n"
-    "  vec4 tex = texture( sampl,gl_TexCoord[0].st);\n"
-    "  gl_FragColor.rgb = tex.rgb*(gl_Color.rgb "
-    "                 + gl_SecondaryColor.rgb*spec_col*tex.a*0.5);\n"
-    "  gl_FragColor.a = 1; "
-    "}\n";
-  glShaderSource(shd, 1, &shaderSource, 0);
-  glCompileShader(shd);
-  glAttachShader(fragProgramIron,shd);
-  glLinkProgram(fragProgramIron);
+
+  const char* ironFs = STRINGIFY(
+
+    uniform vec3 spec_col;
+    uniform sampler2D samplRgb;
+    void main(){
+      vec4 tex = texture( samplRgb,gl_TexCoord[0].st);
+      gl_FragColor.rgb = tex.rgb*(gl_Color.rgb
+                     + gl_SecondaryColor.rgb*spec_col*tex.a*1.0);
+      gl_FragColor.a = 1;
+
+    }
+
+  );
+
+
+  const char* normalVSource = STRINGIFY(
+
+    varying vec3 lightDir;
+    varying vec4 color;
+    varying vec2 tc;
+    varying vec3 norm;
+    varying vec3 tanx;
+    varying vec3 tany;
+    uniform float usePerVertColor;
+
+    void main(){
+      gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+      lightDir = vec3(0,0,1)*gl_NormalMatrix;
+      color = (usePerVertColor>0)?gl_Color:vec4(1,1,1,1);
+      tc = gl_MultiTexCoord0.st;
+      lightDir =  normalize( vec3(0,0,1) * gl_NormalMatrix );
+      norm =  normalize( gl_Normal );
+      tanx = gl_MultiTexCoord1.xyz;
+      tany = cross( norm, tanx );
+      //norm = normalize(norm);
+    }
+
+  );
+  const char* normalFSource = STRINGIFY(
+
+    uniform vec3 spec_col;
+    uniform float spec_exp;
+    varying vec3 lightDir;
+    varying vec4 color;
+    varying vec2 tc;
+    varying vec3 norm;
+    varying vec3 tanx;
+    varying vec3 tany;
+
+    uniform sampler2D samplRgb;
+    uniform sampler2D samplBump;
+    void main(){
+      vec4 tex = texture( samplRgb,tc);
+      vec3 normt = (texture( samplBump,tc).xyz * 2 ) - vec3(1.0);
+      normt = normt.z * norm +
+              normt.x * tanx +
+              normt.y * tany;
+      float diffuse = dot(normt , lightDir ) ;
+      diffuse = (diffuse<0)?0:diffuse;
+
+      gl_FragColor.rgb = (tex.rgb*color.rgb)*(diffuse*0.8+0.2)
+      #if SPECULAR
+                          + spec_col*tex.a*pow( diffuse , spec_exp)
+      #endif
+                       ;
+      #if ALPHA_CUTOUTS
+      discard(tex.a<0.1);
+      gl_FragColor.a = tex.a;
+      #else
+      gl_FragColor.a = 1;
+      #endif
+
+      //gl_FragColor.rgb = normt;
+    }
+
+  );
+
+  programNormalMapPlain = newShaderProgram("",normalVSource,normalFSource);
+  programNormalMapIron = newShaderProgram("#define SPECULAR 1",normalVSource,normalFSource);
+  programNormalMapAlpha = newShaderProgram("#define ALPHA_CUTOUTS 1",normalVSource,normalFSource);
+  fragProgramIron = newShaderProgram("",0,ironFs);
+
 
 }
 
@@ -363,6 +459,9 @@ void GLWidget::enableMaterial(const BrfMaterial &m){
   if (m.flags & ((7<<12) | (1<<6) ) )  alphaCutout = true;
 
   bool alphaShine = QString(m.shader).contains("iron",Qt::CaseInsensitive);
+
+  // no texture, no alpha
+  if (!useTexture) alphaShine = alphaCutout = false;
 
   //if (!alphaShine && !alphaCutout) alphaShine = true;
   if (alphaShine && alphaCutout) alphaShine = false;
@@ -383,15 +482,43 @@ void GLWidget::enableMaterial(const BrfMaterial &m){
   //glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,tmps);
 
   if (QString(m.spec)!="none") alphaShine = false;
-  if (alphaShine){
-    glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL,GL_SEPARATE_SPECULAR_COLOR);
-    float ones[4]={1,1,1,1};
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
-    glLightfv(GL_LIGHT0,GL_SPECULAR, ones);
-    glMateriali(GL_FRONT_AND_BACK,GL_SHININESS, (int)m.specular);
-    if (glUseProgram) glUseProgram(fragProgramIron);
+
+
+  if (bumpmapActivated) {
+    int prog;
+    if (alphaCutout) prog = programNormalMapAlpha;
+    else if (alphaShine) prog = programNormalMapIron;
+    else prog = programNormalMapPlain;
+    if (glUseProgram) glUseProgram(prog);
+    if (glUniform3f)  {
+      glUniform1f( glGetUniformLocation(prog,"usePerVertColor"), (colorMode==0)?-1:+1);
+
+      glUniform3f( glGetUniformLocation(prog,"spec_col"),m.r,m.g,m.b );
+      glUniform1f( glGetUniformLocation(prog,"spec_exp"),m.specular );
+      glUniform1i( glGetUniformLocation(prog,"samplRgb"),0 );
+      glUniform1i( glGetUniformLocation(prog,"samplBump"),1 );
+    }
     usingProgram = true;
-    if (glUniform3f) glUniform3f(1,m.r,m.g,m.b);
+  } else {
+
+    // disable bump texture
+    glActiveTexture(GL_TEXTURE1); glDisable(GL_TEXTURE_2D); glActiveTexture(GL_TEXTURE0);
+
+    if (alphaShine){
+      glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL,GL_SEPARATE_SPECULAR_COLOR);
+      float ones[4]={1,1,1,1};
+      glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
+      glLightfv(GL_LIGHT0,GL_SPECULAR, ones);
+      glMateriali(GL_FRONT_AND_BACK,GL_SHININESS, (int)m.specular);
+      if (glUseProgram) glUseProgram(fragProgramIron);
+      usingProgram = true;
+      if (glUniform3f) glUniform3f(
+        glGetUniformLocation(fragProgramIron,"spec_col"),m.r,m.g,m.b
+      );
+      if (glUniform3f) glUniform1i(
+        glGetUniformLocation(fragProgramIron,"samplRgb"),0
+      );
+    }
   }
 
 
@@ -516,10 +643,11 @@ void GLWidget::setWireframeLightingMode(bool wf, bool light, bool tex) const{
 
 
 
-void GLWidget::setCheckboard(){
+void GLWidget::setCheckboardTexture(){
     // small checkboard
+
     const int N = 16;
-    QImage im(QSize(N,N),QImage::Format_ARGB32);
+    static QImage im(QSize(N,N),QImage::Format_ARGB32);
     for (int x=0; x<N; x++)
       for (int y=0; y<N; y++)
         if ((x+y)%2) im.setPixel(QPoint(x,y),0xFFFFFFFF);
@@ -528,6 +656,14 @@ void GLWidget::setCheckboard(){
     tw=th=16;
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+}
+
+void GLWidget::setDummyTexture(){
+  static QImage im(1,1,QImage::Format_ARGB32);
+  im.setPixel(0,0,0xFFEEEEEE);
+  bindTexture(im);
+  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 }
 
 bool GLWidget::fixTextureFormat(QString st){
@@ -554,7 +690,8 @@ void GLWidget::forgetChachedTextures(){
   ::forgetChachedTextures();
 }
 
-void GLWidget::setTextureName(QString s, int origin){
+void GLWidget::setTextureName(QString s, int origin, int texUnit){
+  if (texUnit!=0) glActiveTexture(GL_TEXTURE1);
   glEnable(GL_TEXTURE_2D);
   DdsData data;
   data.location = origin;
@@ -574,10 +711,11 @@ void GLWidget::setTextureName(QString s, int origin){
      }*/
      setMaterialError(3); // format is wrong
      lastMatErr.texName=s;
-     setCheckboard();
+     setCheckboardTexture();
   }
   emit(setTextureData(data));
   glEnable(GL_TEXTURE_2D);
+  if (texUnit!=0) glActiveTexture(GL_TEXTURE0);
 }
 
 void GLWidget::setMaterialError(int i){
@@ -593,18 +731,35 @@ void GLWidget::setMaterialName(QString st){
 
   BrfMaterial *m = inidata.findMaterial(st);
   if (m) {
+    bumpmapActivated = false;
     lastMatErr.texName=QString("%1.dds").arg(st);
-    QString s = locateOnDisk(QString(m->diffuseA),".dds",&(m->location));
-    if (inferMaterial) enableMaterial(*m );
-    if (!s.isEmpty()) setTextureName(s, m->location );
-    else {
-      setMaterialError(2); // file not found
-      setCheckboard();
+    QString s;
+    if (useTexture) {
+      s = locateOnDisk(QString(m->diffuseA),".dds",&(m->rgbLocation));
+      if (!s.isEmpty()) setTextureName(s, m->rgbLocation,0 );
+      else {
+        setMaterialError(2); // file not found
+        setCheckboardTexture();
+      }
+    } else {
+      setDummyTexture();
     }
+
+    if (inferMaterial) {
+      if (useNormalmap && m->HasBump()) {
+        QString b = locateOnDisk(QString(m->bump),".dds",&(m->bumpLocation));
+        if (!b.isEmpty()) {
+          setTextureName(b, m->bumpLocation ,1 );
+          bumpmapActivated = true;
+        }
+      }
+      enableMaterial( *m );
+    }
+
   }
   else {
     setMaterialError(1); // material not found
-    setCheckboard();
+    setCheckboardTexture();
   }
 }
 
@@ -623,6 +778,9 @@ void GLWidget::setLighting(int i){
 }
 void GLWidget::setTexture(int i){
   useTexture = i; update();
+}
+void GLWidget::setNormalmap(int i){
+  useNormalmap = i; update();
 }
 void GLWidget::setFloor(int i){
   useFloor = i; update();
@@ -714,6 +872,7 @@ GLWidget::GLWidget(QWidget *parent, IniData &_inidata)
 
   keys[0]=keys[1]=keys[2]=keys[3]=keys[4]=false;
 
+  useNormalmap = true;
   useTexture=true; useWireframe=false; useLighting=useFloor=true; useRuler=false;
   rulerLenght = 100;
   ghostMode = false;
@@ -873,8 +1032,8 @@ QSize GLWidget::sizeHint() const
 
 void GLWidget::initializeGL()
 {
-  glewInit();glewInit();
-  initFramProgramIron();
+  glewInit();
+  initFramPrograms();
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_CULL_FACE);
 }
@@ -950,7 +1109,7 @@ void GLWidget::renderRiggedMesh(const BrfMesh& m,  const BrfSkeleton& s, const B
 
   for (int pass=(useWireframe)?0:1; pass<2; pass++) {
   setWireframeLightingMode(pass==0, useLighting, useTexture);
-  if (useTexture) setMaterialName(m.material);
+  if (pass==1) setMaterialName(m.material);
 
   glBegin(GL_TRIANGLES);
   for (unsigned int i=0; i<m.face.size(); i++) {
@@ -964,25 +1123,32 @@ void GLWidget::renderRiggedMesh(const BrfMesh& m,  const BrfSkeleton& s, const B
       }
 
       //glNormal(vert[face[i].index[j]].__norm);
-      const Point3f &norm(m.frame[fv].norm[      m.face[i].index[j]        ]);
-      const Point3f &pos(m.frame[fv].pos [ m.vert[m.face[i].index[j]].index ]);
+      const Point3f &norm(m.frame[fv].norm[        m.face[i].index[j]        ]);
+      const Point3f &tang(m.vert[                  m.face[i].index[j]        ].tang);
+      const Point3f &pos (m.frame[fv].pos [ m.vert[m.face[i].index[j]].index ]);
       Point3f v(0,0,0);
       Point3f n(0,0,0);
+      Point3f t(0,0,0);
       for (int k=0; k<4; k++){
         float wieght = rig.boneWeight[k];
         int       bi = rig.boneIndex [k];
         if (bi>=0 && bi<(int)bonepos.size()) {
           v += (bonepos[bi]* pos  )*wieght;
           n += (bonepos[bi]* norm - bonepos[bi]*Point3f(0,0,0) )*wieght;
+          if (bumpmapActivated)
+            t += (bonepos[bi]* tang - bonepos[bi]*Point3f(0,0,0) )*wieght;
         }
       }
       glNormal(n);
       glTexCoord(m.vert[m.face[i].index[j]].ta);
+      if (bumpmapActivated)glMultiTexCoord3fv(GL_TEXTURE1_ARB,t.V());
       glVertex(v);
     }
   }
   glEnd();
   }
+  glDisable(GL_TEXTURE_2D);
+  if (inferMaterial){glActiveTexture(GL_TEXTURE1); glDisable(GL_TEXTURE_2D); glActiveTexture(GL_TEXTURE0);}
   enableDefMaterial();
 }
 
@@ -1013,7 +1179,7 @@ void GLWidget::renderMesh(const BrfMesh &m, float frame){
 
   for (int pass=(useWireframe)?0:1; pass<2; pass++) {
   setWireframeLightingMode(pass==0, useLighting, useTexture);
-  if (useTexture) setMaterialName(m.material);
+  if (pass==1) setMaterialName(m.material);
   glBegin(GL_TRIANGLES);
   for (unsigned int i=0; i<m.face.size(); i++) {
     for (int j=0; j<3; j++) {
@@ -1027,6 +1193,9 @@ void GLWidget::renderMesh(const BrfMesh &m, float frame){
       //glNormal(vert[face[i].index[j]].__norm);
       glNormal(m.frame[framei].norm[      m.face[i].index[j]        ]);
       glTexCoord(m.vert[m.face[i].index[j]].ta);
+
+      if (bumpmapActivated) glMultiTexCoord3fv(GL_TEXTURE1_ARB,
+               m.vert[m.face[i].index[j]].tang.V());
       glVertex(m.frame[framei].pos [ m.vert[m.face[i].index[j]].index ]);
 
     }
@@ -1034,6 +1203,7 @@ void GLWidget::renderMesh(const BrfMesh &m, float frame){
   glEnd();
   }
   glDisable(GL_TEXTURE_2D);
+  if (inferMaterial){glActiveTexture(GL_TEXTURE1); glDisable(GL_TEXTURE_2D); glActiveTexture(GL_TEXTURE0);}
   enableDefMaterial();
 }
 
@@ -1585,7 +1755,6 @@ void GLWidget::mySetViewport(int x,int y,int w,int h){
 
 void GLWidget::paintGL()
 {
-  makeCurrent();
   if (!isValid ()) return;
   glViewport(0,0,w,h);
 

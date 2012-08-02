@@ -27,10 +27,11 @@ public:
   void Save(FILE*f) const;
   void SetDefault();
   static bool IsAnimable() { return false; }
+  bool HasBump() const;
   static Box3f bbox;
 
   typedef enum {UNKNOWN, NOWHERE, COMMON, MODULE, LOCAL} Location; // where the texture dss file is
-  Location location;
+  Location rgbLocation, bumpLocation;
 };
 
 #endif // BRFMATERIAL_H

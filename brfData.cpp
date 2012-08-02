@@ -204,7 +204,10 @@ int BrfData::FirstToken() const{
 }
 
 void BrfData::ForgetTextureLocations(){
-  for (unsigned int i=0; i<material.size(); i++) material[i].location=BrfMaterial::UNKNOWN;
+  for (unsigned int i=0; i<material.size(); i++) {
+    material[i].rgbLocation=BrfMaterial::UNKNOWN;
+    material[i].bumpLocation=BrfMaterial::UNKNOWN;
+  }
 }
 
 void BrfData::Clear(){
