@@ -42,8 +42,9 @@ const char* BrfBodyPart::name() const{
 }
 
 static void _addHypotesis(Point3f &a, Point3f b, Point3f c){
-  float b0 = a.normalized()*b;
-  float c0 = a.normalized()*c;
+  Point3f an=a; an.Normalize();
+  float b0 = an*b;
+  float c0 = an*c;
   if (fabs(b0)>fabs(c0)){
     a+=(b0>0)?b:-b;
   } else {
@@ -56,6 +57,22 @@ Point3f  BrfBodyPart::Baricenter() const{
   for (unsigned int i=0; i<pos.size(); i++) res+=pos[i];
   if (pos.size()>0) res/=pos.size();
   return res;
+}
+
+bool _startsWith(const char*a, const char* b){
+  char s[512];
+  sprintf(s,"%s",a);
+  s[ strlen(b) ] =0;
+  return !stricmp(s,b);
+}
+void BrfBodyPart::InferTypeFromString(char* str){
+  type = MANIFOLD;
+  if (_startsWith(str,"sphere")) type = SPHERE;
+  if (_startsWith(str,"cylinder")) type = CAPSULE;
+  if (_startsWith(str,"cilinder")) type = CAPSULE;
+  if (_startsWith(str,"capsule")) type = CAPSULE;
+  if (_startsWith(str,"polygon")) type = FACE;
+  if (_startsWith(str,"face")) type = FACE;
 }
 
 void BrfBodyPart::GuessFromManyfold(){
@@ -86,16 +103,14 @@ void BrfBodyPart::GuessFromManyfold(){
     case CAPSULE: {
       // guess an axis looking at quadrilaterals
       Point3f ip0(0,0,0), ip1(0,0,0); // axis hipotesis
-      if (face.size()==0) break;
       bool first=true;
-
       for (unsigned int i=0; i<face.size(); i++) if (face[i].size()==4) {
-        int a = face[i][0];
-        int b = face[i][1];
-        int c = face[i][2];
+        int a = (face[i])[0];
+        int b = (face[i])[1];
+        int c = (face[i])[2];
         //int d = face[i][3];
-        Point3f ipA = (pos[a]-pos[b]).Normalize();
-        Point3f ipB = (pos[b]-pos[c]).Normalize();
+        Point3f ipA = (pos[a]-pos[b]); ipA.Normalize();
+        Point3f ipB = (pos[b]-pos[c]); ipB.Normalize();
         if (first) {
           ip0 = ipA;
           ip1 = ipB;
@@ -103,8 +118,10 @@ void BrfBodyPart::GuessFromManyfold(){
           _addHypotesis(ip0, ipA, ipB);
           _addHypotesis(ip1, ipA, ipB);
         }
+        first = false;
       }
       Point3f axis = (ip0.SquaredNorm()>ip1.SquaredNorm())?ip0:ip1;
+      //axis = Point3f(0,0,1);
       axis.Normalize();
       Point3f ce = Baricenter();
       radius = 0;
@@ -133,10 +150,11 @@ void BrfBodyPart::GuessFromManyfold(){
 static bool fscanln(FILE*f, char *ln){
   int i=0;
   while (1) {
-    fread(&ln[i],1,1,f);
+    if (!fread(&ln[i],1,1,f)) return false;
     if (ln[i]=='\n') { ln[i]=0; return true;}
     i++;
   }
+  return false;
 }
 
 bool BrfBody::ImportOBJ(char *fn){
@@ -155,6 +173,7 @@ bool BrfBody::ImportOBJ(char *fn){
   std::string s;
   char line[255];
   bool reading = false;
+  int nvRead=0;
   while (fscanln(f, line)) {
     if (line[1]==' ') {
       char c=line[0];
@@ -167,6 +186,7 @@ bool BrfBody::ImportOBJ(char *fn){
           } else {
             dump.pos.push_back(p);
           }
+          nvRead ++;
           break;
         }
         case 'f':{
@@ -174,7 +194,7 @@ bool BrfBody::ImportOBJ(char *fn){
           int res = sscanf(line, "f %s %s %s %s %s %s %s %s",buf[0],buf[1],buf[2],buf[3],buf[4],buf[5],buf[6],buf[7]);
           std::vector<int> fac;
           for (int i=0; i<res; i++){
-            int d=0;
+            int d=2;
             sscanf(buf[i],"%d",&d);
             fac.push_back(d+startV-1);
           }
@@ -188,21 +208,24 @@ bool BrfBody::ImportOBJ(char *fn){
         case 'o':
           char str[255];
           sscanf(line, "o %s", str);
-          /*if (reading) {
+          if (reading) {
             if (curr.face.size()>0) part.push_back(curr);
-            curr.face.clear();
-            curr.pos.clear();
-            curr.InferTypeFromString(name);
-          }*/
-          //reading =
+          }
+          curr.face.clear();
+          curr.pos.clear();
+          curr.InferTypeFromString(str);
+          reading = (curr.type != BrfBodyPart::MANIFOLD);
+          startV = -nvRead;
+          if (!reading) startV += dump.pos.size();
           break;
       }
     }
   }
 
 
-  //for (unsigned int i=0; i<part.size(); i++) part[i].GuessFromManyfold();
   if (dump.face.size()) part.push_back(dump);
+  if (reading) part.push_back(curr);
+  for (unsigned int i=0; i<part.size(); i++) part[i].GuessFromManyfold();
   UpdateBBox();
   return true;
 }
@@ -230,6 +253,7 @@ void BrfBodyPart::UpdateBBox(){
 void BrfBody::UpdateBBox(){
   bbox.SetNull();
   for (unsigned int i=0; i<part.size(); i++) {
+    part[i].UpdateBBox();
     bbox.Add(part[i].bbox);
   }
 }
@@ -238,7 +262,7 @@ void BrfBody::UpdateBBox(){
 
 bool BrfBodyPart::Load(FILE*f, char* _firstWord, int verbose ){
   char firstWord[255];
-  static FILE* fff = fopen("flags.txt","wt");
+  //static FILE* fff = fopen("flags.txt","wt");
   if (!_firstWord) LoadString(f,firstWord);
   else sprintf(firstWord,_firstWord);
 
@@ -253,6 +277,7 @@ bool BrfBodyPart::Load(FILE*f, char* _firstWord, int verbose ){
     for (int i=0; i<k; i++) {
       int h;
       LoadInt(f,ori); // orientation? -1 or 1 apparently.
+      if (ori!=-1) ori=1; // patch?
       assert(ori==1 || ori==-1);
       LoadInt(f,h);
       assert(h==0);
@@ -271,7 +296,7 @@ bool BrfBodyPart::Load(FILE*f, char* _firstWord, int verbose ){
     LoadPoint(f,center);
     LoadPoint(f,dir);
     LoadUint(f,flags);
-    fprintf(fff,"Flags cil: %u\n",flags);
+    //fprintf(fff,"Flags cil: %u\n",flags);
     //fprintf(ftmp,"%f %f %f %f %f %f %f\n",radius,center[0],center[2],center[1],dir[0],dir[2],dir[1]);
     //fflush(ftmp);
   } else if (!strcmp(firstWord,"sphere")) {
@@ -279,7 +304,7 @@ bool BrfBodyPart::Load(FILE*f, char* _firstWord, int verbose ){
     LoadFloat(f,radius);
     LoadPoint(f,center);
     LoadUint(f,flags);
-    fprintf(fff,"Flags sphere: %u\n",flags);
+    //fprintf(fff,"Flags sphere: %u\n",flags);
   } else if (!strcmp(firstWord,"face")) {
     type=FACE;
     LoadVector(f,pos);
@@ -292,17 +317,48 @@ bool BrfBodyPart::Load(FILE*f, char* _firstWord, int verbose ){
     face.push_back(aface);
 
     LoadUint(f,flags);
-    fprintf(fff,"Flags face: %u\n",flags);
+    //fprintf(fff,"Flags face: %u\n",flags);
 
   } else {
     printf("Unknown body (collision mesh) type `%s`\n",firstWord);
     assert(0);
   }
 
-  UpdateBBox();
+  //UpdateBBox();
   return true;
 }
 
+
+bool BrfBodyPart::Skip(FILE*f, char* _firstWord){
+  char firstWord[255];
+
+  if (!_firstWord) LoadString(f,firstWord);
+  else sprintf(firstWord,_firstWord);
+
+
+  if (!strcmp(firstWord,"manifold")) {
+
+    SkipVectorB<Point3f>(f);// # points
+
+    int k;
+    LoadInt(f,k); // # faces
+    for (int i=0; i<k; i++) {
+      ::Skip(f,8);
+      SkipVectorB<int>(f);
+    }
+  } else if (!strcmp(firstWord,"capsule")) {
+    ::Skip(f,4+12+12+4);
+  } else if (!strcmp(firstWord,"sphere")) {
+    ::Skip(f,4+12+4);
+  } else if (!strcmp(firstWord,"face")) {
+    SkipVectorB<Point3f>(f);
+
+    ::Skip<int>(f);
+  } else {
+    assert(0);
+  }
+  return true;
+}
 
 void BrfBodyPart::Save(FILE *f) const {
   switch(type) {
@@ -444,6 +500,20 @@ bool BrfBody::ExportOBJ(char* fn) const {
     part[i].ExportOBJ(f,i,vc);
   fclose(f);
   return true;
+}
+
+bool BrfBody::Skip(FILE*f){
+  LoadString(f, name);
+  char str[255];
+  LoadString(f, str);
+
+  if (!strcmp(str,"composite")) {
+    SkipVectorR<BrfBodyPart>(f);
+  } else {
+    BrfBodyPart::Skip(f,str);
+  }
+  return true;
+
 }
 bool BrfBody::Load(FILE*f, int verbose){
   LoadString(f, name);

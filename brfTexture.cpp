@@ -14,6 +14,7 @@ BrfTexture::BrfTexture()
 {
   bbox.SetNull();
 }
+
 bool BrfTexture::Load(FILE*f, int verbose){
   LoadString(f, name);
   if (verbose>0) printf("loading \"%s\"...\n",name);
@@ -28,5 +29,5 @@ void BrfTexture::Save(FILE* f) const{
 
 void BrfTexture::SetDefault(){
   sprintf(name, "%s.dds" ,name);
-  flags=0;
+  flags=0x000AA000;
 }

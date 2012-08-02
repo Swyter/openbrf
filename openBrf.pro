@@ -26,7 +26,10 @@ SOURCES += main.cpp \
     ../../vcglib/wrap/dae/xmldocumentmanaging.cpp \
     ioSMD.cpp \
     askSkelDialog.cpp \
-    askTexturenameDialog.cpp
+    askTexturenameDialog.cpp \
+    askFlagsDialog.cpp \
+    iniData.cpp \
+    ioOBJ.cpp
 HEADERS += mainwindow.h \
     glwidgets.h \
     saveLoad.h \
@@ -48,10 +51,13 @@ HEADERS += mainwindow.h \
     askBoneDialog.h \
     ioSMD.h \
     askSkelDialog.h \
-    askTexturenameDialog.h
+    askTexturenameDialog.h \
+    askFlagsDialog.h \
+    iniData.h
 FORMS += guipanel.ui \
     askBoneDialog.ui \
     askSkelDialog.ui \
-    askTexturenameDialog.ui
+    askTexturenameDialog.ui \
+    askFlagsDialog.ui
 INCLUDEPATH += "C:\projects\vcglib"
 INCLUDEPATH += "C:\libs\lib3ds-1.3.0"

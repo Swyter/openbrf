@@ -17,6 +17,59 @@ using namespace vcg;
 #include "saveLoad.h"
 typedef vcg::Point3f Pos;
 
+bool BrfMesh::AddFrameMatchTc(const BrfMesh &b, int k){
+
+  BrfFrame nf;
+  nf.pos.resize(frame[0].pos.size());
+  nf.norm.resize(frame[0].norm.size());
+  nf.time = frame[frame.size()-1].time +10;
+
+  for (unsigned int i=0; i<vert.size(); i++) {
+    // find vertex closet
+    int jMin=0;
+    float scoreMin = 10e10;
+    for (unsigned int j=0; j<b.vert.size(); j++) {
+      float score = (b.vert[j].ta - vert[i].ta).Norm()*10000000.0+fabs(i-j);
+      if (score<scoreMin) {
+        scoreMin=score;
+        jMin=j;
+      }
+    }
+
+    nf.norm[i] = b.frame[0].norm[jMin];
+    nf.pos[ vert[i].index ] = b.frame[0].pos[ b.vert[jMin].index ];
+
+  }
+  frame.insert(frame.begin()+k+1, 1, nf);
+  return true;
+}
+
+bool BrfMesh::AddFrameMatchVert(const BrfMesh &b, int k){
+
+  if (b.vert.size()!=vert.size()) return false;
+  BrfFrame nf;
+  nf.pos.resize(frame[0].pos.size());
+  nf.norm.resize(frame[0].norm.size());
+  nf.time = frame[frame.size()-1].time +10;
+  for (unsigned int i=0; i<vert.size(); i++) {
+    nf.norm[i] = b.frame[0].norm[i];
+    nf.pos[ vert[i].index ] = b.frame[0].pos[ b.vert[i].index ];
+  }
+  frame.insert(frame.begin()+k+1, 1, nf);
+  return true;
+
+}
+
+bool BrfMesh::AddFrameDirect(const BrfMesh &b)
+{
+  if (b.frame[0].pos.size()!=frame[0].pos.size()) return false;
+  if (b.frame[0].norm.size()!=frame[0].norm.size()) return false;
+  frame.push_back(b.frame[0]);
+  int i=frame.size()-1;
+  frame[i].time = frame[i-1].time +10;
+  return true;
+}
+
 
 void BrfMesh::ComputeNormals(){
   for (unsigned int fi=0; fi<frame.size(); fi++) {
@@ -564,6 +617,7 @@ public:
     SaveInt(f,vindex);
     SaveFloat(f,weight);
   }
+  static unsigned int SizeOnDisk(){return 8;}
 };
 
 // tmp class to load and save rigging
@@ -1104,6 +1158,9 @@ void BrfMesh::Bend(int j, float range){
   }
 }
 
+unsigned int BrfVert::SizeOnDisk(){
+  return 4+4+12+8+8;
+}
 
 bool BrfVert::Load(FILE*f,int verbose){
   LoadInt(f , index);
@@ -1119,6 +1176,10 @@ void BrfVert::Save(FILE*f) const{
   SavePoint(f, __norm );
   SavePoint(f, vcg::Point2f(ta[0],1-ta[1]) );
   SavePoint(f, vcg::Point2f(tb[0],1-tb[1]) );
+}
+
+unsigned int BrfFace::SizeOnDisk(){
+  return 4+4+4;
 }
 
 bool BrfFace::Load(FILE*f,int verbose){
@@ -1146,8 +1207,8 @@ bool BrfFrame::Load(FILE*f, int verbose)
 
 void BrfFrame::Skip(FILE*f){
   ::Skip<int>(f);
-  SkipVectorF< Point3f > (f);
-  SkipVectorF< Point3f > (f);
+  SkipVectorB< Point3f > (f);
+  SkipVectorB< Point3f > (f);
 }
 
 
@@ -1193,15 +1254,14 @@ BrfRigging::BrfRigging(){
 }
 
 void BrfMesh::Skip(FILE* f){
-  char st[255];
-  LoadString(f, st);
-  printf("skipping \"%s\"...\n",st);
+  LoadString(f, name);
+  //printf(" -skipping \"%s\"...\n",name);
   //SkipString(f);
   ::Skip<int>(f); // flags
-  SkipString(f);
-  SkipVectorF< Point3f >(f); // pos
-  SkipVectorV< TmpRigging >(f);
-  SkipVectorV< BrfFrame >(f);
+  LoadString(f, material);
+  SkipVectorB< Point3f >(f); // pos
+  SkipVectorR< TmpRigging >(f);
+  SkipVectorR< BrfFrame >(f);
   SkipVectorF< BrfVert >(f);
   SkipVectorF< BrfFace >(f);
 }
@@ -1222,7 +1282,7 @@ void BrfMesh::AfterLoad(){
 
 bool BrfMesh::Load(FILE*f, int verbose){
   LoadString(f, name);
-  //if (verbose>0) printf("loading \"%s\"...\n",name);
+  //if (verbose>0) printf(" -loading \"%s\"...\n",name);
 
   LoadUint(f , flags);
   LoadString(f, material); // material used
@@ -1295,13 +1355,7 @@ void BrfMesh::Average(const BrfMesh &brf){
     }
   }
 }
-  
-void BrfMesh::AddFrame(const BrfMesh &b)
-{ 
-  frame.push_back(b.frame[0]);
-  int i=frame.size()-1;
-  frame[i].time = frame[i-1].time +10;
-}
+
 
 class Rope{
 public:

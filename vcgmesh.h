@@ -1,5 +1,3 @@
-  #include <QDateTime>
-
 #ifndef VCGMESH_H
 #define VCGMESH_H
 

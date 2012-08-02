@@ -40,8 +40,10 @@ public:
   vector<BrfBody> body;
   bool Load(FILE*f,int verbose=1, int stopAt=N_TOKEN);
   bool Load(char*filename,int verbose=1, int stopAt=N_TOKEN);
+  bool LoadFast(char*filename); // skips most data
   bool LoadMat(FILE *f);
   void Clear();
+  int FirstToken() const;
 
   bool Save(const char* f) const;
   void  Merge(const BrfData& b);
@@ -54,6 +56,8 @@ private:
   //template<class BrfType> bool LoadAll(FILE *f, vector<BrfType> &v, int k);
   template<class BrfType> void SaveAll(FILE *f, const vector<BrfType> &v) const;
   int lastLoaded;
+  void LoadVersion(FILE *f);
+  int versionA, versionB;
 
 };
 

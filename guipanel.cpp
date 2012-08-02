@@ -2,6 +2,7 @@
 #include "ui_guipanel.h"
 
 #include "brfData.h"
+#include "iniData.h"
 
 #include <QtGui>
 
@@ -86,12 +87,48 @@ public:
   QModelIndex pleaseCreateIndex(int a, int b){return createIndex(a,b);}
 };
 
-GuiPanel::GuiPanel(QWidget *parent, MapSS *mm) :
+void GuiPanel::setIniData(const IniData &inidata){  
+  QCompleter *c = new QCompleter( inidata.namelist[TEXTURE] );
+
+  ui->leMatDifA->setCompleter(c);
+  ui->leMatDifB->setCompleter(c);
+  ui->leMatBump->setCompleter(c);
+  ui->leMatEnv->setCompleter(c);
+  ui->leMatSpec->setCompleter(c);
+  //ui->leMatSpec->completer()->setCompletionMode(QCompleter::InlineCompletion);
+
+  QCompleter *d = new QCompleter( inidata.namelist[SHADER] );
+  ui->leMatShader->setCompleter(d);
+
+  QCompleter *e = new QCompleter( inidata.namelist[MATERIAL] );
+  ui->boxMaterial->setCompleter(e);
+
+
+}
+
+QLineEdit* GuiPanel::materialLeFocus(){
+  switch (curMaterialFocus){
+  case DIFFUSEA: return ui->leMatDifA;
+  case DIFFUSEB: return ui->leMatDifB;
+  case SHADERNAME: return ui->leMatShader;
+  case SPECULAR: return ui->leMatSpec;
+  case BUMP: return ui->leMatBump;
+  case ENVIRO: return ui->leMatEnv;
+  }
+  return NULL;
+}
+
+void GuiPanel::updateHighlight(){
+}
+GuiPanel::GuiPanel(QWidget *parent, IniData &id) :
     QWidget(parent),
-    ui(new Ui::GuiPanel)
+    ui(new Ui::GuiPanel),
+    inidata(id)
 {
   reference = NULL;
-  mapMT = mm;
+  curMaterialFocus = DIFFUSEA;
+
+  //mapMT = mm;
   _selectedIndex = -1;
 
   ui->setupUi(this);
@@ -124,7 +161,7 @@ GuiPanel::GuiPanel(QWidget *parent, MapSS *mm) :
   alignY(ui->shaderData,  ui->meshData);
   alignY(ui->bodyData,  ui->meshData);
 
-  QString flagMask("\\0\\x>Hhhhhhhh");
+  QString flagMask(">Hhhhhhhh");
   ui->boxFlags->setInputMask(flagMask);
   ui->boxTextureFlags->setInputMask(flagMask);
   ui->leMatFlags->setInputMask(flagMask);
@@ -149,14 +186,16 @@ GuiPanel::GuiPanel(QWidget *parent, MapSS *mm) :
 
   connect(ui->cbSkin, SIGNAL(currentIndexChanged(QString)), this, SLOT(updateVisibility()));
   connect(ui->cbRefani, SIGNAL(currentIndexChanged(QString)), this, SLOT(updateVisibility()));
+  connect(ui->cbRuler, SIGNAL(stateChanged(int)), this, SLOT(updateVisibility()));
   connect(ui->cbRefani, SIGNAL(currentIndexChanged(QString)), this, SLOT(updateRefAnimation()));
+
+  connect(ui->rulerSlid, SIGNAL(sliderMoved (int)), this, SLOT(setRulerLenght(int)));
+  connect(ui->rulerSpin, SIGNAL(valueChanged(int)), this, SLOT(setRulerLenght(int)));
 
   connect(ui->lvTextAcc->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
           this, SLOT(updateShaderTextaccData()));
   connect(ui->lvBodyPart->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
           this, SLOT(updateBodyPartData()));
-
-
 
 }
 
@@ -168,7 +207,7 @@ static QString StringF(float i){
   return QString("%1").arg(i);
 }
 static QString StringH(unsigned int i){
-  return QString("0x%1").arg(i,0,16);
+  return QString("%1").arg(i,0,16);
 }
 
 void GuiPanel::setAnimation(const BrfAnimation* a){
@@ -180,6 +219,7 @@ void GuiPanel::setAnimation(const BrfAnimation* a){
     if (a->nbones==(int)reference->skeleton[i].bone.size())
       ui->cbRefSkel->addItem(reference->skeleton[i].name);
 }
+
 void GuiPanel::updateRefAnimation(){
   if (!reference) return;
   int a=ui->cbRefani->currentIndex()-1;
@@ -208,7 +248,7 @@ void GuiPanel::setReference(BrfData* r){
 
 }
 
-static int _frameTime[1000]; // how elegant is that? ;)
+
 
 int GuiPanel::getCurrentSubpieceIndex(int type) const{
 
@@ -232,8 +272,16 @@ int GuiPanel::getCurrentSubpieceIndex(int type) const{
     }
   }
 
+  if (type==MESH) {
+    if (! (ui->meshDataAni->isVisible())) return 0;
+    return (ui->frameNumber->value());
+  }
+
   return -1;
 }
+
+
+
 void GuiPanel::updateBodyPartSize(){
   updateBodyPartData();
 }
@@ -344,14 +392,75 @@ void GuiPanel::updateShaderTextaccData(){
  }
 }
 
+void myClear(QLineEdit *l){
+  l->blockSignals(true);
+  l->setText("");
+  l->setFrame(true);
+  l->setForegroundRole(QPalette::Link);
+  l->setBackgroundRole(QPalette::Base);
+  l->blockSignals(false);
+}
+
+void myClear(QLCDNumber *qlc){
+  qlc->display(0);
+}
+
+void myClear(QSpinBox *qsb){
+  qsb->blockSignals(true);
+  qsb->clear();//setValue(0);
+  qsb->setFrame(true);
+  qsb->blockSignals(false);
+}
+void mySetText(QLineEdit *l, QString s){
+  l->blockSignals(true);
+  QString old = l->text();
+  if (l->hasFrame() && old.isEmpty() ) l->setText(s);
+  else {
+    if (s!=old) {
+      l->setText("");
+      l->setBackgroundRole(QPalette::Button);//QPalette::AlternateBase);
+      l->setFrame(false);
+    }
+  }
+  //QFont f = l->font();
+  //f.setItalic(s=="none");
+  //l->setFont(f);
+  l->blockSignals(false);
+}
+
+void mySetText(QSpinBox *l, int i){
+  l->blockSignals(true);
+  if (l->hasFrame() && l->text().isEmpty()){
+    l->setValue(i);
+  } else {
+    if (l->value()!=i) {
+      l->clear();
+      l->setBackgroundRole(QPalette::Button);//QPalette::AlternateBase);
+      l->setFrame(false);
+    }
+
+  }
+  l->blockSignals(false);
+}
+
+void mySetValueAdd(QLCDNumber *qlc, int n){
+  qlc->display(n+qlc->value());
+}
+
+void mySetValueMax(QLCDNumber *qlc, int n){
+  if (n>qlc->value())
+  qlc->display(n);
+}
+
 void GuiPanel::setSelection(const QModelIndexList &newsel, int k){
   int sel=-1;
   int nsel = (int)newsel.size();
+  if (newsel.size()!=0) sel = newsel[0].row();
 
-  bool vertexani=false;
-  bool rigged=false;
-  bool vertexcolor=false;
-  bool manyMaterials=false;
+  //bool vertexani=false;
+  //bool rigged=false;
+  //bool vertexcolor=false;
+  /*bool manyMaterials=false;
   int flags=-1;
   char materialSt[255]="";
   bool differentAni = false;
@@ -397,80 +506,131 @@ void GuiPanel::setSelection(const QModelIndexList &newsel, int k){
 
 
   }
-  _selectedIndex = sel;
   if (k==-1) k=NONE;
 
   BrfMesh *m = NULL;
   BrfTexture *tex = NULL;
   BrfAnimation *ani = NULL;
+*/
+_selectedIndex = sel;
+switch (TokenEnum(k)){
+  case MATERIAL:{
+    myClear(ui->leMatBump);
+    myClear(ui->leMatDifA);
+    myClear(ui->leMatDifB);
+    myClear(ui->leMatEnv);
+    myClear(ui->leMatShader);
+    myClear(ui->leMatSpec);
 
-  // set data
-  if (sel>=0)
-  switch (TokenEnum(k)){
-    case MESH:
-      if (sel>=0 && nsel==1) m=&(data->mesh[sel]);
-      ui->boxFlags    ->setText( (flags>=0)?StringH( flags ):"" );
-      ui->boxFlags    ->setReadOnly( flags<0 || !nsel);
-      //ui->boxName     ->setText( (m)?String(m->name     ):"" );
-      ui->boxMaterial ->setText( materialSt );
-      ui->boxMaterial ->setEnabled( !manyMaterials && nsel!=0);
+    myClear(ui->leMatFlags);
+    myClear(ui->leMatRendOrd);
+    myClear(ui->leMatCoeff);
+    myClear(ui->leMatR);
+    myClear(ui->leMatG);
+    myClear(ui->leMatB);
 
-      updateMaterial(materialSt);
-
-      ui->boxNVerts   ->display( nv );
-      ui->boxNFaces   ->display( nf );
-      ui->boxNFrames  ->display( nfr);
-      ui->boxNPos     ->display( np );
-      ui->meshDataAni->setVisible( vertexani);
-      ui->viewRefAni->setVisible(rigged);
-      ui->timeOfFrame->setEnabled( !differentAni );
-      if (nfr>0)
-      ui->frameNumber->setMaximum(nfr -1 );
-      ui->frameNumber->setMinimum( 0 );
-      ui->frameNumber->setWrapping(true);
-      ui->rbRiggingcolor->setEnabled( rigged );
-      ui->rbVertexcolor->setEnabled(vertexcolor);
-      break;
-    case TEXTURE:
-      if (sel>=0 && nsel==1 && sel<(int)data->texture.size()) tex=&(data->texture[sel]);
-      ui->boxTextureFlags ->setText( (tex)?StringH(tex->flags):"" );
-      break;
-    case SKELETON:
-      if (sel>=0 && nsel==1 && sel<(int)data->skeleton.size()) {
-        BrfSkeleton &s(data->skeleton[sel]);
-        ui->boxSkelNBones->display( (int)s.bone.size() );
-      }
-      break;
-    case ANIMATION:
-      if (sel>=0 && nsel==1 && sel<(int)data->animation.size()) ani=&(data->animation[sel]);
-      ui->boxAniNBones->display( (ani)?ani->nbones:0 );
-      ui->boxAniNFrames->display( (ani)?(int)ani->frame.size():0 );
-      ui->boxAniMinFrame->display( (ani)?ani->FirstIndex():0 );
-      ui->boxAniMaxFrame->display( (ani)?ani->LastIndex():0 );
-
-      ui->rbRiggingcolor->setEnabled( true ); // quick: just let user edit them
-      ui->rbVertexcolor->setEnabled( true );
-      ui->viewRefSkel->setVisible( true );
-      if (ani) setAnimation(ani);
-      break;
-    case MATERIAL:
-      {
+    for (QModelIndexList::ConstIterator i=newsel.constBegin(); i!=newsel.constEnd(); i++){
+      int sel = i->row();
+      if (sel<0 || sel>=(int)data->material.size())  break;
       BrfMaterial &m(data->material[sel]);
-      ui->leMatFlags->setText( StringH(m.flags) );
-      ui->leMatBump->setText( m.bump );
-      ui->leMatDifA->setText( m.diffuseA );
-      ui->leMatDifB->setText( m.diffuseB );
-      ui->leMatEnv->setText(m.enviro);
-      ui->leMatR->setText( StringF( m.r ));
-      ui->leMatG->setText( StringF( m.g ));
-      ui->leMatB->setText( StringF( m.b ));
-      ui->leMatCoeff->setText( StringF(m.specular) );
-      ui->leMatShader->setText( m.shader );
-      ui->leMatSpec->setText( m.spec );
+
+      mySetText(ui->leMatBump,  m.bump );
+      mySetText(ui->leMatDifA,  m.diffuseA );
+      mySetText(ui->leMatDifB,  m.diffuseB );
+      mySetText(ui->leMatEnv,   m.enviro);
+      mySetText(ui->leMatShader,m.shader );
+      mySetText(ui->leMatSpec,  m.spec );
+
+      mySetText(ui->leMatFlags, StringH(m.flags) );
+      mySetText(ui->leMatRendOrd, m.renderOrder );
+      mySetText(ui->leMatCoeff, StringF(m.specular) );
+      mySetText(ui->leMatR, StringF( m.r ));
+      mySetText(ui->leMatG, StringF( m.g ));
+      mySetText(ui->leMatB, StringF( m.b ));
+    }
+    break;
+    }
+
+  case MESH: {
+    myClear(ui->boxFlags);
+    myClear(ui->boxMaterial);
+    myClear(ui->boxNVerts);
+    myClear(ui->boxNFaces);
+    myClear(ui->boxNPos);
+    myClear(ui->boxNVerts);
+    myClear(ui->boxNFrames);
+    ui->meshDataAni->setVisible(false);
+    ui->rbRiggingcolor->setEnabled(false);
+    ui->rbVertexcolor->setEnabled(false);
+    ui->viewRefAni->setVisible( false );
+
+    for (QModelIndexList::ConstIterator i=newsel.constBegin(); i!=newsel.constEnd(); i++){
+      int sel = i->row();
+      if (sel<0 || sel>=(int)data->mesh.size())  break;
+      BrfMesh *m=&(data->mesh[sel]);
+
+      mySetText(ui->boxFlags, StringH(m->flags) );
+      mySetText( ui->boxMaterial ,  m->material );
+
+      mySetValueAdd( ui->boxNVerts , m->vert.size());
+      mySetValueAdd( ui->boxNFaces , m->face.size());
+      mySetValueAdd( ui->boxNPos   , m->frame[0].pos.size());
+      mySetValueMax( ui->boxNFrames, m->frame.size());
+
+      if (m->isRigged)  {
+        ui->rbRiggingcolor->setEnabled( true );
+        ui->viewRefAni->setVisible( true );
       }
-      break;
-    case SHADER:
+      if (m->hasVertexColor) ui->rbVertexcolor->setEnabled(true);
+      if (m->frame.size()>1) ui->meshDataAni->setVisible(true);
+
+      for (unsigned int fi=0; fi < m->frame.size(); fi++)
+         frameTime[fi]=m->frame[fi].time;
+    }
+    updateMaterial(ui->boxMaterial->text());
+    ui->timeOfFrame->setEnabled( newsel.size()==1 );
+
+    int nfr = (int)ui->boxNFrames->value();
+    if (nfr>0)
+    ui->frameNumber->setMaximum(nfr -1 );
+    ui->frameNumber->setMinimum( 0 );
+    ui->frameNumber->setWrapping(true);
+
+    break;
+    }
+
+  case TEXTURE:{
+    BrfTexture *tex=NULL;
+    if (sel>=0 && sel<(int)data->texture.size()) tex=&(data->texture[sel]);
+    ui->boxTextureFlags ->setText( (tex)?StringH(tex->flags):"" );
+    }
+    break;
+  case SKELETON:
+    if (sel>=0 && nsel==1 && sel<(int)data->skeleton.size()) {
+      BrfSkeleton &s(data->skeleton[sel]);
+      ui->boxSkelNBones->display( (int)s.bone.size() );
+    }
+    break;
+  case ANIMATION:
+    {
+    BrfAnimation *ani =NULL;
+    if (sel>=0 && nsel==1 && sel<(int)data->animation.size()) ani=&(data->animation[sel]);
+    ui->boxAniNBones->display( (ani)?ani->nbones:0 );
+    ui->boxAniNFrames->display( (ani)?(int)ani->frame.size():0 );
+    ui->boxAniMinFrame->display( (ani)?ani->FirstIndex():0 );
+    ui->boxAniMaxFrame->display( (ani)?ani->LastIndex():0 );
+
+    ui->rbRiggingcolor->setEnabled( true ); // quick: just let user edit them
+    ui->rbVertexcolor->setEnabled( true );
+    ui->viewRefSkel->setVisible( true );
+    if (ani) setAnimation(ani);
+    }
+    break;
+  case SHADER:
       {
+      if (!newsel.size()) break;
+      int sel = newsel[0].row();
+      if (sel<0 || sel>=(int)data->shader.size())  break;
       BrfShader &s(data->shader[sel]);
       ui->leShaderTechnique->setText( s.technique );
       ui->leShaderFallback->setText( s.fallback );
@@ -494,13 +654,13 @@ void GuiPanel::setSelection(const QModelIndexList &newsel, int k){
   ui->skeletonData->setVisible( k==SKELETON );
   ui->shaderData->setVisible( k==SHADER );
   ui->bodyData->setVisible( k==BODY );
-  ui->generalView->setVisible( k!=SHADER && k!=SKELETON && k!=NONE );
+  ui->generalView->setVisible( k!=SHADER && k!=NONE );
 
   QRect rect = ui->generalView->geometry();
   if (k==MATERIAL)
-  rect.setTop( ui->materialData->geometry().bottom() + 40 );
+    rect.setTop( ui->materialData->geometry().bottom() + 40 );
   else
-  rect.setTop( ui->meshData->geometry().bottom() + 40 );
+    rect.setTop( ui->meshData->geometry().bottom() + 40 );
   ui->generalView->setGeometry(rect);
 
   displaying=k;
@@ -512,10 +672,11 @@ void GuiPanel::setSelection(const QModelIndexList &newsel, int k){
 
 
 void GuiPanel::updateMaterial(QString a){
-  if (ui->boxMaterial->isEnabled()) {
-    std::string s  = (*mapMT)[ std::string(a.toAscii().data() ) ];
-    if (!s.length()) s="<not found>";
-    ui->boxTexture  ->setText( s.c_str() );
+
+  if (ui->boxMaterial->hasFrame()) {
+    QString s = inidata.mat2tex(a);
+    if (s.isEmpty()) s="<not found>";
+    ui->boxTexture  ->setText( s );
   } else
     ui->boxTexture  ->setText( "<various>" );
 }
@@ -526,17 +687,29 @@ void GuiPanel::updateFrameNumber(int newFr){
   if (ui->timeOfFrame->isEnabled()) {
     int oldFr =ui->frameNumber->value();
     if (oldFr!=newFr) ui->frameNumber->setValue(newFr);
-    ui->timeOfFrame->setText( QString("%1").arg( _frameTime[newFr] ) );
+    ui->timeOfFrame->setText( QString("%1").arg( frameTime[newFr] ) );
   }
   else
     ui->timeOfFrame->setText( QString("---") );
 
 }
 
+void GuiPanel::setRulerLenght(int l){
+  ui->rulerSlid->blockSignals(true);
+  ui->rulerSpin->blockSignals(true);
+
+  ui->rulerSlid->setValue(l);
+  ui->rulerSpin->setValue(l);
+
+  ui->rulerSlid->blockSignals(false);
+  ui->rulerSpin->blockSignals(false);
+}
+
 void GuiPanel::updateVisibility(){
 
   int k=displaying;
 
+  ui->viewRuler->setVisible(k==MESH);
 
   // set visibility
   if (k==MESH) {
@@ -547,6 +720,8 @@ void GuiPanel::updateVisibility(){
     ui->viewAni->setVisible( (ui->viewRefAni->isVisible() && ui->cbRefani->currentIndex())
                              || ui->meshDataAni->isVisible() );
     ui->viewRefSkel->setVisible( ui->viewRefAni->isVisible() && ui->cbRefani->currentIndex() );
+    ui->rulerSlid->setVisible(ui->cbRuler->isChecked());
+    ui->rulerSpin->setVisible(ui->cbRuler->isChecked());
   } else if (k==ANIMATION) {
     ui->viewFloor->setVisible(false);
     ui->viewRefSkin->setVisible(true);
@@ -562,7 +737,15 @@ void GuiPanel::updateVisibility(){
     ui->viewMeshRendering->setVisible(false);
     ui->viewAni->setVisible(false);
   } else if (k==MATERIAL || k==TEXTURE) {
-  } else {
+  } else if (k==SKELETON) {
+    ui->viewFloor->setVisible(false);
+    ui->viewRefSkin->setVisible(true);
+    ui->viewRefSkel->setVisible(false);
+    ui->viewRefAni->setVisible(false);
+    ui->viewMeshRendering->setVisible(false);
+    ui->viewAni->setVisible(false);
+  }
+  else {
     ui->viewFloor->setVisible(false);
     ui->viewRefSkin->setVisible(false);
     ui->viewRefSkel->setVisible(false);
@@ -608,6 +791,13 @@ void GuiPanel::on_lvTextAcc_customContextMenuRequested(QPoint pos)
   //          ((QWidget*)(parent()->parent()))->pos());
   //event->accept();
 }
+
+void GuiPanel::showMaterialDiffuseA(){curMaterialFocus = DIFFUSEA; updateHighlight();}
+void GuiPanel::showMaterialDiffuseB(){curMaterialFocus = DIFFUSEB; updateHighlight();}
+void GuiPanel::showMaterialBump(){curMaterialFocus = BUMP; updateHighlight();}
+void GuiPanel::showMaterialEnviro(){curMaterialFocus = ENVIRO; updateHighlight();}
+void GuiPanel::showMaterialSpecular(){curMaterialFocus = SPECULAR; updateHighlight();}
+void GuiPanel::showMaterialShader(){curMaterialFocus = SHADERNAME; updateHighlight();}
 
 void GuiPanel::on_listView_customContextMenuRequested(QPoint pos)
 {

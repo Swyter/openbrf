@@ -21,6 +21,9 @@ INPUT(
 ./debug\ioSMD.o
 ./debug\askSkelDialog.o
 ./debug\askTexturenameDialog.o
+./debug\askFlagsDialog.o
+./debug\iniData.o
+./debug\ioOBJ.o
 ./debug\moc_mainwindow.o
 ./debug\moc_glwidgets.o
 ./debug\moc_selector.o
@@ -29,4 +32,5 @@ INPUT(
 ./debug\moc_askBoneDialog.o
 ./debug\moc_askSkelDialog.o
 ./debug\moc_askTexturenameDialog.o
+./debug\moc_askFlagsDialog.o
 );

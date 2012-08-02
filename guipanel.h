@@ -6,7 +6,9 @@
 #include <map>
 
 class BrfData;
+class IniData;
 class BrfAnimation;
+class QLineEdit;
 
 namespace Ui {
     class GuiPanel;
@@ -17,17 +19,22 @@ typedef std::map< std::string, std::string > MapSS;
 class GuiPanel : public QWidget {
     Q_OBJECT
 public:
-    GuiPanel(QWidget *parent, MapSS *m);
+    GuiPanel(QWidget *parent, IniData &inidata);
     ~GuiPanel();
     BrfData* data;
     BrfData* reference;
+    IniData &inidata;
     void setReference(BrfData*);
     void setAnimation(const BrfAnimation* a);
     int getCurrentSubpieceIndex(int brfObjectType) const;
 
+    void setIniData(const IniData &inidata);
+
+    enum{DIFFUSEA, DIFFUSEB, BUMP, ENVIRO, SPECULAR, SHADERNAME } curMaterialFocus;
+    QLineEdit* materialLeFocus();
 
 protected:
-    MapSS *mapMT;
+    //MapSS *mapMT;
     void changeEvent(QEvent *e);
     enum{MAXSEL=500};
     int _selectedIndex;
@@ -35,6 +42,7 @@ protected:
 public:
     Ui::GuiPanel *ui;
     int displaying;
+    int frameTime[100]; // how elegant is that? ;)
 
     QAction *textureAccessDup;
     QAction *textureAccessDel;
@@ -44,11 +52,18 @@ public:
     QAction *bodyPartDel;
     QAction *bodyPartAdd;
 
+
+signals:
+    //void dataMaterialChanged();
+
 private slots:
     void on_listView_customContextMenuRequested(QPoint pos);
     void on_lvTextAcc_customContextMenuRequested(QPoint pos);
     void updateVisibility();
+    void setRulerLenght(int l);
+
 public slots:
+    void updateHighlight();
     void updateShaderTextaccSize();
     void updateBodyPartSize();
     void updateShaderTextaccData();
@@ -58,6 +73,14 @@ public slots:
     void updateMaterial(QString st);
     void updateRefAnimation();
     void setRefAnimation(int i);
+
+    void showMaterialDiffuseA();
+    void showMaterialDiffuseB();
+    void showMaterialBump();
+    void showMaterialEnviro();
+    void showMaterialSpecular();
+    void showMaterialShader();
+
 };
 
 #endif // GUIPANEL_H

@@ -4,9 +4,11 @@
 #include <QGLWidget>
 #include <QTGui>
 #include "brfData.h"
+#include "iniData.h"
+
 class BrfData;
 
-typedef std::map< std::string, std::string > MapSS;
+//typedef std::map< std::string, std::string > MapSS;
 
 class GLWidget : public QGLWidget
 {
@@ -14,12 +16,13 @@ class GLWidget : public QGLWidget
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
 public:
-    GLWidget(QWidget *parent, MapSS* mapMT);
+    GLWidget(QWidget *parent, IniData& i);
     ~GLWidget();
 
     BrfData* data;
     BrfData* reference; // for things that needs to be present to see other things...
                        // e.g. skeletons for animations
+    IniData &inidata;
 
     int selected;
     int selRefAnimation; // animation selected to view rigged mesh
@@ -30,6 +33,8 @@ public:
     void selectNone();
     void setEditingRef(bool mode);
     TokenEnum displaying;
+
+
 
 private slots:
    void onTimer();
@@ -45,6 +50,8 @@ public slots:
    void setLighting(int i);
    void setTexture(int i);
    void setFloor(int i);
+   void setRuler(int i);
+   void setRulerLenght(int i);
    void setPlay();
    void setStop();
    void setPause();
@@ -64,9 +71,9 @@ public slots:
    void showAlphaPurple();
    void showAlphaNo();
 public:
-bool useWireframe, useLighting, useTexture , useFloor;
-int colorMode;
-QString texturePath;
+bool useWireframe, useLighting, useTexture , useFloor, useRuler;
+bool ghostMode;
+int colorMode, rulerLenght;
 
 enum{STOP, PAUSE, PLAY} runningState;
 enum{DIFFUSEA, DIFFUSEB, BUMP, ENVIRO, SPECULAR } curMaterialTexture;
@@ -78,7 +85,7 @@ int relTime; // msec, zeroed at stop.
 signals:
     void signalFrameNumber(int);
 protected:
-    MapSS *mapMT;
+    //MapSS *mapMT;
     void paintGL();
     void resizeGL(int width, int height);
     void mousePressEvent(QMouseEvent *event);
@@ -112,19 +119,23 @@ protected:
     void renderCylWire() const;
     void renderOcta() const;
     void renderFloor();
-    
+    void renderRuler();
+
     void glClearCheckBoard();
     // rendering mode (just changes of openGL status):
     void setShadowMode(bool on) const;
     void setWireframeLightingMode(bool on, bool light, bool text) const;
-    void setTextureName(const char* text=NULL);
-    void setMaterialName(const char* text=NULL);
+    void setTextureName(QString st);
+    void setMaterialName(QString st);
     void initializeGL();
 
     bool skeletalAnimation();
 
+
 public:
 
+    QString texturePath[2];
+    QString locateOnDisk(QString nome, const char*ext, BrfMaterial::Location *loc = NULL);
     enum{MAXSEL=500};
     bool selGroup[MAXSEL];
     int selIndex() const;

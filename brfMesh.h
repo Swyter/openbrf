@@ -22,7 +22,7 @@ public:
   bool Load(FILE*f,int verbose=1);
   void Save(FILE*f) const;
 
-
+  static unsigned int SizeOnDisk();
 };
 
 
@@ -39,6 +39,8 @@ public:
   void Flip() { int tmp=index[1]; index[1]=index[2]; index[2]=tmp;}
   bool Load(FILE*f,int verbose=1);
   void Save(FILE*f) const;
+
+  static unsigned int SizeOnDisk();
 
 };
 
@@ -118,6 +120,9 @@ public:
   bool SaveSMD(FILE *f) const;
   bool LoadSMD(FILE *f) const;
 
+  bool SaveOBJ(char* f, int frame) const;
+  bool LoadOBJ(char* f);
+
   bool isRigged; // for convenience
   void UpdateBBox();
   void SetUniformRig(int nbone);
@@ -128,7 +133,7 @@ public:
   
   bool Load(FILE*f,int verbose=1);
   void Save(FILE*f) const;
-  static void Skip(FILE* f);
+  void Skip(FILE* f);
 
   bool SaveAsPly(int nframe=0, char* path="") const;
   bool HasVertexAni() const;
@@ -146,7 +151,9 @@ public:
   bool hasVertexColor;
 
   void Merge(const BrfMesh &brf);
-  void AddFrame(const BrfMesh &brf);
+  bool AddFrameDirect(const BrfMesh &brf);
+  bool AddFrameMatchVert(const BrfMesh &brf, int k);
+  bool AddFrameMatchTc(const BrfMesh &brf, int k);
 private:
   void CopyTimesFrom(const BrfMesh &brf);
   void Average(const BrfMesh &brf);

@@ -59,8 +59,15 @@ void SkipString(FILE *f);
 
 void Skip(FILE *f, int k);
 
-// skip of a vector, when objects are variablesize  size
-template<class T> void SkipVectorV(FILE *f){
+template<class T> void SkipVector(FILE *f, std::vector<T> &v){
+  unsigned int k;
+  LoadUint(f,k);
+  v.resize(k);
+  for (unsigned int i=0; i<k; i++) v[i].Skip(f);
+}
+
+// skip of a vector, Recursive: when objects in vector have a skip member
+template<class T> void SkipVectorR(FILE *f){
   unsigned int k;
   LoadUint(f,k);
   for (unsigned int i=0; i<k; i++) T::Skip(f);
@@ -71,6 +78,12 @@ template<class T> void SkipVectorV(FILE *f){
 template<class T> void SkipVectorF(FILE *f){
   unsigned int k;
   LoadUint(f,k);
-  fseek(f,k*sizeof(int), SEEK_CUR);
+  fseek(f,k*T::SizeOnDisk(), SEEK_CUR);
 }
 
+// direct skip of a vector of with BASE type
+template<class T> void SkipVectorB(FILE *f){
+  unsigned int k;
+  LoadUint(f,k);
+  fseek(f,k*sizeof(T), SEEK_CUR);
+}

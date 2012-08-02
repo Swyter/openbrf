@@ -91,18 +91,7 @@ bool BrfData::Load(char*filename,int verbose, int stopAt){
   return Load(f, verbose, stopAt);
 }
 
-/*
-template<class BrfType> bool BrfData::LoadAll(FILE *f, vector<BrfType> &v, int k){
-  int verbose=1;
-  for (int i=0; i<k; i++) {
-        BrfType a;
-        if (!a.Load(f, verbose)) return false;
-        printf("  loading \"%s\"\n",a.name);
-        v.push_back( a );
-  }
-  lastLoaded=BrfType::tokenIndex();
-  return true;
-}*/
+
 
 template<class BrfType> void BrfData::SaveAll(FILE *f, const vector<BrfType> &v) const{
   if (v.size()==0) return;
@@ -125,10 +114,10 @@ bool BrfData::Save(const char*fn) const{
 
   FILE *f = fopen(fn,"wb");
   if (!f) return false;
-  SaveAll(f,mesh);
-  SaveAll(f,texture);
   SaveAll(f,shader);
+  SaveAll(f,texture);
   SaveAll(f,material);
+  SaveAll(f,mesh);
   SaveAll(f,skeleton);
   SaveAll(f,animation);
   SaveAll(f,body);
@@ -137,6 +126,18 @@ bool BrfData::Save(const char*fn) const{
   fclose(f);
 
   return true;
+}
+
+
+int BrfData::FirstToken() const{
+  if(mesh.size()) return MESH;
+  if(material.size()) return MATERIAL;
+  if(shader.size()) return SHADER;
+  if(texture.size()) return TEXTURE;
+  if(body.size()) return BODY;
+  if(skeleton.size()) return SKELETON;
+  if(animation.size()) return ANIMATION;
+  return -1;
 }
 
 void BrfData::Clear(){
@@ -178,6 +179,11 @@ bool BrfData::LoadMat(FILE *f){
   return true;
 }
 
+void  BrfData::LoadVersion(FILE*f){
+  LoadInt(f,versionA);
+  LoadInt(f,versionB);
+}
+
 bool BrfData::Load(FILE*f,int verbose, int stopAt){
 
   Clear();
@@ -187,8 +193,8 @@ bool BrfData::Load(FILE*f,int verbose, int stopAt){
     LoadString(f, str);
     if (verbose>1) printf("Read \"%s\"\n",str);
     if (!strcmp(str,"end")) break;
-
-    if (!strcmp(str,"mesh")) LoadVector(f,mesh);
+    else if (!strcmp(str,"rfver")) LoadVersion(f);
+    else if (!strcmp(str,"mesh")) LoadVector(f,mesh);
     else if (!strcmp(str,"texture")) LoadVector(f,texture);
     else if (!strcmp(str,"shader")) LoadVector(f,shader);
     else if (!strcmp(str,"material")) LoadVector(f,material);
@@ -198,10 +204,40 @@ bool BrfData::Load(FILE*f,int verbose, int stopAt){
     else {
       printf("ERROR! Unknown token \"%s\"\n",str);
       fflush(stdout);
+      fclose(f);
       return false;
     }
 
   }
+  fclose(f);
+
   return true;
 
+}
+
+
+bool BrfData::LoadFast(char*filename){
+  FILE *f = fopen(filename,"rb");
+  if (!f) return false;
+  while (1) {
+    char str[255];
+    LoadString(f, str);
+    if (!strcmp(str,"end")) break;
+    else if (!strcmp(str,"shader")) SkipVector(f,shader);
+    else if (!strcmp(str,"texture")) LoadVector(f,texture);
+    else if (!strcmp(str,"material")) SkipVector(f,material);
+    else if (!strcmp(str,"mesh")) SkipVector(f,mesh);
+    else if (!strcmp(str,"skeleton")) SkipVector(f,skeleton);
+    else if (!strcmp(str,"skeleton_anim")) SkipVector(f,animation);
+    else if (!strcmp(str,"body")) SkipVector(f,body);
+    else {
+      printf("ERROR! Unknown token \"%s\"\n",str);
+      fflush(stdout);
+      fclose(f);
+      return false;
+    }
+
+  }
+  fclose(f);
+  return true;
 }

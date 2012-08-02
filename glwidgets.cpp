@@ -56,19 +56,62 @@ static float floatMod(float a,int b){
   return (a-ia) + ia%b; // which is >=0.0f but <b
 }
 
+void GLWidget::renderRuler(){
+  this->setWireframeLightingMode(false,false,false);
+  glDisable(GL_LIGHTING);
+  float h=0.4f;
+  glBegin(GL_LINES);
+  for (int i=1; i<=300; i+=1){
+    int lvl=0;
+    if (i==rulerLenght) continue;
+    if (i%5==0) lvl =1;
+    if (i%10==0) lvl =2;
+    if (i%50==0) lvl =3;
+    if (i%100==0)lvl =4;
+    float rgb = 0.75f + lvl/16.0;
+    glColor3f( rgb, rgb, rgb);
+    glVertex3f( 0, h, i*0.01 );
+    glVertex3f( 0, h*(6-lvl)/7.0, i*0.01 );
+  }
+  glColor4f( 1,0,0,0.3 );
+
+  float r = rulerLenght*0.01f;
+  glVertex3f(0,-0.2,0);
+  glVertex3f(0,h,0);
+  glVertex3f(0,-0.2,r);
+  glVertex3f(0,h,r);
+  glEnd();
+
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+  glDisable(GL_CULL_FACE);
+  float w=0.1;
+  glBegin(GL_QUADS);
+  glVertex3f(-w,h,r);
+  glVertex3f( w,h,r);
+  glVertex3f( w,-0.2,r);
+  glVertex3f(-w,-0.2,r);
+  glEnd();
+
+  glEnable(GL_CULL_FACE);
+  glDisable(GL_BLEND);
+  glEnable(GL_LIGHTING);
+  glColor4f( 1,1,1,1 );
+}
 void GLWidget::renderFloor(){
   this->setWireframeLightingMode(false,false,false);
 
   glDisable(GL_LIGHTING);
-  glPushMatrix();
   float c[4]={0.6f*bg_r,0.6f*bg_g,0.6f*bg_b,1.0f};
   float bg[4]={bg_r,bg_g,bg_b,1.0f};
   glColor3fv(c);
-  glScalef(0.5,0.5,0.5);
   glEnable(GL_FOG);
   glFogfv(GL_FOG_COLOR,bg);
   glFogf(GL_FOG_DENSITY,0.125f);
   glBegin(GL_LINES);
+
+  glPushMatrix();
+  glScalef(0.5,0.5,0.5);
   int K = 50;
   for (int i=-K; i<=K; i++){
     glVertex3f(-K, 0, i);
@@ -89,8 +132,8 @@ int GLWidget::getFrameNumber() const{
 void GLWidget::renderTexture(const char* name, bool addExtension){
   glDisable(GL_LIGHTING);
 
-  char tname[512];
-  sprintf(tname,"%s%s",name,(addExtension)?".dds":"");
+  //char tname[512];
+  //sprintf(tname,"%s%s",name,(addExtension)?".dds":"");
 
   if (showAlpha==PURPLEALPHA) {
     glDisable(GL_TEXTURE_2D);
@@ -104,7 +147,8 @@ void GLWidget::renderTexture(const char* name, bool addExtension){
   }
 
   glColor3f(1,1,1);
-  setTextureName(tname);
+  QString fulltname = locateOnDisk( name, (addExtension)?".dds":"" );
+  setTextureName(fulltname);
   if (showAlpha==TRANSALPHA ){
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -127,14 +171,17 @@ void GLWidget::renderTexture(const char* name, bool addExtension){
 }
 
 void GLWidget::renderBrfItem (const BrfMaterial& t){
+  const char *st;
   switch (curMaterialTexture){
   default:
-  case DIFFUSEA: renderTexture(t.diffuseA); break;
-  case DIFFUSEB: renderTexture(t.diffuseB); break;
-  case BUMP: renderTexture(t.bump); break;
-  case ENVIRO: renderTexture(t.enviro); break;
-  case SPECULAR: renderTexture(t.spec); break;
+  case DIFFUSEA: st= t.diffuseA; break;
+  case DIFFUSEB: st= t.diffuseB; break;
+  case BUMP: st= t.bump; break;
+  case ENVIRO: st= t.enviro; break;
+  case SPECULAR: st= t.spec; break;
   }
+  if (!strcmp(st,"none")) st =t.diffuseA;
+  renderTexture(st);
 }
 void GLWidget::renderBrfItem (const BrfTexture& t){
   renderTexture(t.name,false);
@@ -202,6 +249,16 @@ void GLWidget::renderBrfItem (const BrfAnimation& a){
   }
 }
 void GLWidget::renderBrfItem (const BrfSkeleton& p){
+  renderFloor();
+  if (selRefSkin>=0) {
+    ghostMode=true;
+    for (unsigned int i=0; i<reference->mesh.size(); i++){
+      if (reference->mesh[i].name[4]==char('A'+selRefSkin))
+        renderMesh(reference->mesh[i],0);
+    }
+    ghostMode=false;
+    glClear(GL_DEPTH_BUFFER_BIT);
+  }
   renderSkeleton(p);
 }
 void GLWidget::setShadowMode(bool on) const{
@@ -231,10 +288,27 @@ static float* vecf(float ff){
 }
 
 void GLWidget::setWireframeLightingMode(bool wf, bool light, bool tex) const{
+  glEnable(GL_LIGHTING);
+  if (ghostMode) {
+    glDisable(GL_TEXTURE_2D);
+    //glDisable(GL_LIGHTING);
+    glEnable(GL_FOG);
+
+    glLightfv(GL_LIGHT0,GL_DIFFUSE, vecf(0.5f));
+    glLightfv(GL_LIGHT0,GL_SPECULAR, vecf(0) ) ;
+
+    glLightfv(GL_LIGHT0,GL_AMBIENT, vecf(0.5f));
+
+    //glFogf(GL_FOG_DENSITY,0.15f);
+    //float c[4]={0,0,0,0};
+    //glFogfv(GL_FOG_COLOR,c);
+    return;
+  }
   if (tex) {
     glEnable(GL_TEXTURE_2D);
   }
   else glDisable(GL_TEXTURE_2D);
+  glDisable(GL_FOG);
 
   if (wf) {
     glLightfv(GL_LIGHT0,GL_DIFFUSE, (light && !tex)?vecf(0.6f):vecf(0.0f) );
@@ -259,36 +333,46 @@ void GLWidget::setWireframeLightingMode(bool wf, bool light, bool tex) const{
 }
 
 
-void GLWidget::setTextureName(const char *s){
-      std::string cazz = std::string(texturePath.toAscii().data()) +"\\"+s;
-      const char* textname = cazz.c_str();
-      if (s=="" || !bindTexture( textname ))
-      {
-        // small checkboard
-        const int N = 16;
-        QImage im(QSize(N,N),QImage::Format_ARGB32);
-        for (int x=0; x<N; x++)
-          for (int y=0; y<N; y++)
-            if ((x+y)%2) im.setPixel(QPoint(x,y),0xFFFFFFFF);
-            else im.setPixel(QPoint(x,y),0xFFAAAAFF);
-        bindTexture(im);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-      } else {
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-      }
-      glEnable(GL_TEXTURE_2D);
+void GLWidget::setTextureName(QString s){
+  //std::string cazz = std::string(texturePath.toAscii().data()) +"\\"+s;
+  //const char* textname = cazz.c_str();
+  //printf("texture:%s\n",textname);
+
+  if (s.isEmpty() || !bindTexture( s ))
+  {
+    // small checkboard
+    const int N = 16;
+    QImage im(QSize(N,N),QImage::Format_ARGB32);
+    for (int x=0; x<N; x++)
+      for (int y=0; y<N; y++)
+        if ((x+y)%2) im.setPixel(QPoint(x,y),0xFFFFFFFF);
+        else im.setPixel(QPoint(x,y),0xFFAAAAFF);
+    bindTexture(im);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+  } else {
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+  }
+  glEnable(GL_TEXTURE_2D);
 }
 
-void GLWidget::setMaterialName(const char *tn){
-    std::string s = (*mapMT)[ tn ];
-    setTextureName((s+".dds").c_str());
+void GLWidget::setMaterialName(QString st){
+  BrfMaterial *m = inidata.findMaterial(st);
+  if (m)
+    setTextureName(locateOnDisk(QString(m->diffuseA),".dds",&(m->location)));
+  else setTextureName("");
 }
 
 // SLOTS
 void GLWidget::setWireframe(int i){
   useWireframe = i; update();
+}
+void GLWidget::setRuler(int i){
+  useRuler = i; update();
+}
+void GLWidget::setRulerLenght(int i){
+  rulerLenght = i; update();
 }
 void GLWidget::setLighting(int i){
   useLighting = i; update();
@@ -354,10 +438,9 @@ void GLWidget::setSelection(const QModelIndexList &newsel, int k){
   update();
 }
 
-GLWidget::GLWidget(QWidget *parent, MapSS* mm)
-    : QGLWidget(parent)
+GLWidget::GLWidget(QWidget *parent, IniData &_inidata)
+    : QGLWidget(parent), inidata(_inidata)
 {
-  mapMT=mm;
   selectNone();
   phi=theta=0;
   dist = 5;
@@ -369,7 +452,9 @@ GLWidget::GLWidget(QWidget *parent, MapSS* mm)
   timer->setSingleShot(false);
   timer->start();
 
-  useTexture=useWireframe=false; useLighting=useFloor=true;
+  useTexture=useWireframe=false; useLighting=useFloor=true; useRuler=false;
+  rulerLenght = 100;
+  ghostMode = false;
   curMaterialTexture = DIFFUSEA;
 
   colorMode=1;
@@ -526,6 +611,7 @@ void GLWidget::renderRiggedMesh(const BrfMesh& m,  const BrfSkeleton& s, const B
   glEnd();
   }
 }
+
 void GLWidget::renderMesh(const BrfMesh &m, float frame){
 
   int framei = (int) frame;
@@ -559,7 +645,7 @@ void GLWidget::renderMesh(const BrfMesh &m, float frame){
 
 void GLWidget::renderCylWire() const{
   glEnable(GL_LIGHTING);
-  const int N = 9;
+  const int N = 10;
   for (int i=0; i<N; i++) {
     float ci = (float)cos(2.0*i/N*3.1415);
     float si = (float)sin(2.0*i/N*3.1415);
@@ -786,13 +872,26 @@ void GLWidget::renderSelected(const std::vector<BrfType>& v){
   for (int i=0; i<max; i++) if (selGroup[i]) {
     bbox.Add( v[i].bbox );
   }
+  animating=false;
+
   if (!bbox.IsNull()) {
     float s = 5/bbox.Diag();
     glScalef(s,s,s);
-    glTranslate(-bbox.Center() );
+
+    Point3f ta = -bbox.Center(),  // center on object
+            tb(0,0,-rulerLenght/100.0); // center on ruler
+
+    // interpolate between the two centers
+    static float k=1.0;
+    if (useRuler && displaying == MESH)
+    { if (k!=0) { animating =true; k-=0.1; if (k<0) k=0;} }
+    else
+    { if (k!=1) { animating =true; k+=0.1; if (k>1) k=1;} }
+
+    glTranslate( ta*k + tb*(1-k));
   }
 
-  animating=false;
+
   for (int i=0; i<max; i++) if (selGroup[i]) {
     renderBrfItem(v[i]);
     if (v[i].IsAnimable()) animating=true;
@@ -890,10 +989,12 @@ void GLWidget::paintGL()
     if (displaying == ANIMATION )  renderSelected(data->animation);
     if (displaying == TEXTURE )  renderSelected(data->texture);
     if (displaying == MATERIAL )  renderSelected(data->material);
-
-    if ((useFloor &&  (displaying == MESH || displaying == BODY) )
-         || displaying == ANIMATION || displaying == SKELETON )
+    if ( displaying != SKELETON)
+    if (((useFloor &&  (displaying == MESH || displaying == BODY) )
+         || displaying == ANIMATION  ))
       renderFloor();
+    if (useRuler && displaying == MESH)
+      renderRuler();
   }
 
 }
@@ -912,13 +1013,31 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
 void GLWidget::wheelEvent(QWheelEvent *event)
 {
   if (event->delta()>0) {
-    if (displaying==TEXTURE || displaying==MATERIAL) zoom*=1.2; else dist*=1.1;
+    if (displaying==TEXTURE || displaying==MATERIAL) zoom/=1.2; else dist*=1.1;
   } else {
-    if (displaying==TEXTURE || displaying==MATERIAL) zoom/=1.2; else dist/=1.1;
+    if (displaying==TEXTURE || displaying==MATERIAL) zoom*=1.2; else dist/=1.1;
   }
   if (zoom<1.0) zoom = 1.0;
+  if (zoom>32.0) zoom = 32.0;
+  if (dist>18.0) dist=18.0;
+  if (dist<0.5) dist=0.5;
 
   update();
+}
+
+QString GLWidget::locateOnDisk(QString nome, const char *ext, BrfMaterial::Location *loc){
+  BrfMaterial::Location aloc=BrfMaterial::UNKNOWN;
+  if (!loc) loc = &aloc;
+  QString tname = QString(nome)+ext;
+  if (*loc == BrfMaterial::UNKNOWN) {
+     if (QDir(this->texturePath[1]).exists(tname)) *loc = BrfMaterial::MODULE;
+     else if (QDir(this->texturePath[0]).exists(tname)) *loc = BrfMaterial::COMMON;
+     else *loc = BrfMaterial::NOWHERE;
+  }
+
+  if (*loc == BrfMaterial::COMMON) return texturePath[0]+"/"+tname;
+  if (*loc == BrfMaterial::MODULE) return texturePath[1]+"/"+tname;
+  return QString();
 }
 
 void GLWidget::showMaterialDiffuseA(){curMaterialTexture = DIFFUSEA; update();}

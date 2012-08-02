@@ -20,9 +20,12 @@ public:
   int currentTabName() const;
   int firstSelected() const;
   int numSelected() const;
+  int onlySelected(int kind) const; // return index of only selected object of given kind or -1
+  QModelIndexList selectedList() const;
   void moveSel(int d);
   BrfData* reference;
   const BrfData* data;
+  void selectOne(int kind, int i);
 
 private slots:
   void onChanged();
@@ -56,6 +59,7 @@ private:
     *breakAniAct,
     *breakAniWithIniAct,
     *meshRecomputeNormalsAndUnify,
+    *meshUnify,
 
     *renameAct,
     *removeAct,
@@ -83,7 +87,7 @@ private:
     *addToRefSkelAct,
     *addToRefAnimAct,
     *addToRefMeshAct[10];
-;
+
 };
 
 #endif // SELECTOR_H

@@ -16,14 +16,15 @@ BrfShaderOpt::BrfShaderOpt()
 BrfShader::BrfShader()
 {
 }
-FILE *fff=fopen("prova.txt","wt");
+//FILE *fff=fopen("prova.txt","wt");
+
 bool BrfShaderOpt::Load(FILE*f, int verbose){
   //map, colorOp, alphaOp, flags
   LoadInt(f,map);
   LoadUint(f,colorOp);
   LoadUint(f,alphaOp);
   LoadUint(f,flags);
-  fprintf(fff,"%d %u %u %u\n",map,colorOp, alphaOp, flags);
+  //fprintf(fff,"%d %u %u %u\n",map,colorOp, alphaOp, flags);
   return true;
 }
 
@@ -42,6 +43,21 @@ void BrfShader::SetDefault(){
   opt.clear();
 }
 
+bool BrfShader::Skip(FILE*f){
+  LoadString(f, name);
+  ::Skip(f,8);
+  LoadString(f, technique);
+
+  unsigned int k;
+  LoadUint(f , k);
+  assert(k<=1);
+  if (k) LoadString(f , fallback);
+  else fallback[0]=0;
+
+  SkipVectorF<BrfShaderOpt>(f);
+  return true;
+}
+
 bool BrfShader::Load(FILE*f, int verbose){
   LoadString(f, name);
   if (verbose>0) printf("loading \"%s\"...\n",name);
@@ -55,7 +71,7 @@ bool BrfShader::Load(FILE*f, int verbose){
   if (k) LoadString(f , fallback);
   else fallback[0]=0;
 
-  fprintf(fff,"--%s--\n",technique);
+  //fprintf(fff,"--%s--\n",technique);
   LoadVector(f,opt);
   return true;
 }

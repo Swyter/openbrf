@@ -10,6 +10,7 @@ public:
   unsigned int colorOp, alphaOp, flags;
   bool Load(FILE*f,int verbose=1);
   void Save(FILE*f) const;
+  static unsigned int SizeOnDisk() {return 16;}
 };
 
 class BrfShader
@@ -21,6 +22,7 @@ public:
 
   char fallback[255];
   bool Load(FILE*f,int verbose=1);
+  bool Skip(FILE*f);
   void Save(FILE*f) const;
 
   void SetDefault();

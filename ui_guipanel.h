@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading ui file 'guipanel.ui'
 **
-** Created: Mon Aug 17 15:35:23 2009
+** Created: Tue Sep 1 02:31:44 2009
 **      by: Qt User Interface Compiler version 4.5.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling ui file!
@@ -24,6 +24,7 @@
 #include <QtGui/QListView>
 #include <QtGui/QPushButton>
 #include <QtGui/QRadioButton>
+#include <QtGui/QSlider>
 #include <QtGui/QSpacerItem>
 #include <QtGui/QSpinBox>
 #include <QtGui/QVBoxLayout>
@@ -68,6 +69,10 @@ public:
     QCheckBox *cbTexture;
     QWidget *viewFloor;
     QCheckBox *cbFloor;
+    QWidget *viewRuler;
+    QSpinBox *rulerSpin;
+    QSlider *rulerSlid;
+    QCheckBox *cbRuler;
     QWidget *viewRefAni;
     QComboBox *cbRefani;
     QLabel *label_21;
@@ -98,11 +103,6 @@ public:
     QLabel *label_16;
     QLabel *label_17;
     QGroupBox *materialData;
-    QLabel *label_12;
-    QLabel *label_13;
-    QLabel *label_18;
-    QLabel *label_19;
-    QLabel *label_20;
     QLineEdit *leMatShader;
     QLineEdit *leMatDifA;
     QLineEdit *leMatDifB;
@@ -113,11 +113,19 @@ public:
     QLineEdit *leMatB;
     QLabel *label_22;
     QLineEdit *leMatSpec;
-    QLabel *label_24;
     QLabel *label_25;
     QLineEdit *leMatCoeff;
     QLineEdit *leMatFlags;
     QLabel *label_26;
+    QPushButton *buFlagMat;
+    QLabel *label_32;
+    QSpinBox *leMatRendOrd;
+    QPushButton *labelShader;
+    QPushButton *labelDiffuseA;
+    QPushButton *labelDiffuseB;
+    QPushButton *labelBump;
+    QPushButton *labelEnviro;
+    QPushButton *labelSpecular;
     QGroupBox *skeletonData;
     QLabel *label_27;
     QLCDNumber *boxSkelNBones;
@@ -203,7 +211,6 @@ public:
         boxFlags = new QLineEdit(meshData);
         boxFlags->setObjectName(QString::fromUtf8("boxFlags"));
         boxFlags->setGeometry(QRect(60, 80, 71, 21));
-        boxFlags->setReadOnly(true);
         label_3 = new QLabel(meshData);
         label_3->setObjectName(QString::fromUtf8("label_3"));
         label_3->setGeometry(QRect(5, 80, 51, 20));
@@ -269,7 +276,7 @@ public:
         label_4->setGeometry(QRect(121, 10, 20, 20));
         generalView = new QGroupBox(GuiPanel);
         generalView->setObjectName(QString::fromUtf8("generalView"));
-        generalView->setGeometry(QRect(10, 230, 181, 201));
+        generalView->setGeometry(QRect(10, 230, 181, 381));
         sizePolicy.setHeightForWidth(generalView->sizePolicy().hasHeightForWidth());
         generalView->setSizePolicy(sizePolicy);
         verticalLayout = new QVBoxLayout(generalView);
@@ -296,7 +303,7 @@ public:
 
         viewMeshRendering = new QWidget(generalView);
         viewMeshRendering->setObjectName(QString::fromUtf8("viewMeshRendering"));
-        viewMeshRendering->setMinimumSize(QSize(0, 60));
+        viewMeshRendering->setMinimumSize(QSize(0, 55));
         viewMeshRendering->setBaseSize(QSize(0, 80));
         rbNocolor = new QRadioButton(viewMeshRendering);
         rbNocolor->setObjectName(QString::fromUtf8("rbNocolor"));
@@ -323,13 +330,34 @@ public:
 
         viewFloor = new QWidget(generalView);
         viewFloor->setObjectName(QString::fromUtf8("viewFloor"));
-        viewFloor->setMinimumSize(QSize(0, 20));
+        viewFloor->setMinimumSize(QSize(0, 15));
         cbFloor = new QCheckBox(viewFloor);
         cbFloor->setObjectName(QString::fromUtf8("cbFloor"));
         cbFloor->setGeometry(QRect(10, 0, 72, 18));
         cbFloor->setChecked(true);
 
         verticalLayout->addWidget(viewFloor);
+
+        viewRuler = new QWidget(generalView);
+        viewRuler->setObjectName(QString::fromUtf8("viewRuler"));
+        viewRuler->setMinimumSize(QSize(0, 22));
+        rulerSpin = new QSpinBox(viewRuler);
+        rulerSpin->setObjectName(QString::fromUtf8("rulerSpin"));
+        rulerSpin->setGeometry(QRect(140, 0, 41, 22));
+        rulerSpin->setMaximum(511);
+        rulerSpin->setValue(100);
+        rulerSlid = new QSlider(viewRuler);
+        rulerSlid->setObjectName(QString::fromUtf8("rulerSlid"));
+        rulerSlid->setGeometry(QRect(59, 1, 80, 20));
+        rulerSlid->setMaximum(300);
+        rulerSlid->setValue(100);
+        rulerSlid->setOrientation(Qt::Horizontal);
+        cbRuler = new QCheckBox(viewRuler);
+        cbRuler->setObjectName(QString::fromUtf8("cbRuler"));
+        cbRuler->setGeometry(QRect(10, 0, 51, 17));
+        cbRuler->setChecked(false);
+
+        verticalLayout->addWidget(viewRuler);
 
         viewRefAni = new QWidget(generalView);
         viewRefAni->setObjectName(QString::fromUtf8("viewRefAni"));
@@ -407,10 +435,10 @@ public:
 
         verticalLayout->addItem(verticalSpacer);
 
-        verticalLayout->setStretch(7, 1);
+        verticalLayout->setStretch(8, 1);
         textureData = new QGroupBox(GuiPanel);
         textureData->setObjectName(QString::fromUtf8("textureData"));
-        textureData->setGeometry(QRect(10, 810, 181, 71));
+        textureData->setGeometry(QRect(10, 940, 181, 71));
         label_9 = new QLabel(textureData);
         label_9->setObjectName(QString::fromUtf8("label_9"));
         label_9->setGeometry(QRect(0, 30, 51, 20));
@@ -421,7 +449,7 @@ public:
         boxTextureFlags->setReadOnly(true);
         animationData = new QGroupBox(GuiPanel);
         animationData->setObjectName(QString::fromUtf8("animationData"));
-        animationData->setGeometry(QRect(10, 1200, 181, 111));
+        animationData->setGeometry(QRect(10, 1340, 181, 111));
         boxAniMinFrame = new QLCDNumber(animationData);
         boxAniMinFrame->setObjectName(QString::fromUtf8("boxAniMinFrame"));
         boxAniMinFrame->setGeometry(QRect(70, 80, 41, 21));
@@ -452,27 +480,7 @@ public:
         label_17->setAlignment(Qt::AlignCenter);
         materialData = new QGroupBox(GuiPanel);
         materialData->setObjectName(QString::fromUtf8("materialData"));
-        materialData->setGeometry(QRect(10, 900, 181, 251));
-        label_12 = new QLabel(materialData);
-        label_12->setObjectName(QString::fromUtf8("label_12"));
-        label_12->setGeometry(QRect(10, 35, 46, 14));
-        label_12->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-        label_13 = new QLabel(materialData);
-        label_13->setObjectName(QString::fromUtf8("label_13"));
-        label_13->setGeometry(QRect(10, 65, 46, 14));
-        label_13->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-        label_18 = new QLabel(materialData);
-        label_18->setObjectName(QString::fromUtf8("label_18"));
-        label_18->setGeometry(QRect(10, 85, 46, 14));
-        label_18->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-        label_19 = new QLabel(materialData);
-        label_19->setObjectName(QString::fromUtf8("label_19"));
-        label_19->setGeometry(QRect(10, 105, 46, 14));
-        label_19->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-        label_20 = new QLabel(materialData);
-        label_20->setObjectName(QString::fromUtf8("label_20"));
-        label_20->setGeometry(QRect(10, 125, 46, 14));
-        label_20->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        materialData->setGeometry(QRect(10, 1010, 181, 281));
         leMatShader = new QLineEdit(materialData);
         leMatShader->setObjectName(QString::fromUtf8("leMatShader"));
         leMatShader->setGeometry(QRect(60, 30, 113, 20));
@@ -504,10 +512,6 @@ public:
         leMatSpec = new QLineEdit(materialData);
         leMatSpec->setObjectName(QString::fromUtf8("leMatSpec"));
         leMatSpec->setGeometry(QRect(60, 140, 113, 20));
-        label_24 = new QLabel(materialData);
-        label_24->setObjectName(QString::fromUtf8("label_24"));
-        label_24->setGeometry(QRect(5, 145, 51, 14));
-        label_24->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         label_25 = new QLabel(materialData);
         label_25->setObjectName(QString::fromUtf8("label_25"));
         label_25->setGeometry(QRect(-5, 195, 61, 14));
@@ -517,14 +521,70 @@ public:
         leMatCoeff->setGeometry(QRect(60, 190, 37, 20));
         leMatFlags = new QLineEdit(materialData);
         leMatFlags->setObjectName(QString::fromUtf8("leMatFlags"));
-        leMatFlags->setGeometry(QRect(60, 220, 111, 20));
+        leMatFlags->setGeometry(QRect(60, 249, 81, 20));
         label_26 = new QLabel(materialData);
         label_26->setObjectName(QString::fromUtf8("label_26"));
-        label_26->setGeometry(QRect(15, 225, 41, 14));
+        label_26->setGeometry(QRect(15, 254, 41, 14));
         label_26->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        buFlagMat = new QPushButton(materialData);
+        buFlagMat->setObjectName(QString::fromUtf8("buFlagMat"));
+        buFlagMat->setGeometry(QRect(140, 250, 31, 20));
+        label_32 = new QLabel(materialData);
+        label_32->setObjectName(QString::fromUtf8("label_32"));
+        label_32->setGeometry(QRect(-5, 225, 61, 14));
+        label_32->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+        leMatRendOrd = new QSpinBox(materialData);
+        leMatRendOrd->setObjectName(QString::fromUtf8("leMatRendOrd"));
+        leMatRendOrd->setGeometry(QRect(60, 220, 37, 22));
+        leMatRendOrd->setMinimum(-8);
+        leMatRendOrd->setMaximum(7);
+        labelShader = new QPushButton(materialData);
+        labelShader->setObjectName(QString::fromUtf8("labelShader"));
+        labelShader->setGeometry(QRect(12, 31, 46, 23));
+        QFont font2;
+        font2.setKerning(true);
+        labelShader->setFont(font2);
+        labelShader->setCheckable(false);
+        labelShader->setChecked(false);
+        labelShader->setFlat(true);
+        labelDiffuseA = new QPushButton(materialData);
+        labelDiffuseA->setObjectName(QString::fromUtf8("labelDiffuseA"));
+        labelDiffuseA->setGeometry(QRect(6, 60, 54, 23));
+        labelDiffuseA->setFont(font2);
+        labelDiffuseA->setCheckable(false);
+        labelDiffuseA->setChecked(false);
+        labelDiffuseA->setFlat(true);
+        labelDiffuseB = new QPushButton(materialData);
+        labelDiffuseB->setObjectName(QString::fromUtf8("labelDiffuseB"));
+        labelDiffuseB->setGeometry(QRect(6, 80, 54, 23));
+        labelDiffuseB->setFont(font2);
+        labelDiffuseB->setCheckable(false);
+        labelDiffuseB->setChecked(false);
+        labelDiffuseB->setFlat(true);
+        labelBump = new QPushButton(materialData);
+        labelBump->setObjectName(QString::fromUtf8("labelBump"));
+        labelBump->setGeometry(QRect(20, 100, 40, 23));
+        labelBump->setFont(font2);
+        labelBump->setCheckable(false);
+        labelBump->setChecked(false);
+        labelBump->setFlat(true);
+        labelEnviro = new QPushButton(materialData);
+        labelEnviro->setObjectName(QString::fromUtf8("labelEnviro"));
+        labelEnviro->setGeometry(QRect(16, 120, 44, 23));
+        labelEnviro->setFont(font2);
+        labelEnviro->setCheckable(false);
+        labelEnviro->setChecked(false);
+        labelEnviro->setFlat(true);
+        labelSpecular = new QPushButton(materialData);
+        labelSpecular->setObjectName(QString::fromUtf8("labelSpecular"));
+        labelSpecular->setGeometry(QRect(6, 140, 53, 23));
+        labelSpecular->setFont(font2);
+        labelSpecular->setCheckable(false);
+        labelSpecular->setChecked(false);
+        labelSpecular->setFlat(true);
         skeletonData = new QGroupBox(GuiPanel);
         skeletonData->setObjectName(QString::fromUtf8("skeletonData"));
-        skeletonData->setGeometry(QRect(10, 1150, 181, 51));
+        skeletonData->setGeometry(QRect(10, 1290, 181, 51));
         label_27 = new QLabel(skeletonData);
         label_27->setObjectName(QString::fromUtf8("label_27"));
         label_27->setGeometry(QRect(10, 20, 51, 20));
@@ -534,7 +594,7 @@ public:
         boxSkelNBones->setGeometry(QRect(70, 20, 41, 21));
         shaderData = new QGroupBox(GuiPanel);
         shaderData->setObjectName(QString::fromUtf8("shaderData"));
-        shaderData->setGeometry(QRect(10, 530, 181, 271));
+        shaderData->setGeometry(QRect(10, 670, 181, 271));
         QSizePolicy sizePolicy2(QSizePolicy::Preferred, QSizePolicy::Preferred);
         sizePolicy2.setHorizontalStretch(0);
         sizePolicy2.setVerticalStretch(0);
@@ -560,7 +620,7 @@ public:
         label_30->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
         leShaderFlags = new QLineEdit(shaderData);
         leShaderFlags->setObjectName(QString::fromUtf8("leShaderFlags"));
-        leShaderFlags->setGeometry(QRect(60, 120, 113, 20));
+        leShaderFlags->setGeometry(QRect(60, 120, 111, 20));
         leShaderFlags->setReadOnly(true);
         leShaderRequires = new QLineEdit(shaderData);
         leShaderRequires->setObjectName(QString::fromUtf8("leShaderRequires"));
@@ -606,7 +666,7 @@ public:
         lvTextAcc->setContextMenuPolicy(Qt::CustomContextMenu);
         bodyData = new QGroupBox(GuiPanel);
         bodyData->setObjectName(QString::fromUtf8("bodyData"));
-        bodyData->setGeometry(QRect(10, 1310, 181, 231));
+        bodyData->setGeometry(QRect(10, 1450, 181, 231));
         lvBodyPart = new QListView(bodyData);
         lvBodyPart->setObjectName(QString::fromUtf8("lvBodyPart"));
         lvBodyPart->setGeometry(QRect(70, 20, 101, 71));
@@ -792,6 +852,7 @@ public:
         cbWireframe->setText(QApplication::translate("GuiPanel", "WireFrame", 0, QApplication::UnicodeUTF8));
         cbTexture->setText(QApplication::translate("GuiPanel", "Texture", 0, QApplication::UnicodeUTF8));
         cbFloor->setText(QApplication::translate("GuiPanel", "Floor", 0, QApplication::UnicodeUTF8));
+        cbRuler->setText(QApplication::translate("GuiPanel", "Ruler", 0, QApplication::UnicodeUTF8));
         label_21->setText(QApplication::translate("GuiPanel", "Animation:", 0, QApplication::UnicodeUTF8));
         label_23->setText(QApplication::translate("GuiPanel", "Skeleton:", 0, QApplication::UnicodeUTF8));
         buPause->setText(QApplication::translate("GuiPanel", "||", 0, QApplication::UnicodeUTF8));
@@ -815,15 +876,17 @@ public:
         label_16->setText(QApplication::translate("GuiPanel", "interval:", 0, QApplication::UnicodeUTF8));
         label_17->setText(QApplication::translate("GuiPanel", "-", 0, QApplication::UnicodeUTF8));
         materialData->setTitle(QApplication::translate("GuiPanel", "Data", 0, QApplication::UnicodeUTF8));
-        label_12->setText(QApplication::translate("GuiPanel", "Shader:", 0, QApplication::UnicodeUTF8));
-        label_13->setText(QApplication::translate("GuiPanel", "DiffuseA:", 0, QApplication::UnicodeUTF8));
-        label_18->setText(QApplication::translate("GuiPanel", "DiffuseB:", 0, QApplication::UnicodeUTF8));
-        label_19->setText(QApplication::translate("GuiPanel", "Bump:", 0, QApplication::UnicodeUTF8));
-        label_20->setText(QApplication::translate("GuiPanel", "Enviro:", 0, QApplication::UnicodeUTF8));
         label_22->setText(QApplication::translate("GuiPanel", "Spec RGB:", 0, QApplication::UnicodeUTF8));
-        label_24->setText(QApplication::translate("GuiPanel", "Specmap:", 0, QApplication::UnicodeUTF8));
         label_25->setText(QApplication::translate("GuiPanel", "Coeff:", 0, QApplication::UnicodeUTF8));
         label_26->setText(QApplication::translate("GuiPanel", "Flags:", 0, QApplication::UnicodeUTF8));
+        buFlagMat->setText(QApplication::translate("GuiPanel", "...", 0, QApplication::UnicodeUTF8));
+        label_32->setText(QApplication::translate("GuiPanel", "Rend.Ord:", 0, QApplication::UnicodeUTF8));
+        labelShader->setText(QApplication::translate("GuiPanel", "Shader:", 0, QApplication::UnicodeUTF8));
+        labelDiffuseA->setText(QApplication::translate("GuiPanel", "DiffuseA:", 0, QApplication::UnicodeUTF8));
+        labelDiffuseB->setText(QApplication::translate("GuiPanel", "DiffuseB:", 0, QApplication::UnicodeUTF8));
+        labelBump->setText(QApplication::translate("GuiPanel", "Bump:", 0, QApplication::UnicodeUTF8));
+        labelEnviro->setText(QApplication::translate("GuiPanel", "Enviro:", 0, QApplication::UnicodeUTF8));
+        labelSpecular->setText(QApplication::translate("GuiPanel", "Specular:", 0, QApplication::UnicodeUTF8));
         skeletonData->setTitle(QApplication::translate("GuiPanel", "Data", 0, QApplication::UnicodeUTF8));
         label_27->setText(QApplication::translate("GuiPanel", "# bones:", 0, QApplication::UnicodeUTF8));
         shaderData->setTitle(QApplication::translate("GuiPanel", "Data", 0, QApplication::UnicodeUTF8));

@@ -57,6 +57,32 @@ static int lastMask;
 static int lastErr;
 static bool lastMeterial=false;
 
+void setGotColor(bool b){
+  if (b)
+    lastMask |= vcg::tri::io::Mask::IOM_VERTCOLOR;
+  else
+    lastMask &= ~vcg::tri::io::Mask::IOM_VERTCOLOR;
+}
+
+void setGotTexture(bool b){
+  if (b)
+    lastMask |= vcg::tri::io::Mask::IOM_VERTTEXCOORD;
+  else
+    lastMask &= ~(vcg::tri::io::Mask::IOM_WEDGTEXCOORD|vcg::tri::io::Mask::IOM_VERTTEXCOORD);
+}
+
+void setGotMaterialName(bool b){
+  lastMeterial = b;
+}
+
+void setGotNormals(bool b){
+  if (b)
+    lastMask |= vcg::tri::io::Mask::IOM_VERTNORMAL;
+  else
+    lastMask &= ~vcg::tri::io::Mask::IOM_VERTNORMAL;
+}
+
+
 bool VcgMesh::gotColor(){
  return lastMask & vcg::tri::io::Mask::IOM_VERTCOLOR;
 }
@@ -289,6 +315,9 @@ void VcgMesh::add(const BrfSkeleton &s){
 
   }
 }
+static Point2f _flipY(const Point2f p){
+  return Point2f(p[0],1-p[1]);
+}
 
 void VcgMesh::add(const BrfMesh &b, int fi){
   mesh.Clear();
@@ -331,7 +360,7 @@ void VcgMesh::add(const BrfMesh &b, int fi){
       v->N() = b.frame[fi].norm[ k ];
       v->P() = b.frame[fi].pos [ pi ];
       v->C() = Int2Col( b.vert[ k ].col );
-      v->T().P() =  b.vert[ k ].ta;
+      v->T().P() = _flipY(  b.vert[ k ].ta );
   }
 #endif
 
@@ -365,7 +394,7 @@ BrfMesh VcgMesh::toBrfMesh(){
     for (int h=0; h<3; h++) {
 
       int vi  = b.face[k].index[2-h] = f->V(h)-&(mesh.vert[0]);
-      if (mustUseWT()) b.vert[ vi ] .ta = b.vert[ vi ] .tb = f->WT(h).P(); // text x wedge
+      if (mustUseWT()) b.vert[ vi ] .ta = b.vert[ vi ] .tb = _flipY(f->WT(h).P()); // text x wedge
     }
   }
 
@@ -379,7 +408,7 @@ BrfMesh VcgMesh::toBrfMesh(){
     b.frame[0].norm[k] = v->N();
     b.frame[0].pos[k] = v->P();
     if (mustUseVT())
-      b.vert[k].ta = b.vert[k].tb  = v->T().P(); // text x vert?
+      b.vert[k].ta = b.vert[k].tb  = _flipY(v->T().P()); // text x vert?
   }
 
   b.AdjustNormDuplicates();

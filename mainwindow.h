@@ -2,9 +2,10 @@
 #define MAINWINDOW_H
 
 #include <QtGui/QMainWindow>
-#include <map>
+//#include <map>
 
 #include "brfdata.h"
+#include "inidata.h"
 #include "glwidgets.h"
 #include "selector.h"
 #include "guipanel.h"
@@ -28,6 +29,7 @@ private:
     BrfData reference;
     BrfData clipboard; // also used for frames...
     BrfData brfdataBackup;
+    IniData inidata;
 
     bool editingRef;
     template<class BrfType> bool addNewGeneral();
@@ -44,6 +46,9 @@ private:
     bool saveAs();
     bool openRecentFile();
     bool editRef();
+
+    void registerExtension();
+
     void about();
     void breakAni(int which, bool useIni);
     void reskeletonize();
@@ -94,17 +99,30 @@ private:
     void editCopyFrame();
     void editPasteFrame();
     void meshRecomputeNormalsAndUnify();
+    void meshUnify();
 
+    void setFlagsMaterial();
 
+    bool navigateLeft();
+    bool navigateRight();
+    bool navigateUp();
+    bool navigateDown();
+    bool searchBrf();
+    bool refreshIni();
 
 private:
-    std::map< std::string, std::string > mapMT;// map material to textures
+    //std::map< std::string, std::string > mapMT;// map material to textures
     GLWidget *glWidget;
     Selector *selector;
     QSettings *settings;
     GuiPanel *guiPanel;
 
+    void guessPaths(QString fn);
+    void updatePaths();
+    bool loadIni();
     QString defpathTexture;
+    QString mabPath;
+    QString modName;
 
     bool scanBrfForMaterials(const QString fname);
     bool scanIniForMaterials(const QString fname);
@@ -134,12 +152,17 @@ private:
     void insert(const BrfMaterial &m);
     void insert(const BrfShader &s);
     void insert(const BrfBody &s);
+    void selectOne(int kind, int i);
+
     template<class BrfType> void insert( vector<BrfType> &v, const BrfType &o);
 
     void saveOptions() const;
     void loadOptions();
 
     int afterMeshImport() const; // 0:nothing   1:merge   2:normal recompute and merge
+    int assembleAniMode() const; // 0:trust vertex order   1:trust vertex coords
+
+    void applyAfterMeshImport(BrfMesh &m);
 
     QString askExportFilename(QString);
     QString askImportFilename();
@@ -148,11 +171,13 @@ private:
 
     QString curFile;
     QString curFileBackup;
+    int curFileIndex; // in module.ini, or -1
 
     QMenu *fileMenu;
     QMenu *helpMenu;
     QMenu *recentFilesMenu;
     QAction *newAct;
+    QAction *registerMime;
     QAction *openAct;
     QAction *saveAct;
     QAction *saveAsAct;
@@ -168,9 +193,21 @@ private:
     QAction *editCopyFrameAct;
     QAction *editPasteFrameAct;
 
+    QAction *searchBrfAct;
+    QAction *navigateLeftAct;
+    QAction *navigateRightAct;
+    QAction *navigateUpAct;
+    QAction *navigateDownAct;
+    QAction *refreshIniAct;
+
+    Pair navigationStack[3];
+    int navigationStackPos;
+
     QAction *optionAfterMeshLoadMerge;
     QAction *optionAfterMeshLoadRecompute;
     QAction *optionAfterMeshLoadNothing;
+    QAction *optionAssembleAniMatchVert;
+    QAction *optionAssembleAniMatchTc;
 
     QAction
       *importStaticMeshAct,
@@ -194,6 +231,10 @@ private:
     void updateTitle();
     bool isModified;
     QString lastImpExpFormat;
+
+    QLabel* modStatus; // widget in status bar
+
+    bool _importStaticMesh(QString s, BrfMesh &m);
 
 };
 

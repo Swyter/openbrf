@@ -333,8 +333,8 @@ int ioSMD::Import(const char*filename, BrfMesh &m , BrfSkeleton &s){
 
   if (!ioSMD_ImportTriangles(f,m)) return false;
 
-  m.UnifyPos();
-  m.UnifyVert(true);
+  //m.UnifyPos();
+  //m.UnifyVert(false);
   m.AfterLoad();
   m.flags=0;
   m.maxBone=s.bone.size();

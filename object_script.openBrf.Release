@@ -21,6 +21,9 @@ INPUT(
 ./release\ioSMD.o
 ./release\askSkelDialog.o
 ./release\askTexturenameDialog.o
+./release\askFlagsDialog.o
+./release\iniData.o
+./release\ioOBJ.o
 ./release\moc_mainwindow.o
 ./release\moc_glwidgets.o
 ./release\moc_selector.o
@@ -29,4 +32,5 @@ INPUT(
 ./release\moc_askBoneDialog.o
 ./release\moc_askSkelDialog.o
 ./release\moc_askTexturenameDialog.o
+./release\moc_askFlagsDialog.o
 );
