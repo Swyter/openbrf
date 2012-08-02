@@ -9,6 +9,7 @@
 
 namespace vcg{
   template<typename T> class Matrix44;
+  template<typename T> class Point4;
 }
 
 
@@ -93,8 +94,11 @@ public:
   int FindBoneByName(const char * name) const;
   int FindSpecularBoneOf(int bonei) const; /* judges by the name */
 
-  // dispose a hitbox according to bones position (or does the inverst)
-  bool DisposeHitboxes(const BrfBody &in, BrfBody &out, bool inverse) const;
+  std::vector<int> Bone2BoneMap(const BrfSkeleton & s) const;
+  std::vector<vcg::Point4<float> > BoneRotations() const;
+
+  // layout hitboxes according to bones position (or does the inverse)
+  bool LayoutHitboxes(const BrfBody &in, BrfBody &out, bool inverse) const;
 
 private:
 

@@ -21,6 +21,10 @@ public:
 	bool CopyLowerParts(const BrfAnimationFrame& from);
 	bool Mirror(const BrfAnimationFrame& from, const std::vector<int>& boneMap);
 
+  void AddBoneHack(int copyfrom);
+
+  BrfAnimationFrame Shuffle( std::vector<int> &map, std::vector<vcg::Point4<float> > &fallback);
+
 };
 
 class BrfAnimation
@@ -67,6 +71,10 @@ public:
 
   void GetTimings(std::vector<int> &v);
   void SetTimings(const std::vector<int> &v);
+
+  void AddBoneHack(int copyfrom);
+
+  void Shuffle( std::vector<int> &map, std::vector<vcg::Point4<float> > &fallback);
 
 private:
   void EnlongFrames(int nframes);

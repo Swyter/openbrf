@@ -81,6 +81,25 @@ float BrfSkeleton::BoneSizeX(){return 0.12;}
 float BrfSkeleton::BoneSizeY(){return 0.06;}
 float BrfSkeleton::BoneSizeZ(){return 0.04;}
 
+std::vector<int> BrfSkeleton::Bone2BoneMap(const BrfSkeleton & s) const{
+  std::vector<int> res(bone.size(),-1);
+  for (int i=0; i<(int)bone.size(); i++) {
+    res[i] = s.FindBoneByName( bone[i].name );
+  }
+  return res;
+}
+std::vector<vcg::Point4<float> > BrfSkeleton::BoneRotations() const{
+
+  std::vector< vcg::Point4<float> > res(bone.size());
+  for (int i=0; i<(int)bone.size(); i++) {
+    vcg::Quaternionf q;
+    q.FromMatrix(getRotationMatrix( i ).transpose());
+    res[i] = q;
+  }
+  return res;
+}
+
+
 int BrfSkeleton::FindSpecularBoneOf(int i) const{
 	char boneName[255];
 	sprintf(boneName, "%s", bone[i].name );
@@ -153,7 +172,6 @@ void BrfSkeleton::BuildDefaultMesh(BrfMesh & m) const{ // builds a mesh with jus
   sprintf(m.name,"meshFromSkeleton");
   sprintf(m.material,"none");
   m.AdjustNormDuplicates();
-  m.isRigged=true;
   m.hasVertexColor=false;
 
 }
@@ -224,7 +242,7 @@ std::vector<Matrix44f>  BrfSkeleton::GetBoneMatricesInverse() const
   return res;
 }
 
-bool BrfSkeleton::DisposeHitboxes(const BrfBody &in, BrfBody &out, bool inverse) const{
+bool BrfSkeleton::LayoutHitboxes(const BrfBody &in, BrfBody &out, bool inverse) const{
   if (bone.size()!=in.part.size())  return false;
   std::vector<Matrix44f> p = (!inverse)?GetBoneMatrices():GetBoneMatricesInverse();
 

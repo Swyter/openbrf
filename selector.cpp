@@ -188,6 +188,9 @@ Selector::Selector(QWidget *parent)
   reskeletonizeAct = new QAction(tr("Reskeletonize..."), this);
   reskeletonizeAct->setStatusTip(tr("Adapt this rigged mesh to a new skeleton"));
 
+  aniReskeletonizeAct = new QAction(tr("Reskeletonize..."), this);
+  aniReskeletonizeAct->setStatusTip(tr("Adapt this animation to a new skeleton"));
+
   transferRiggingAct = new QAction(tr("Transfer rigging"), this);
   transferRiggingAct->setStatusTip(tr("Copy rigging from one mesh to another"));
 
@@ -223,6 +226,9 @@ Selector::Selector(QWidget *parent)
 
   meshUnify = new QAction(tr("Clean redundant vert/pos"), this);
   meshUnify->setStatusTip(tr("Removes any unused vertices or positions and merge identical ones"));
+
+  meshUvTransformAct = new QAction(tr("Transfrom texture coords"),this);
+  meshUvTransformAct->setStatusTip(tr("Translates/Scales/Flips UV coords"));
 
 	meshFixRiggingRigidParts = new QAction(tr("Quick fix rigging of rigid-parts"), this);
 	meshFixRiggingRigidParts->setStatusTip(tr("Attempts to fix rigging of small-parts, making them rigid"));
@@ -304,6 +310,7 @@ Selector::Selector(QWidget *parent)
   //bodyToHitboxAct = new QAction(tr("Use this collision for hitboxes of same-named skel"), this);
   //saveSkeletonHitboxAct = new QAction(tr("Save hit-boxes in XML..."), this);
 
+  connect(aniReskeletonizeAct, SIGNAL(triggered()), parent, SLOT(aniReskeletonize()));
   connect(goNextTabAct, SIGNAL(triggered()),this,SLOT(goNextTab()));
   connect(goPrevTabAct, SIGNAL(triggered()),this,SLOT(goPrevTab()));
 
@@ -353,6 +360,7 @@ Selector::Selector(QWidget *parent)
 	connect(smoothenRiggingAct, SIGNAL(triggered()),parent,SLOT(smoothenRigging()));
 	connect(stiffenRiggingAct, SIGNAL(triggered()),parent,SLOT(stiffenRigging()));
 	connect(transformAct, SIGNAL(triggered()),parent,SLOT(transform()));
+  connect(meshUvTransformAct, SIGNAL(triggered()),parent,SLOT(meshUvTransform()));
   connect(scaleAct, SIGNAL(triggered()),parent,SLOT(scale()));
   connect(exportBodyAct, SIGNAL(triggered()), parent, SLOT(exportCollisionBody()));
   connect(shiftAniAct, SIGNAL(triggered()),parent,SLOT(shiftAni()));
@@ -639,7 +647,7 @@ void Selector::updateContextMenu(){
 
       if (t==MESH) {
         contextMenu->addAction(exportStaticMeshAct);
-        if (data->mesh[ seli ].isRigged)
+        if (data->mesh[ seli ].IsRigged())
           contextMenu->addAction(exportRiggedMeshAct);
         if (data->mesh[ seli ].frame.size()>1)
            contextMenu->addAction(exportMovingMeshAct);
@@ -649,8 +657,8 @@ void Selector::updateContextMenu(){
         contextMenu->addAction(exportSkeletonAct);
         contextMenu->addAction(exportSkinAct);
         contextMenu->addSeparator();
-        //contextMenu->addAction(exportSkeletonModAct);
-        //contextMenu->addAction(importSkeletonModAct);
+        contextMenu->addAction(exportSkeletonModAct);
+        contextMenu->addAction(importSkeletonModAct);
         //contextMenu->addAction(saveSkeletonHitboxAct);
         //contextMenu->addAction(hitboxToBodyAct);
         //contextMenu->addAction(importSkeletonHitboxAct);
@@ -682,7 +690,7 @@ void Selector::updateContextMenu(){
     if (t==MESH) {
       const BrfMesh &mesh(data->mesh[ seli ]);
           if (!sep) contextMenu->addSeparator();
-          if (mesh.isRigged) {
+          if (mesh.IsRigged()) {
         contextMenu->addAction(reskeletonizeAct);
         contextMenu->addAction(meshFemininizeAct);
               contextMenu->addAction(meshFixRiggingRigidParts);
@@ -694,7 +702,9 @@ void Selector::updateContextMenu(){
 
           contextMenu->addSeparator(); sep=true;
 
+
       contextMenu->addAction(transformAct);
+      contextMenu->addAction(meshUvTransformAct);
       contextMenu->addAction(flipAct);
       //contextMenu->addAction(scaleAct);
       contextMenu->addAction(meshRecomputeNormalsAndUnify);
@@ -724,12 +734,13 @@ void Selector::updateContextMenu(){
       m->addAction(discardNorAct);
       m->addAction(discardRigAct);
       m->addAction(meshFreezeFrameAct);
-      discardRigAct->setEnabled(mulsel || mesh.isRigged);
+      discardRigAct->setEnabled(mulsel || mesh.IsRigged());
       discardAniAct->setEnabled(mulsel || mesh.HasVertexAni());
-      meshFreezeFrameAct->setEnabled(mulsel || mesh.isRigged);
+      meshFreezeFrameAct->setEnabled(mulsel || mesh.IsRigged());
       discardColAct->setEnabled(mulsel || mesh.hasVertexColor);
       discardNorAct->setEnabled( true );
       discardTanAct->setEnabled(mulsel || mesh.HasTangentField());
+
 
       contextMenu->addSeparator();
 
@@ -747,15 +758,16 @@ void Selector::updateContextMenu(){
       contextMenu->addAction(bodyMakeQuadDominantAct);
     }
     if (t==ANIMATION) {
-          contextMenu->addAction(aniMirrorAct);
-          if (onesel) {
-        if (!sep) contextMenu->addSeparator(); sep=true;
-              contextMenu->addAction(breakAniAct);
+      if (!sep) contextMenu->addSeparator(); sep=true;
+      contextMenu->addAction(aniMirrorAct);
+      if (onesel) {
+        contextMenu->addAction(breakAniAct);
         contextMenu->addAction(breakAniWithIniAct);
         contextMenu->addAction(shiftAniAct);
         contextMenu->addAction(aniExtractIntervalAct);
         contextMenu->addAction(aniRemoveIntervalAct);
       }
+      contextMenu->addAction(aniReskeletonizeAct);
       if (mulsel) contextMenu->addAction(aniMergeAct);
     }
     }

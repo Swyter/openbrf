@@ -147,6 +147,7 @@ static bool nextCreateNode(){
   }
 }
 
+/*
 static void testNext(){
   long pos = ftell(f);
 
@@ -156,7 +157,7 @@ static void testNext(){
   qDebug("next token: '%s'",str);
 
   fseek(f,pos,SEEK_SET);
-}
+}*/
 
 static float readFloat(){
   float res=0;
@@ -559,7 +560,6 @@ static int ioMB_importRigging(BrfMesh &m){
     }
 
   }
-  m.isRigged=true;
   //qDebug("Last was %d on %d -- max bone =%d",last,max,m.maxBone);
   return true;
 }
@@ -577,7 +577,7 @@ static bool ioMB_importMesh(BrfMesh &m ){
   m.face.clear();
   m.material[0]=0;
   m.maxBone=0;
-  m.isRigged=false;
+  m.rigging.clear();
 
   int vcount =0;
   int fsize = 0;

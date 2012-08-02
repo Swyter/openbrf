@@ -15,6 +15,7 @@
 
 
 class AskTransformDialog;
+class AskUvTransformDialog;
 //namespace Ui
 //{
 //    class MainWindow;
@@ -42,6 +43,7 @@ private:
     BrfData reference;
     BrfData clipboard; // also used for frames...
     BrfData brfdataBackup;
+    BrfData brfdataTmp;
     IniData inidata;
     MeshMorpher femininizer;
     BrfData hitboxSet;
@@ -52,6 +54,7 @@ private:
     bool useAlphaCommands;
 
     AskTransformDialog* askTransformDialog;
+    AskUvTransformDialog* askUvTransformDialog;
 
  private slots:
 
@@ -74,6 +77,7 @@ private:
     void aniMirror();
     void aniRemoveInterval();
     void aniMerge();
+    void aniReskeletonize();
 
 
     void about();
@@ -98,6 +102,7 @@ private:
     //bool bodyToHitbox();
     void hitboxEdit(int whichAttrib, int dir);
     void hitboxSymmetrize();
+    void hitboxSetRagdollOnly(bool);
     void hitboxActivate(bool);
     void hitboxReset();
 
@@ -155,6 +160,7 @@ private:
     void editCopyComplete();
     void editCopyHitbox();
     void editCutComplete();
+    void editPasteMergeMesh();
     void editPasteFrame();
     void editPasteRigging();
     void editPasteMod();
@@ -193,6 +199,8 @@ private:
     void meshAniMerge();
     void meshAniSplit();
     void meshTellBoundingBox();
+    void meshUvTransform();
+    void meshUvTransformDoIt();
     void learnFemininzation(); // from current selection
     void optionFemininzationUseDefault();
     void optionFemininzationUseCustom();
@@ -211,6 +219,7 @@ private:
     bool navigateUp();
     bool navigateDown();
     bool searchBrf();
+    void refreshReference();
     bool refreshIni();
     bool checkIni();
     bool searchIni();
@@ -264,6 +273,7 @@ public slots:
     void displayInfo(QString st, int howlong);
 
 private:
+    bool executingRepeatedCommand;
     bool askIfUseOpenGL2(bool extra);
     bool goTo(ObjCoord o);
     //std::map< std::string, std::string > mapMT;// map material to textures
@@ -338,6 +348,8 @@ private:
     template<class BrfType> void insertOrReplace( vector<BrfType> &v, const BrfType &o);
     template<class BrfType> BrfType& getSelected(int n=0);
     template<class BrfType> BrfType& getUniqueSelected();
+    int getNumSelected() const;
+    int getSelectedIndex(int n) const;
     void selectOne(int kind, int i);
 
     template<class BrfType> void objectMergeSelected(vector<BrfType> &v);
@@ -358,6 +370,7 @@ private:
 
     int afterMeshImport() const; // 0:nothing   1:merge   2:normal recompute and merge
     int assembleAniMode() const; // 0:trust vertex order   1:trust vertex coords
+    bool usingModReference() const;
     int currAoBrightnessLevel() const;
     int currAoFromAboveLevel() const;
     bool currAoPerFace() const;
@@ -401,6 +414,7 @@ private:
     QAction *editCopyHitboxAct;
     QAction *editAddToCopyAct;
     QAction *editPasteAct;
+    QAction *editPasteMergeMeshAct;
     QAction *editPasteRiggingAct;
     QAction *editPasteTimingsAct;
     QAction *editPasteAniLowerPartsAct;
@@ -455,9 +469,9 @@ private:
     QAction *optionAssembleAniMatchVert;
     QAction *optionAssembleAniMatchTc;
     QAction *optionAssembleAniQuiverMode;
-    QAction *optionAutoFixTextureOn;
-    QAction *optionAutoFixTextureOff;
-    QAction *optionAutoFixTextureInfo;
+    QAction *optionAutoFixTextureOn; // unused
+    QAction *optionAutoFixTextureOff; // unused
+    QAction *optionAutoFixTextureInfo; // unused
     QAction *optionAutoZoomUseGlobal;
     QAction *optionAutoZoomUseSelected;
     QAction *optionLanguage[6];
@@ -474,6 +488,9 @@ private:
 
     QAction *optionFeminizerUseCustom, *optionFeminizerUseDefault;
     QAction *optionLearnFeminization;
+
+    QAction *optionUseModReference;
+    QAction *optionUseOwnReference;
 
     QAction *tldMenuAction;
 
@@ -527,6 +544,9 @@ private:
 
     static QString hitboxExplaination();
     QString senderText() const; // just a hack: returns the text of command being exectued:
+
+    bool loadedModReference;
+    QString referenceFilename(bool modSpecific) const;
 
 };
 

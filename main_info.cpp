@@ -5,7 +5,7 @@
 
 #include <QtGui>
 
-const char* applVersion = "0.0.72";
+const char* applVersion = "0.0.74";
 QString IniData::tokenFullName(int k){
 
   switch (k){

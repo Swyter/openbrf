@@ -11,23 +11,29 @@ using namespace vcg;
 #include "saveLoad.h"
 
 
+// for hitboxes:
+// HACK: store/read original skel name into 2nd, 3rd, 4th bytes of flags of all parts
+// (1st flag is used to signal "for_ragdoll_only")
 char* BrfBody::GetOriginalSkeletonName() const{
   static char res[255];
+  int j=0;
   for (int i=0; i<(int)part.size(); i++ ) {
     const BrfBodyPart &p(part[i]);
-    res[i] = p.flags;
+    res[j++] = 255&(p.flags>>8);
+    res[j++] = 255&(p.flags>>16);
+    res[j++] = 255&(p.flags>>24);
   }
-  res[(int)part.size()]=0;
+  res[j+1]=0;
   return res;
 }
-
-// HACK: store name into flags of all parts
 void BrfBody::SetOriginalSkeletonName(const char* n){
   const char* c = n;
   for (int i=0; i<(int)part.size(); i++ ) {
     BrfBodyPart &p(part[i]);
-    p.flags = *c;
-    if (*c!=0) c++; //
+    p.flags &= 0xFF;
+    p.flags |= ((unsigned int)(*c))<<8;  if (*c) c++;
+    p.flags |= ((unsigned int)(*c))<<16; if (*c) c++;
+    p.flags |= ((unsigned int)(*c))<<24; if (*c) c++;
   }
 }
 
@@ -378,7 +384,7 @@ void BrfBodyPart::ChangeAttribute(int which, float howMuch){
       // rotations...
       mid = (a+b)*0.5;
       a -= mid;
-      a = a+dx*(howMuch*2);
+      a = a+dx*(howMuch*2)*(a.Norm()*4);
       a = (a.Normalize())*(l/2);
       b=mid-a;
       a=mid+a;
@@ -390,12 +396,22 @@ void BrfBodyPart::ChangeAttribute(int which, float howMuch){
 
 bool BrfBodyPart::IsEmpty() const{
   //return ( (type==CAPSULE) && !radius);
-  return ( (type==MANIFOLD) && !pos.size());
+  return ( (type==FACE) && !pos.size());
 }
 
 void BrfBodyPart::SetEmpty(){
   //radius = 0;type = CAPSULE;
-  type = MANIFOLD; pos.clear(); face.clear();
+  type = FACE; pos.clear(); face.clear();
+  std::vector<int> f; face.push_back(f); // add a zero-vertices face
+}
+
+
+unsigned char BrfBodyPart::GetHitboxFlags() const{
+  return flags&0xFF;
+}
+void BrfBodyPart::SetHitboxFlags(unsigned char f){
+  flags &= 0xFFFFFF00;
+  flags |= f;
 }
 
 
@@ -404,6 +420,20 @@ void BrfBodyPart::SetAsDefaultHitbox(){
   dir = vcg::Point3f( 0.125,0,0); // default axis values
   center    = vcg::Point3f(-0.03125,0,0);
   radius = 0.125;
+  SetHitboxFlags(0);
+}
+
+void BrfBodyPart::SymmetrizeCapsule(const BrfBodyPart &p){
+  if (p.IsEmpty()) { SetEmpty(); return;}
+  if (type!=CAPSULE) return;
+  if (p.type!=CAPSULE) return;
+  radius = p.radius;
+  center = p.center;
+  dir = p.dir;
+  center[2]*=-1;
+  dir[2]*=-1;
+  SetHitboxFlags( p.GetHitboxFlags() );
+
 }
 
 void BrfBodyPart::SymmetrizeCapsule(){
@@ -438,10 +468,11 @@ bool BrfBodyPart::Load(FILE*f, char* _firstWord, int verbose ){
     int k;
     LoadInt(f,k); // # faces
     for (int i=0; i<k; i++) {
-      int h;
+
       LoadInt(f,ori); // orientation? -1 or 1 apparently.
       //if (ori!=-1) ori=1; // patch?
       //assert(ori==1 || ori==-1);
+      int h;
       LoadInt(f,h); // flags
       assert(h==0);
       LoadInt(f,h); // # verts

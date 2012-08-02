@@ -36,6 +36,7 @@ void MainWindow::createMenus()
     editMenu->addAction(editCutCompleteAct);
     editMenu->addSeparator();
     editMenu->addAction(editPasteAct);
+    editMenu->addAction(editPasteMergeMeshAct);
     editMenu->addAction(editPasteRiggingAct);
     editMenu->addAction(editPasteModificationAct);
     editMenu->addAction(editPasteTimingsAct);
@@ -131,7 +132,7 @@ void MainWindow::createMenus()
 		QActionGroup* group3=new QActionGroup(this);
 		group3->addAction(optionAutoZoomUseSelected);
 		group3->addAction(optionAutoZoomUseGlobal);
-		group3->setExclusive(true);
+    group3->setExclusive(true);
 		autoZoom->addActions(group3->actions());
 
 		optionBgColor = new QAction(tr("Background color..."),this);
@@ -150,7 +151,7 @@ void MainWindow::createMenus()
 
     QMenu* onImport = optionMenu->addMenu(tr("On import meshes"));
 
-    QMenu* onAssemble = optionMenu->addMenu(tr("On assemble vertex animations"));
+
 
 
     QMenu *tldSpecial = new QMenu("TLD easteregg");
@@ -220,6 +221,15 @@ void MainWindow::createMenus()
     optionAssembleAniQuiverMode = new QAction(tr("quiver mode - start with max arrows"),this);
     optionAssembleAniQuiverMode->setStatusTip(tr("When you add a frame: what is not in the exact same position as the 1st frame disappears"));
     optionAssembleAniQuiverMode->setCheckable(true);
+    {
+    QMenu* onAssemble = optionMenu->addMenu(tr("On assemble vertex animations"));
+    QActionGroup* group2=new QActionGroup(this);
+    group2->addAction(optionAssembleAniMatchTc);
+    group2->addAction(optionAssembleAniMatchVert);
+    group2->addAction(optionAssembleAniQuiverMode);
+    group2->setExclusive(true);
+    onAssemble->addActions(group2->actions());
+    }
     /*
     QMenu* autoFix = optionMenu->addMenu(tr("Auto fix DDX1 textures"));
     optionAutoFixTextureOn = new QAction(tr("On"),this);
@@ -253,14 +263,8 @@ void MainWindow::createMenus()
     inferMaterial->addActions(group4->actions());
     */
 
-    QActionGroup* group2=new QActionGroup(this);
-    group2->addAction(optionAssembleAniMatchTc);
-    group2->addAction(optionAssembleAniMatchVert);
-    group2->addAction(optionAssembleAniQuiverMode);
-    group2->setExclusive(true);
-
-
     QActionGroup* group5=new QActionGroup(this);
+
     optionAoBrightness[0] = new QAction(tr("Darkest"),this);
     optionAoBrightness[1] = new QAction(tr("Dark"),this);
     optionAoBrightness[2] = new QAction(tr("Medium"),this);
@@ -292,6 +296,7 @@ void MainWindow::createMenus()
     group7->setExclusive(true);
 
 
+
     QMenu* aoBrightMenu = optionMenu->addMenu(tr("On compute Ambient Occlusion"));
     aoBrightMenu->addActions(group5->actions());
     aoBrightMenu->addSeparator();
@@ -303,8 +308,6 @@ void MainWindow::createMenus()
     optionAoInAlpha = new QAction(tr("Store in per-vertex Alpha (not RGB)"),this);
     optionAoInAlpha->setCheckable(true);
     aoBrightMenu->addAction(optionAoInAlpha);
-
-    onAssemble->addActions(group2->actions());
 
     optionLodSettingsAct = new QAction(tr("On building LOD pyramids..."),this);
     optionLodSettingsAct->setStatusTip(tr("Set the way OpenBRF build LODs pyramids"));
@@ -325,20 +328,38 @@ void MainWindow::createMenus()
     group8->addAction(optionFeminizerUseCustom);
     group8->setExclusive(true);
 
+
+
     optionLearnFeminization= new QAction(tr("Learn custom setting from selected meshes..."),this);
     optionLearnFeminization->setToolTip(tr("Use currently selected armours as examples to learn how to auto-feminize armours"));
     connect(optionLearnFeminization,  SIGNAL(triggered()), this, SLOT(learnFemininzation()));
     connect(optionFeminizerUseDefault,SIGNAL(triggered()), this, SLOT(optionFemininzationUseDefault()));
     connect(optionFeminizerUseCustom, SIGNAL(triggered()), this, SLOT(optionFemininzationUseCustom()));
 
-
     autoFemMenu->addActions(group8->actions());
     autoFemMenu->addSeparator();
     autoFemMenu-> addAction(optionLearnFeminization);
 
 
+    optionMenu->addSeparator();
+
+    optionUseModReference= new QAction(tr("use Mod-specific ones if possible (\"<module-folder>/Resources/reference.brf\")"),this);
+    optionUseOwnReference= new QAction(tr("always use own reference files (\"<OpenBRF-folder>/reference.brf\")"),this);
+    optionUseModReference->setCheckable(true);
+    optionUseOwnReference->setCheckable(true);
+    connect(optionUseModReference, SIGNAL(triggered(bool)),this,SLOT(refreshReference()));
+    connect(optionUseOwnReference, SIGNAL(triggered(bool)),this,SLOT(refreshReference()));
+
+    QActionGroup* group9=new QActionGroup(this);
+    group9->addAction(optionUseModReference);
+    group9->addAction(optionUseOwnReference);
+    group9->setExclusive(true);
+    QMenu *useReference = optionMenu->addMenu(tr("Reference items"));
+    useReference->addActions(group9->actions());
+
 
     optionMenu->addAction(editRefAct);
+
     optionMenu->addSeparator();    
 
 
@@ -424,24 +445,29 @@ void MainWindow::createActions()
     editPasteFrameAct->setShortcut(QString("Ctrl+Alt+V"));
     editPasteFrameAct->setEnabled(false);
     editPasteFrameAct->setStatusTip(tr("Paste frame from clipboard as next frame in the current vertex animated mesh"));
+
     editPasteRiggingAct = new QAction(tr("Paste rigging"), this);
     editPasteRiggingAct->setStatusTip(tr("Make a rigging for current mesh(-es) similar to one of the meshes in the clipboard."));
     editPasteRiggingAct->setEnabled(false);
 
+    editPasteMergeMeshAct = new QAction(tr("Paste into mesh (matches LODs)"),this);
+    editPasteMergeMeshAct->setStatusTip(tr("Merge mesh in clipboard with selected mesh(es). Matches LOD"));
+    editPasteMergeMeshAct->setEnabled(false);
+
     editPasteTextcoordsAct = new QAction(tr("Paste texture coords"), this);
-    editPasteTextcoordsAct->setStatusTip(tr("Copy the texture coordiante from the mesh in the clipboard."));
+    editPasteTextcoordsAct->setStatusTip(tr("Transfer texture coordiante from the mesh in the clipboard."));
     editPasteTextcoordsAct->setEnabled(false);
 
     editPasteVertColorsAct = new QAction(tr("Paste vert colors"), this);
-    editPasteVertColorsAct->setStatusTip(tr("Copy the vert colors from the mesh in the clipboard."));
+    editPasteVertColorsAct->setStatusTip(tr("Transfer vert colors from the mesh in the clipboard."));
     editPasteVertColorsAct->setEnabled(false);
 
     editPasteVertAniAct = new QAction(tr("Paste vert animations"), this);
-    editPasteVertAniAct->setStatusTip(tr("Try to paste the vert animations (good for face morph, can work only for very similar meshes)."));
+    editPasteVertAniAct->setStatusTip(tr("Try to trasnfer vert animations (good for face morph, can work only for very similar meshes)."));
     editPasteVertAniAct->setEnabled(false);
 
     editPasteAniLowerPartsAct = new QAction(tr("Paste lower parts of animations"), this);
-    editPasteAniLowerPartsAct->setStatusTip(tr("Copy lower parts of this ani from the animation in the clipboard."));
+    editPasteAniLowerPartsAct->setStatusTip(tr("Transfer lower parts of this ani from the animation in the clipboard."));
     editPasteAniLowerPartsAct->setEnabled(false);
 
     editPasteModificationAct = new QAction(tr("Paste modifications"), this);
@@ -449,7 +475,7 @@ void MainWindow::createActions()
     editPasteModificationAct->setEnabled(false);
 
     editPasteTimingsAct = new QAction(tr("Paste timings"), this);
-    editPasteTimingsAct->setStatusTip(tr("Paste timings of vertex or skeletal animation in clipboard into other animation(s)."));
+    editPasteTimingsAct->setStatusTip(tr("Transfer timings of vertex or skeletal animation in clipboard into other animation(s)."));
     editPasteTimingsAct->setEnabled(false);
 
     editPasteHitboxAct = new QAction(tr("Paste hit-boxes"), this);
@@ -464,6 +490,7 @@ void MainWindow::createActions()
     connect(editCopyCompleteAct, SIGNAL(triggered()), this, SLOT(editCopyComplete()));
     connect(editCutCompleteAct, SIGNAL(triggered()), this, SLOT(editCutComplete()));
     connect(editAddToCopyAct, SIGNAL(triggered()), this, SLOT(editAddToCopy()));
+    connect(editPasteMergeMeshAct, SIGNAL(triggered()), this, SLOT(editPasteMergeMesh()));
     connect(editPasteHitboxAct, SIGNAL(triggered()), this, SLOT(editPasteHitbox()));
 
     connect(editCutFrameAct, SIGNAL(triggered()), this, SLOT(editCutFrame()));
@@ -580,7 +607,7 @@ void MainWindow::createActions()
     moduleSelectAct = new QAction(tr("Change current Module..."),this);
     moduleSelectAct->setStatusTip(tr("Choose the current module"));
 
-    moduleOpenFolderAct = new QAction(tr("Open Module folder..."),this);
+    moduleOpenFolderAct = new QAction(tr("Open Module folder in explorer..."),this);
     moduleOpenFolderAct->setStatusTip(tr("Open Module folder in file explorer"));
 
     openNextInModAct = new QAction(tr("Next BRF in module"),this);
@@ -862,6 +889,7 @@ void MainWindow::createConnections(){
 
   connect(guiPanel, SIGNAL(editHitbox(int,int)), this, SLOT(hitboxEdit(int,int)));
   connect(guiPanel->ui->editHitBoxReset, SIGNAL(clicked()),this,SLOT(hitboxReset()));
+  connect(guiPanel->ui->editHbRagdollOnly, SIGNAL(clicked(bool)),this,SLOT(hitboxSetRagdollOnly(bool)));
   connect(guiPanel->ui->editHitBoxSymmetric, SIGNAL(clicked()),this,SLOT(hitboxSymmetrize()));
   connect(guiPanel->ui->editHbActive, SIGNAL(clicked(bool)),this,SLOT(hitboxActivate(bool)));
 

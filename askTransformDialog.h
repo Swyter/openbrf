@@ -35,13 +35,14 @@ protected:
 
 public slots:
     int exec();
+    void reset();
 
 private:
     Ui::AskTransformDialog *ui;
     double sensitivityOne, sensitivityAll;
 private slots:
     void update();
-    void reset();
+
     void updateSensitivity();
     void onAlignmentLX(bool);
     void onAlignmentLY(bool);

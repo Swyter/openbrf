@@ -161,7 +161,6 @@ bool BrfMesh::LoadOBJ(char* fn){
   frame.resize(1);
   QFile f(fn);
   flags=0;
-  isRigged=false;
   material[0]=0;
   if (!f.open(QIODevice::ReadOnly|QIODevice::Text)) return false;
   std::vector<Point3f> norm;

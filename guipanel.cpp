@@ -184,7 +184,6 @@ void GuiPanel::setTextureData(DdsData d){
 }
 
 void GuiPanel::quickToggleHideSkin(){
-  //qDebug("CAZZZZO");
   static int indexBackup = 1;
   //on=!on;
   int cur = ui->cbSkin->currentIndex();
@@ -297,6 +296,16 @@ GuiPanel::GuiPanel(QWidget *parent, IniData &id) :
   connect(ui->editHbRotAlpha, SIGNAL(actionTriggered(int)),this,SLOT(onEditHitbox(int)));
   connect(ui->editHbRotBeta, SIGNAL(actionTriggered(int)),this,SLOT(onEditHitbox(int)));
 
+  QString st = tr(" (keep [shift] pressed to nudge)");
+  ui->editHbRange->setStatusTip(ui->editHbRange->statusTip()+st);
+  ui->editHbLenTop->setStatusTip(ui->editHbLenTop->statusTip()+st);
+  ui->editHbLenBot->setStatusTip(ui->editHbLenBot->statusTip()+st);
+  ui->editHbPosX->setStatusTip(ui->editHbPosX->statusTip()+st);
+  ui->editHbPosY->setStatusTip(ui->editHbPosY->statusTip()+st);
+  ui->editHbPosZ->setStatusTip(ui->editHbPosZ->statusTip()+st);
+  ui->editHbRotAlpha->setStatusTip(ui->editHbRotAlpha->statusTip()+st);
+  ui->editHbRotBeta->setStatusTip(ui->editHbRotBeta->statusTip()+st);
+
   connect(ui->editHbActive, SIGNAL(stateChanged(int)),this,SLOT(setHbEditVisible(int)));
 
   // add a shortcut to hide/show skin
@@ -333,20 +342,13 @@ void GuiPanel::setHbEditVisible(int vis){
         if (w!=ui->editHbActive) w->setVisible(vis);
       }
   }
-  /*
-  ui->editHbRange->setVisible(vis);
-  ui->editHbLenTop->setVisible(vis);
-  ui->editHbLen->setVisible(vis);
-  ui->editHbRange->setVisible(vis);
-  ui->editHbRange->setVisible(vis);
-  ui->editHbRange->setVisible(vis);*/
 }
 
 static QString String(int i){
   return QString("%1").arg(i);
 }
-static QString StringF(float i){
-  return QString("%1").arg(i,0,'f',4);
+static QString StringF(float i, int precision=4){
+  return QString("%1").arg(i,0,'f',precision);
 }
 static QString StringH(unsigned int i){
   return QString("%1").arg(i,0,16).toUpper();
@@ -446,16 +448,18 @@ void GuiPanel::updateSelectedBone(){
 
   bool enable = false;
   bool active = false;
+  bool ragdollOnly = false;
   if (hitBoxes && data && ((int)data->skeleton.size()>_selectedIndex) && (_selectedIndex>=0) ) {
     int sel = hitBoxes->Find(data->skeleton[_selectedIndex].name,BODY);
     if  ( (sel>=0) && (subSel>=0) && ((int)hitBoxes->body[sel].part.size()>subSel) ){
        enable = true;
        active = !hitBoxes->body[sel].part[subSel].IsEmpty();
+       if (active) ragdollOnly = hitBoxes->body[sel].part[subSel].flags & 1;
     }
   }
   ui->editHbActive->setEnabled(enable);
   ui->editHbActive->setChecked(active);
-
+  ui->editHbRagdollOnly->setChecked(ragdollOnly);
 
   // activate hitbox visualization
   if (!ui->cbHitboxes->isChecked() && ui->cbSkelHasHitbox->isChecked()) ui->cbHitboxes->click();
@@ -693,7 +697,7 @@ void GuiPanel::setSelection(const QModelIndexList &newsel, int k){
     sel = i->row();
     if (k==MESH && sel<(int)data->mesh.size() ) {
       BrfMesh *m = &(data->mesh[sel]);
-      rigged |= m->isRigged;
+      rigged |= m->IsRigged();
       vertexani |= m->frame.size()>1;
       vertexcolor |= m->hasVertexColor;
       np += m->frame[0].pos.size();
@@ -765,10 +769,10 @@ switch (TokenEnum(k)){
 
       mySetText(ui->leMatFlags, StringH(m.flags) );
       //mySetText(ui->leMatRendOrd, m.RenderOrder() );
-      mySetText(ui->leMatCoeff, StringF(m.specular) );
-      mySetText(ui->leMatR, StringF( m.r ));
-      mySetText(ui->leMatG, StringF( m.g ));
-      mySetText(ui->leMatB, StringF( m.b ));
+      mySetText(ui->leMatCoeff, StringF(m.specular,3) );
+      mySetText(ui->leMatR, StringF( m.r ,3));
+      mySetText(ui->leMatG, StringF( m.g ,3));
+      mySetText(ui->leMatB, StringF( m.b ,3));
     }
     break;
     }
@@ -803,7 +807,7 @@ switch (TokenEnum(k)){
       mySetCompositeVal(hasAni, m->HasVertexAni());
       mySetCompositeVal(hasCol, m->hasVertexColor);
       mySetCompositeVal(hasTan, m->HasTangentField());
-      mySetCompositeVal(hasRig, m->isRigged);
+      mySetCompositeVal(hasRig, m->IsRigged());
 
       for (unsigned int fi=0; fi < m->frame.size(); fi++)
          frameTime[fi]=m->frame[fi].time;
@@ -879,13 +883,26 @@ switch (TokenEnum(k)){
     break; }
   case ANIMATION:
     {
-    BrfAnimation *ani =NULL;
-    if (sel>=0 && nsel==1 && sel<(int)data->animation.size()) ani=&(data->animation[sel]);
-    ui->boxAniNBones->display( (ani)?ani->nbones:0 );
-    ui->boxAniNFrames->display( (ani)?(int)ani->frame.size():0 );
-    ui->boxAniMinFrame->display( (ani)?ani->FirstIndex():0 );
-    ui->boxAniMaxFrame->display( (ani)?ani->LastIndex():0 );
 
+    myClear(ui->boxAniNBones);
+    myClear(ui->boxAniNFrames);
+    myClear(ui->boxAniMinFrame);
+    myClear(ui->boxAniMaxFrame);
+
+    for (QModelIndexList::ConstIterator i=newsel.constBegin(); i!=newsel.constEnd(); i++){
+      int sel = i->row();
+      if (sel<0 || sel>=(int)data->animation.size()) continue;
+      BrfAnimation *a=&(data->animation[sel]);
+
+      mySetValue(ui->boxAniNBones,a->nbones);
+      mySetValue(ui->boxAniNFrames,a->frame.size());
+      mySetValue(ui->boxAniMinFrame,a->FirstIndex());
+      mySetValue(ui->boxAniMaxFrame,a->LastIndex() );
+    }
+
+
+    BrfAnimation *ani =NULL;
+    if (sel>0 && nsel==1 && sel<(int)data->animation.size()) ani=&(data->animation[sel]);
     if (ani) {
       for (unsigned int fi=0; fi < ani->frame.size(); fi++)
        frameTime[fi]=ani->frame[fi].index;
@@ -893,7 +910,7 @@ switch (TokenEnum(k)){
       ui->frameNumberAni->setMinimum(1);
     }
 
-    ui->rbRiggingcolor->setEnabled( true ); // quick: just let user edit them
+    ui->rbRiggingcolor->setEnabled( true ); // quick: use "true": just let user edit them
     ui->rbVertexcolor->setEnabled( true );
     ui->viewRefSkel->setVisible( true );
     if (ani) setAnimation(ani);
@@ -1066,9 +1083,9 @@ void GuiPanel::updateVisibility(){
     ui->viewFloor->setVisible(false);
     ui->viewRefSkin->setVisible(true);
     ui->viewRefSkel->setVisible(false);
-    ui->viewRefAni->setVisible(false);
+    ui->viewRefAni->setVisible(true);
     ui->viewMeshRendering->setVisible(ui->cbSkin->currentIndex());
-    ui->viewAni->setVisible(false);
+    ui->viewAni->setVisible(ui->cbRefani->currentIndex());
     ui->viewHitboxes->setVisible( true );
   }
   else {

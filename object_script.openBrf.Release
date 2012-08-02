@@ -39,6 +39,8 @@ INPUT(
 ./release\askIntervalDialog.o
 ./release\askHueSatBriDialog.o
 ./release\askLodOptionsDialog.o
+./release\askUvTransformDialog.o
+./release\askSkelPairDialog.o
 ./release\glew.o
 ./release\moc_mainwindow.o
 ./release\moc_glwidgets.o
@@ -58,5 +60,7 @@ INPUT(
 ./release\moc_askIntervalDialog.o
 ./release\moc_askHueSatBriDialog.o
 ./release\moc_askLodOptionsDialog.o
+./release\moc_askUvTransformDialog.o
+./release\moc_askSkelPairDialog.o
 ./release\qrc_resource.o
 );

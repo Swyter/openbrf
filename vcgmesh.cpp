@@ -672,7 +672,7 @@ BrfMesh VcgMesh::toBrfMesh(){
   }
 
   b.AdjustNormDuplicates();
-  b.isRigged = false;
+  b.rigging.clear();
   b.flags=0;
   if (!gotNormals()) b.ComputeNormals();
   b.AfterLoad();

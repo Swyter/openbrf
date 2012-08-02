@@ -1137,14 +1137,15 @@ ObjCoord IniData::indexOfStrict(const QString &name, int kind){
 
 }
 
-void IniData::setPath(QString _mabPath, QString _modPath){
+bool IniData::setPath(QString _mabPath, QString _modPath){
   if (
    QString::compare(mabPath,_mabPath,Qt::CaseInsensitive)==0 &&
    QString::compare(modPath,_modPath,Qt::CaseInsensitive)==0
-  ) return;
+  ) return false;
   updated=0;
   mabPath=_mabPath;
   modPath=_modPath;
+  return true;
 }
 
 QString IniData::name() const{

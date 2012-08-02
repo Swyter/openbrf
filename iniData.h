@@ -69,7 +69,7 @@ public:
   int nObjects() const;
 
   bool addBrfFile(const char* name, Origin origin, int line, int howFast);
-  void setPath(QString mabPath, QString modPath);
+  bool setPath(QString mabPath, QString modPath); // return true if changed them
 
   QStringList namelist[N_TOKEN];
   void updateNeededLists(); // only these needed for autocompletion

@@ -8,6 +8,24 @@
 #include <QList>
 #include <vector>
 
+
+#include <QApplication>
+#include <QDoubleSpinBox>
+
+class MyDoubleSpinBox : public QDoubleSpinBox{
+public:
+  MyDoubleSpinBox(QWidget * parent = 0):QDoubleSpinBox(parent){}
+
+  void stepBy(int steps){
+    double oldStep = singleStep();
+    if (QApplication::keyboardModifiers()&(Qt::ShiftModifier|Qt::ControlModifier|Qt::AltModifier))
+    setSingleStep( oldStep/4.0 );
+    QDoubleSpinBox::stepBy(steps);
+    setSingleStep( oldStep );
+  }
+};
+
+
 //! [0]
 class TableModel : public QAbstractListModel
 {

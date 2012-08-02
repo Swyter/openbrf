@@ -130,6 +130,8 @@ public:
   void DiminishAni(float t);
   void DiminishAniSelected(float t);
 
+  bool UniformizeWith(const BrfMesh& target); // crates/removes vertex ani, tangent space, etc to uniformize with target mesh
+
   void Unskeletonize(const BrfSkeleton& from);
   void Reskeletonize(const BrfSkeleton& from, const BrfSkeleton& to);
   void ReskeletonizeHuman(const BrfSkeleton& from, const BrfSkeleton& to, float bonusArm = 0);
@@ -139,7 +141,7 @@ public:
   void DiscardRigging();
   void DiscardTangentField();
 
-  bool IsNamedAsLOD() const; // does it follow the M&B convention for LOD meshes?
+  int IsNamedAsLOD() const; // does it follow the M&B convention for LOD meshes?
   bool IsNamedAsBody(const char * bodyName) const; // is it the M&B conventional rule for Collision body? ("bo_"+name)
 
   bool CopyModification(const BrfMesh& mod);
@@ -192,7 +194,7 @@ public:
   bool SaveOBJ(char* f, int frame) const;
   bool LoadOBJ(char* f);
 
-  bool isRigged; // for convenience
+  bool IsRigged() const; // for convenience
   void UpdateBBox();
   void SetUniformRig(int nbone);
   void SplitFaces(const std::vector<int> &matIndex);
@@ -241,6 +243,7 @@ public:
   void Scale(float f);
   void Scale(float xNeg, float xPos, float yPos, float yNeg, float zPos, float zNeg);
   void TowardZero(float x,float y, float z);
+  void TransformUv(float su, float sv, float tu, float tv);
 
   void Transform(float * m);
   void Translate(Point3f p);
@@ -301,6 +304,7 @@ private:
   
   void SetName(char* st);
   void AdaptToRes(const BrfMesh& ref);
+
 
 
   //BrfMesh& operator = (const BrfMesh &brf);

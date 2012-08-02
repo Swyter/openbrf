@@ -81,6 +81,7 @@ private:
     *aniExtractIntervalAct,
     *aniRemoveIntervalAct,
     *aniMergeAct,
+    *aniReskeletonizeAct,
 
     *breakAniAct,
     *breakAniWithIniAct,
@@ -101,9 +102,11 @@ private:
     *meshComputeLodAct,
     *meshTellBoundingBoxAct,
     *meshFreezeFrameAct,
+    *meshUvTransformAct,
 
     *meshAniMergeAct,
     *meshAniSplitAct,
+
 
     *renameAct,
     *removeAct,

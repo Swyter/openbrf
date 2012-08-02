@@ -365,8 +365,6 @@ int ioSMD::Import(const wchar_t*filename, BrfMesh &m , BrfSkeleton &s){
   m.flags=0;
   m.maxBone=s.bone.size();
 
-  m.isRigged = true;
-
   fclose(f);
   return lastErr;
 }

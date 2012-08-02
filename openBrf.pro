@@ -47,7 +47,9 @@ SOURCES += main.cpp \
     askUnrefTextureDialog.cpp \
     askIntervalDialog.cpp \
     askHueSatBriDialog.cpp \
-    askLodOptionsDialog.cpp
+    askLodOptionsDialog.cpp \
+    askUvTransformDialog.cpp \
+    askSkelPairDialog.cpp
 HEADERS += mainwindow.h \
     glwidgets.h \
     saveLoad.h \
@@ -85,7 +87,9 @@ HEADERS += mainwindow.h \
     askUnrefTextureDialog.h \
     askIntervalDialog.h \
     askHueSatBriDialog.h \
-    askLodOptionsDialog.h
+    askLodOptionsDialog.h \
+    askUvTransformDialog.h \
+    askSkelPairDialog.h
 FORMS += guipanel.ui \
     askBoneDialog.ui \
     askSkelDialog.ui \
@@ -100,7 +104,9 @@ FORMS += guipanel.ui \
     askUnrefTextureDialog.ui \
     askIntervalDialog.ui \
     askHueSatBriDialog.ui \
-    askLodOptionsDialog.ui
+    askLodOptionsDialog.ui \
+    askUvTransformDialog.ui \
+    askSkelPairDialog.ui
 INCLUDEPATH += "C:\projects\vcglib"
 INCLUDEPATH += "C:\libs\lib3ds-1.3.0"
 RESOURCES += resource.qrc
@@ -125,5 +131,11 @@ OTHER_FILES += shaders/bump_fragment.cpp
 OTHER_FILES += shaders/bump_vertex.cpp
 OTHER_FILES += shaders/iron_fragment.cpp
 OTHER_FILES += femininizer.morpher
+
+
+
+
+
+
 
 

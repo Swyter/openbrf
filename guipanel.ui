@@ -2944,11 +2944,14 @@
    <widget class="QScrollBar" name="editHbRange">
     <property name="geometry">
      <rect>
-      <x>40</x>
+      <x>34</x>
       <y>20</y>
       <width>16</width>
       <height>21</height>
      </rect>
+    </property>
+    <property name="statusTip">
+     <string>Thinkness</string>
     </property>
     <property name="orientation">
      <enum>Qt::Vertical</enum>
@@ -2957,7 +2960,7 @@
    <widget class="QLabel" name="label_18">
     <property name="geometry">
      <rect>
-      <x>0</x>
+      <x>-6</x>
       <y>20</y>
       <width>41</width>
       <height>20</height>
@@ -2973,11 +2976,14 @@
    <widget class="QScrollBar" name="editHbLenTop">
     <property name="geometry">
      <rect>
-      <x>60</x>
+      <x>54</x>
       <y>20</y>
       <width>16</width>
       <height>21</height>
      </rect>
+    </property>
+    <property name="statusTip">
+     <string>Elnongate from top</string>
     </property>
     <property name="orientation">
      <enum>Qt::Vertical</enum>
@@ -2986,11 +2992,14 @@
    <widget class="QScrollBar" name="editHbLenBot">
     <property name="geometry">
      <rect>
-      <x>80</x>
+      <x>74</x>
       <y>20</y>
       <width>16</width>
       <height>21</height>
      </rect>
+    </property>
+    <property name="statusTip">
+     <string>Elongate from bottom</string>
     </property>
     <property name="orientation">
      <enum>Qt::Vertical</enum>
@@ -2999,11 +3008,14 @@
    <widget class="QScrollBar" name="editHbPosX">
     <property name="geometry">
      <rect>
-      <x>40</x>
+      <x>34</x>
       <y>50</y>
       <width>16</width>
       <height>21</height>
      </rect>
+    </property>
+    <property name="statusTip">
+     <string>Move front/back</string>
     </property>
     <property name="orientation">
      <enum>Qt::Vertical</enum>
@@ -3012,11 +3024,14 @@
    <widget class="QScrollBar" name="editHbPosY">
     <property name="geometry">
      <rect>
-      <x>60</x>
+      <x>54</x>
       <y>50</y>
       <width>16</width>
       <height>21</height>
      </rect>
+    </property>
+    <property name="statusTip">
+     <string>Move left/right</string>
     </property>
     <property name="orientation">
      <enum>Qt::Vertical</enum>
@@ -3025,11 +3040,14 @@
    <widget class="QScrollBar" name="editHbPosZ">
     <property name="geometry">
      <rect>
-      <x>80</x>
+      <x>74</x>
       <y>50</y>
       <width>16</width>
       <height>21</height>
      </rect>
+    </property>
+    <property name="statusTip">
+     <string>Move near/far</string>
     </property>
     <property name="orientation">
      <enum>Qt::Vertical</enum>
@@ -3038,11 +3056,14 @@
    <widget class="QScrollBar" name="editHbRotAlpha">
     <property name="geometry">
      <rect>
-      <x>40</x>
+      <x>34</x>
       <y>80</y>
       <width>16</width>
       <height>21</height>
      </rect>
+    </property>
+    <property name="statusTip">
+     <string>Pitch</string>
     </property>
     <property name="orientation">
      <enum>Qt::Vertical</enum>
@@ -3051,11 +3072,14 @@
    <widget class="QScrollBar" name="editHbRotBeta">
     <property name="geometry">
      <rect>
-      <x>60</x>
+      <x>54</x>
       <y>80</y>
       <width>16</width>
       <height>21</height>
      </rect>
+    </property>
+    <property name="statusTip">
+     <string>Yaw</string>
     </property>
     <property name="orientation">
      <enum>Qt::Vertical</enum>
@@ -3064,7 +3088,7 @@
    <widget class="QLabel" name="label_19">
     <property name="geometry">
      <rect>
-      <x>0</x>
+      <x>-6</x>
       <y>50</y>
       <width>41</width>
       <height>20</height>
@@ -3080,7 +3104,7 @@
    <widget class="QLabel" name="label_29">
     <property name="geometry">
      <rect>
-      <x>0</x>
+      <x>-6</x>
       <y>80</y>
       <width>41</width>
       <height>20</height>
@@ -3096,11 +3120,14 @@
    <widget class="QCheckBox" name="editHbActive">
     <property name="geometry">
      <rect>
-      <x>110</x>
+      <x>100</x>
       <y>10</y>
       <width>61</width>
       <height>23</height>
      </rect>
+    </property>
+    <property name="statusTip">
+     <string>Does current bone use a Hit-box?</string>
     </property>
     <property name="text">
      <string>Exists</string>
@@ -3109,11 +3136,14 @@
    <widget class="QPushButton" name="editHitBoxReset">
     <property name="geometry">
      <rect>
-      <x>110</x>
-      <y>38</y>
-      <width>61</width>
+      <x>100</x>
+      <y>48</y>
+      <width>78</width>
       <height>23</height>
      </rect>
+    </property>
+    <property name="statusTip">
+     <string>Reset hitbox near to bone</string>
     </property>
     <property name="text">
      <string>Reset</string>
@@ -3122,15 +3152,34 @@
    <widget class="QPushButton" name="editHitBoxSymmetric">
     <property name="geometry">
      <rect>
-      <x>110</x>
-      <y>67</y>
-      <width>61</width>
+      <x>100</x>
+      <y>72</y>
+      <width>78</width>
       <height>34</height>
      </rect>
+    </property>
+    <property name="statusTip">
+     <string>Enforce symmetry for this hitbox</string>
     </property>
     <property name="text">
      <string>Apply
 Symmetry</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="editHbRagdollOnly">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>27</y>
+      <width>81</width>
+      <height>23</height>
+     </rect>
+    </property>
+    <property name="statusTip">
+     <string>Capsule used only for ragdoll, or also as a hitobx? (warband only)</string>
+    </property>
+    <property name="text">
+     <string>Ragdoll only</string>
     </property>
    </widget>
   </widget>
