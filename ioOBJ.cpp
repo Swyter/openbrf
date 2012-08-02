@@ -9,14 +9,14 @@
 using namespace std;
 using namespace vcg;
 
-#include "BrfMesh.h"
-#include "BrfSkeleton.h"
+#include "brfMesh.h"
+#include "brfSkeleton.h"
 
 #include <QString>
 #include <QFile>
 #include <QPair>
 
-#include "IoOBJ.h"
+#include "ioOBJ.h"
 
 
 // defined in vcgmesh.cpp

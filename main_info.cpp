@@ -3,7 +3,7 @@
 
 #include <QtGui>
 
-char* applVersion = "0.0.58";
+char* applVersion = "0.0.59";
 QString IniData::tokenFullName(int k){
 
   switch (k){
@@ -59,7 +59,7 @@ void MainWindow::about()
              ).arg(__DATE__)
               .arg("[mtarini] --- Marco Tarini")
               .arg(" <br>[Abhuva], [amade], [Andrde Cuyne], [Bolkonsky], [Barf], [Brutus], [Caba`drin], "
-                   "[captain lust], [cdvader], [Chel], [DaBlade], [Dain Ironfoot], "
+                   "[captain lust], [cdvader], [Chel], [cmpxchg8b], [DaBlade], [Dain Ironfoot], "
                    "[Darwin], [dreamterror], [dunde], [ealabor], [eierkopf], "
                    "[EvolutiveBrain], "
                    "[fedeita], [Fafhrd], [Fei Dao], [foxyman], [Freddex], [FrisianDude], "
@@ -69,7 +69,7 @@ void MainWindow::about()
                    "[Konar], [Llew], [Lord_Cheap], "
                    "[LordRaglan], [Lumos], [MadVader], [Mandible], [Mekelan], "
                    "[Merlkir], [mr.master], "
-                   "[mysstick], [newaxekub], "
+                   "[mysstick], [N0body], [newaxekub], "
                    "[octoburn], [pagan], [Percus], [qlithe], [RATMdude92], [Red River], "
                    "[Romainoir], [Septa Scarabae], [Silesian], [Shik], [Silver Wolf], [Spak], [Swyter], "
                    "[Triglav], [Tul], [Ursca], [Vlejundo], [Vornne], [WilliamBerne], "

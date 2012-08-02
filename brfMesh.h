@@ -180,7 +180,7 @@ public:
   void Save(FILE*f) const;
   bool Skip(FILE* f);
 
-  bool SaveAsPly(int nframe=0, const wchar_t* path="") const;
+  bool SaveAsPly(int nframe=0, const wchar_t* path=L"") const;
   bool HasVertexAni() const;
   
   void Flip();

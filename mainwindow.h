@@ -4,8 +4,8 @@
 #include <QtGui/QMainWindow>
 //#include <map>
 
-#include "brfdata.h"
-#include "inidata.h"
+#include "brfData.h"
+#include "iniData.h"
 #include "glwidgets.h"
 #include "selector.h"
 #include "guipanel.h"
@@ -156,6 +156,7 @@ private:
     void learnFemininzation(); // from current selection
 
     void setFlagsMaterial();
+    void setFlagsBody();
 
     void onClipboardChange();
 

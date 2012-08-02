@@ -4,15 +4,15 @@
 
 #include <math.h>
 
-#include "brfdata.h"
+#include "brfData.h"
 #include "glwidgets.h"
 
 #include "ddsData.h"
 
 #include "bindTexturePatch.h"
 
-#include <vcg\math\matrix44.h>
-#include <wrap\gl\space.h>
+#include <vcg/math/matrix44.h>
+#include <wrap/gl/space.h>
 
 void GLWidget::setFrameNumber(int i){
   if (i<0) return;
@@ -453,12 +453,12 @@ void GLWidget::initFramPrograms(){
       %1if SPECULAR_MAP%2
       vec3 specmapVal =  texture( samplSpec,tc).rgb;
       %1endif%2
-      gl_FragColor.rgb = (tex.rgb*color.rgb)*(vec3(diffuse*0.8+0.2)
+      gl_FragColor.rgb = tex.rgb*color.rgb*(vec3(diffuse*0.8+0.2)
       %1if SPECULAR_ALPHA%2
-                          + spec_col*(tex.a*pow( diffuse , spec_exp))
+                       + spec_col*(   tex.a  *pow( diffuse , spec_exp))
       %1endif%2
       %1if SPECULAR_MAP%2
-                          + spec_col*(specmapVal*pow( diffuse , spec_exp))
+                       + spec_col*(specmapVal*pow( diffuse , spec_exp))
       %1endif%2
       );
       %1if ALPHA_CUTOUTS%2

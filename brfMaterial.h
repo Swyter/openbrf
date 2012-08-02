@@ -1,6 +1,6 @@
 #ifndef BRFMATERIAL_H
 #define BRFMATERIAL_H
-#include "vcg\space\box3.h"
+#include "vcg/space/box3.h"
 
 #include "brfToken.h"
 

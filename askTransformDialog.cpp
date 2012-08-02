@@ -2,8 +2,8 @@
 #include "ui_askTransformDialog.h"
 
 #include <math.h>
-#include <vcg/space/Point3.h>
-#include <vcg/math/Matrix44.h>
+#include <vcg/space/point3.h>
+#include <vcg/math/matrix44.h>
 
 AskTransformDialog::AskTransformDialog(QWidget *parent) :
     QDialog(parent),

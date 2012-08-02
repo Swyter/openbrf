@@ -2,7 +2,7 @@
 
 #include "ioSMD.h"
 
-#include "vcg\math\quaternion.h"
+#include "vcg/math/quaternion.h"
 
 // everything is scaled up when expoerted, down when imported...
 static const float SCALE = 10.0f;

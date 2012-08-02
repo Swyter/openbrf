@@ -3,7 +3,7 @@
 
 #include <QTabWidget>
 #include <QItemSelection>
-#include "BrfToken.h"
+#include "brfToken.h"
 
 class BrfData;
 class IniData;

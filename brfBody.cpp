@@ -323,9 +323,9 @@ bool BrfBodyPart::Load(FILE*f, char* _firstWord, int verbose ){
     for (int i=0; i<k; i++) {
       int h;
       LoadInt(f,ori); // orientation? -1 or 1 apparently.
-      if (ori!=-1) ori=1; // patch?
-      assert(ori==1 || ori==-1);
-      LoadInt(f,h);
+      //if (ori!=-1) ori=1; // patch?
+      //assert(ori==1 || ori==-1);
+      LoadInt(f,h); // flags
       assert(h==0);
       LoadInt(f,h); // # verts
       std::vector<int> v;
@@ -345,6 +345,7 @@ bool BrfBodyPart::Load(FILE*f, char* _firstWord, int verbose ){
     //fprintf(fff,"Flags cil: %u\n",flags);
     //fprintf(ftmp,"%f %f %f %f %f %f %f\n",radius,center[0],center[2],center[1],dir[0],dir[2],dir[1]);
     //fflush(ftmp);
+
   } else if (!strcmp(firstWord,"sphere")) {
     type=SPHERE;
     LoadFloat(f,radius);
@@ -434,7 +435,7 @@ void BrfBodyPart::Save(FILE *f) const {
       SaveUint(f,face.size());
       for (unsigned int i=0; i<face.size(); i++) {
         SaveInt(f,ori);
-        SaveInt(f,0);
+        SaveUint(f,0); // flags
         SaveUint(f,face[i].size());
         for (unsigned int j=0; j<face[i].size(); j++) {
           SaveInt(f,face[i][j]);
@@ -609,6 +610,7 @@ bool BrfBody::ExportOBJ(const wchar_t* fn) const {
 }
 
 bool BrfBody::Skip(FILE*f){
+  // return Load(f,2); // TEMP!!!!! Slow loading, to count all used flags
   if (!LoadString(f, name)) return false;
   char str[255];
   if (!LoadString(f, str)) return false;

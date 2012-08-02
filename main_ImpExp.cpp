@@ -1,7 +1,8 @@
 #include <qfiledialog.h>
 #include <qmessagebox.h>
+#include <algorithm>
 
-#include "brfdata.h"
+#include "brfData.h"
 #include "selector.h"
 #include "mainwindow.h"
 #include "vcgmesh.h"
@@ -28,7 +29,6 @@ void MainWindow::moduleSelect(){
 
 void MainWindow::meshComputeLod(){
   if (selector->currentTabName()!=MESH) return;
-  std::vector<BrfMesh> resvec;
 
   std::vector<int> sel;
   for (int k=0; k<selector->selectedList().size(); k++) {
@@ -38,13 +38,14 @@ void MainWindow::meshComputeLod(){
 
 
   for (int k=selector->selectedList().size()-1; k>=0; k--) {
+    std::vector<BrfMesh> resvec;
     int i=sel[k];
     if (i<0) continue;
     if (i>(int)brfdata.mesh.size()) return;
 
-    BrfMesh m = (brfdata.mesh[i]);
-    m.UnifyPos();
-    m.UnifyVert(false,0);
+    BrfMesh &m(brfdata.mesh[i]);
+    //m.UnifyPos();
+    //m.UnifyVert(false,0);
 
     std::vector<BrfMesh> mvec; mvec.push_back(m);
     //float  amount = 1;
@@ -94,8 +95,8 @@ void MainWindow::meshComputeLod(){
     setModified(true);
     updateSel();
     selector->selectOne(MESH, i);
-
   }
+
   //return true;
 }
 

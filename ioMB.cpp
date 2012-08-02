@@ -9,9 +9,9 @@
 using namespace std;
 using namespace vcg;
 
-#include "BrfMesh.h"
-#include "BrfSkeleton.h"
-#include "BrfAnimation.h"
+#include "brfMesh.h"
+#include "brfSkeleton.h"
+#include "brfAnimation.h"
 
 #include "ioMB.h"
 

@@ -3,8 +3,8 @@
 
 #include <map>
 #include <vector>
+#include <qpair.h>
 #include "brfData.h"
-#include "QPair.h"
 
 
 //typedef QPair<int,int> Pair;
@@ -128,6 +128,7 @@ private:
     void append(const QString& s);
     void appendLRx(const QString& s);
     void appendNon0(const QString& s);
+    void appendNonNone(const QString& s);
   };
   std::vector<ModuleTxtNameList> txtNameList;
 
@@ -144,6 +145,8 @@ private:
   std::vector< std::vector< UsedInType > > usedInV[N_TOKEN];
 
   static QString tr(char*);
+
+  void debugShowUsedFlags();
 
 };
 

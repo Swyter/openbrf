@@ -1,4 +1,4 @@
-#include "brfdata.h"
+#include "brfData.h"
 #include "glwidgets.h"
 #include "selector.h"
 #include "mainwindow.h"
@@ -3324,6 +3324,81 @@ void MainWindow::optionSetBgColor(){
     
 #include "askFlagsDialog.h"
 
+void MainWindow::setFlagsBody(){
+  unsigned int curfOR=0, curfAND = 0xFFFFFFFF;
+
+
+  QString FlagNameArray[32] = {
+     AskFlagsDialog::tr("Two-sided (?)"),
+     AskFlagsDialog::tr("No Collision"),
+     AskFlagsDialog::tr("No Shadow"),
+     "",
+     "",
+     "",
+     "",
+     "",
+
+     "",
+     "",
+     "",
+     "",
+     "",
+     "",
+     "",
+     "",
+
+     AskFlagsDialog::tr("Difficult (?)"),
+     AskFlagsDialog::tr("Unwalkable (?)"),
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+
+  };
+
+  QModelIndexList list=selector->selectedList();
+
+  int sel = selector->firstSelected();
+  if (sel<0 || sel>=(int)brfdata.body.size()) return;
+
+  int selp = guiPanel->getCurrentSubpieceIndex(BODY);
+  if (selp<0 || selp>(int)brfdata.body[sel].part.size()) return;
+  BrfBodyPart &p(brfdata.body[sel].part[selp]);
+
+  if (p.type==BrfBodyPart::MANIFOLD) return;
+  curfOR = curfAND = p.flags;
+
+  //setFlags(curf,ui->leMatFlags->text());
+  QStringList l ;
+  for (int i=0; i<32; i++) l.append(FlagNameArray[i]);
+
+  AskFlagsDialog *d = new AskFlagsDialog(this,curfOR,curfAND, l);
+  d->setWindowTitle(tr("Collision objects flags"));
+  if (d->exec()==QDialog::Accepted) {
+
+    uint flags = d->toOne();
+
+    if (p.flags != flags) {
+
+      p.flags = flags;
+      setModified(true);
+      guiPanel->updateBodyPartData();
+    }
+    //guiPanel->update(); //setSelection(list,MATERIAL);
+  }
+
+}
 
 void MainWindow::setFlagsMaterial(){
   unsigned int curfOR=0, curfAND = 0xFFFFFFFF;
