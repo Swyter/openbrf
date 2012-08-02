@@ -1,7 +1,7 @@
 #include <QtCore>
+#include <QTextBrowser>
 
 #include "brfData.h"
-
 #include "iniData.h"
 
 template <class T> int _findByName( const vector<T> &v, const QString &s){
@@ -52,9 +52,9 @@ QString IniData::shortFileName(int i) const {
 
 QString IniData::link(int i, int j, int kind) const {
   QString res;
-  res = QString("%6 <a href=\"#%1.%2.%3\">%4</a> (in %5)")
+  res = QString(QTextBrowser::tr("%6 <a href=\"#%1.%2.%3\">%4</a> (in %5)"))
         .arg(i).arg(j).arg(kind)
-        .arg(file[i].GetName(j,kind)).arg(shortFileName(i)).arg(tokenFullName[kind]);
+        .arg(file[i].GetName(j,kind)).arg(shortFileName(i)).arg(tokenFullName(kind));
   return res;
 }
 
@@ -71,7 +71,7 @@ void IniData::checkFile(int i, int j, int kind, char* usedFile, QDir *d0, QDir *
 
   if (!res)
     errorList.push_back(
-      QString("<b>File-not-found:</b> can't find texture file for %1.")
+            QTextBrowser::tr("<b>File-not-found:</b> can't find texture file for %1.") //revised foxyman
       .arg(link(i,j,kind))
     );
 
@@ -84,13 +84,13 @@ void IniData::checkUses(int i, int j, int kind, char* usedName, int usedKind){
   Pair d = indexOf( usedName, usedKind );
   if (d.first==-1) {
     errorList.push_back(
-      QString("<b>Missing:</b> %1 uses unknown %2 <u>%3</u>")
-      .arg(link(i,j,kind)).arg(tokenFullName[usedKind]).arg(usedName)
+      QTextBrowser::tr("<b>Missing:</b> %1 uses unknown %2 <u>%3</u>") //revised foxyman
+      .arg(link(i,j,kind)).arg(tokenFullName(usedKind)).arg(usedName)
     );
   } else
   if (d.first>i) {
     errorList.push_back(
-      QString("<b>Ordering problem:</b> %1 uses %2, which appears later in <i>module.ini</i>")
+      QTextBrowser::tr("<b>Ordering problem:</b> %1 uses %2, which appears later in <i>module.ini</i>") //revised foxyman
       .arg(link(i,j,kind)).arg(link(d.first,d.second,usedKind))
     );
   }
@@ -107,7 +107,7 @@ bool IniData::checkDuplicated(std::vector<T> &v, int j, int maxErr){
     } else
     if (d.first!=j || d.second!=(int)i) {
       errorList.push_back(
-          QString("<b>Duplicate:</b> %1 was already defined in file %2")
+          QTextBrowser::tr("<b>Duplicate:</b> %1 was already defined in file %2") //revised foxyman
           .arg(link(j,i,kind)).arg(linkShort(d.first,d.second,kind))
       );
     }
@@ -373,10 +373,10 @@ bool IniData::addBrfFile(const char* name, Origin ori, bool faster){
   if (!d.LoadFast(brfFn.toAscii().data(),faster)) {
     // ERROR!!
     if (!QDir(brfPath).exists( QString("%1.brf").arg(name)))
-    errorListOnLoad.push_back(QString("<b>File-Not-Found:</b> could not read brf file <u>%1</u>, listed in module.ini file")
+    errorListOnLoad.push_back(QTextBrowser::tr("<b>File-Not-Found:</b> could not read brf file <u>%1</u>, listed in module.ini file") //revised foxyman
        .arg(shortFileName(file.size()-1)));
     else
-    errorListOnLoad.push_back(QString("<b>File-Format Error:</b> could not read brf file <u>%1</u>")
+    errorListOnLoad.push_back(QTextBrowser::tr("<b>File-Format Error:</b> could not read brf file <u>%1</u>") //revised foxyman
        .arg(shortFileName(file.size()-1)));
 
     //file.pop_back();

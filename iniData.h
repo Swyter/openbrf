@@ -2,6 +2,9 @@
 #define INIDATA_H
 
 #include <map>
+#include <vector>
+#include "brfData.h"
+#include "QPair.h"
 typedef QPair<int,int> Pair;
 
 class QDir;
@@ -43,6 +46,12 @@ public:
   QStringList errorList; // list all error strings
   bool findErrors(int maxErr); // true if there's more
   QString searchAllNames(const QString &s,bool commonResToo, int token) const;
+
+  bool findWhichAreUsed(const QString& path);
+
+  static QString tokenFullName(int k);
+  static QString tokenPlurName(int k);
+
 private:
   QString link(int i, int j, int kind) const; // given an object j of kind kind in file i, returns a strig link
   QString linkShort(int i, int j, int kind) const;
@@ -54,6 +63,11 @@ private:
   void clearIndexing();
   QStringList errorListOnLoad; // list all error strings on load
   template<class T>  void searchAllNamesV(const QString &s, int t, const std::vector<T> &v, int i, QString &res) const;
+
+
+  bool findWhichAreUsed_Actions(FILE* f);
+  bool findWhichAreUsed_ItemKinds(FILE* f);
+  bool findWhichAreUsed_PartyIcons(FILE* f);
 
 };
 

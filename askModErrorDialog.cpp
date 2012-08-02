@@ -31,15 +31,15 @@ void AskModErrorDialog::getIniDataReady(){
 
 void AskModErrorDialog::setup(){
   if (isSearch){
-    m_ui->label->setText("Look for:");
+    m_ui->label->setText(tr("Look for:"));
 
     m_ui->checkBox->blockSignals(true);
     m_ui->checkBox->setChecked(searchCommonRes);
     m_ui->checkBox->blockSignals(false);
 
     m_ui->comboBox->blockSignals(true);
-    m_ui->comboBox->addItem("Any kind");
-    for (int i=0; i<N_TOKEN; i++) m_ui->comboBox->addItem(QString("%1").arg(tokenFullName[i]));
+    m_ui->comboBox->addItem(tr("Any kind"));
+    for (int i=0; i<N_TOKEN; i++) m_ui->comboBox->addItem(QString("%1").arg(IniData::tokenFullName(i)));
     m_ui->comboBox->setCurrentIndex(searchToken+1);
     m_ui->comboBox->blockSignals(false);
 
@@ -48,9 +48,9 @@ void AskModErrorDialog::setup(){
     m_ui->lineEdit->blockSignals(false);
   }
   else{
-    m_ui->label->setText("Searching for errors...");
+    m_ui->label->setText(tr("Searching for errors...")); //revised foxyman
   }
-  m_ui->textBrowser->setText(QString("<i>scanning data...</i>"));
+  m_ui->textBrowser->setText(tr("<i>scanning data...</i>")); //revised foxyman
   i = j = kind = -1;
 }
 
@@ -86,9 +86,9 @@ void AskModErrorDialog::performErrorSearch(){
     te->setText(inidata->errorList.join("<p>"));
     int ne=inidata->errorList.size();
     if (!ne) {
-      m_ui->label->setText(QString("Found 0 errors in module!"));
+      m_ui->label->setText(tr("Found 0 errors in module!"));//revised foxyman
     }
-    else m_ui->label->setText(QString("Found %1%3 error%2:").arg(ne).arg((ne>1)?"s":"").arg((more)?"+":""));
+    else m_ui->label->setText(tr("Found %n%1 error:", "", ne).arg((more)?"+":""));
 
     m_ui->buttonBox->buttons()[1]->setEnabled(more);
 }
@@ -101,7 +101,7 @@ void AskModErrorDialog::performSearch(){
   if (searchString.length()>=3) {
     m_ui->textBrowser->setText(inidata->searchAllNames(searchString,searchCommonRes,searchToken));
   } else {
-    m_ui->textBrowser->setText("<i>[ready]</i>");
+    m_ui->textBrowser->setText(tr("<i>[ready]</i>"));
   }
 }
 
@@ -140,7 +140,7 @@ AskModErrorDialog::AskModErrorDialog(QWidget *parent, IniData &i,bool search, QS
   searchToken = -1;
   maxErr = 10;
 
-  setWindowTitle(QString("OpenBrf -- Module %1").arg(i.name()));
+  setWindowTitle(tr("OpenBrf -- Module %1").arg(i.name()));//revised foxyman
   if (search) {
 
     resize(510, 250);

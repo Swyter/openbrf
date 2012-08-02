@@ -11,7 +11,6 @@
 #include "ioMB.h"
 #include "ioOBJ.h"
 
-
 bool MainWindow::exportMeshGroup(){
   int i = selector->firstSelected();
   if (i<0) return false;
@@ -96,6 +95,7 @@ bool MainWindow::exportRiggedMesh(){
   } else {
     res = ioSMD::Export(fn.toAscii().data(), m, s, currentDisplayFrame() );
     errorSt = ioSMD::LastErrorString();
+
   }
 
   if (res) {
@@ -147,6 +147,7 @@ bool MainWindow::exportSkeletonAndSkin(){
   if (fn.isEmpty()) return false;
 
   int res;
+
   if (fn.endsWith(".ma",Qt::CaseInsensitive)) {
     res = IoMB::Export(fn.toAscii().data(),m,s,0);
   } else {
@@ -505,10 +506,15 @@ bool MainWindow::importMovingMesh(){
 
 
 bool MainWindow::importBrf(){
-  QString fn = askImportFilename("BRF file (*.brf)");
+
+  //QString lastBrfFormat(tr("strange, latest, rare Warband format (*.brf)"));
+
+  QString fn = askImportFilename(tr("Warband or M&B resource (*.brf)"));//+lastBrfFormat);
   if (fn.isEmpty()) return false;
   BrfData tmp;
-  if (!tmp.Load(fn.toAscii().data())) {
+  //bool useNext=(lastImpExpFormat==lastBrfFormat);
+
+  if (!tmp.Load(fn.toAscii().data(),0)) {
     QMessageBox::information(this,
       tr("Open Brf"),
       tr("Cannot import file %1\n\n")
@@ -796,13 +802,18 @@ bool MainWindow::importRiggedMesh(){
     bool ok=false;
     QString resst = "Unknown extension";
 
+    bool warning = false;
+
+
     if (fnList[j].endsWith(".smd",Qt::CaseInsensitive)) {
       m.resize(1);
       ok = ioSMD::Import(fnList[j].toAscii().data(), m[0], s)==0;
       resst = ioSMD::LastErrorString();
+      warning = ioSMD::Warning();
     }
 
     if (fnList[j].endsWith(".ma",Qt::CaseInsensitive)) {
+      warning = false;
       ok = IoMB::Import(fnList[j].toAscii().data(), m, s,0);
       resst = IoMB::LastErrorString();
     }
@@ -825,6 +836,13 @@ bool MainWindow::importRiggedMesh(){
       insert(m[i]);
     }
     total+=m.size();
+    if (warning) {
+      QMessageBox::information(this,
+        tr("Open Brf"),
+        tr("%1\n").arg( ioSMD::LastWarningString() )
+      );
+    }
+
   }
 
   statusBar()->showMessage(

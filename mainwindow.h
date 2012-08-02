@@ -25,6 +25,9 @@ public:
 
     int GetFirstUnusedRefLetter() const;
     bool loadFile(const QString &fileName);
+
+    static int getLanguageOption();
+
 private:
     BrfData brfdata;
     BrfData reference;
@@ -114,7 +117,9 @@ private:
     void editPasteRigging();
     void editPasteMod();
     void sortEntries();
-    void meshRecomputeNormalsAndUnify(int crease);
+    void meshRecomputeNormalsAndUnifyDoIt();
+    void meshRecomputeNormalsAndUnify_onSlider(int i);
+    void meshRecomputeNormalsAndUnify_onCheckbox(bool i);
     void meshRecomputeNormalsAndUnify();
     void meshUnify();
     void meshMerge();
@@ -138,6 +143,10 @@ private:
     void optionAutoFixTextureUpdated();
     void optionAutoFixTextureShowInfo();
 
+    void optionLanguageSet0();
+    void optionLanguageSet1();
+    void optionLanguageSet2();
+
     void mab2tldHead();
     void tld2mabHead();
     void mab2tldArmor();
@@ -145,6 +154,7 @@ private:
     void tldHead(float verse);
     void tldMakeDwarfSlim();
     void tldMakeDwarfBoots();
+    void tldShrinkAroundBones();
 
 
 
@@ -165,6 +175,9 @@ private:
     QString modName;
     QString modPath() const;
     QString lastSearchString;
+
+    int curLanguage; // 0 = use default
+    void setLanguage(int k);
 
     bool scanBrfForMaterials(const QString fname);
     bool scanIniForMaterials(const QString fname);
@@ -260,6 +273,7 @@ private:
     QAction *mab2tldArmorAct;
     QAction *tld2mabArmorAct;
     QAction *tldMakeDwarfSlimAct;
+    QAction *tldShrinkAroundBonesAct;
 
     QAction *checkIniAct;
     QAction *searchIniAct;
@@ -279,6 +293,7 @@ private:
     QAction *optionAutoFixTextureInfo;
     QAction *optionAutoZoomUseGlobal;
     QAction *optionAutoZoomUseSelected;
+    QAction *optionLanguage[3];
 
     QAction *tldMenuAction;
 

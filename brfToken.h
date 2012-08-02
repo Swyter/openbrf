@@ -14,9 +14,6 @@ typedef enum{
 } TokenEnum;
 
 
-extern char * tokenTabName[N_TOKEN];
 extern char * tokenBrfName[N_TOKEN];
-extern char * tokenFullName[N_TOKEN];
-extern char * tokenPlurName[N_TOKEN];
 
 #endif // BRFTOKEN_H

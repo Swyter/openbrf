@@ -3,7 +3,7 @@
 # -------------------------------------------------
 QT += opengl
 QT += xml
-RC_FILE = openBrf.rc
+#RC_FILE = openBrf.rc
 TARGET = openBrf
 TEMPLATE = app
 SOURCES += main.cpp \
@@ -23,8 +23,8 @@ SOURCES += main.cpp \
     guipanel.cpp \
     vcgmesh.cpp \
     askBoneDialog.cpp \
-    ../../vcglib/wrap/ply/plylib.cpp \
-    ../../vcglib/wrap/dae/xmldocumentmanaging.cpp \
+    C:/projects/vcglib/wrap/ply/plylib.cpp \
+    C:/projects/vcglib/wrap/dae/xmldocumentmanaging.cpp \
     ioSMD.cpp \
     askSkelDialog.cpp \
     askTexturenameDialog.cpp \
@@ -79,11 +79,21 @@ FORMS += guipanel.ui \
     askFlagsDialog.ui \
     askModErrorDialog.ui \
     askTransformDialog.ui \
-    askCreaseDialog.ui
+    askCreaseDialog.ui \
+    mainwindow.ui
 INCLUDEPATH += "C:\projects\vcglib"
 INCLUDEPATH += "C:\libs\lib3ds-1.3.0"
 RESOURCES += resource.qrc
+
+TRANSLATIONS += openbrf_zh.ts
+TRANSLATIONS += openbrf_en.ts
+
+RC_FILE = openBrf.rc
+
 win32 { 
     DEFINES += NOMINMAX
     DEFINES += _CRT_SECURE_NO_DEPRECATE
 }
+
+#QMAKE_CXXFLAGS_RELEASE += -Wno-uninitialized
+

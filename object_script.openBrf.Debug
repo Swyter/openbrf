@@ -32,6 +32,7 @@ INPUT(
 ./debug\main_create.o
 ./debug\main_ImpExp.o
 ./debug\brfHitBox.o
+./debug\ioMD3.o
 ./debug\moc_mainwindow.o
 ./debug\moc_glwidgets.o
 ./debug\moc_selector.o

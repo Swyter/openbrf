@@ -1,8 +1,6 @@
-
 #include "brfData.h"
 
 #include "saveLoad.h"
-
 
  char * tokenBrfName[N_TOKEN] = {
   "mesh",
@@ -14,36 +12,6 @@
   "body",
 };
 
-char * tokenTabName[N_TOKEN] = {
-  "&Mesh",
-  "Te&xture",
-  "&Shader",
-  "Mat&erial",
-  "S&keleton",
-  "&Animation",
-  "&Collision",
-};
-
-
-char * tokenFullName[N_TOKEN] = {
-  "Mesh",
-  "Texture",
-  "Shader",
-  "Material",
-  "Skeleton",
-  "Animation",
-  "Collision Object",
-};
-
-char * tokenPlurName[N_TOKEN] = {
-  "Meshes",
-  "Textures",
-  "Shaders",
-  "Materials",
-  "Skeletons",
-  "Animations",
-  "Collision Objects",
-};
 
 
 BrfData::BrfData(){
@@ -51,11 +19,11 @@ BrfData::BrfData(){
   //globalVersion = 0;
 }
 
-BrfData::BrfData(FILE*f,int verbose, int stopAt){
-  Load(f,verbose,stopAt);
+BrfData::BrfData(FILE*f,int verbose){
+  Load(f,verbose);
 }
-BrfData::BrfData(char*f,int verbose, int stopAt){
-  Load(f,verbose,stopAt);
+BrfData::BrfData(char*f,int verbose){
+  Load(f,verbose);
 }
 
 int BrfData::GetFirstUnusedLetter() const{
@@ -119,10 +87,10 @@ void  BrfData::Merge(const BrfData& b){
 }
 
 
-bool BrfData::Load(char*filename,int verbose, int stopAt){
+bool BrfData::Load(char*filename,int verbose, int imposeVersion){
   FILE *f = fopen(filename,"rb");
   if (!f) return false;
-  return Load(f, verbose, stopAt);
+  return Load(f, verbose, imposeVersion);
 }
 
 
@@ -152,8 +120,8 @@ bool BrfData::Save(const char*fn) const{
   FILE *f = fopen(fn,"wb");
   if (!f) return false;
   if (globVersion==1) { SaveString(f, "rfver "); SaveInt(f,1); }
-  SaveAll(f,shader);
   SaveAll(f,texture);
+  SaveAll(f,shader);
   SaveAll(f,material);
   SaveAll(f,mesh);
   SaveAll(f,skeleton);
@@ -206,14 +174,15 @@ void BrfData::Clear(){
   body.clear();
 }
 
-void  BrfData::LoadVersion(FILE*f){
+void  BrfData::LoadVersion(FILE*f,int imposeVers){
   LoadInt(f,version);
+  if (imposeVers>-1) version = imposeVers;
   globVersion=version;
 
 }
 
 
-bool BrfData::Load(FILE*f,int verbose, int stopAt){
+bool BrfData::Load(FILE*f,int verbose,int imposeVers){
 
   Clear();
 
@@ -224,7 +193,7 @@ bool BrfData::Load(FILE*f,int verbose, int stopAt){
     if (!LoadString(f, str)) return false;
     if (verbose>1) printf("Read \"%s\"\n",str);
     if (!strcmp(str,"end")) break;
-    else if (!strcmp(str,"rfver ")) LoadVersion(f);
+    else if (!strcmp(str,"rfver ")) LoadVersion(f,imposeVers);
     else if (!strcmp(str,"mesh"))  {
       if (!LoadVector(f,mesh)) return false;
     //  int k; LoadInt(f,k); mesh.resize(1); mesh[0].Load(f); return true;
@@ -259,7 +228,7 @@ bool BrfData::LoadFast(char*filename, bool faster){
     char str[255];
     if (!LoadString(f, str)) return false;
     if (!strcmp(str,"end")) break;
-    else if (!strcmp(str,"rfver ")) LoadVersion(f);
+    else if (!strcmp(str,"rfver ")) LoadVersion(f,-1);
     else if (!strcmp(str,"shader")) {if (!SkipVector(f,shader)) return false;}
     else if (!strcmp(str,"texture")) {if (!LoadVector(f,texture)) return false; }
     else if (!strcmp(str,"material")) {if (!SkipVector(f,material)) return false; }

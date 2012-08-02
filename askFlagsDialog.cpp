@@ -15,7 +15,7 @@ AskFlagsDialog::AskFlagsDialog(QWidget *parent, unsigned int ones, unsigned int 
   m_ui->widget_3->setLayout(new QVBoxLayout(m_ui->widget_3));
   m_ui->widget_4->setLayout(new QVBoxLayout(m_ui->widget_4));
   for (unsigned int i=0; i<32; i++) {
-    cb[i]=new QCheckBox(l[i], this);
+      cb[i]=new QCheckBox(l[i], this);
     QWidget *w;
     if (i<8) w=m_ui->widget;
     else if (i<16) w=m_ui->widget_2;
@@ -36,7 +36,7 @@ AskFlagsDialog::AskFlagsDialog(QWidget *parent, unsigned int ones, unsigned int 
     }
 
     if (l[i].isEmpty()) {
-      cb[i]->setText("unused?");
+      cb[i]->setText(tr("unused?"));
       QFont f = cb[i]->font();
       f.setItalic(true);
       cb[i]->setFont(f);
@@ -44,7 +44,7 @@ AskFlagsDialog::AskFlagsDialog(QWidget *parent, unsigned int ones, unsigned int 
       if (!isOne && !isZero) cb[i]->setVisible(false);
     }
     if (l[i]==QString("R")) {
-      cb[i]->setText("reserved");
+      cb[i]->setText(tr("reserved"));
       cb[i]->setEnabled(false);
       QFont f = cb[i]->font();
       f.setItalic(true);
@@ -59,7 +59,7 @@ AskFlagsDialog::AskFlagsDialog(QWidget *parent, unsigned int ones, unsigned int 
   //m_ui->widget_2->adjustSize();
   //m_ui->widget_3->adjustSize();
   //m_ui->widget_4->adjustSize();
-
+m_ui->buttonBox->setLocale(QLocale::system());
 }
 unsigned int AskFlagsDialog::toOne() const{
   unsigned int one = 1, res=0;

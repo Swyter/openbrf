@@ -10,7 +10,6 @@
 #include "askModErrorDialog.h"
 #include "askTransformDialog.h"
 #include "askCreaseDialog.h"
-
 #include <QtGui>
 #include <QDebug>
 #include <algorithm>
@@ -87,7 +86,7 @@ bool MainWindow::maybeSave()
       QMessageBox::StandardButton ret;
       ret = QMessageBox::warning(this, tr("OpenBrf"),
                      tr("%1 been modified.\n"
-                        "Save changes?").arg((editingRef)?"Internal reference objects have":"The dataset has"),
+                        "Save changes?").arg((editingRef)?tr("Internal reference objects have"):tr("The dataset has")),//revised foxyman
                      QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
       if (ret == QMessageBox::Save) {
         if (editingRef)
@@ -433,8 +432,38 @@ void MainWindow::tldMakeDwarfSlim(){
 
 }
 
-void MainWindow::mab2tldArmor(){
+void MainWindow::tldShrinkAroundBones(){
+  int sdi = currentDisplaySkeleton();
+  if (sdi<0 || sdi>=(int)reference.skeleton.size()) {
+    statusBar()->showMessage("No current skeleton found!");
+    return;
+  }
+  BrfSkeleton &skel (reference.skeleton[sdi]);
 
+
+  int done =0;
+  for (int ii=0; ii<selector->selectedList().size(); ii++) {
+    int i = selector->selectedList()[ii].row();
+    if (i<0) continue;
+    if (i>(int)brfdata.mesh.size()) continue;
+    BrfMesh &m(brfdata.mesh[i]);
+    int frame = guiPanel->getCurrentSubpieceIndex(MESH);
+    if (frame<0 || frame>=(int)m.frame.size()) {
+      statusBar()->showMessage(tr("Invalid frame %1").arg(frame));
+      continue;
+    }
+
+    m.ShrinkAroundBones(skel,frame);
+    setModified(true);
+    updateGl();
+    done++;
+  }
+  statusBar()->showMessage(tr("%1 meshes shrunk around bones").arg(done));
+
+}
+
+void MainWindow::mab2tldArmor(){
+  int k=0;
   //int shi=reference.Find("skel_orc_tall",SKELETON);
   int shi=reference.Find("skel_human",SKELETON);
   int sdi=reference.Find("skel_dwarf",SKELETON);
@@ -450,7 +479,7 @@ void MainWindow::mab2tldArmor(){
   BrfSkeleton &so (reference.skeleton[soi]);
 
   for (int ii=0; ii<selector->selectedList().size(); ii++) {
-    int i = selector->selectedList()[ii].row();
+    int i = selector->selectedList()[ii].row()+k;
     if (i<0) continue;
     if (i>(int)brfdata.mesh.size()) continue;
 
@@ -473,6 +502,7 @@ void MainWindow::mab2tldArmor(){
 
     BrfMesh ml = m;  // last frame
     ml.KeepOnlyFrame(lst);// or 0
+
     m.KeepOnlyFrame( 0 );
 
     BrfMesh md = m; // dwarf mesh
@@ -584,12 +614,20 @@ void MainWindow::onChangeFlags(QString st){
       break;
     case SKELETON: _setFlag(brfdata.skeleton,i,st); break;
     //case ANIMATION: _setFlag(brfdata.animation,i,fl); break;
-    default: assert(0);
+    default: return; //assert(0);
   }
-  //statusBar()->showMessage( tr("Set flag(s) to \"%1\"").arg(fl) );
+  statusBar()->showMessage( tr("Set flag(s) to \"%1\"").arg(st) );
   setModified(true);
 }
 
+int MainWindow::getLanguageOption(){
+  QSettings *settings;
+  settings = new QSettings("mtarini", "OpenBRF");
+
+  QVariant s =settings->value("curLanguage");
+  if (s.isValid()) return  s.toInt(); return  0;
+
+}
 MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),inidata(brfdata)
 {
   setWindowIcon(QIcon(":/openBrf.ico"));
@@ -636,6 +674,10 @@ MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),inidata(brfdata)
   loadOptions();
 
   updatePaths();
+  setLocale(QLocale::system());
+
+  setLanguage( curLanguage );
+
 }
 
 
@@ -643,10 +685,10 @@ MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),inidata(brfdata)
 bool MainWindow::setEditingRef(bool mode){
   editingRef = mode;
   if (editingRef) {
-    editRefAct->setText("Stop editing reference data");
+    editRefAct->setText(tr("Stop editing reference data")); //revised foxyman
     editRefAct->setStatusTip(tr("Stop editing \"reference\" skeletons, animations & meshes, that OpenBrf uses to display data."));
   } else {
-    editRefAct->setText("Edit reference data");
+    editRefAct->setText(tr("Edit reference data")); //revised foxyman
     editRefAct->setStatusTip(tr("Edit \"reference\" skeletons, animations & meshes, that OpenBrf uses to display data."));
   }
   glWidget->setEditingRef(mode);
@@ -694,9 +736,9 @@ bool MainWindow::addNewGeneral(){
   AskTexturenameDialog d(this, tok==MATERIAL);
   if (tok==MATERIAL || tok==TEXTURE)
     d.setBrowsable(mabPath+"/Modules/"+modName+"/Textures");
-  d.setLabel( "Name:" );
-  d.setWindowTitle( QString("New %1").arg(tokenFullName[tok]) );
-  d.setDef(QString("new_%1").arg(tokenFullName[tok]).toLower());
+  d.setLabel( tr("Name:") );
+  d.setWindowTitle( tr("New %1").arg( IniData::tokenFullName(tok)  ) );
+  d.setDef(tr("new_%1").arg(IniData::tokenFullName(tok).toLower()) );
   int ok=d.exec();
   if (ok) {
     QStringList newName=d.getRes();
@@ -805,6 +847,9 @@ void MainWindow::meshUnify(){
     if (i<0) continue;
     if (i>(int)brfdata.mesh.size()) continue;
 
+
+
+
     BrfMesh &m (brfdata.mesh[i]);
     m.UnifyPos();
     m.UnifyVert(true,0.95);
@@ -812,6 +857,8 @@ void MainWindow::meshUnify(){
   }
   updateGui();
   updateGl();
+
+
   setModified(true);
   statusBar()->showMessage(tr("Vertex unified."), 2000);
 }
@@ -846,9 +893,25 @@ void MainWindow::updateGui(){
 }
 void MainWindow::updateSel(){
   selector->updateData(brfdata);
+
 }
 
-void MainWindow::meshRecomputeNormalsAndUnify(int crease){
+// these should go as private members but I'm lazy right now
+static double _crease = 0.5;
+static bool _keepSeams = true;
+
+void MainWindow::meshRecomputeNormalsAndUnify_onSlider(int i){
+  _crease = 1-i/100.0f*2;
+  meshRecomputeNormalsAndUnifyDoIt();
+}
+
+void MainWindow::meshRecomputeNormalsAndUnify_onCheckbox(bool i){
+  _keepSeams = i;
+  meshRecomputeNormalsAndUnifyDoIt();
+}
+
+void MainWindow::meshRecomputeNormalsAndUnifyDoIt(){
+
   //int i = selector->firstSelected();
 
   for (int k=0; k<selector->selectedList().size(); k++) {
@@ -862,12 +925,16 @@ void MainWindow::meshRecomputeNormalsAndUnify(int crease){
 
     m.DivideVert();
     m.ComputeNormals();
-    m.UnifyVert(true,1-crease/100.0f*2);
+    m.UnifyVert(true,_crease);
+
     m.ComputeNormals();
+    if (!_keepSeams)
+    m.RemoveSeamsFromNormals(_crease);
   }
   updateGui();
   updateGl();
-  statusBar()->showMessage(tr("Normals recomputed with %1% hard edges.").arg(crease), 2000);
+  statusBar()->showMessage(tr("Normals recomputed with %1% hard edges.").arg(int(100-_crease*50)), 2000);
+
 }
 
 void MainWindow::meshRecomputeNormalsAndUnify(){
@@ -876,12 +943,25 @@ void MainWindow::meshRecomputeNormalsAndUnify(){
   if (i>(int)brfdata.mesh.size()) return;
 
   AskCreaseDialog d(this);
-  connect(d.slider(),SIGNAL(valueChanged(int)),this,SLOT(meshRecomputeNormalsAndUnify(int)));
+
+  d.slider()->setValue(100-int(_crease*100));
+  d.checkbox()->setChecked(_keepSeams);
+
+  connect(d.slider(),SIGNAL(valueChanged(int)),
+          this,SLOT(meshRecomputeNormalsAndUnify_onSlider(int)));
+  connect(d.checkbox(),SIGNAL(clicked(bool)),
+          this,SLOT(meshRecomputeNormalsAndUnify_onCheckbox(bool)));
+
   //d.exec();
-  meshRecomputeNormalsAndUnify(d.slider()->value());
+  meshRecomputeNormalsAndUnifyDoIt();
+
   d.exec();
   //d.setModal();
-  disconnect(d.slider(),SIGNAL(valueChanged(int)),this,SLOT(meshRecomputeNormalsAndUnify(int)));
+  disconnect(d.checkbox(),SIGNAL(clicked(bool)),
+             this,SLOT(meshRecomputeNormalsAndUnify_onCheckbox(bool)));
+  disconnect(d.slider(),SIGNAL(valueChanged(int)),
+             this,SLOT(meshRecomputeNormalsAndUnify_onSlider(int)));
+
 
   setModified(true);
 }
@@ -965,7 +1045,6 @@ void MainWindow::meshDiscardAni(){
   QModelIndexList list= selector->selectedList();
   for (int j=0; j<list.size(); j++){
     BrfMesh &m(brfdata.mesh[list[j].row()]);
-
     m.KeepOnlyFrame(guiPanel->getCurrentSubpieceIndex(MESH));
     setModified(true);
   }
@@ -1158,7 +1237,7 @@ void MainWindow::renameSel(){
       newPrefix = QInputDialog::getText(
         this,
         tr("OpenBrf"),
-        tr("Renaming %1...\nnew name:").arg(tokenFullName[t]),
+        tr("Renaming %1...\nnew name:").arg(IniData::tokenFullName(t)),
         QLineEdit::Normal,
         QString(commonPrefix), &ok
       );
@@ -1168,7 +1247,7 @@ void MainWindow::renameSel(){
       newPrefix = QInputDialog::getText(
         this,
         tr("OpenBrf"),
-        tr("%3 common prefix for %1 %2...\nnew prefix:").arg(n).arg(tokenPlurName[t]).arg((ps)?"Changing the":"Adding a"),
+        tr("%3 common prefix for %1 %2...\nnew prefix:").arg(n).arg(IniData::tokenPlurName(t)).arg((ps)?tr("Changing the"):tr("Adding a")), //revised foxyman
         QLineEdit::Normal,
         commonPrefix, &ok
       );
@@ -1218,6 +1297,7 @@ void MainWindow::deleteSel(){
   selector->updateData(brfdata);
   setModified(true);
 }
+
 
 
 void MainWindow::editCutFrame(){
@@ -1353,6 +1433,7 @@ void MainWindow::editCopy(bool deselect){
 
   if (selector->currentTabName()==MESH) {
     // maybe it was just rigged meshes?
+
     bool allRigged=true;
     for (unsigned int i=0; i<clipboard.mesh.size(); i++)
       if (!clipboard.mesh[i].isRigged) allRigged = false;
@@ -1360,6 +1441,13 @@ void MainWindow::editCopy(bool deselect){
 
     // maybe it was a single frame mesh?
     editPasteFrameAct->setEnabled((clipboard.mesh.size()==1) && (clipboard.mesh[0].frame.size()==1));
+
+
+
+
+
+
+
 
     editPasteModificationAct->setEnabled(true);
 
@@ -1460,6 +1548,7 @@ Pair MainWindow:: askRefSkel(int nbones,  int &method, int &output){
 }
 
 Pair MainWindow::askRefBoneInt(bool sayNotRigged, bool &isAtOrigin){
+
   if (!reference.skeleton.size()) return Pair(-1,-1);
   AskBoneDialog d(this,reference.skeleton);
   d.sayNotRigged(sayNotRigged);
@@ -1511,6 +1600,7 @@ void MainWindow::meshMountOnBone(){
   bool isOri;
   Pair p = askRefBoneInt(false, isOri);
 
+
   if (p.first==-1) {
     statusBar()->showMessage(tr("Canceled."), 2000);
     return;
@@ -1548,6 +1638,7 @@ void MainWindow::addToRefMesh(int k){
     m.KeepOnlyFrame(guiPanel->getCurrentSubpieceIndex(MESH));
     bool isAtOrigin;
     Pair p = askRefBoneInt(true,isAtOrigin);
+
 
     if (p.first==-1) {
       statusBar()->showMessage(tr("Canceled."), 2000);
@@ -1668,6 +1759,27 @@ void MainWindow::optionAutoFixTextureUpdated(){
     glWidget->update();
 }
 
+void MainWindow::optionLanguageSet0(){setLanguage(0);}
+void MainWindow::optionLanguageSet1(){setLanguage(1);}
+void MainWindow::optionLanguageSet2(){setLanguage(2);}
+
+void MainWindow::setLanguage(int k){
+
+
+  if (k!=curLanguage) {
+    if (maybeSave()) {
+      for (int i=0; i<3; i++) optionLanguage[i]->setChecked(i==k);
+      curLanguage = k;
+      // quit and restart
+      qApp->exit(101);
+    }
+    //QMessageBox::information(this,"OpenBrf",tr("Language changed:\nRerun OpenBrf for changes to take place"));
+  }
+  for (int i=0; i<3; i++) optionLanguage[i]->setChecked(i==k);
+  curLanguage = k;
+
+}
+
 void MainWindow::saveOptions() const {
 
   settings->setValue("afterMeshImport",afterMeshImport());
@@ -1676,6 +1788,7 @@ void MainWindow::saveOptions() const {
   //settings->setValue("autoFixDXT1",(int)(glWidget->fixTexturesOnSight));
   settings->setValue("autoZoom",(int)(glWidget->commonBBox));
   settings->setValue("groupMode",(int)(glWidget->getViewmodeMult() ));
+  settings->setValue("curLanguage",(int)curLanguage);
 }
 
 QString MainWindow::modPath() const{
@@ -1703,11 +1816,16 @@ void MainWindow::loadOptions(){
 
   {
   int k=0;
-  QVariant s =settings->value("assembleAniMode");
+  QVariant s =settings->value("groupMode");
   if (s.isValid()) k = s.toInt();
-  optionAssembleAniMatchVert->setChecked(k==0);
-  optionAssembleAniMatchTc->setChecked(k==1);
-  optionAssembleAniQuiverMode->setChecked(k==2);
+  glWidget->setViewmodeMult(k);
+  comboViewmodeBG->button(0)->setChecked(k==0);
+  comboViewmodeBG->button(1)->setChecked(k==1);
+  }
+
+  {
+  QVariant s =settings->value("curLanguage");
+  if (s.isValid()) curLanguage = s.toInt(); else curLanguage = 0;
   }
 
   {
@@ -1877,7 +1995,7 @@ bool MainWindow::save()
 
 bool MainWindow::saveAs()
 {
-  QString f0="M&B Resource (*.brf)",f1 = "WarBand Resource v.1 (*.brf)";
+  QString f0=tr("M&B Resource (*.brf)"),f1 = tr("WarBand Resource v.1 (*.brf)"); //revised foxyman
   QString selectedf = (brfdata.version==1)?f1:f0;
   QString fileName = QFileDialog::getSaveFileName(this,
     tr("Save File") ,
@@ -1901,7 +2019,7 @@ bool MainWindow::saveAs()
 
 void MainWindow::updateTitle(){
   QString maybestar = (isModified)?QString("(*)"):QString("");
-  QString notInIni = (curFileIndex==-1)?QString(" [not in module.ini]"):QString("");
+  QString notInIni = (curFileIndex==-1)?tr(" [not in module.ini]"):tr("");
   QString tit("OpenBrf");
   if (!editingRef) {
     if (curFile.isEmpty())
@@ -1981,7 +2099,10 @@ bool MainWindow::loadIni(){
   guiPanel->setIniData(inidata);
   statusBar()->showMessage( tr("%5 %1 brf files from module.ini of \"%3\"-- %2 msec total [%4 text/mat/shad]").
       arg(inidata.file.size()).arg(qtime.elapsed()).arg(modName).arg(inidata.nRefObjects())
-      .arg((res)?"scanned":"ERRORS found while scanning"),6000);
+      .arg((res)?tr("scanned"):tr("ERRORS found while scanning")),6000);
+
+
+
   return true;
 }
 
@@ -2020,6 +2141,9 @@ bool MainWindow::navigateLeft(){
 
   if (navigationStackPos<=0) return false;
   navigationStackPos--;
+
+  int nowPos = navigationStackPos;
+  static int num=0; num++;
   QPair<Pair,QString> p = navigationStack[navigationStackPos];
   //qDebug()<<"p,first: "<<p.first<<" (on"<<inidata.filename.size() << ")\n";
   if (p.second.isEmpty()) return false;
@@ -2033,10 +2157,14 @@ bool MainWindow::navigateLeft(){
   curFileIndex = p.first.first;
 
   int obj=MESH;
-  if (navigationStackPos==1) obj=MATERIAL;
+  if (nowPos==1) obj=MATERIAL;
+
+
   selectOne(obj,p.first.second);
-  //selector->currentWidget()->setFocus();
-  guiPanel->setNavigationStackDepth( navigationStackPos );
+  ////selector->currentWidget()->setFocus();
+  guiPanel->setNavigationStackDepth( navigationStackPos = nowPos );
+
+
   return true;
 }
 
@@ -2105,7 +2233,7 @@ bool MainWindow::navigateRight(){
 
     if (p.first==-1) {
       statusBar()->showMessage( tr("Navigate: cannot find %2 \"%1\" in current module")
-                                .arg(st).arg(tokenFullName[ne]),6000);
+                                .arg(st).arg(IniData::tokenFullName(ne)),6000);
       return false;
     }
     if (p.first!=curFileIndex) {
@@ -2117,6 +2245,8 @@ bool MainWindow::navigateRight(){
     curFileIndex = p.first;
     if (navigationStackPos<10) navigationStackPos ++;
     guiPanel->setNavigationStackDepth( navigationStackPos );
+    statusBar()->showMessage( tr("Navigate right: pos = %1")
+                              .arg(navigationStackPos),6000);
 
     // switch to file containing the material
     selectOne(ne,p.second);
@@ -2286,48 +2416,50 @@ QString MainWindow::strippedName(const QString &fullFileName)
 
 #include "askFlagsDialog.h"
 
-char* FlagNameArray[32] = {
-  "No fog",
-  "No Lighting",
-  "",
-  "No Z-write",
-  "No depth Test", //
-  "Specular enable",
-  "Alpha test",
-  "Uniform lighting",
-
-
-  "Blend",
-  "Blend add",
-  "Blend multiply *",
-  "Blend factor **",
-  "Alpha test 1",
-  "Alpha test 128",
-  "Alpha test 256 *",
-  "",
-
-  "Render 1st",
-  "Origin at camera",
-  "LoD",
-  "",
-  "",
-  "",
-  "",
-  "",
-
-  "R",
-  "R",
-  "R",
-  "R",
-  "Invert bumpmap",
-  "",
-  "",
-  "",
-
-};
 
 void MainWindow::setFlagsMaterial(){
   unsigned int curfOR=0, curfAND = 0xFFFFFFFF;
+
+  //revised foxyman
+  QString FlagNameArray[32] = {
+     AskFlagsDialog::tr("No fog"),
+     AskFlagsDialog::tr("No Lighting"),
+    "",
+     AskFlagsDialog::tr("No Z-write"),
+     AskFlagsDialog::tr("No depth Test"), //
+     AskFlagsDialog::tr("Specular enable"),
+     AskFlagsDialog::tr("Alpha test"),
+     AskFlagsDialog::tr("Uniform lighting"),
+
+
+     AskFlagsDialog::tr("Blend"),
+     AskFlagsDialog::tr("Blend add"),
+     AskFlagsDialog::tr("Blend multiply *"),
+     AskFlagsDialog::tr("Blend factor **"),
+     AskFlagsDialog::tr("Alpha test 1"),
+     AskFlagsDialog::tr("Alpha test 128"),
+     AskFlagsDialog::tr("Alpha test 256 *"),
+    "",
+
+     AskFlagsDialog::tr("Render 1st"),
+     AskFlagsDialog::tr("Origin at camera"),
+     AskFlagsDialog::tr("LoD"),
+    "",
+    "",
+    "",
+    "",
+    "",
+
+     "R",
+     "R",
+     "R",
+     "R",
+     AskFlagsDialog::tr("Invert bumpmap"),
+    "",
+    "",
+    "",
+
+  };
 
   QModelIndexList list=selector->selectedList();
 
@@ -2346,8 +2478,8 @@ void MainWindow::setFlagsMaterial(){
   QStringList l ;
   for (int i=0; i<32; i++) l.append(FlagNameArray[i]);
 
-  AskFlagsDialog *d = new AskFlagsDialog(this,curfOR,curfAND,l);
-  d->setWindowTitle("Material flags");
+  AskFlagsDialog *d = new AskFlagsDialog(this,curfOR,curfAND, l);
+  d->setWindowTitle(tr("Material flags"));//revised foxyman
   if (d->exec()==QDialog::Accepted) {
     //ui->leMatFlags->setText(StringH( d->getRes() ));
     //emit(dataMaterialChanged());

@@ -2,6 +2,7 @@
 #define BRFSHADER_H
 
 #include "brfToken.h"
+#include <stdio.h>
 
 class BrfShaderOpt{
 public:

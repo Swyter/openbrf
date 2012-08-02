@@ -3,9 +3,18 @@
 #include <QtGui>
 #include "brfdata.h"
 #include "selector.h"
-
+#include "iniData.h"
 #include "tablemodel.h"
 
+char * tokenTabName[N_TOKEN] = {
+ QT_TRANSLATE_NOOP("Selector", "&Mesh"),
+ QT_TRANSLATE_NOOP("Selector", "Te&xture"),
+ QT_TRANSLATE_NOOP("Selector", "&Shader"),
+ QT_TRANSLATE_NOOP("Selector", "Mat&erial"),
+ QT_TRANSLATE_NOOP("Selector", "S&keleton"),
+ QT_TRANSLATE_NOOP("Selector", "&Animation"),
+ QT_TRANSLATE_NOOP("Selector", "&Collision"),
+};
 
 
 void Selector::addToRefMeshA(){ emit(addToRefMesh(0)); }
@@ -55,12 +64,12 @@ Selector::Selector(QWidget *parent)
 
   moveUpAct = new QAction(tr("Move up"), this);
   moveUpAct->setShortcut(QString("Alt+up"));
-  moveUpAct->setStatusTip("Move this object upward in the list");
+  moveUpAct->setStatusTip(tr("Move this object upward in the list"));//revised foxyman
   addAction(moveUpAct);
 
   moveDownAct = new QAction(tr("Move down"), this);
   moveDownAct->setShortcut(QString("Alt+down"));
-  moveDownAct->setStatusTip("Move this object one step down in the list");
+  moveDownAct->setStatusTip(tr("Move this object one step down in the list"));//revised foxyman
   addAction(moveDownAct);
 
   addToRefAnimAct = new QAction(tr("Add to reference animations"), this);
@@ -226,10 +235,10 @@ Selector::Selector(QWidget *parent)
 
     if (ti==MESH || ti==MATERIAL || ti==TEXTURE || ti==SKELETON ) {
       tab[ti]->setSelectionMode(QAbstractItemView::ExtendedSelection);
-      tab[ti]->setStatusTip(QString("[Right-Click]: tools for %1. Multiple selections with [Shift]-[Ctrl].").arg(tokenFullName[ti]));
+      tab[ti]->setStatusTip(QString(tr("[Right-Click]: tools for %1. Multiple selections with [Shift]-[Ctrl].")).arg(IniData::tokenFullName(ti)));//revised foxyman
     }
     else
-      tab[ti]->setStatusTip(QString("[Right-Click]: tools for %1.").arg(tokenFullName[ti]));
+        tab[ti]->setStatusTip(QString(tr("[Right-Click]: tools for %1.")).arg(IniData::tokenFullName(ti)));//revised foxyman
 
     connect(tab[ti]->selectionModel(),
           SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
@@ -375,6 +384,7 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
    menu.setTitle(title);
 
    menu.addAction(removeAct);
+   if (onesel) renameAct->setText(tr("Rename")); else renameAct->setText(tr("Group rename"));
    menu.addAction(renameAct);
    if (onesel) {
      menu.addAction(duplicateAct);
@@ -435,11 +445,11 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
      menu.addAction(meshUnify);
      if (!onesel && !nosel) { menu.addAction(meshMerge); }
      menu.addAction(meshMountOnBone);
-     QMenu *m = menu.addMenu("Backfacing faces");
+     QMenu *m = menu.addMenu(tr("Backfacing faces"));//revised foxyman
      m->addAction(meshRemoveBackfacing);
      m->addAction(meshAddBackfacing);
 
-     m = menu.addMenu("Discard");
+     m = menu.addMenu(tr("Discard"));//revised foxyman
 
      m->addAction(discardAniAct);
      discardAniAct->setEnabled(mulsel || (mesh.frame.size()>1));
@@ -467,7 +477,7 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
    // add to reference
    if (onesel && t==MESH) {
      menu.addSeparator();
-     QMenu* refMenu=menu.addMenu("Add to reference skins");
+     QMenu* refMenu=menu.addMenu(tr("Add to reference skins"));//revised foxyman
      int N=reference->GetFirstUnusedLetter();
      for (int i=0; i<N; i++) {
        addToRefMeshAct[i]->setText(tr("to Skin Set %1").arg(char('A'+i)) );
@@ -565,7 +575,7 @@ void Selector::hideEmpty(){
       //int j = indexOf( tab[i] );
       //if (j>=0) this->removeTab(  j );
     } else {
-      QString title(tokenTabName[i]);
+        QString title(tr(tokenTabName[i]));
       if (n>3) title.truncate(3);
       else if (n>2) title.truncate(4);
       if (n>3)

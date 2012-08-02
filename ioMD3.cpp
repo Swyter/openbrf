@@ -37,7 +37,7 @@ void SaveStringFix(FILE* f,const char *res, int max){
   SaveByte(f,0);
 }
 
-static const double RATIO = 10.0;
+static const double RATIO = 100.0;
 
 void SavePoint16(FILE *f, vcg::Point3f p) {
   SaveShort(f,  int(p.X()*RATIO*64) );
