@@ -1318,19 +1318,23 @@ float myrand(float min, float max){
   return min+(max-min)*(rand()%1001)/1000;
 }
 
-static Point3f randomUpVector(int){
+static Point3f randomUpVector(int, float above){
   Point3f res;
+  float maxup = 1-above;
   do {
-    res = Point3f( myrand(-1,1),myrand(-1,0),myrand(-1,1));
-  } while (res.SquaredNorm()>1);
+    res = Point3f( myrand(-1,1),myrand(-1,maxup),myrand(-1,1));
+    if (res.SquaredNorm()>1) continue;
+    res.Normalize();
+    if (res.Y()>maxup) continue;
+  } while (0);
   return res;
 }
 
-void GLWidget::renderAoOnMeshes(float brightness){
+void GLWidget::renderAoOnMeshes(float brightness, float howMuchFromAbove){
   makeCurrent();
   if (!data) return;
   const int RES = 255;
-  const int NPASS = 128;
+  const int NPASS = 256;
   std::vector<BrfMesh>& v(data->mesh);
 
   Box3f bbox;bbox.SetNull();
@@ -1345,14 +1349,16 @@ void GLWidget::renderAoOnMeshes(float brightness){
 
   for (uint i=0; i<v.size(); i++) if (selGroup[i]) v[i].ColorAll(0);
 
+  float maxLight = 0;
   for (int n=0; n<NPASS; n++)  {
 
     glClear(GL_DEPTH_BUFFER_BIT);
 
     // set a view direction for shadows
     // ld = light dir
-    Point3f ld = randomUpVector(n),
-    dx(0,0,1), dy;
+    Point3f ld = randomUpVector(n, howMuchFromAbove),
+                 dx(0,0,1), dy;
+    maxLight += std::max(-ld.X(),0.0f);
     ld.Normalize();
     dy = (ld^dx).normalized();
     dx = (dy^ld).normalized();
@@ -1380,7 +1386,7 @@ void GLWidget::renderAoOnMeshes(float brightness){
         gluProject(p.X(),p.Y(),p.Z(),matMV, matPR, VP, &rx,&ry,&rz);
         float depth = depthbuf[RES*int(ry)+int(rx)];
 
-        if (depth+0.01>rz) {
+        if (depth+0.005>rz) {
           float diff = -ld*m.frame[0].norm[ j ];
           if (diff<0) diff = 0;
           m.vert[j].col += uint(diff*255.0);
@@ -1396,10 +1402,11 @@ void GLWidget::renderAoOnMeshes(float brightness){
     BrfMesh &m(v[i]);
     for (uint j=0; j<m.vert.size(); j++) {
       
-      float ao = m.vert[j].col*3/(NPASS*255.0);
+      float ao = m.vert[j].col/(0.95*maxLight*255.0) ; //*3/(NPASS*255.0);
       ao = brightness + ao*(1-brightness);
-      uint k = (uint)floor(ao*255+0.5);
+      int k = (uint)floor(ao*255+0.5);
       if (k>255) k=255;
+      if (k<0) k=0;
       m.vert[j].col = k | k<<8 | k<<16 | 0xFF<<24;
     }
   }

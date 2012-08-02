@@ -950,7 +950,10 @@ void MainWindow::objectMergeSelected(vector<BrfType> &v){
 }
 
 void MainWindow::meshComputeAo(){
-  glWidget->renderAoOnMeshes(0.33f * currAoBrightnessLevel()/4.0f);
+  glWidget->renderAoOnMeshes(
+      0.33f * currAoBrightnessLevel()/4.0f,
+      0.4+0.6*(1-currAoFromAboveLevel()));
+  guiPanel->ui->rbVertexcolor->click();
   setModified(true);
   updateGui();
   updateGl();
@@ -1223,6 +1226,7 @@ void MainWindow::meshRecolor(){
     m.ColorAll(col);
     setModified(true);
   }
+  guiPanel->ui->rbVertexcolor->click();
   updateGui();
   updateGl();
 }
@@ -1281,7 +1285,8 @@ void MainWindow::meshTuneColor(){
   connect(d, SIGNAL(anySliderMoved(int,int,int,int)), this, SLOT(meshTuneColorDo(int,int,int,int)));
   int res = d->exec();
   if (res!=QDialog::Accepted) meshTuneColorUndo(false); else {
-    setModified(false);
+    setModified(true);
+    guiPanel->ui->rbVertexcolor->click();
   }
   updateGui();
   updateGl();
@@ -2172,6 +2177,11 @@ int MainWindow::currAoBrightnessLevel() const{
   return 2; // default value?
 }
 
+int MainWindow::currAoFromAboveLevel() const{
+  for (int i=0; i<2; i++) if (optionAoFromAbove[i]->isChecked()) return i;
+  return 1; // default value
+}
+
 void MainWindow::optionAutoFixTextureUpdated(){
   if (glWidget->fixTexturesOnSight  = optionAutoFixTextureOn->isChecked())
     updateGl();
@@ -2224,6 +2234,7 @@ void MainWindow::saveOptions() const {
   settings->setValue("groupMode",(int)(glWidget->getViewmodeMult() ));
   settings->setValue("curLanguage",(int)curLanguage);
   settings->setValue("aoBrightness",(int)currAoBrightnessLevel());
+  settings->setValue("aoAboveLevel",(int)currAoFromAboveLevel());
 }
 
 QString MainWindow::modPath() const{
@@ -2296,6 +2307,14 @@ void MainWindow::loadOptions(){
   if (s.isValid()) k = s.toInt();
   for (int h=0; h<5; h++)
   optionAoBrightness[h]->setChecked(h==k);
+  }
+
+  {
+  int k=1;
+  QVariant s =settings->value("aoAboveLevel");
+  if (s.isValid()) k = s.toInt();
+  for (int h=0; h<2; h++)
+  optionAoFromAbove[h]->setChecked(h==k);
   }
 
   modName = settings->value("modName").toString();

@@ -77,7 +77,7 @@ public slots:
    void setColorPerWhite();
    void setFrameNumber(int);
 
-   void renderAoOnMeshes(float brightness);
+   void renderAoOnMeshes(float brightness, float fromAbove);
 
    void browseTexture();
 

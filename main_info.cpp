@@ -77,7 +77,7 @@ void MainWindow::about()
               .arg(QString("<br> [foxyman] <i>(%1)</i><br>"
                            " [Swyter] <i>(Español)</i><br>"
                            " [Vlejundo] <i>(Deutsche)</i><").arg(tr("additional code and Chinese")))
-              .arg("0.0.54b")
+              .arg("0.0.55")
             ,QMessageBox::Ok, this);
     msg.setLocale(QLocale::system());
   //msg.layout()->addWidget(&lab);

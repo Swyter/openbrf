@@ -197,15 +197,26 @@ void MainWindow::createMenus()
     optionAoBrightness[2] = new QAction(tr("Medium"),this);
     optionAoBrightness[3] = new QAction(tr("Light"),this);
     optionAoBrightness[4] = new QAction(tr("Lightest"),this);
+
     for (int i=0; i<5; i++) {
       optionAoBrightness[i]->setToolTip(tr("When computing AO, use %1 shades").arg(optionAoBrightness[i]->text()) );
       optionAoBrightness[i]->setCheckable(true);
       group5->addAction(optionAoBrightness[i]);
     }
-    group5->setExclusive(true);
-    QMenu* aoBrightMenu = optionMenu->addMenu(tr("AO brightness"));
-    aoBrightMenu->addActions(group5->actions());
 
+    QActionGroup* group6=new QActionGroup(this);
+    optionAoFromAbove[0] = new QAction(tr("Light mostly from above"),this);
+    optionAoFromAbove[1] = new QAction(tr("Light from all around"),this);
+    for (int i=0; i<2; i++) {
+      optionAoFromAbove[i]->setCheckable(true);
+      group6->addAction(optionAoFromAbove[i]);
+    }
+    group6->setExclusive(true);
+
+    QMenu* aoBrightMenu = optionMenu->addMenu(tr("On compute Ambient Occlusion"));
+    aoBrightMenu->addActions(group5->actions());
+    aoBrightMenu->addSeparator();
+    aoBrightMenu->addActions(group6->actions());
 
     
     onAssemble->addActions(group2->actions());

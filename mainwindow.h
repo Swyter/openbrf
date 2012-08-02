@@ -272,6 +272,7 @@ private:
     int afterMeshImport() const; // 0:nothing   1:merge   2:normal recompute and merge
     int assembleAniMode() const; // 0:trust vertex order   1:trust vertex coords
     int currAoBrightnessLevel() const;
+    int currAoFromAboveLevel() const;
 
     void applyAfterMeshImport(BrfMesh &m);
 
@@ -354,6 +355,7 @@ private:
     QAction *optionInferMaterialOn;
     QAction *optionInferMaterialOff;
     QAction *optionAoBrightness[5];
+    QAction *optionAoFromAbove[2];
 
     QAction *tldMenuAction;
 
