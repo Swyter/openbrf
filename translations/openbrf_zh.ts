@@ -232,7 +232,7 @@ new prefix:</source>
     <message>
         <location filename="../askBoneDialog.ui" line="14"/>
         <source>OpenBRF</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../askBoneDialog.ui" line="62"/>
@@ -252,7 +252,7 @@ new prefix:</source>
     <message>
         <location filename="../askBoneDialog.ui" line="117"/>
         <source>Select a skeleton and a bone to attach this mesh to.</source>
-        <translation>选择一副骨骼以及具体的块以附着该模型.</translation>
+        <translation>选择一副骨骼以及具体的块以附着该模型。</translation>
     </message>
     <message>
         <location filename="../askBoneDialog.ui" line="130"/>
@@ -275,7 +275,7 @@ new prefix:</source>
     <message>
         <location filename="../askCreaseDialog.ui" line="14"/>
         <source>OpenBRF</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../askCreaseDialog.ui" line="64"/>
@@ -311,7 +311,7 @@ seams hard</source>
     <message>
         <location filename="../askFlagsDialog.ui" line="14"/>
         <source>OpenBRF</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../askFlagsDialog.ui" line="42"/>
@@ -324,87 +324,87 @@ seams hard</source>
         <translation>显示所有</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2682"/>
+        <location filename="../mainwindow.cpp" line="2834"/>
         <source>No fog</source>
         <translation>关闭雾化</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2683"/>
+        <location filename="../mainwindow.cpp" line="2835"/>
         <source>No Lighting</source>
         <translation>关闭照明</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2685"/>
+        <location filename="../mainwindow.cpp" line="2837"/>
         <source>No Z-write</source>
         <translation>关闭Z-write</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2686"/>
+        <location filename="../mainwindow.cpp" line="2838"/>
         <source>No depth Test</source>
         <translation>关闭深度测试</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2687"/>
+        <location filename="../mainwindow.cpp" line="2839"/>
         <source>Specular enable</source>
         <translation>高光开启</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2688"/>
+        <location filename="../mainwindow.cpp" line="2840"/>
         <source>Alpha test</source>
         <translation>Alpha测试</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2689"/>
+        <location filename="../mainwindow.cpp" line="2841"/>
         <source>Uniform lighting</source>
         <translation>均一光照</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2692"/>
+        <location filename="../mainwindow.cpp" line="2844"/>
         <source>Blend</source>
         <translation>混合</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2693"/>
+        <location filename="../mainwindow.cpp" line="2845"/>
         <source>Blend add</source>
         <translation>混合叠加</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2694"/>
+        <location filename="../mainwindow.cpp" line="2846"/>
         <source>Blend multiply *</source>
         <translation>混合正片叠底 *</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2695"/>
+        <location filename="../mainwindow.cpp" line="2847"/>
         <source>Blend factor **</source>
         <translation>混合参数 **</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2696"/>
+        <location filename="../mainwindow.cpp" line="2848"/>
         <source>Alpha test 1</source>
         <translation>Alpha测试1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2697"/>
+        <location filename="../mainwindow.cpp" line="2849"/>
         <source>Alpha test 128</source>
         <translation>Alpha测试128</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2698"/>
+        <location filename="../mainwindow.cpp" line="2850"/>
         <source>Alpha test 256 *</source>
         <translation>Alpha测试256 *</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2701"/>
+        <location filename="../mainwindow.cpp" line="2853"/>
         <source>Render 1st</source>
         <translation>首先渲染</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2702"/>
+        <location filename="../mainwindow.cpp" line="2854"/>
         <source>Origin at camera</source>
         <translation>原点在镜头处</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2703"/>
+        <location filename="../mainwindow.cpp" line="2855"/>
         <source>LoD</source>
         <translation>低模(LoD)</translation>
     </message>
@@ -413,7 +413,7 @@ seams hard</source>
         <translation type="obsolete">预留</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2714"/>
+        <location filename="../mainwindow.cpp" line="2866"/>
         <source>Invert bumpmap</source>
         <translation>反转凹凸贴图</translation>
     </message>
@@ -447,6 +447,40 @@ seams hard</source>
     </message>
 </context>
 <context>
+    <name>AskIntervalDialog</name>
+    <message>
+        <location filename="../askIntervalDialog.ui" line="14"/>
+        <source>Dialog</source>
+        <translation type="unfinished">对话框</translation>
+    </message>
+    <message>
+        <location filename="../askIntervalDialog.ui" line="30"/>
+        <location filename="../askIntervalDialog.ui" line="47"/>
+        <source>0000009; </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../askIntervalDialog.ui" line="37"/>
+        <source>to:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../askIntervalDialog.ui" line="54"/>
+        <source>from:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../askIntervalDialog.ui" line="64"/>
+        <source>TextLabel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../askIntervalDialog.ui" line="71"/>
+        <source>select time interval:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>AskModErrorDialog</name>
     <message>
         <location filename="../askModErrorDialog.cpp" line="35"/>
@@ -471,7 +505,7 @@ seams hard</source>
     <message>
         <location filename="../askModErrorDialog.cpp" line="90"/>
         <source>Found 0 errors in module!</source>
-        <translation>在Mod中没有找到错误!</translation>
+        <translation>在模组中没有找到错误!</translation>
     </message>
     <message numerus="yes">
         <location filename="../askModErrorDialog.cpp" line="92"/>
@@ -498,7 +532,7 @@ seams hard</source>
     <message>
         <location filename="../askModErrorDialog.cpp" line="145"/>
         <source>OpenBrf -- Module %1</source>
-        <translation>OpenBrf -- %1 Mod</translation>
+        <translation>OpenBrf -- %1 模组</translation>
     </message>
 </context>
 <context>
@@ -516,105 +550,114 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;This will create: a Mesh, a Material, and a Texture&lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;which can be used ingame as a 2D decoration &lt;/span&gt;&lt;/p&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;in the background of menus.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;本功能将生成:一个模型,一个材质以及一个纹理&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;它们在游戏中构成一个2D的菜单背景图片. &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location filename="../askNewUiPictureDialog.ui" line="61"/>
         <source>Size and Pos:</source>
-        <translation type="unfinished"></translation>
+        <translation>尺寸与位置:</translation>
     </message>
     <message>
         <location filename="../askNewUiPictureDialog.ui" line="76"/>
         <source>X:</source>
-        <translation type="unfinished"></translation>
+        <translation>X:</translation>
     </message>
     <message>
         <location filename="../askNewUiPictureDialog.ui" line="83"/>
         <source>Y:</source>
-        <translation type="unfinished"></translation>
+        <translation>Y:</translation>
     </message>
     <message>
         <location filename="../askNewUiPictureDialog.ui" line="102"/>
         <source>Size:</source>
-        <translation type="unfinished"></translation>
+        <translation>大小:</translation>
     </message>
     <message>
         <location filename="../askNewUiPictureDialog.ui" line="112"/>
         <source>Lower-left
 corner: </source>
-        <translation type="unfinished"></translation>
+        <translation>左下角:</translation>
     </message>
     <message>
-        <location filename="../askNewUiPictureDialog.ui" line="120"/>
+        <location filename="../askNewUiPictureDialog.ui" line="330"/>
         <source>Actual pixels</source>
-        <translation type="unfinished"></translation>
+        <translation>实际像素</translation>
     </message>
     <message>
-        <location filename="../askNewUiPictureDialog.ui" line="127"/>
         <source>Center</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">居中</translation>
     </message>
     <message>
-        <location filename="../askNewUiPictureDialog.ui" line="143"/>
+        <location filename="../askNewUiPictureDialog.ui" line="130"/>
         <source>in pixels, on a
 1024x768 sceen</source>
-        <translation type="unfinished"></translation>
+        <translation>以像素为单位,参照1024x768分辨率</translation>
     </message>
     <message>
-        <location filename="../askNewUiPictureDialog.ui" line="272"/>
+        <location filename="../askNewUiPictureDialog.ui" line="444"/>
         <source>replace existing Mat.
 Mesh, and Texture</source>
-        <translation type="unfinished"></translation>
+        <translation>覆盖已存在的材质,模型和纹理</translation>
     </message>
     <message>
-        <location filename="../askNewUiPictureDialog.ui" line="157"/>
+        <location filename="../askNewUiPictureDialog.ui" line="123"/>
         <source>in % of screen</source>
-        <translation type="unfinished"></translation>
+        <translation>以占屏幕比例为单位</translation>
     </message>
     <message>
         <location filename="../askNewUiPictureDialog.ui" line="14"/>
         <source>OpenBRF</source>
+        <translation>OpenBRF</translation>
+    </message>
+    <message>
+        <location filename="../askNewUiPictureDialog.ui" line="318"/>
+        <source>Align:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../askNewUiPictureDialog.ui" line="170"/>
+        <location filename="../askNewUiPictureDialog.ui" line="337"/>
         <source>Set fullscreen</source>
-        <translation type="unfinished"></translation>
+        <translation>设为全屏</translation>
     </message>
     <message>
-        <location filename="../askNewUiPictureDialog.ui" line="184"/>
+        <location filename="../askNewUiPictureDialog.ui" line="356"/>
         <source>Picture name:</source>
-        <translation type="unfinished"></translation>
+        <translation>图片名称:</translation>
     </message>
     <message>
-        <location filename="../askNewUiPictureDialog.ui" line="196"/>
+        <location filename="../askNewUiPictureDialog.ui" line="368"/>
         <source>Browse</source>
-        <translation type="unfinished">浏览</translation>
+        <translation>浏览</translation>
     </message>
     <message>
-        <location filename="../askNewUiPictureDialog.ui" line="220"/>
+        <location filename="../askNewUiPictureDialog.ui" line="392"/>
         <source>Overlay mode:</source>
-        <translation type="unfinished"></translation>
+        <translation>覆盖方式:</translation>
     </message>
     <message>
-        <location filename="../askNewUiPictureDialog.ui" line="232"/>
+        <location filename="../askNewUiPictureDialog.ui" line="404"/>
         <source>Darken (multiply)</source>
-        <translation type="unfinished"></translation>
+        <translation>加深(正片叠底)</translation>
     </message>
     <message>
-        <location filename="../askNewUiPictureDialog.ui" line="245"/>
+        <location filename="../askNewUiPictureDialog.ui" line="417"/>
         <source>Normal (alpha blend)</source>
-        <translation type="unfinished"></translation>
+        <translation>普通(alpha叠加)</translation>
     </message>
     <message>
-        <location filename="../askNewUiPictureDialog.ui" line="258"/>
+        <location filename="../askNewUiPictureDialog.ui" line="430"/>
         <source>Substitute (no alpha)</source>
-        <translation type="unfinished"></translation>
+        <translation>替换(无alpha)</translation>
     </message>
     <message>
-        <location filename="../askNewUiPictureDialog.cpp" line="138"/>
+        <location filename="../askNewUiPictureDialog.cpp" line="159"/>
         <source>Select a texture for a menu background file</source>
-        <translation type="unfinished"></translation>
+        <translation>选择一个纹理作为菜单背景文件</translation>
     </message>
 </context>
 <context>
@@ -626,18 +669,24 @@ Mesh, and Texture</source>
     <message>
         <location filename="../askSelectBrfDialog.ui" line="14"/>
         <source>OpenBRF</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../askSelectBrfDialog.ui" line="31"/>
         <source>In
 Module
 folder:</source>
-        <translation type="unfinished"></translation>
+        <translation>模组文件夹下:</translation>
+    </message>
+    <message>
+        <source>Not
+included in
+module.ini:</source>
+        <translation type="obsolete">module.ini未申明的:</translation>
     </message>
     <message>
         <location filename="../askSelectBrfDialog.ui" line="64"/>
-        <source>Not
+        <source>Files not
 included in
 module.ini:</source>
         <translation type="unfinished"></translation>
@@ -647,17 +696,22 @@ module.ini:</source>
         <source>In
 Comm Res
 folder:</source>
-        <translation type="unfinished"></translation>
+        <translation>在CommRes文件夹下:</translation>
     </message>
     <message>
         <location filename="../askSelectBrfDialog.ui" line="115"/>
-        <source>Refresh</source>
-        <translation type="unfinished">刷新</translation>
+        <source>Open module.ini</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../askSelectBrfDialog.ui" line="122"/>
+        <source>Refresh</source>
+        <translation>刷新</translation>
+    </message>
+    <message>
+        <location filename="../askSelectBrfDialog.ui" line="129"/>
         <source>Count used</source>
-        <translation type="unfinished"></translation>
+        <translation>统计引用</translation>
     </message>
 </context>
 <context>
@@ -665,7 +719,7 @@ folder:</source>
     <message>
         <location filename="../askSkelDialog.ui" line="14"/>
         <source>OpenBRF</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../askSkelDialog.ui" line="42"/>
@@ -741,7 +795,7 @@ folder:</source>
     <message>
         <location filename="../askTransformDialog.ui" line="14"/>
         <source>OpenBRF</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../askTransformDialog.ui" line="42"/>
@@ -794,42 +848,43 @@ folder:</source>
     <message>
         <location filename="../askUnrefTextureDialog.ui" line="14"/>
         <source>OpenBRF</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../askUnrefTextureDialog.ui" line="25"/>
         <source>Unused DDS files:</source>
-        <translation type="unfinished"></translation>
+        <translation>未使用的dds文件:</translation>
     </message>
     <message>
         <location filename="../askUnrefTextureDialog.ui" line="40"/>
         <source>Note: these are the files which are not included
  in any BRF file as textures.
 They will not be even loaded by the game.</source>
-        <translation type="unfinished"></translation>
+        <translation>注意:这些文件并未被加入任何BRF文件。
+游戏完全不会载入这些文件。</translation>
     </message>
     <message>
         <location filename="../askUnrefTextureDialog.ui" line="68"/>
         <source>Refresh</source>
-        <translation type="unfinished">刷新</translation>
+        <translation>刷新</translation>
     </message>
 </context>
 <context>
     <name>GLWidget</name>
     <message>
-        <location filename="../glwidgets.cpp" line="734"/>
+        <location filename="../glwidgets.cpp" line="759"/>
         <source>Scene mode: navigate with mouse and WASD (levitate with wheel, zoom in with shift)</source>
         <translation>场景模式: 鼠标转向,WASD移动(滚轮上升,按住shift缩放)</translation>
     </message>
     <message>
-        <location filename="../glwidgets.cpp" line="739"/>
+        <location filename="../glwidgets.cpp" line="764"/>
         <source>Helmet mode: for objects with vertical Z axis, like M&amp;B helmets or weapons.</source>
-        <translation>头盔模式:专用于Z轴竖直的物品,如M &amp; B的头盔和武器.</translation>
+        <translation>头盔模式:专用于Z轴竖直的物品,如M &amp; B的头盔和武器。</translation>
     </message>
     <message>
-        <location filename="../glwidgets.cpp" line="741"/>
+        <location filename="../glwidgets.cpp" line="766"/>
         <source>Default mode: rotate objects with mouse, zoom in/out with wheel.</source>
-        <translation>默认模式:鼠标旋转项目,滚轮缩放.</translation>
+        <translation>默认模式:鼠标旋转项目，滚轮缩放。</translation>
     </message>
 </context>
 <context>
@@ -837,28 +892,28 @@ They will not be even loaded by the game.</source>
     <message>
         <location filename="../guipanel.ui" line="26"/>
         <source>OpenBRF</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="44"/>
         <location filename="../guipanel.ui" line="986"/>
-        <location filename="../guipanel.ui" line="1234"/>
-        <location filename="../guipanel.ui" line="1473"/>
-        <location filename="../guipanel.ui" line="1865"/>
-        <location filename="../guipanel.ui" line="1919"/>
-        <location filename="../guipanel.ui" line="2227"/>
+        <location filename="../guipanel.ui" line="1276"/>
+        <location filename="../guipanel.ui" line="1515"/>
+        <location filename="../guipanel.ui" line="1907"/>
+        <location filename="../guipanel.ui" line="1961"/>
+        <location filename="../guipanel.ui" line="2269"/>
         <source>Data</source>
         <translation>数据</translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="59"/>
         <source>Set material used by this mesh.</source>
-        <translation>设置模型的材质.</translation>
+        <translation>设置模型的材质。</translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="75"/>
         <source>Click to follow material (if known in module.ini).</source>
-        <translation>单击追踪材质(如果已加入mod).</translation>
+        <translation>单击追踪材质（如果已加入模组）。</translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="78"/>
@@ -868,7 +923,7 @@ They will not be even loaded by the game.</source>
     <message>
         <location filename="../guipanel.ui" line="97"/>
         <source>Number of vertices of this mesh, including seams.</source>
-        <translation>模型的顶点数,包括接缝.</translation>
+        <translation>模型的顶点数，包括接缝。</translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="119"/>
@@ -878,15 +933,15 @@ They will not be even loaded by the game.</source>
     <message>
         <location filename="../guipanel.ui" line="122"/>
         <location filename="../guipanel.ui" line="1020"/>
-        <location filename="../guipanel.ui" line="2023"/>
+        <location filename="../guipanel.ui" line="2065"/>
         <source>000000000000; </source>
         <translation>000000000000; </translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="138"/>
         <location filename="../guipanel.ui" line="998"/>
-        <location filename="../guipanel.ui" line="1660"/>
-        <location filename="../guipanel.ui" line="2001"/>
+        <location filename="../guipanel.ui" line="1702"/>
+        <location filename="../guipanel.ui" line="2043"/>
         <source>Flags:</source>
         <translation>标签:</translation>
     </message>
@@ -902,14 +957,14 @@ They will not be even loaded by the game.</source>
     </message>
     <message>
         <location filename="../guipanel.ui" line="198"/>
-        <location filename="../guipanel.ui" line="2530"/>
+        <location filename="../guipanel.ui" line="2572"/>
         <source>faces:</source>
         <translation>面:</translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="217"/>
         <source>Number of triangles of this mesh.</source>
-        <translation>模型的三角形数目.</translation>
+        <translation>模型的三角形数目。</translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="236"/>
@@ -919,7 +974,7 @@ They will not be even loaded by the game.</source>
     <message>
         <location filename="../guipanel.ui" line="255"/>
         <source>Number of different X,Y, Z position of this mesh.</source>
-        <translation>模型的X, Y, Z三维坐标数目.</translation>
+        <translation>模型的X，Y，Z三维坐标数目。</translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="277"/>
@@ -929,7 +984,7 @@ They will not be even loaded by the game.</source>
     <message>
         <location filename="../guipanel.ui" line="296"/>
         <source>Number of frames (&gt;1 for vertex animated meshes).</source>
-        <translation>帧数(含有顶点动画的模型帧数&gt;1).</translation>
+        <translation>帧数（含有顶点动画的模型帧数&gt;1）。</translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="321"/>
@@ -948,7 +1003,7 @@ They will not be even loaded by the game.</source>
     </message>
     <message>
         <location filename="../guipanel.ui" line="403"/>
-        <location filename="../guipanel.ui" line="1458"/>
+        <location filename="../guipanel.ui" line="1500"/>
         <source>:</source>
         <translation></translation>
     </message>
@@ -965,12 +1020,12 @@ They will not be even loaded by the game.</source>
     <message>
         <location filename="../guipanel.ui" line="479"/>
         <source>Select a reference skin to show this animation.</source>
-        <translation>选择一个参照皮肤以显示该动画.</translation>
+        <translation>选择一个参照皮肤以显示该动画。</translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="508"/>
         <source>Show no color (all white).</source>
-        <translation>不显示颜色(白色).</translation>
+        <translation>不显示颜色（白色）。</translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="511"/>
@@ -980,7 +1035,7 @@ They will not be even loaded by the game.</source>
     <message>
         <location filename="../guipanel.ui" line="524"/>
         <source>Use vertex color as defined in the BRF file.</source>
-        <translation>使用BRF文件中的定点着色.</translation>
+        <translation>使用BRF文件中的顶点着色。</translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="527"/>
@@ -1010,7 +1065,7 @@ They will not be even loaded by the game.</source>
     <message>
         <location filename="../guipanel.ui" line="578"/>
         <source>Show/hide wireframe.</source>
-        <translation>显示/隐藏线框.</translation>
+        <translation>显示/隐藏线框。</translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="581"/>
@@ -1020,7 +1075,7 @@ They will not be even loaded by the game.</source>
     <message>
         <location filename="../guipanel.ui" line="594"/>
         <source>Enable disable texture mapping.</source>
-        <translation>开启/关闭纹理贴图.</translation>
+        <translation>开启/关闭纹理贴图。</translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="597"/>
@@ -1035,7 +1090,7 @@ They will not be even loaded by the game.</source>
     <message>
         <location filename="../guipanel.ui" line="626"/>
         <source>Show/hide a floor at Y = 0.</source>
-        <translation>显示/隐藏Y坐标为0的地面.</translation>
+        <translation>显示/隐藏Y坐标为0的地面。</translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="629"/>
@@ -1046,12 +1101,12 @@ They will not be even loaded by the game.</source>
         <location filename="../guipanel.ui" line="655"/>
         <location filename="../guipanel.ui" line="674"/>
         <source>Current weapon reach.</source>
-        <translation>当前武器长度.</translation>
+        <translation>当前武器长度。</translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="696"/>
         <source>Show ruler to measure weapon reach.</source>
-        <translation>显示衡量武器长度的标尺.</translation>
+        <translation>显示衡量武器长度的标尺。</translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="699"/>
@@ -1061,7 +1116,7 @@ They will not be even loaded by the game.</source>
     <message>
         <location filename="../guipanel.ui" line="725"/>
         <source>Select a reference animation to view rigged meshes.</source>
-        <translation>选择一个参照动画以显示绑定的模型.</translation>
+        <translation>选择一个参照动画以显示绑定的模型。</translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="738"/>
@@ -1081,7 +1136,7 @@ They will not be even loaded by the game.</source>
     <message>
         <location filename="../guipanel.ui" line="808"/>
         <source>Pause the animation.</source>
-        <translation>暂停动画.</translation>
+        <translation>暂停动画。</translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="811"/>
@@ -1091,7 +1146,7 @@ They will not be even loaded by the game.</source>
     <message>
         <location filename="../guipanel.ui" line="829"/>
         <source>Play the animation.</source>
-        <translation>播放动画.</translation>
+        <translation>播放动画。</translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="832"/>
@@ -1101,7 +1156,7 @@ They will not be even loaded by the game.</source>
     <message>
         <location filename="../guipanel.ui" line="850"/>
         <source>Stop the animation.</source>
-        <translation>停止动画.</translation>
+        <translation>停止动画。</translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="853"/>
@@ -1111,7 +1166,7 @@ They will not be even loaded by the game.</source>
     <message>
         <location filename="../guipanel.ui" line="871"/>
         <source>Next frame.</source>
-        <translation>下一帧.</translation>
+        <translation>下一帧。</translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="874"/>
@@ -1121,7 +1176,7 @@ They will not be even loaded by the game.</source>
     <message>
         <location filename="../guipanel.ui" line="892"/>
         <source>Prev frame.</source>
-        <translation>上一帧.</translation>
+        <translation>上一帧。</translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="895"/>
@@ -1131,7 +1186,7 @@ They will not be even loaded by the game.</source>
     <message>
         <location filename="../guipanel.ui" line="918"/>
         <source>Show RGB channel of texture.</source>
-        <translation>显示纹理的RGB通道.</translation>
+        <translation>显示纹理的RGB通道。</translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="921"/>
@@ -1141,7 +1196,7 @@ They will not be even loaded by the game.</source>
     <message>
         <location filename="../guipanel.ui" line="937"/>
         <source>Show alpha transparency (alpha = 0 means transparent).</source>
-        <translation>显示alpha透明(alpha = 0为透明).</translation>
+        <translation>显示alpha透明（alpha = 0为透明）。</translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="940"/>
@@ -1151,7 +1206,7 @@ They will not be even loaded by the game.</source>
     <message>
         <location filename="../guipanel.ui" line="953"/>
         <source>Show alpha channel of textures.</source>
-        <translation>显示纹理的alpha通道.</translation>
+        <translation>显示纹理的alpha通道。</translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="956"/>
@@ -1176,7 +1231,7 @@ They will not be even loaded by the game.</source>
     <message>
         <location filename="../guipanel.ui" line="1087"/>
         <source>Space taken on disk (compressed).</source>
-        <translation>所占磁盘空间(压缩后).</translation>
+        <translation>所占磁盘空间（已压缩）。</translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="1122"/>
@@ -1191,7 +1246,7 @@ They will not be even loaded by the game.</source>
     <message>
         <location filename="../guipanel.ui" line="1176"/>
         <source>Format of dds file on disk.</source>
-        <translation>磁盘上的dds文件格式.</translation>
+        <translation>磁盘上的dds文件格式。</translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="1195"/>
@@ -1201,205 +1256,215 @@ They will not be even loaded by the game.</source>
     <message>
         <location filename="../guipanel.ui" line="1211"/>
         <source>Click to go back to the material.</source>
-        <translation>单击返回材质.</translation>
+        <translation>单击返回材质。</translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="1217"/>
-        <location filename="../guipanel.ui" line="1848"/>
-        <location filename="../guipanel.ui" line="2210"/>
+        <location filename="../guipanel.ui" line="1890"/>
+        <location filename="../guipanel.ui" line="2252"/>
         <source>(&lt;a href=&quot;link&quot;&gt;back&lt;/a&gt;)</source>
         <translation>(&lt;a href=&quot;link&quot;&gt;返回&lt;/a&gt;)</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1246"/>
+        <location filename="../guipanel.ui" line="1233"/>
+        <source>location:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../guipanel.ui" line="1262"/>
+        <source>open it</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../guipanel.ui" line="1288"/>
         <source>First frame of the animation.</source>
-        <translation>动画的第一帧.</translation>
+        <translation>动画的第一帧。</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1265"/>
+        <location filename="../guipanel.ui" line="1307"/>
         <source>Number of bones this animation is made for.</source>
-        <translation>该动画所涉及的骨骼块数.</translation>
+        <translation>该动画所涉及的骨骼块数。</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1284"/>
+        <location filename="../guipanel.ui" line="1326"/>
         <source>Number of frames in this animation.</source>
-        <translation>该动画的帧数.</translation>
+        <translation>该动画的帧数。</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1303"/>
+        <location filename="../guipanel.ui" line="1345"/>
         <source>Last frame of the animation.</source>
-        <translation>动画的最后一帧.</translation>
+        <translation>动画的最后一帧。</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1322"/>
-        <location filename="../guipanel.ui" line="1877"/>
+        <location filename="../guipanel.ui" line="1364"/>
+        <location filename="../guipanel.ui" line="1919"/>
         <source># bones:</source>
         <translation>骨骼数:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1338"/>
+        <location filename="../guipanel.ui" line="1380"/>
         <source># frames:</source>
         <translation>帧数:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1354"/>
+        <location filename="../guipanel.ui" line="1396"/>
         <source>interval:</source>
         <translation>区段:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1370"/>
+        <location filename="../guipanel.ui" line="1412"/>
         <source>-</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1395"/>
+        <location filename="../guipanel.ui" line="1437"/>
         <source>time of frame</source>
         <translation>帧时刻</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1408"/>
+        <location filename="../guipanel.ui" line="1450"/>
         <source>Frame number (1 = first)</source>
         <translation>帧数(从1开始)</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1439"/>
+        <location filename="../guipanel.ui" line="1481"/>
         <source>Time of this frame (must always be increasing)</source>
         <translation>该帧的时刻(必须递增)</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1485"/>
+        <location filename="../guipanel.ui" line="1527"/>
         <source>Shader used by this material.</source>
-        <translation>该材质所使用的着色层.</translation>
+        <translation>该材质所使用的着色层。</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1498"/>
+        <location filename="../guipanel.ui" line="1540"/>
         <source>Main diffuse (RGB color) texture</source>
         <translation>主填充纹理(RGB色)</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1511"/>
+        <location filename="../guipanel.ui" line="1553"/>
         <source>Second diffuse (RGB color) texture</source>
         <translation>次填充纹理(RGB色)</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1524"/>
+        <location filename="../guipanel.ui" line="1566"/>
         <source>Bumpmap texture</source>
         <translation>凹凸贴图纹理</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1537"/>
+        <location filename="../guipanel.ui" line="1579"/>
         <source>Environment map texture</source>
         <translation>环境贴图纹理</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1550"/>
+        <location filename="../guipanel.ui" line="1592"/>
         <source>Red component of specular color.</source>
-        <translation>高光红色成分.</translation>
+        <translation>高光红色成分。</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1563"/>
+        <location filename="../guipanel.ui" line="1605"/>
         <source>Green component of specular color.</source>
-        <translation>高光绿色成分.</translation>
+        <translation>高光绿色成分。</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1576"/>
+        <location filename="../guipanel.ui" line="1618"/>
         <source>Blue component of specular color.</source>
-        <translation>高光蓝色成分.</translation>
+        <translation>高光蓝色成分。</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1589"/>
+        <location filename="../guipanel.ui" line="1631"/>
         <source>Spec RGB:</source>
         <translation>高光RGB:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1605"/>
+        <location filename="../guipanel.ui" line="1647"/>
         <source>Specular map texture.</source>
-        <translation>高光贴图纹理.</translation>
+        <translation>高光贴图纹理。</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1618"/>
+        <location filename="../guipanel.ui" line="1660"/>
         <source>Coeff:</source>
         <translation>参数:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1634"/>
+        <location filename="../guipanel.ui" line="1676"/>
         <source>Specular coefficient (glossiness). Higher = smaller brighter reflections.</source>
-        <translation>高光参数(光泽度).高数值=小范围明光反射.</translation>
+        <translation>高光参数（光泽度）。高数值＝小范围明光反射。</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1647"/>
+        <location filename="../guipanel.ui" line="1689"/>
         <source>Flags (click on button to edit bits)</source>
         <translation>标签(单击按钮修改数位)</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1676"/>
+        <location filename="../guipanel.ui" line="1718"/>
         <source>...</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1689"/>
+        <location filename="../guipanel.ui" line="1731"/>
         <source>Rend.Ord:</source>
         <translation>渲染顺序:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1705"/>
+        <location filename="../guipanel.ui" line="1747"/>
         <source>Rendering order (negative = soonest)</source>
         <translation>渲染顺序(负数=最先渲染)</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1724"/>
+        <location filename="../guipanel.ui" line="1766"/>
         <source>Click to open file containing shader.</source>
-        <translation>单击打开着色层所在文件.</translation>
+        <translation>单击打开着色层所在文件。</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1727"/>
+        <location filename="../guipanel.ui" line="1769"/>
         <source>&lt;a href=&quot;link&quot;&gt;Shader&lt;/a&gt;:</source>
         <translation>&lt;a href=&quot;link&quot;&gt;着色层&lt;/a&gt;:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1743"/>
-        <location filename="../guipanel.ui" line="1762"/>
+        <location filename="../guipanel.ui" line="1785"/>
+        <location filename="../guipanel.ui" line="1804"/>
         <source>Click to open file containing this texture.</source>
-        <translation>单击打开纹理所在文件.</translation>
+        <translation>单击打开纹理所在文件。</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1746"/>
+        <location filename="../guipanel.ui" line="1788"/>
         <source>&lt;a href=&quot;link&quot;&gt;DiffuseA&lt;/a&gt;:</source>
         <translation>&lt;a href=&quot;link&quot;&gt;填充A&lt;/a&gt;:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1765"/>
+        <location filename="../guipanel.ui" line="1807"/>
         <source>&lt;a href=&quot;link&quot;&gt;DiffuseB&lt;/a&gt;:</source>
         <translation>&lt;a href=&quot;link&quot;&gt;填充B&lt;/a&gt;:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1781"/>
+        <location filename="../guipanel.ui" line="1823"/>
         <source>Click to open file containing this bumpmap,</source>
         <translation>单击打开凹凸贴图所在文件</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1784"/>
+        <location filename="../guipanel.ui" line="1826"/>
         <source>&lt;a href=&quot;link&quot;&gt;Bump&lt;/a&gt;:</source>
         <translation>&lt;a href=&quot;link&quot;&gt;凹凸&lt;/a&gt;:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1800"/>
+        <location filename="../guipanel.ui" line="1842"/>
         <source>Click to open file containing this environment map.</source>
         <oldsource>Click to open file containing this enviornment map.</oldsource>
-        <translation type="unfinished">单击打开环境贴图所在文件.</translation>
+        <translation>单击打开环境贴图所在文件。</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1803"/>
+        <location filename="../guipanel.ui" line="1845"/>
         <source>&lt;a href=&quot;link&quot;&gt;Enviro&lt;/a&gt;:</source>
         <translation>&lt;a href=&quot;link&quot;&gt;环境&lt;/a&gt;:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1819"/>
+        <location filename="../guipanel.ui" line="1861"/>
         <source>Click to open file containing this specular map.</source>
-        <translation>单击打开高光贴图所在文件.</translation>
+        <translation>单击打开高光贴图所在文件。</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1822"/>
+        <location filename="../guipanel.ui" line="1864"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -1412,124 +1477,165 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;link&quot;&gt;&lt;span style=&quot; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;高光&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1842"/>
+        <location filename="../guipanel.ui" line="1884"/>
         <source>Click to go back to the mesh.</source>
-        <translation>单击返回模型.</translation>
+        <translation>单击返回模型。</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1893"/>
+        <location filename="../guipanel.ui" line="1935"/>
         <source>Number of bones composing this skeleton.</source>
-        <translation>该骨骼所包含骨骼块数目.</translation>
+        <translation>该骨骼所包含骨骼块数目。</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1931"/>
+        <location filename="../guipanel.ui" line="1973"/>
         <source>Technique:</source>
         <translation>技术:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1947"/>
-        <location filename="../guipanel.ui" line="1956"/>
+        <location filename="../guipanel.ui" line="1989"/>
+        <location filename="../guipanel.ui" line="1998"/>
         <source>Technique: name of the &quot;technique&quot; inside mb.fx file.</source>
-        <translation>技术:mb.fx文件中&quot;technique&quot;的名称.</translation>
+        <translation>技术:mb.fx文件中&quot;technique&quot;的名称。</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1969"/>
+        <location filename="../guipanel.ui" line="2011"/>
         <source>Fallback:</source>
         <translation>备选:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1985"/>
+        <location filename="../guipanel.ui" line="2027"/>
         <source>Which other shader to use if requirements are not met.</source>
-        <translation>如果条件无法满足时选用另一个着色层.</translation>
+        <translation>如果条件无法满足时选用另一个着色层。</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2020"/>
+        <location filename="../guipanel.ui" line="2062"/>
         <source>Shader flags (no known meaning).</source>
-        <translation>着色层标签(作用未知).</translation>
+        <translation>着色层标签（作用未知）。</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2042"/>
+        <location filename="../guipanel.ui" line="2084"/>
         <source>Specify if a DDX version is required here</source>
         <translation>如适用则填写DDX版本限制</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2058"/>
+        <location filename="../guipanel.ui" line="2100"/>
         <source>Requires:</source>
         <translation>条件:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2074"/>
+        <location filename="../guipanel.ui" line="2116"/>
         <source>texture access</source>
         <translation>纹理调用</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2086"/>
+        <location filename="../guipanel.ui" line="2128"/>
         <source>map:</source>
         <translation>贴图:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2142"/>
+        <location filename="../guipanel.ui" line="2184"/>
         <source>colorOp:</source>
         <translation>颜色选项:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2158"/>
+        <location filename="../guipanel.ui" line="2200"/>
         <source>alphaOp:</source>
         <translation>alpha选项:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2174"/>
-        <location filename="../guipanel.ui" line="2556"/>
+        <location filename="../guipanel.ui" line="2216"/>
+        <location filename="../guipanel.ui" line="2598"/>
         <source>flags:</source>
         <translation>标签:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2194"/>
+        <location filename="../guipanel.ui" line="2236"/>
         <source>Texture access index</source>
         <translation>纹理调用索引</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2242"/>
+        <location filename="../guipanel.ui" line="2284"/>
         <source>Select a subpiece composing this collision object.</source>
-        <translation>选择组成该碰撞模型的一个部件.</translation>
+        <translation>选择组成该碰撞模型的一个部件。</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2258"/>
+        <location filename="../guipanel.ui" line="2300"/>
         <source>piece</source>
         <translation>部件</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2333"/>
+        <location filename="../guipanel.ui" line="2375"/>
         <source>axisA:</source>
         <translation>A轴:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2359"/>
+        <location filename="../guipanel.ui" line="2401"/>
         <source>axisB:</source>
         <translation>B轴:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2433"/>
+        <location filename="../guipanel.ui" line="2475"/>
         <source>radius:</source>
         <translation>半径:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2488"/>
+        <location filename="../guipanel.ui" line="2530"/>
         <source>verts:</source>
         <translation>顶点数:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2595"/>
+        <location filename="../guipanel.ui" line="2637"/>
         <source>sign:</source>
         <translation>符号:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2641"/>
+        <location filename="../guipanel.ui" line="2683"/>
         <source>piece list:</source>
         <translation>部件列表:</translation>
     </message>
     <message>
-        <location filename="../guipanel.cpp" line="276"/>
+        <location filename="../guipanel.cpp" line="134"/>
+        <location filename="../guipanel.cpp" line="145"/>
+        <source>unknown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../guipanel.cpp" line="135"/>
+        <source>not-found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../guipanel.cpp" line="136"/>
+        <source>common</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../guipanel.cpp" line="137"/>
+        <source>module</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../guipanel.cpp" line="138"/>
+        <source>local</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../guipanel.cpp" line="142"/>
+        <source>DXT 1 (1bit alpha)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../guipanel.cpp" line="143"/>
+        <source>DXT 3 (sharp alpha)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../guipanel.cpp" line="144"/>
+        <source>DXT 5 (smooth alpha)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../guipanel.cpp" line="285"/>
         <source>Mesh-set %1</source>
         <translation>模型组 %1</translation>
     </message>
@@ -1537,79 +1643,65 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>IniData</name>
     <message>
-        <location filename="../iniData.cpp" line="640"/>
         <source>&lt;b&gt;File-not-found:&lt;/b&gt; can&apos;t find texture file for %1.</source>
-        <translation type="unfinished">&lt;b&gt;文件未找到:&lt;/b&gt; 无法打开%1的纹理文件.</translation>
+        <translation type="obsolete">&lt;b&gt;文件未找到:&lt;/b&gt; 无法打开%1的纹理文件.</translation>
     </message>
     <message>
-        <location filename="../iniData.cpp" line="659"/>
         <source>&lt;b&gt;Duplicate:&lt;/b&gt; %1 was already defined in file %2</source>
-        <translation type="unfinished">&lt;b&gt;重复:&lt;/b&gt; %1已在%2文件中出现过</translation>
+        <translation type="obsolete">&lt;b&gt;重复:&lt;/b&gt; %1已在%2文件中出现过</translation>
     </message>
     <message>
-        <location filename="../iniData.cpp" line="686"/>
         <source>&lt;b&gt;Missing:&lt;/b&gt; %1 uses unknown %2 &lt;u&gt;%3&lt;/u&gt;</source>
-        <translation type="unfinished">&lt;b&gt;丢失:&lt;/b&gt; %1使用了无法识别的%2 &lt;u&gt;%3&lt;/u&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;丢失:&lt;/b&gt; %1使用了无法识别的%2 &lt;u&gt;%3&lt;/u&gt;</translation>
     </message>
     <message>
-        <location filename="../iniData.cpp" line="692"/>
         <source>&lt;b&gt;Ordering problem:&lt;/b&gt; %1 uses %2, which appears later in &lt;i&gt;module.ini&lt;/i&gt;</source>
-        <translation type="unfinished">&lt;b&gt;顺序问题:&lt;/b&gt; %1引用了在&lt;i&gt;module.ini&lt;/i&gt;中后出现的%2</translation>
+        <translation type="obsolete">&lt;b&gt;顺序问题:&lt;/b&gt; %1引用了在&lt;i&gt;module.ini&lt;/i&gt;中后出现的%2</translation>
     </message>
     <message>
-        <location filename="../iniData.cpp" line="715"/>
         <source>&lt;h1&gt;Module &lt;b&gt;%1&lt;/b&gt;&lt;/h1&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">&lt;h1&gt;模组 &lt;b&gt;%1&lt;/b&gt;&lt;/h1&gt;</translation>
     </message>
     <message>
-        <location filename="../iniData.cpp" line="721"/>
         <source>&lt;h2&gt;Original BRF files: %1&lt;/h2&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">&lt;h2&gt;独有BRF文件: %1&lt;/h2&gt;</translation>
     </message>
     <message>
-        <location filename="../iniData.cpp" line="723"/>
         <source>&lt;h2&gt;CommonRes BRF files: %1&lt;/h2&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">&lt;h2&gt;CommonRes BRF 文件: %1&lt;/h2&gt;</translation>
     </message>
     <message>
-        <location filename="../iniData.cpp" line="731"/>
         <source>&lt;i&gt;(used+unused)&lt;/i&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">&lt;i&gt;(使用+未使用)&lt;/i&gt;</translation>
     </message>
     <message>
-        <location filename="../iniData.cpp" line="732"/>
         <source>&lt;br&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">&lt;br&gt;</translation>
     </message>
     <message>
-        <location filename="../iniData.cpp" line="738"/>
         <source>&lt;h2&gt;Txt data:&lt;/h2&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">&lt;h2&gt;Txt 数据:&lt;/h2&gt;</translation>
     </message>
     <message>
-        <location filename="../iniData.cpp" line="1131"/>
         <source>&lt;b&gt;Missing in txt:&lt;/b&gt; cannot find %1 &lt;u&gt;%2&lt;/u&gt;, defined in &apos;%3&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">&lt;b&gt;txt中有缺失文件:&lt;/b&gt;无法找到&apos;%3&apos;所声明的 %1 &lt;u&gt;%2&lt;/u&gt;</translation>
     </message>
     <message>
-        <location filename="../iniData.cpp" line="1208"/>
         <source>&lt;b&gt;File-Not-Found:&lt;/b&gt; could not read brf file &lt;u&gt;%1&lt;/u&gt;, listed in module.ini file</source>
-        <translation type="unfinished">&lt;b&gt;文件未找到:&lt;/b&gt; 无法读取module.ini中列出的brf文件 &lt;u&gt;%1&lt;/u&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;文件未找到:&lt;/b&gt; 无法读取module.ini中列出的brf文件 &lt;u&gt;%1&lt;/u&gt;</translation>
     </message>
     <message>
-        <location filename="../iniData.cpp" line="1211"/>
         <source>&lt;b&gt;File-Format Error:&lt;/b&gt; could not read brf file &lt;u&gt;%1&lt;/u&gt;</source>
-        <translation type="unfinished">&lt;b&gt;文件格式错误:&lt;/b&gt; 无法读取brf文件 &lt;u&gt;%1&lt;/u&gt;</translation>
+        <translation type="obsolete">&lt;b&gt;文件格式错误:&lt;/b&gt; 无法读取brf文件 &lt;u&gt;%1&lt;/u&gt;</translation>
     </message>
 </context>
 <context>
     <name>IniData::ModuleTxtNameList</name>
     <message>
-        <location filename="../iniData.cpp" line="223"/>
         <source>%1 %2 from &apos;%3&apos; &lt;font size=-1&gt;(&apos;%4&apos;, &apos;%5&apos;, &apos;%6&apos;...)&lt;/font&gt;
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">&apos;%3&apos;中的%1 %2 &lt;font size=-1&gt;(&apos;%4&apos;, &apos;%5&apos;, &apos;%6&apos;...)&lt;/font&gt;</translation>
     </message>
 </context>
 <context>
@@ -1714,7 +1806,7 @@ p, li { white-space: pre-wrap; }
         <location filename="../main_ImpExp.cpp" line="275"/>
         <location filename="../main_ImpExp.cpp" line="575"/>
         <source>mesh file (*.obj *.ply *.off *.stl *.dae)</source>
-        <translation>模型文件 (*.obj *.ply *.off *.stl *.dae)</translation>
+        <translation>模型文件（*.obj *.ply *.off *.stl *.dae）</translation>
     </message>
     <message>
         <location filename="../main_ImpExp.cpp" line="293"/>
@@ -1733,12 +1825,12 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../main_ImpExp.cpp" line="18"/>
         <source>Select Module folder</source>
-        <translation type="unfinished"></translation>
+        <translation>选择模组文件夹</translation>
     </message>
     <message>
         <location filename="../main_ImpExp.cpp" line="23"/>
         <source>Not a recognized module folder</source>
-        <translation type="unfinished"></translation>
+        <translation>无法识别模组文件夹</translation>
     </message>
     <message>
         <location filename="../main_ImpExp.cpp" line="325"/>
@@ -1748,7 +1840,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../main_ImpExp.cpp" line="338"/>
         <source>Quake 3 vertex animation (*.MD3)</source>
-        <translation>Quake 3 顶点动画 (*.MD3)</translation>
+        <translation>Quake 3 顶点动画（*.MD3）</translation>
     </message>
     <message>
         <location filename="../main_ImpExp.cpp" line="343"/>
@@ -1765,7 +1857,7 @@ p, li { white-space: pre-wrap; }
         <location filename="../main_ImpExp.cpp" line="431"/>
         <location filename="../main_ImpExp.cpp" line="449"/>
         <source>Import canceled.</source>
-        <translation>导入取消.</translation>
+        <translation>导入取消。</translation>
     </message>
     <message>
         <location filename="../main_ImpExp.cpp" line="443"/>
@@ -1785,7 +1877,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../main_ImpExp.cpp" line="486"/>
         <source>Export canceled.</source>
-        <translation>导出取消.</translation>
+        <translation>导出取消。</translation>
     </message>
     <message>
         <location filename="../main_ImpExp.cpp" line="505"/>
@@ -1797,7 +1889,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../main_ImpExp.cpp" line="527"/>
         <source>Warband or M&amp;B resource (*.brf)</source>
-        <translation>M&amp;B以及战团资源文件 (*.brf)</translation>
+        <translation>M&amp;B以及战团资源文件（*.brf）</translation>
     </message>
     <message>
         <location filename="../main_ImpExp.cpp" line="535"/>
@@ -1811,7 +1903,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../main_ImpExp.cpp" line="547"/>
         <source>mesh file (*.obj)</source>
-        <translation>模型文件 (*.obj)</translation>
+        <translation>模型文件（*.obj）</translation>
     </message>
     <message>
         <location filename="../main_ImpExp.cpp" line="556"/>
@@ -1840,7 +1932,7 @@ p, li { white-space: pre-wrap; }
         <location filename="../main_ImpExp.cpp" line="639"/>
         <source>Mesh &quot;%1&quot; has multiple materials\objects.
 Import a separate mesh per material\object?</source>
-        <translation>模型&quot;%1&quot;包含多个材质\组件.
+        <translation>模型&quot;%1&quot;包含多个材质/组件。
 将每个材质\组件导入为单独的模型吗?</translation>
     </message>
     <message>
@@ -1857,7 +1949,7 @@ Import a separate mesh per material\object?</source>
         <location filename="../main_ImpExp.cpp" line="673"/>
         <source>Frist select a mesh
 to add a frame to.</source>
-        <translation>先选定要添加帧的模型.</translation>
+        <translation>先选定要添加帧的模型。</translation>
     </message>
     <message>
         <location filename="../main_ImpExp.cpp" line="682"/>
@@ -1866,13 +1958,13 @@ to add a frame to.</source>
     </message>
     <message>
         <location filename="../main_ImpExp.cpp" line="692"/>
-        <location filename="../mainwindow.cpp" line="1432"/>
+        <location filename="../mainwindow.cpp" line="1544"/>
         <source>Vertex number mismatch... using texture-coord matching instead of vertex-ordering</source>
         <translation>顶点编号不匹配...采用纹理坐标匹配取代顺序匹配</translation>
     </message>
     <message>
         <location filename="../main_ImpExp.cpp" line="707"/>
-        <location filename="../mainwindow.cpp" line="1439"/>
+        <location filename="../mainwindow.cpp" line="1551"/>
         <source>Added frame %1</source>
         <translation>已加入帧 %1</translation>
     </message>
@@ -1893,7 +1985,7 @@ to add a frame to.</source>
     <message>
         <location filename="../main_ImpExp.cpp" line="744"/>
         <source>Found no time value in SMD file, so I added them.</source>
-        <translation>在SMD文件中未找到时间值,自动添加.</translation>
+        <translation>在SMD文件中未找到时间值，自动添加。</translation>
     </message>
     <message>
         <source>all known formats  (*.SMD; *.MA);;Studiomdl Data  (*.SMD);;Maya ascii file (*.MA)</source>
@@ -1954,7 +2046,7 @@ to add a frame to.</source>
     <message>
         <location filename="../main_create.cpp" line="55"/>
         <source>Module</source>
-        <translation>Mod</translation>
+        <translation>模组</translation>
     </message>
     <message>
         <location filename="../main_create.cpp" line="68"/>
@@ -2024,7 +2116,7 @@ to add a frame to.</source>
     <message>
         <location filename="../main_create.cpp" line="136"/>
         <source>Use this option if you feel lucky and hope that vertex order was preserved between the frames.</source>
-        <translation>如果你觉得运气够好并且希望各帧间顶点顺序保持一致则应用这一选项.</translation>
+        <translation>如果你觉得运气够好并且希望各帧间顶点顺序保持一致则应用这一选项。</translation>
     </message>
     <message>
         <location filename="../main_create.cpp" line="138"/>
@@ -2064,27 +2156,27 @@ to add a frame to.</source>
     <message>
         <location filename="../main_create.cpp" line="172"/>
         <source>Mesh rendering</source>
-        <translation type="unfinished"></translation>
+        <translation>模型渲染</translation>
     </message>
     <message>
         <location filename="../main_create.cpp" line="176"/>
         <source>always use default settings</source>
-        <translation type="unfinished"></translation>
+        <translation>总是使用默认设定</translation>
     </message>
     <message>
         <location filename="../main_create.cpp" line="173"/>
         <source>infer settings from Material flags</source>
-        <translation type="unfinished"></translation>
+        <translation>从材质标签中推断设定</translation>
     </message>
     <message>
         <location filename="../main_create.cpp" line="174"/>
         <source>E.g. alpha-transparency will depend on Material flags</source>
-        <translation type="unfinished"></translation>
+        <translation>例. alpha透明效果会标注在材质标签中</translation>
     </message>
     <message>
         <location filename="../main_create.cpp" line="177"/>
         <source>Never use alpha transparency, regardless of Material flags</source>
-        <translation type="unfinished"></translation>
+        <translation>对所有材质标签都不使用alpha透明效果</translation>
     </message>
     <message>
         <location filename="../main_create.cpp" line="198"/>
@@ -2097,383 +2189,393 @@ to add a frame to.</source>
         <translation>系统默认</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="207"/>
+        <location filename="../main_create.cpp" line="208"/>
         <source>Test a custom translation file...</source>
-        <translation type="unfinished"></translation>
+        <translation>测试一个独立的翻译文件...</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="224"/>
+        <location filename="../main_create.cpp" line="226"/>
         <source>&amp;New</source>
         <translation>新建(&amp;N)</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="226"/>
+        <location filename="../main_create.cpp" line="228"/>
         <source>Create a new file</source>
         <translation>创建一个新文件</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="229"/>
+        <location filename="../main_create.cpp" line="231"/>
         <source>&amp;Open...</source>
         <translation>打开(&amp;O)...</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="231"/>
+        <location filename="../main_create.cpp" line="233"/>
         <source>Open an existing file</source>
         <translation>打开已有的文件</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="234"/>
+        <location filename="../main_create.cpp" line="236"/>
         <source>&amp;Save</source>
         <translation>保存(&amp;S)</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="236"/>
+        <location filename="../main_create.cpp" line="238"/>
         <source>Save the document to disk</source>
         <translation>保存文档到磁盘</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="239"/>
+        <location filename="../main_create.cpp" line="241"/>
         <source>Cut</source>
         <translation>剪切</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="240"/>
+        <location filename="../main_create.cpp" line="242"/>
         <source>Cut currently selected objects.</source>
         <translation>剪切当前选中项目.</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="242"/>
+        <location filename="../main_create.cpp" line="244"/>
         <source>Copy</source>
         <translation>复制</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="243"/>
-        <source>Copy currently selected objects in the clipboard.</source>
-        <translation>复制当前选中项目到剪贴板.</translation>
-    </message>
-    <message>
-        <location filename="../main_create.cpp" line="244"/>
-        <source>Add to Clipboard</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../main_create.cpp" line="245"/>
-        <source>Add currently selected objects to clipboard.</source>
-        <translation type="unfinished"></translation>
+        <source>Copy currently selected objects in the clipboard.</source>
+        <translation>复制当前选中项目到剪贴板。</translation>
+    </message>
+    <message>
+        <location filename="../main_create.cpp" line="246"/>
+        <source>Add to Clipboard</source>
+        <translation>添加到剪贴板</translation>
     </message>
     <message>
         <location filename="../main_create.cpp" line="247"/>
+        <source>Add currently selected objects to clipboard.</source>
+        <translation>将当前选中的项目加入剪贴板。</translation>
+    </message>
+    <message>
+        <location filename="../main_create.cpp" line="249"/>
         <source>Paste</source>
         <translation>粘贴</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="248"/>
+        <location filename="../main_create.cpp" line="250"/>
         <source>Paste objects from the clipboard into currect BRF.</source>
-        <translation>粘贴剪贴板项目到当前BRF.</translation>
+        <translation>粘贴剪贴板项目到当前BRF。</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="252"/>
+        <location filename="../main_create.cpp" line="254"/>
         <source>Cut frame</source>
         <translation>剪切帧</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="254"/>
+        <location filename="../main_create.cpp" line="256"/>
         <source>Cut current frame of a vertex animated mesh.</source>
-        <translation>剪切顶点动画模型的当前帧.</translation>
+        <translation>剪切顶点动画模型的当前帧。</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="255"/>
+        <location filename="../main_create.cpp" line="257"/>
         <source>Copy frame</source>
         <translation>复制帧</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="257"/>
+        <location filename="../main_create.cpp" line="259"/>
         <source>Copy current frame of a vertex animated mesh.</source>
-        <translation>复制顶点动画模型的当前帧.</translation>
+        <translation>复制顶点动画模型的当前帧。</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="258"/>
+        <location filename="../main_create.cpp" line="260"/>
         <source>Paste frame</source>
         <translation>粘贴帧</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="261"/>
+        <location filename="../main_create.cpp" line="263"/>
         <source>Paste frame from clipboard as next frame in the current vertex animated mesh</source>
         <translation>粘贴剪贴板中的帧到当前顶点动画模型</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="262"/>
+        <location filename="../main_create.cpp" line="264"/>
         <source>Paste rigging</source>
         <translation>粘贴绑定</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="263"/>
+        <location filename="../main_create.cpp" line="265"/>
         <source>Make a rigging for current mesh(-es) similar to one of the meshes in the clipboard.</source>
-        <translation>参照剪贴板中的模型为当前模型绑定.</translation>
+        <translation>参照剪贴板中的模型为当前模型绑定。</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="266"/>
+        <location filename="../main_create.cpp" line="268"/>
         <source>Paste modifications</source>
         <translation>粘贴修改</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="267"/>
+        <location filename="../main_create.cpp" line="269"/>
         <source>Move vertices of current mesh according to a 2 frame mesh animation.</source>
-        <translation>将当前模型的顶点参照包含两帧的模型动画移动.</translation>
+        <translation>将当前模型的顶点参照包含两帧的模型动画移动。</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="270"/>
+        <location filename="../main_create.cpp" line="272"/>
         <source>Paste timings</source>
-        <translation type="unfinished"></translation>
+        <translation>粘贴时间信息</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="271"/>
+        <location filename="../main_create.cpp" line="273"/>
         <source>Paste timings of vertex or skeletal animation in clipboard into other animation(s).</source>
-        <translation type="unfinished"></translation>
+        <translation>将剪贴板中顶点动画或骨骼动画的时间信息粘贴到其他动画。</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="286"/>
+        <location filename="../main_create.cpp" line="288"/>
         <source>Save &amp;As...</source>
         <translation>另存为(&amp;A)...</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="288"/>
+        <location filename="../main_create.cpp" line="290"/>
         <source>Save the document under a new name</source>
         <translation>以新文件名保存文档</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="298"/>
+        <location filename="../main_create.cpp" line="300"/>
         <source>E&amp;xit</source>
         <translation>退出(&amp;X)</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="299"/>
+        <location filename="../main_create.cpp" line="301"/>
         <source>Alt+F4</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="300"/>
+        <location filename="../main_create.cpp" line="302"/>
         <source>Exit the application</source>
         <translation>退出程序</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="303"/>
+        <location filename="../main_create.cpp" line="305"/>
         <source>Why the checkerboard pattern?</source>
         <translation>为什么出现花格子?</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="304"/>
+        <location filename="../main_create.cpp" line="306"/>
         <source>Diagnose why I&apos;m seeing a checkboard pattern instead of my texture.</source>
         <translation>诊断纹理显示为花格子的原因.</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="309"/>
+        <location filename="../main_create.cpp" line="311"/>
         <source>About</source>
         <translation>关于</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="310"/>
+        <location filename="../main_create.cpp" line="312"/>
         <source>F1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="311"/>
+        <location filename="../main_create.cpp" line="313"/>
         <source>About OpenBRF</source>
         <translation>关于 OpenBRF</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="314"/>
+        <location filename="../main_create.cpp" line="316"/>
         <source>_</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="318"/>
+        <location filename="../main_create.cpp" line="320"/>
         <source>Sort entries</source>
         <translation>项目排序</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="319"/>
+        <location filename="../main_create.cpp" line="321"/>
         <source>Sort current entries alphabetically</source>
         <translation>将当前项目按字典序排列</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="322"/>
+        <location filename="../main_create.cpp" line="324"/>
         <source>Static mesh</source>
         <translation>静态模型</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="323"/>
+        <location filename="../main_create.cpp" line="325"/>
         <source>Import a static Mesh</source>
         <translation>导入一个静态模型</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="324"/>
+        <location filename="../main_create.cpp" line="326"/>
         <source>Rigged mesh</source>
         <translation>绑定的模型</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="325"/>
+        <location filename="../main_create.cpp" line="327"/>
         <source>Import rigged (skeletal animable) Mesh</source>
         <translation>导入绑定的(可用于骨骼动画)模型</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="326"/>
+        <location filename="../main_create.cpp" line="328"/>
         <source>Frame of vertex-animated mesh</source>
         <translation>作为顶点动画一帧的模型</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="363"/>
+        <location filename="../main_create.cpp" line="365"/>
         <source>Refresh</source>
-        <translation type="unfinished">刷新</translation>
+        <translation>刷新</translation>
+    </message>
+    <message>
+        <location filename="../main_create.cpp" line="378"/>
+        <source>Find in module...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../main_create.cpp" line="382"/>
+        <source>Select a BRF in module...</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Vertex-animated mesh frame</source>
         <translation type="obsolete">顶点动画模型帧</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="327"/>
+        <location filename="../main_create.cpp" line="329"/>
         <source>Import a static mesh and add it as a vertex-animation frame of current Mesh</source>
         <translation>导入一个静态模型并作为当前模型顶点动画的一帧</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="328"/>
+        <location filename="../main_create.cpp" line="330"/>
         <source>Vertex-animated mesh</source>
         <translation>带顶点动画的模型</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="329"/>
+        <location filename="../main_create.cpp" line="331"/>
         <source>Import a vertex animated mesh from a MD3 file</source>
         <translation>从MD3文件中导入带顶点动画的模型</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="330"/>
+        <location filename="../main_create.cpp" line="332"/>
         <location filename="../main_info.cpp" line="13"/>
         <source>Skeleton</source>
         <translation>骨骼</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="331"/>
+        <location filename="../main_create.cpp" line="333"/>
         <source>Import a Skeleton</source>
         <translation>导入一副骨骼</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="335"/>
+        <location filename="../main_create.cpp" line="337"/>
         <source>Skeletal animation</source>
         <translation>骨骼动画</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="336"/>
+        <location filename="../main_create.cpp" line="338"/>
         <source>Import a skeletal Animation</source>
         <translation>导入一个骨骼动画</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="337"/>
+        <location filename="../main_create.cpp" line="339"/>
         <source>Collision body</source>
         <translation>碰撞体</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="338"/>
+        <location filename="../main_create.cpp" line="340"/>
         <source>Import an (multi-object) OBJ mesh as a Collision object.</source>
-        <translation>导入一个(多物体的)OBJ模型为碰撞体.</translation>
+        <translation>导入一个(多物体的)OBJ模型为碰撞体。</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="339"/>
+        <location filename="../main_create.cpp" line="341"/>
         <source>Anything from a BRF</source>
         <translation>BRF中的所有内容</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="340"/>
+        <location filename="../main_create.cpp" line="342"/>
         <source>Import all content form another BRF file into current one.</source>
-        <translation>从另一个BRF文件导入所有内容到当前文件中.</translation>
+        <translation>从另一个BRF文件导入所有内容到当前文件中。</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="341"/>
+        <location filename="../main_create.cpp" line="343"/>
         <source>New Material</source>
         <translation>新建材质</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="342"/>
+        <location filename="../main_create.cpp" line="344"/>
         <source>Make a new Material object.</source>
-        <translation>创建一个新的材质项.</translation>
+        <translation>创建一个新的材质项。</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="343"/>
+        <location filename="../main_create.cpp" line="345"/>
         <source>New Texture</source>
         <translation>新建纹理</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="344"/>
+        <location filename="../main_create.cpp" line="346"/>
         <source>Make a new Texture object from a dds texture</source>
         <translation>基于一个dds纹理文件创建一个新的纹理项</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="345"/>
+        <location filename="../main_create.cpp" line="347"/>
         <source>New Shader</source>
         <translation>新建着色层</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="346"/>
+        <location filename="../main_create.cpp" line="348"/>
         <source>Enlist a new Shader</source>
         <translation>列入一个新的着色器</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="348"/>
+        <location filename="../main_create.cpp" line="350"/>
         <source>New Menu Background</source>
-        <translation type="unfinished"></translation>
+        <translation>新菜单背景</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="349"/>
+        <location filename="../main_create.cpp" line="351"/>
         <source>Add a Menu Background (Mesh, Material, and Texture)</source>
-        <translation type="unfinished"></translation>
+        <translation>新增一个菜单背景(模型, 材质和纹理)</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="352"/>
+        <location filename="../main_create.cpp" line="354"/>
         <source>follow link</source>
         <translation>追踪链接</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="353"/>
+        <location filename="../main_create.cpp" line="355"/>
         <source>ctrl+right</source>
         <translation>ctrl+→</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="354"/>
+        <location filename="../main_create.cpp" line="356"/>
         <source>Go from a mesh to used material; go from a material to used textures/shader</source>
         <translation>从模型导航到所用的材质;从材质导航到所用的纹理/着色器</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="356"/>
+        <location filename="../main_create.cpp" line="358"/>
         <source>follow back-link</source>
         <translation>追踪反向链接</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="357"/>
+        <location filename="../main_create.cpp" line="359"/>
         <source>ctrl+left</source>
         <translation>ctrl+←</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="358"/>
+        <location filename="../main_create.cpp" line="360"/>
         <source>Go back to the mesh (from a material) or material (from texture or shaders).</source>
-        <translation>(从材质)返回模型或(从纹理或着色器)返回材质.</translation>
+        <translation>(从材质)返回模型或(从纹理或着色器)返回材质。</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="359"/>
+        <location filename="../main_create.cpp" line="361"/>
         <source>next back-link</source>
         <translation>下一个反向链接</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="360"/>
+        <location filename="../main_create.cpp" line="362"/>
         <source>prev back-link</source>
         <translation>上一个反向链接</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="361"/>
+        <location filename="../main_create.cpp" line="363"/>
         <source>Find</source>
         <translation>查找</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="362"/>
-        <location filename="../main_create.cpp" line="377"/>
+        <location filename="../main_create.cpp" line="364"/>
+        <location filename="../main_create.cpp" line="379"/>
         <source>ctrl+F</source>
         <translation></translation>
     </message>
@@ -2482,175 +2584,173 @@ to add a frame to.</source>
         <translation type="obsolete">刷新ini</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="364"/>
+        <location filename="../main_create.cpp" line="366"/>
         <source>Reload ini files, brf files inside it, and dds textures</source>
         <translation>重新载入ini文件,其声明的brf文件,以及dds纹理文件</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="365"/>
+        <location filename="../main_create.cpp" line="367"/>
         <source>F5</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="366"/>
-        <source>Scan module for usages</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main_create.cpp" line="367"/>
-        <source>Scans module content and txt files, to compute what uses what</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../main_create.cpp" line="368"/>
-        <source>F3</source>
-        <translation type="unfinished"></translation>
+        <source>Scan module for usages</source>
+        <translation>扫描模组中的引用情况</translation>
     </message>
     <message>
         <location filename="../main_create.cpp" line="369"/>
-        <source>Change current Module</source>
-        <translation type="unfinished"></translation>
+        <source>Scans module content and txt files, to compute what uses what</source>
+        <translation>扫描模组内容以及txt文件, 查看相互的引用情况</translation>
     </message>
     <message>
         <location filename="../main_create.cpp" line="370"/>
-        <source>Choose the current module</source>
-        <translation type="unfinished"></translation>
+        <source>F3</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../main_create.cpp" line="371"/>
+        <source>Change current Module</source>
+        <translation>切换当前模组</translation>
     </message>
     <message>
         <location filename="../main_create.cpp" line="372"/>
-        <source>Scan module for errors</source>
-        <translation>扫描module中的错误</translation>
+        <source>Choose the current module</source>
+        <translation>选择当前的模组</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="373"/>
+        <location filename="../main_create.cpp" line="374"/>
+        <source>Scan module for errors</source>
+        <translation>扫描模组中的错误</translation>
+    </message>
+    <message>
+        <location filename="../main_create.cpp" line="375"/>
         <source>ctrl+E</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="374"/>
-        <source>Scan module.ini and included brf files for inconsistencies.</source>
-        <translation>扫描module.ini文件,并针对不一致情况添加brf文件名.</translation>
-    </message>
-    <message>
         <location filename="../main_create.cpp" line="376"/>
-        <source>Find in module</source>
-        <translation>在module中查找</translation>
+        <source>Scan module.ini and included brf files for inconsistencies.</source>
+        <translation>扫描module.ini文件，并针对不一致情况添加brf文件名。</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="378"/>
-        <source>Look for an object in all brf listed inside current module.ini.</source>
-        <translation>在所有当前module.ini文件包含的brf文件中查找项目.</translation>
+        <source>Find in module</source>
+        <translation type="obsolete">在模组中查找</translation>
     </message>
     <message>
         <location filename="../main_create.cpp" line="380"/>
+        <source>Look for an object in all brf listed inside current module.ini.</source>
+        <translation>在所有当前module.ini文件包含的brf文件中查找项目。</translation>
+    </message>
+    <message>
         <source>Select a BRF in module</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main_create.cpp" line="381"/>
-        <source>Select a BRF file of this module.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main_create.cpp" line="382"/>
-        <source>F7</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">从模组中选择一个BRF文件</translation>
     </message>
     <message>
         <location filename="../main_create.cpp" line="383"/>
-        <source>Show unreferenced texture files</source>
-        <translation type="unfinished"></translation>
+        <source>Select a BRF file of this module.</source>
+        <translation>选择当前模组中的一个BRF文件。</translation>
     </message>
     <message>
         <location filename="../main_create.cpp" line="384"/>
+        <source>F7</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../main_create.cpp" line="385"/>
+        <source>Show unreferenced texture files</source>
+        <translation>显示未被使用的纹理</translation>
+    </message>
+    <message>
+        <location filename="../main_create.cpp" line="386"/>
         <source>Show texture files non referenced in any brf</source>
-        <translation type="unfinished"></translation>
+        <translation>显示没有在任何brf中引用的纹理文件</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="387"/>
+        <location filename="../main_create.cpp" line="389"/>
         <source>Show module stats</source>
-        <translation type="unfinished"></translation>
+        <translation>显示模组统计数据</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="388"/>
+        <location filename="../main_create.cpp" line="390"/>
         <source>Show statistics for current Module</source>
-        <translation type="unfinished"></translation>
+        <translation>显示当前模组的统计数据</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="405"/>
+        <location filename="../main_create.cpp" line="407"/>
         <source>Register BRF extension</source>
         <translation>注册BRF文件关联</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="406"/>
+        <location filename="../main_create.cpp" line="408"/>
         <source>Make so that clicking on a brf file opens OpenBRF.</source>
-        <translation>使双击brf文件时由OpenBRF打开.</translation>
+        <translation>使双击brf文件时由OpenBRF打开。</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="419"/>
+        <location filename="../main_create.cpp" line="421"/>
         <source>default</source>
         <translation>默认</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="420"/>
+        <location filename="../main_create.cpp" line="422"/>
         <source>Default mode: rotate objects with mouse, zoom in/out with wheel.</source>
-        <translation>默认模式:鼠标旋转项目,滚轮缩放.</translation>
+        <translation>默认模式:鼠标旋转项目，滚轮缩放。</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="421"/>
+        <location filename="../main_create.cpp" line="423"/>
         <source>helmet</source>
         <translation>头盔</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="422"/>
+        <location filename="../main_create.cpp" line="424"/>
         <source>Helmet mode: for objects with vertical Z axis, like M&amp;B helmets or weapons.</source>
-        <translation>头盔模式:专用于Z轴竖直的项目,如M&amp;B的头盔和武器.</translation>
+        <translation>头盔模式:专用于Z轴竖直的项目，如M&amp;B的头盔和武器。</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="423"/>
+        <location filename="../main_create.cpp" line="425"/>
         <source>scene</source>
         <translation>场景</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="424"/>
+        <location filename="../main_create.cpp" line="426"/>
         <source>Scene mode: navigate with mouse and WASD (levitate with wheel, zoom with shift)</source>
         <translation>场景模式: 鼠标转向,WASD移动(滚轮上升,按住shift缩放)</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="435"/>
+        <location filename="../main_create.cpp" line="437"/>
         <source>combo</source>
         <translation>合并</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="436"/>
+        <location filename="../main_create.cpp" line="438"/>
         <source>See objects combined, when selecting multiple things</source>
         <translation>当多个项目被选中时,将项目合并显示</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="437"/>
+        <location filename="../main_create.cpp" line="439"/>
         <source>aside</source>
         <translation>并列</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="438"/>
+        <location filename="../main_create.cpp" line="440"/>
         <source>See object side-to-side, when selecting multiple things</source>
         <translation>当多个项目被选中时,将项目并排显示</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="440"/>
+        <location filename="../main_create.cpp" line="442"/>
         <source>mult-view:</source>
         <translation>多视图:</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="458"/>
+        <location filename="../main_create.cpp" line="460"/>
         <source>view-mode:</source>
         <translation>视图模式:</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="39"/>
-        <location filename="../mainwindow.cpp" line="1287"/>
-        <location filename="../mainwindow.cpp" line="1297"/>
-        <location filename="../mainwindow.cpp" line="1558"/>
+        <location filename="../mainwindow.cpp" line="40"/>
+        <location filename="../mainwindow.cpp" line="1396"/>
+        <location filename="../mainwindow.cpp" line="1406"/>
+        <location filename="../mainwindow.cpp" line="1672"/>
         <source>OpenBrf</source>
         <translation></translation>
     </message>
@@ -2732,12 +2832,12 @@ to add a frame to.</source>
     <message>
         <location filename="../main_info.cpp" line="49"/>
         <source>&lt;p&gt;&amp;nbsp; &amp;nbsp; &lt;b&gt;OpenBrf&lt;/b&gt;&lt;br&gt;&amp;nbsp; &amp;nbsp; by &lt;b&gt;%2&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&amp;nbsp; &amp;nbsp; &lt;b&gt;ver %6&lt;/b&gt;&lt;br&gt;&amp;nbsp; &amp;nbsp; (%1)&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;i&gt;Testing, bug reporting, suggestions by:&lt;/i&gt; %3&lt;/p&gt;&lt;p&gt;&lt;i&gt;Additional art by:&lt;/i&gt; %4&lt;/p&gt;&lt;p&gt;&lt;i&gt;Translations by:&lt;/i&gt; %5&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;p&gt;&amp;nbsp; &amp;nbsp; &lt;b&gt;OpenBrf&lt;/b&gt;&lt;br&gt;&amp;nbsp; &amp;nbsp; 作者 &lt;b&gt;%2&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&amp;nbsp; &amp;nbsp; &lt;b&gt;版本 %6&lt;/b&gt;&lt;br&gt;&amp;nbsp; &amp;nbsp; (%1)&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;i&gt;测试, 问题反馈, 建议:&lt;/i&gt; %3&lt;/p&gt;&lt;p&gt;&lt;i&gt;艺术设计:&lt;/i&gt; %4&lt;/p&gt;&lt;p&gt;&lt;i&gt;翻译:&lt;/i&gt; %5&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="132"/>
+        <location filename="../main_info.cpp" line="134"/>
         <source>I&apos;m supposed to understand .dds textures of formats DXT1 (maybe), DXT3, and DXT5.&lt;br&gt;But some kinds of DXT1 texture confuse me, and too big textures too.</source>
-        <translation type="unfinished"></translation>
+        <translation>我能识别的dds纹理格式为DXT1(个别例外)，DXT3和DXT5。&lt;br&gt;个别DXT1纹理我无法识别，也不能识别过大的纹理。一些问题可以通过上方的自动修复DXT选项修复。</translation>
     </message>
     <message>
         <source>&lt;p&gt;&amp;nbsp; &amp;nbsp; &lt;b&gt;ver %6&lt;/b&gt;&lt;br&gt;&amp;nbsp; &amp;nbsp; (%1)&lt;br&gt;&lt;/p&gt;&lt;p&gt;&amp;nbsp; &amp;nbsp; by %2&lt;br&gt;&lt;/p&gt;&lt;p&gt;Testing, bug reporting, suggestions by: %3&lt;/p&gt;&lt;p&gt;Additional art by: %4&lt;/p&gt;&lt;p&gt;Translation by: %5&lt;/p&gt;</source>
@@ -2745,152 +2845,152 @@ to add a frame to.</source>
         <translation type="obsolete">&lt;p&gt;&amp;nbsp; &amp;nbsp; &lt;b&gt;版本 0.0.39b&lt;/b&gt;&lt;br&gt;&amp;nbsp; &amp;nbsp; (%1)&lt;br&gt;&lt;/p&gt;&lt;p&gt;&amp;nbsp; &amp;nbsp; 作者 %2&lt;br&gt;&lt;/p&gt;&lt;p&gt;测试,bug报告,建议: %3&lt;/p&gt;&lt;p&gt;美工: %4&lt;/p&gt;&lt;p&gt;翻译: %5&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="72"/>
+        <location filename="../main_info.cpp" line="73"/>
         <source>additional code and Chinese</source>
         <translation>代码修改及汉化</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="139"/>
+        <location filename="../main_info.cpp" line="141"/>
         <source>Open-Brf</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="84"/>
+        <location filename="../main_info.cpp" line="86"/>
         <source>&lt;b&gt;What is this autofix DXT texture option?&lt;/b&gt;&lt;br&gt;&lt;p&gt;Many DDS texture creation programs/plugins around will output DXT1 textures with a minor error in the header.&lt;/p&gt;&lt;p&gt;This error confuses me (OpenBRF) but not Mount and Blade (or many other programs).&lt;/p&gt;&lt;p&gt;(When I cannot read a texture for this or any other problem, I display a chekerboard pattern instead).&lt;/p&gt;&lt;p&gt;If you want, I can silently fix this error every time I encounter it (I&apos;ll shamelessly write on the texture dss files on disk).&lt;/p&gt;</source>
-        <translation>&lt;b&gt;&quot;自动修复DXT纹理&quot;这个选项是做什么的?&lt;/b&gt;&lt;br&gt;&lt;p&gt;很多DDS纹理生成软件/插件在输出DXT1纹理时在首部中犯了一个错误.&lt;/p&gt;&lt;p&gt;这个错误导致我(OpenBRF)不能识别, 但骑马与砍杀(以及其他很多程序)却可以识别.&lt;/p&gt;&lt;p&gt;(由此或者其他原因导致不能读取纹理, 我会显示蓝白格替代).&lt;/p&gt;&lt;p&gt;如果你需要,我可以在每次遇到时悄悄修复这个错误(我将会改写磁盘上的.dds文件).&lt;/p&gt;</translation>
+        <translation>&lt;b&gt;“自动修复DXT纹理”这个选项是做什么的?&lt;/b&gt;&lt;br&gt;&lt;p&gt;很多DDS纹理生成软件/插件在输出DXT1纹理时在首部中犯了一个错误。&lt;/p&gt;&lt;p&gt;这个错误导致我(OpenBRF)不能识别，但骑马与砍杀(以及其他很多程序)却可以识别。&lt;/p&gt;&lt;p&gt;(由此或者其他原因导致不能读取纹理，我会显示蓝白格替代)。&lt;/p&gt;&lt;p&gt;如果你需要，我可以在每次遇到时悄悄修复这个错误(我将会改写磁盘上的.dds文件)。&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="104"/>
+        <location filename="../main_info.cpp" line="106"/>
         <source>I don&apos;t know what the material &lt;i&gt;&quot;%1&quot;&lt;/i&gt; is.</source>
-        <translation>我不知道&quot;%1&quot;材质是什么东西.</translation>
+        <translation>我不知道&quot;%1&quot;材质是什么东西。</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="105"/>
+        <location filename="../main_info.cpp" line="107"/>
         <source>I&apos;ve scanned in all file &quot;%1&quot; and didn&apos;t find a &lt;i&gt;load_mod_resource&lt;/i&gt; or &lt;i&gt;load_resource&lt;/i&gt; command that pointed me to a brf file that contained any such material</source>
         <translation>我已扫描了&quot;%1&quot;中的所有文件,无法在经过&lt;i&gt;load_mod_resource&lt;/i&gt;或&lt;i&gt;load_resource&lt;/i&gt;申明的brf文件中找到这个材质</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="108"/>
+        <location filename="../main_info.cpp" line="110"/>
         <source>&lt;br&gt;- double check material name of the mesh&lt;br&gt;&lt;b&gt;or&lt;/b&gt;&lt;br&gt;- find the brf-file with the material, or create one&lt;br&gt;- add a line &lt;i&gt;load_&lt;b&gt;mod&lt;/b&gt;_resource&lt;/i&gt; in module.ini, with a text editor,&lt;br&gt;- (note the &lt;i&gt;mod&lt;/i&gt; part)!&lt;br&gt;- save module.ini&lt;br&gt;- come back, and refresh Module [f5]</source>
-        <translation>&lt;br&gt;- 检查模型的材质名称是否拼写正确&lt;br&gt;&lt;b&gt;或者&lt;/b&gt;&lt;br&gt;- 找到包含这个材质的brf文件,或者创建这样一个文件&lt;br&gt;- 通过文本编辑器,在module.ini中添加一行&lt;i&gt;load_&lt;b&gt;mod&lt;/b&gt;_resource&lt;/i&gt;&lt;br&gt;- (不要漏掉中间的&lt;i&gt;mod&lt;/i&gt;)!&lt;br&gt;- 保存module.ini&lt;br&gt;- 返回此处刷新 [f5]</translation>
+        <translation>&lt;br&gt;- 检查模型的材质名称是否拼写正确&lt;br&gt;&lt;b&gt;或者&lt;/b&gt;&lt;br&gt;- 找到包含这个材质的brf文件，或者创建这样一个文件&lt;br&gt;- 通过文本编辑器，在module.ini中添加一行&lt;i&gt;load_&lt;b&gt;mod&lt;/b&gt;_resource&lt;/i&gt;&lt;br&gt;- (不要漏掉中间的&lt;i&gt;mod&lt;/i&gt;)！&lt;br&gt;- 保存module.ini&lt;br&gt;- 返回此处刷新 [f5]</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="118"/>
+        <location filename="../main_info.cpp" line="120"/>
         <source>I cannot find the file &quot;%1&quot; on disk.</source>
-        <translation>我无法找到文件&quot;%1&quot;.</translation>
+        <translation>我无法找到文件&quot;%1&quot;。</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="119"/>
+        <location filename="../main_info.cpp" line="121"/>
         <source>I&apos;ve looked in folders &lt;br&gt;%1&lt;br&gt; and &lt;br&gt;%2&lt;br&gt; and &lt;br&gt;%3&lt;br&gt; but it wasn&apos;t there...&lt;br&gt;Maybe it is was tiff texture? (I don&apos;t understand them).</source>
-        <translation>我已查找过如下文件夹:&lt;br&gt;%1&lt;br&gt;%2&lt;br&gt;%3&lt;br&gt;但无法找到该文件...&lt;br&gt;或许你使用了tiff纹理格式?(我无法读取这样的格式).</translation>
+        <translation>我已查找过如下文件夹:&lt;br&gt;%1&lt;br&gt;%2&lt;br&gt;%3&lt;br&gt;但无法找到该文件...&lt;br&gt;或许你使用了tiff纹理格式?(我无法读取这样的格式)。</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="122"/>
+        <location filename="../main_info.cpp" line="124"/>
         <source>&lt;br&gt;- double check DiffuesA texture name of the material&lt;br&gt;- (hint: remember you can navigate with ctrl-left/right)&lt;br&gt;&lt;b&gt;or&lt;/b&gt;&lt;br&gt;- make sure the missing texture file in mod texture folder!&lt;br&gt;- put it there if it is missing</source>
-        <translation>&lt;br&gt;- 检查填充A指定的纹理名称是否正确&lt;br&gt;- (提示: 记住你可以通过ctrl+左方向键导航到材质)&lt;b&gt;&lt;b&gt;或者&lt;/b&gt;&lt;br&gt;- 检查缺失的纹理文件是否在MOD的texture文件夹中&lt;br&gt;- 如果在文件夹中没有这个文件,添加这个文件</translation>
+        <translation>&lt;br&gt;- 检查填充A指定的纹理名称是否正确&lt;br&gt;- (提示: 记住你可以通过ctrl+左方向键导航到材质)&lt;b&gt;&lt;b&gt;或者&lt;/b&gt;&lt;br&gt;- 检查缺失的纹理文件是否在模组的texture文件夹中&lt;br&gt;- 如果在文件夹中没有这个文件,添加这个文件</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="131"/>
+        <location filename="../main_info.cpp" line="133"/>
         <source>I cannot understand the texture format of  file &quot;%1&quot;.</source>
-        <translation>我无法识别文件&quot;%1&quot;中的纹理格式.</translation>
+        <translation>我无法识别文件&quot;%1&quot;中的纹理格式。</translation>
     </message>
     <message>
         <source>I&apos;m supposed to understand .dds textures of formats DXT1 (maybe), DXT3, and DXT5.&lt;br&gt;But some kinds of DXT1 texture confuse me, and too big textures too.The problem could be fixed if you enable the autofix DXT option above.</source>
         <translation type="obsolete">我能识别的dds纹理格式为DXT1(不确定),DXT3和DXT5.&lt;br&gt;个别DXT1纹理我无法识别,也不能识别过大的纹理.一些问题可以通过上方的自动修复DXT选项修复.</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="135"/>
+        <location filename="../main_info.cpp" line="137"/>
         <source>Maybe just accept the fact... it should still show the texture in game.</source>
-        <translation>或者不解决这个问题...只要游戏中纹理能正常显示.</translation>
+        <translation>或者不解决这个问题...只要游戏中纹理能正常显示。</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="140"/>
+        <location filename="../main_info.cpp" line="142"/>
         <source>&lt;i&gt;I could not display the real texture because:&lt;/i&gt;&lt;br&gt;&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;&lt;br&gt;%2&lt;br&gt;&lt;br&gt;&lt;b&gt;Cure: &lt;/b&gt;%3</source>
         <translation>&lt;i&gt;我无法显示正确的纹理,基于如下原因: &lt;/i&gt;&lt;br&gt;&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;&lt;br&gt;%2&lt;br&gt;&lt;br&gt;&lt;b&gt;解决方案: &lt;/b&gt;%3</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="40"/>
+        <location filename="../mainwindow.cpp" line="41"/>
         <source>%1 been modified.
 Save changes?</source>
         <translation>%1 被修改过了,需要保存吗?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="41"/>
+        <location filename="../mainwindow.cpp" line="42"/>
         <source>Internal reference objects have</source>
         <translation>内部样本项目</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="41"/>
+        <location filename="../mainwindow.cpp" line="42"/>
         <source>The dataset has</source>
         <translation>数据</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="263"/>
+        <location filename="../mainwindow.cpp" line="264"/>
         <source>Set %1 mesh materials to &quot;%2&quot;</source>
         <translation>已将%1件模型材质设置为&quot;%2&quot;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="317"/>
+        <location filename="../mainwindow.cpp" line="318"/>
         <source>Set time of frame %1 to %2</source>
         <translation>已将帧%1时间设置为%2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="331"/>
-        <location filename="../mainwindow.cpp" line="369"/>
+        <location filename="../mainwindow.cpp" line="332"/>
+        <location filename="../mainwindow.cpp" line="370"/>
         <source>CAnnot find skel_human, skel_dwarf and skel_orc in reference data.
 </source>
-        <translation>在样板数据中找不到skel_human, skel_dwarf和 skel_orc.</translation>
+        <translation>在样板数据中找不到skel_human，skel_dwarf和 skel_orc。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="641"/>
+        <location filename="../mainwindow.cpp" line="646"/>
         <source>Stop editing reference data</source>
         <translation>停止编辑样本数据</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="642"/>
+        <location filename="../mainwindow.cpp" line="647"/>
         <source>Stop editing &quot;reference&quot; skeletons, animations &amp; meshes, that OpenBrf uses to display data.</source>
-        <translation>停止编辑OpenBrf用于显示数据的&quot;样本&quot;骨骼, 动画或模型.</translation>
+        <translation>停止编辑OpenBrf用于显示数据的&quot;样本&quot;骨骼，动画或模型。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="644"/>
+        <location filename="../mainwindow.cpp" line="649"/>
         <source>Edit reference data</source>
         <translation>编辑样本数据</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="645"/>
+        <location filename="../mainwindow.cpp" line="650"/>
         <source>Edit &quot;reference&quot; skeletons, animations &amp; meshes, that OpenBrf uses to display data.</source>
-        <translation>编辑OpenBrf用于显示数据的&quot;样本&quot;骨骼、动画以及模型.</translation>
+        <translation>编辑OpenBrf用于显示数据的&quot;样本&quot;骨骼、动画以及模型。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="765"/>
+        <location filename="../mainwindow.cpp" line="772"/>
         <source>Name:</source>
         <translation>名称:</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="766"/>
+        <location filename="../mainwindow.cpp" line="773"/>
         <source>New %1</source>
         <translation>新建%1
 </translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="836"/>
+        <location filename="../mainwindow.cpp" line="843"/>
         <source>Oops... no skin is currently available...
 </source>
         <translation>啊欧...没有可用的皮肤...
 </translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="841"/>
+        <location filename="../mainwindow.cpp" line="848"/>
         <source>Skin %1</source>
         <translation>皮肤 %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="845"/>
+        <location filename="../mainwindow.cpp" line="852"/>
         <source>Select a skin</source>
         <translation>选择一个皮肤</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="846"/>
+        <location filename="../mainwindow.cpp" line="853"/>
         <source>Select a skin:</source>
         <translation>选择一个皮肤:</translation>
     </message>
@@ -2899,133 +2999,150 @@ Save changes?</source>
         <translation type="obsolete">法线已重新计算.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="905"/>
+        <location filename="../mainwindow.cpp" line="912"/>
         <source>Cannot merge these meshes
  (different number of frames,
  or rigged VS not rigged).
 </source>
         <translation>无法合并这些模型
-(帧数不同,或是部分
-绑定部分未绑定).
+(帧数不同，或是部分
+绑定部分未绑定)。
 </translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="972"/>
+        <location filename="../mainwindow.cpp" line="979"/>
         <source>Normals recomputed with %1% hard edges.</source>
-        <translation>法线已重新计算,硬边数%1%.</translation>
+        <translation>法线已重新计算，硬边数%1%。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1057"/>
+        <location filename="../mainwindow.cpp" line="1095"/>
         <source>Shift animation timings</source>
-        <translation type="unfinished">平移动画时间</translation>
+        <translation>平移动画时间</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1058"/>
+        <location filename="../mainwindow.cpp" line="1096"/>
         <source>Current Interval: [%1 %2]
 New interval: [%1+k %2+k]
 
 Select k:</source>
-        <translation type="unfinished">当前区段: [%1 %2]
+        <translation>当前区段: [%1 %2]
 新区段: [%1+k %2+k]
 
 选择 k:</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1135"/>
+        <location filename="../mainwindow.cpp" line="1242"/>
         <source>Transfer Rigging</source>
-        <translation type="unfinished">传递绑定</translation>
+        <translation>传递绑定</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1136"/>
+        <location filename="../mainwindow.cpp" line="1243"/>
         <source>Transfer rigging:
 select a rigged mesh first,
 then all target meshes.
 </source>
-        <translation type="unfinished">传递绑定:
-先选择一个已绑定的模型,
-在选择所有欲绑定的模型.
+        <translation>传递绑定:
+先选择一个已绑定的模型，
+在选择所有欲绑定的模型。
 </translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1163"/>
+        <location filename="../mainwindow.cpp" line="1270"/>
         <source>Same skeleton:
 reskeletonization canceled.
 </source>
-        <translation type="unfinished">相同骨骼:
-骨骼转化取消.
+        <translation>相同骨骼:
+骨骼转化取消。
 </translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1170"/>
+        <location filename="../mainwindow.cpp" line="1277"/>
         <source>Different number of bones:
 reskeletonization canceled.
 </source>
-        <translation type="unfinished">骨骼数不符:
-骨骼转化取消.
+        <translation>骨骼数不符:
+骨骼转化取消。
 </translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1288"/>
+        <location filename="../mainwindow.cpp" line="1397"/>
         <source>Renaming %1...
 new name:</source>
-        <translation type="unfinished">重命名 %1...
+        <translation>重命名 %1...
 新名称:</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1298"/>
+        <location filename="../mainwindow.cpp" line="1407"/>
         <source>%3 common prefix for %1 %2...
 new prefix:</source>
-        <translation type="unfinished">%3 %1个%2的公共前缀...
+        <translation>%3 %1个%2的公共前缀...
 新前缀:</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1298"/>
+        <location filename="../mainwindow.cpp" line="1407"/>
         <source>Changing the</source>
-        <translation type="unfinished">修改</translation>
+        <translation>修改</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1298"/>
+        <location filename="../mainwindow.cpp" line="1407"/>
         <source>Adding a</source>
-        <translation type="unfinished">添加</translation>
+        <translation>添加</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="405"/>
+        <location filename="../mainwindow.cpp" line="406"/>
         <source>Invalid frame %1</source>
         <translation>无效帧 %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="414"/>
+        <location filename="../mainwindow.cpp" line="415"/>
         <source>%1 meshes shrunk around bones</source>
         <translation>%1件模型缩放到覆盖骨骼</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="426"/>
+        <location filename="../mainwindow.cpp" line="427"/>
         <source>Cannot find skel_human, skel_dwarf and skel_orc in reference data.
 </source>
-        <translation>在样板数据中找不到skel_human, skel_dwarf和 skel_orc.</translation>
+        <translation>在样板数据中找不到skel_human，skel_dwarf和 skel_orc。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="572"/>
+        <location filename="../mainwindow.cpp" line="573"/>
         <source>Set flag(s) to &quot;%1&quot;</source>
         <translation>将标签的第s项设为%1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="767"/>
+        <location filename="../mainwindow.cpp" line="774"/>
         <source>new_%1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="889"/>
+        <location filename="../mainwindow.cpp" line="896"/>
         <source>Vertex unified.</source>
-        <translation>顶点已一致.</translation>
+        <translation>顶点已一致化。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1398"/>
+        <location filename="../mainwindow.cpp" line="1114"/>
+        <source>Extract Interval</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="1127"/>
+        <source>Remove Interval</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="1148"/>
+        <source>Cannot merge these animations
+ (different number of bones).
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="1510"/>
         <source>Copy Rigging into another mesh</source>
-        <translation type="unfinished">将绑定复制到另一个模型</translation>
+        <translation>将绑定复制到另一个模型</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1399"/>
+        <location filename="../mainwindow.cpp" line="1511"/>
         <source>Copy Rigging into another mesh:
 - select one or more sample rigged mesh first,
 - copy them (ctrl-C)
@@ -3034,224 +3151,227 @@ new prefix:</source>
 
 (works best if sample mesh is similar to target meshes)
 </source>
-        <translation type="unfinished">将绑定复制到另一个模型:
-- 先选择一个或多个已绑定的样本模型,
+        <translation>将绑定复制到另一个模型:
+- 先选择一个或多个已绑定的样本模型
 - 复制他们[ctrl-C]
 - 再选择一个或多个目标模型(无论是否绑定)
-- 粘贴绑定.
+- 粘贴绑定。
 
 (当样本模型和目标模型相似时效果最好)
 </translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1436"/>
+        <location filename="../mainwindow.cpp" line="1548"/>
         <source>Vertex number mismatch... using texture-coord matching instead</source>
-        <translation type="unfinished">顶点编号不匹配...采用纹理坐标匹配取代顺序匹配</translation>
+        <translation>顶点编号不匹配...采用纹理坐标匹配取代顺序匹配</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1523"/>
+        <location filename="../mainwindow.cpp" line="1637"/>
         <source>Cannot paste timings! Select *one* animated mesh or skel animation</source>
-        <translation type="unfinished"></translation>
+        <translation>无法粘贴时间信息! 一次选择*一个*顶点动画模型或骨骼动画</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1536"/>
+        <location filename="../mainwindow.cpp" line="1650"/>
         <source>Pasted timings over %1 (animated) mesh</source>
-        <translation type="unfinished"></translation>
+        <translation>将时间信息粘贴到%1个模型(动画)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1542"/>
+        <location filename="../mainwindow.cpp" line="1656"/>
         <source>Pasted timings over %1 skeletal animations</source>
-        <translation type="unfinished"></translation>
+        <translation>将时间信息粘贴到%1个骨骼动画</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1545"/>
+        <location filename="../mainwindow.cpp" line="1659"/>
         <source>Cannot paste times over that</source>
-        <translation type="unfinished"></translation>
+        <translation>无法将时间信息粘贴到此处</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1558"/>
+        <location filename="../mainwindow.cpp" line="1672"/>
         <source>To use paste modification mesh: firstcopy a 2 frames mesh. Then, select one or more destination meshes, and &quot;paste modification&quot;any vertex in any frame of the destination mesh that are in the same pos of frame 0,will be moved on the position of frame 1.</source>
-        <translation type="unfinished">粘贴修改的用法: 首先复制一个包含2帧的模型; 随后,选中一个或多个需要修改的目标模型;选择&quot;粘贴修改&quot;.所有坐标与复制模型第0帧对应顶点相同的顶点,将在目标模型第1帧中被移动到复制模型对应顶点的相应位置.</translation>
+        <translation>粘贴修改的用法: 首先复制一个包含2帧的模型；随后，选中一个或多个需要修改的目标模型；选择&quot;粘贴修改&quot;。所有坐标与复制模型第0帧对应顶点相同的顶点，将在目标模型第1帧中被移动到复制模型对应顶点的相应位置。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1693"/>
-        <location filename="../mainwindow.cpp" line="1732"/>
+        <location filename="../mainwindow.cpp" line="1810"/>
+        <location filename="../mainwindow.cpp" line="1849"/>
         <source>Canceled.</source>
-        <translation type="unfinished">取消.</translation>
+        <translation>取消。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1715"/>
+        <location filename="../mainwindow.cpp" line="1832"/>
         <source>Mounted %1 mesh%2 on bone %3</source>
-        <translation type="unfinished">已加载%1件模型到骨骼%3</translation>
+        <translation>已加载%1件模型%2到骨骼%3</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1749"/>
+        <location filename="../mainwindow.cpp" line="1866"/>
         <source>Added mesh %1 to set %2.</source>
-        <translation type="unfinished">已添加模型%1到%2组合.</translation>
+        <translation>已添加模型%1到%2组合。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1768"/>
+        <location filename="../mainwindow.cpp" line="1887"/>
         <source>Animation %2 split in %1 chunks!</source>
-        <translation type="unfinished">已将动画%2拆分为%1段!</translation>
+        <translation>已将动画%2拆分为%1段!</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1770"/>
+        <location filename="../mainwindow.cpp" line="1889"/>
         <source>Animation could be auto-split (frames are too conescutive)</source>
-        <translation type="unfinished">动画可能被自动拆分(帧太密集)</translation>
+        <translation>动画可能被自动拆分(帧太密集)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1777"/>
+        <location filename="../mainwindow.cpp" line="1896"/>
         <source>Select an &quot;actions.txt&quot; file (hint: it&apos;s in the module dir)</source>
-        <translation type="unfinished">选择一个&quot;actions.txt&quot;文件(提示:在MOD目录下)</translation>
+        <translation>选择一个&quot;actions.txt&quot;文件(提示:在模组目录下)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1778"/>
+        <location filename="../mainwindow.cpp" line="1897"/>
         <source>%1\actions.txt</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1779"/>
+        <location filename="../mainwindow.cpp" line="1898"/>
         <source>Txt file(*.txt)</source>
-        <translation type="unfinished">文本文件(*.txt)</translation>
+        <translation>文本文件 (*.txt)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1782"/>
+        <location filename="../mainwindow.cpp" line="1901"/>
         <source>Split canceled.</source>
-        <translation type="unfinished">拆分取消.</translation>
+        <translation>拆分取消。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1789"/>
+        <location filename="../mainwindow.cpp" line="1908"/>
         <source>Nothing to split (or could not split).</source>
-        <translation type="unfinished">没有东西可以拆分(或者无法拆分).</translation>
+        <translation>没有东西可以拆分(或者无法拆分)。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1796"/>
+        <location filename="../mainwindow.cpp" line="1917"/>
         <source>Animation %2 split in %1 chunks -- new animation.txt file save in &quot;%3&quot;!</source>
-        <translation type="unfinished">动画%2被拆分为了%1端 -- 新animation.txt文件保存在%3!</translation>
+        <translation>动画%2被拆分为了%1段 -- 新animation.txt文件保存在%3!</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1989"/>
+        <location filename="../mainwindow.cpp" line="2115"/>
         <source>Cannot save reference file!</source>
-        <translation type="unfinished">无法保存样本文件!</translation>
+        <translation>无法保存样本文件!</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2020"/>
+        <location filename="../mainwindow.cpp" line="2148"/>
         <source>Editing reference file...</source>
-        <translation type="unfinished">编辑样本文件...</translation>
+        <translation>编辑样本文件...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2037"/>
+        <location filename="../mainwindow.cpp" line="2170"/>
         <source>Cannot load %1.</source>
-        <translation type="unfinished">无法载入%1.</translation>
+        <translation>无法载入%1。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2064"/>
+        <location filename="../mainwindow.cpp" line="2199"/>
         <source>You are saving a CommonRes file!
 (i.e. not one specific of this module).
 
 Are you sure?</source>
-        <translation type="unfinished"></translation>
+        <translation>你正在保存的是一个CommonRes文件!
+(即非本模组独有的文件)。
+
+你确定吗?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2070"/>
+        <location filename="../mainwindow.cpp" line="2205"/>
         <source>Cannot write file %1.</source>
-        <translation type="unfinished">无法写入文件 %1.</translation>
+        <translation>无法写入文件 %1。</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2073"/>
+        <location filename="../mainwindow.cpp" line="2208"/>
         <source>File saved!</source>
-        <translation type="unfinished">文件已保存!</translation>
+        <translation>文件已保存!</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2194"/>
+        <location filename="../mainwindow.cpp" line="2333"/>
         <source>Open File</source>
-        <translation type="unfinished">打开文件</translation>
+        <translation>打开文件</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2196"/>
+        <location filename="../mainwindow.cpp" line="2335"/>
         <source>Resource (*.brf)</source>
-        <translation type="unfinished">资源文件(*.brf)</translation>
+        <translation>资源文件 (*.brf)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2213"/>
+        <location filename="../mainwindow.cpp" line="2352"/>
         <source>Reference file saved!</source>
-        <translation type="unfinished">样本文件已保存!</translation>
+        <translation>样本文件已保存!</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2223"/>
+        <location filename="../mainwindow.cpp" line="2362"/>
         <source>M&amp;B Resource (*.brf)</source>
-        <translation type="unfinished">M&amp;B资源文件 (*.brf)</translation>
+        <translation>M&amp;B资源文件 (*.brf)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2223"/>
+        <location filename="../mainwindow.cpp" line="2362"/>
         <source>WarBand Resource v.1 (*.brf)</source>
-        <translation type="unfinished">战团资源文件 v.1 (*.brf)</translation>
+        <translation>战团资源文件 v.1 (*.brf)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2226"/>
+        <location filename="../mainwindow.cpp" line="2365"/>
         <source>Save File</source>
-        <translation type="unfinished">保存文件</translation>
+        <translation>保存文件</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2247"/>
+        <location filename="../mainwindow.cpp" line="2386"/>
         <source> [not in module.ini]</source>
-        <translation type="unfinished">[不在module.ini中]</translation>
+        <translation>[不在module.ini中]</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2251"/>
+        <location filename="../mainwindow.cpp" line="2390"/>
         <source>%1%2</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2253"/>
+        <location filename="../mainwindow.cpp" line="2392"/>
         <source>%1 - %2%3%4</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2255"/>
+        <location filename="../mainwindow.cpp" line="2394"/>
         <source>%1 - editing internal reference data%2</source>
-        <translation type="unfinished">%1 - 编辑内部样本数据%2</translation>
+        <translation>%1 - 编辑内部样本数据%2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2326"/>
+        <location filename="../mainwindow.cpp" line="2465"/>
         <source>%5 %1 brf files from module.ini of &quot;%3&quot;-- %2 msec total [%4 text/mat/shad]</source>
         <oldsource>%4 %n brf files from module.ini of &quot;%2&quot;-- %1 msec total [%3 text/mat/shad]</oldsource>
-        <translation type="unfinished">在&quot;%3&quot;的module.ini文件中找到%1 个brf%5 -- 总用时%2毫秒[%4 纹理/材质/着色层]</translation>
+        <translation>在&quot;%3&quot;的module.ini文件中找到%1 个brf%5 -- 总用时%2毫秒[%4 纹理/材质/着色层]</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2328"/>
+        <location filename="../mainwindow.cpp" line="2467"/>
         <source>scanned</source>
-        <translation type="unfinished">文件</translation>
+        <translation>文件</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2328"/>
+        <location filename="../mainwindow.cpp" line="2467"/>
         <source>ERRORS found while scanning</source>
-        <translation type="unfinished">文件包含错误</translation>
+        <translation>文件包含错误</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2439"/>
+        <location filename="../mainwindow.cpp" line="2589"/>
         <source>Navigate: cannot find material &quot;%1&quot; in current module</source>
-        <translation type="unfinished">导向:无法在当前module中找到材质&quot;%1&quot;</translation>
+        <translation>导航:无法在当前模组中找到材质&quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2482"/>
+        <location filename="../mainwindow.cpp" line="2632"/>
         <source>Navigate: cannot find %2 &quot;%1&quot; in current module</source>
-        <translation type="unfinished">无法在当前module中找到%2&quot;%1&quot;</translation>
+        <translation>无法在当前模组中找到%2&quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2495"/>
+        <location filename="../mainwindow.cpp" line="2645"/>
         <source>Navigate right: pos = %1</source>
-        <translation type="unfinished">向右导航: 位置 %1</translation>
+        <translation>向右导航: 位置 %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2658"/>
+        <location filename="../mainwindow.cpp" line="2810"/>
         <source>&amp;%1 %2</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2739"/>
+        <location filename="../mainwindow.cpp" line="2891"/>
         <source>Material flags</source>
-        <translation type="unfinished">材质标签</translation>
+        <translation>材质标签</translation>
     </message>
     <message>
         <source>MainWindow</source>
@@ -3578,454 +3698,608 @@ Are you sure?</source>
 <context>
     <name>QTextBrowser</name>
     <message>
-        <location filename="../iniData.cpp" line="625"/>
+        <location filename="../iniData.cpp" line="126"/>
+        <source>cannot open file</source>
+        <translation>无法打开文件</translation>
+    </message>
+    <message>
+        <location filename="../iniData.cpp" line="134"/>
+        <source>expected &apos;%1&apos;,
+got &apos;%2&apos;</source>
+        <translation>应该为&apos;%1&apos;,
+但实际为&apos;%2&apos;</translation>
+    </message>
+    <message>
+        <location filename="../iniData.cpp" line="138"/>
+        <source>unexpected end of file</source>
+        <translation>文件不完整</translation>
+    </message>
+    <message>
+        <location filename="../iniData.cpp" line="168"/>
+        <source>cannot read token n. %1 from:
+ &apos;%2&apos;</source>
+        <translation>无法从以下内容读取标识 %1:
+&apos;%2&apos;</translation>
+    </message>
+    <message>
+        <location filename="../iniData.cpp" line="175"/>
+        <location filename="../iniData.cpp" line="183"/>
+        <source>expected number istead of &apos;%1&apos; (token %2)</source>
+        <translation>预期内容为数值而非&apos;%1&apos; (标识%2)</translation>
+    </message>
+    <message>
+        <location filename="../iniData.cpp" line="176"/>
+        <source>wrong number : %1 (not in [%2, %3]) (token %4)</source>
+        <translation>错误的值: %1 (不在[%2, %3]之间) (标识 %4)</translation>
+    </message>
+    <message>
+        <location filename="../iniData.cpp" line="193"/>
+        <source>Error reading file &apos;%1&apos;,
+at line %3:
+%2
+</source>
+        <translation>读取文件时于第%3行
+&apos;%1&apos;发生错误:
+%2</translation>
+    </message>
+    <message>
+        <location filename="../iniData.cpp" line="232"/>
+        <source>%1 %2 from &apos;%3&apos; &lt;font size=-1&gt;(&apos;%4&apos;, &apos;%5&apos;, &apos;%6&apos;...)&lt;/font&gt;
+
+</source>
+        <translation>&apos;%3&apos;中的%1 %2 &lt;font size=-1&gt;(&apos;%4&apos;, &apos;%5&apos;, &apos;%6&apos;...)&lt;/font&gt;</translation>
+    </message>
+    <message>
+        <location filename="../iniData.cpp" line="636"/>
         <source>%6 &lt;a href=&quot;#%1.%2.%3&quot;&gt;%4&lt;/a&gt; (in %5)</source>
         <translation>%6 &lt;a href=&quot;#%1.%2.%3&quot;&gt;%4&lt;/a&gt; (在 %5 中)</translation>
     </message>
     <message>
+        <location filename="../iniData.cpp" line="651"/>
         <source>&lt;b&gt;File-not-found:&lt;/b&gt; can&apos;t find texture file for %1.</source>
-        <translation type="obsolete">&lt;b&gt;文件未找到:&lt;/b&gt; 无法打开%1的纹理文件.</translation>
+        <translation>&lt;b&gt;文件未找到:&lt;/b&gt; 无法打开%1的纹理文件。</translation>
     </message>
     <message>
+        <location filename="../iniData.cpp" line="697"/>
         <source>&lt;b&gt;Missing:&lt;/b&gt; %1 uses unknown %2 &lt;u&gt;%3&lt;/u&gt;</source>
-        <translation type="obsolete">&lt;b&gt;丢失:&lt;/b&gt; %1使用了无法识别的%2 &lt;u&gt;%3&lt;/u&gt;</translation>
+        <translation>&lt;b&gt;丢失:&lt;/b&gt; %1使用了无法识别的%2 &lt;u&gt;%3&lt;/u&gt;</translation>
     </message>
     <message>
+        <location filename="../iniData.cpp" line="703"/>
         <source>&lt;b&gt;Ordering problem:&lt;/b&gt; %1 uses %2, which appears later in &lt;i&gt;module.ini&lt;/i&gt;</source>
-        <translation type="obsolete">&lt;b&gt;顺序问题:&lt;/b&gt; %1引用了在&lt;i&gt;module.ini&lt;/i&gt;中后出现的%2</translation>
+        <translation>&lt;b&gt;顺序问题:&lt;/b&gt; %1引用了在&lt;i&gt;module.ini&lt;/i&gt;中后出现的%2</translation>
+    </message>
+    <message>
+        <location filename="../iniData.cpp" line="726"/>
+        <source>&lt;h1&gt;Module &lt;b&gt;%1&lt;/b&gt;&lt;/h1&gt;</source>
+        <translation>&lt;h1&gt;模组 &lt;b&gt;%1&lt;/b&gt;&lt;/h1&gt;</translation>
+    </message>
+    <message>
+        <location filename="../iniData.cpp" line="732"/>
+        <source>&lt;h2&gt;Original BRF files: %1&lt;/h2&gt;</source>
+        <translation>&lt;h2&gt;独有BRF文件: %1&lt;/h2&gt;</translation>
+    </message>
+    <message>
+        <location filename="../iniData.cpp" line="734"/>
+        <source>&lt;h2&gt;CommonRes BRF files: %1&lt;/h2&gt;</source>
+        <translation>&lt;h2&gt;CommonRes BRF 文件: %1&lt;/h2&gt;</translation>
+    </message>
+    <message>
+        <location filename="../iniData.cpp" line="742"/>
+        <source>&lt;i&gt;(used+unused)&lt;/i&gt;</source>
+        <translation>&lt;i&gt;(使用+未使用)&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <location filename="../iniData.cpp" line="743"/>
+        <source>&lt;br&gt;</source>
+        <translation>&lt;br&gt;</translation>
+    </message>
+    <message>
+        <location filename="../iniData.cpp" line="749"/>
+        <source>&lt;h2&gt;Txt data:&lt;/h2&gt;</source>
+        <translation>&lt;h2&gt;Txt 数据:&lt;/h2&gt;</translation>
+    </message>
+    <message>
+        <location filename="../iniData.cpp" line="1152"/>
+        <source>&lt;b&gt;Missing in txt:&lt;/b&gt; cannot find %1 &lt;u&gt;%2&lt;/u&gt;, referred in &apos;%3&apos;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Missing in txt:&lt;/b&gt; cannot find %1 &lt;u&gt;%2&lt;/u&gt;, defined in &apos;%3&apos;</source>
+        <translation type="obsolete">&lt;b&gt;txt中有缺失文件:&lt;/b&gt;无法找到&apos;%3&apos;所声明的 %1 &lt;u&gt;%2&lt;/u&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Duplicate:&lt;/b&gt; %1 was already defined in file %2</source>
         <translation type="obsolete">&lt;b&gt;重复:&lt;/b&gt; %1已在%2文件中出现过</translation>
     </message>
     <message>
+        <location filename="../iniData.cpp" line="1230"/>
         <source>&lt;b&gt;File-Not-Found:&lt;/b&gt; could not read brf file &lt;u&gt;%1&lt;/u&gt;, listed in module.ini file</source>
-        <translation type="obsolete">&lt;b&gt;文件未找到:&lt;/b&gt; 无法读取module.ini中列出的brf文件 &lt;u&gt;%1&lt;/u&gt;</translation>
+        <translation>&lt;b&gt;文件未找到:&lt;/b&gt; 无法读取module.ini中列出的brf文件 &lt;u&gt;%1&lt;/u&gt;</translation>
     </message>
     <message>
+        <location filename="../iniData.cpp" line="1233"/>
         <source>&lt;b&gt;File-Format Error:&lt;/b&gt; could not read brf file &lt;u&gt;%1&lt;/u&gt;</source>
-        <translation type="obsolete">&lt;b&gt;文件格式错误:&lt;/b&gt; 无法读取brf文件 &lt;u&gt;%1&lt;/u&gt;</translation>
+        <translation>&lt;b&gt;文件格式错误:&lt;/b&gt; 无法读取brf文件 &lt;u&gt;%1&lt;/u&gt;</translation>
+    </message>
+</context>
+<context>
+    <name>QTextBrowser::QTextBrowser</name>
+    <message>
+        <location filename="../iniData.cpp" line="670"/>
+        <source>&lt;b&gt;Duplicate:&lt;/b&gt; %1 was already defined in file %2</source>
+        <translation>&lt;b&gt;重复:&lt;/b&gt; %1已在%2文件中出现过</translation>
     </message>
 </context>
 <context>
     <name>Selector</name>
     <message>
-        <location filename="../selector.cpp" line="42"/>
+        <location filename="../selector.cpp" line="44"/>
         <source>Split via action.txt</source>
         <translation>根据action.txt拆分</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="43"/>
+        <location filename="../selector.cpp" line="45"/>
         <source>Split sequence following the action.txt file. A new &quot;action [after split].txt&quot; file is also produced, which use the new animation.</source>
-        <translation>根据action.txt文件拆分序列.并将生成一个新的&quot;action [after split].txt&quot;文件,包含新的动画.</translation>
+        <translation>根据action.txt文件拆分序列，并将生成一个新的&quot;action [after split].txt&quot;文件，包含新的动画。</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="45"/>
+        <location filename="../selector.cpp" line="47"/>
         <source>Auto-split</source>
         <translation>自动拆分</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="46"/>
+        <location filename="../selector.cpp" line="48"/>
         <source>Auto-split sequence into its separated chunks, separating it at lasge gaps in frames.</source>
-        <translation>自动将序列拆分为分离的端,将根据帧之间的大空隙来拆分.</translation>
+        <translation>自动将序列拆分为独立的段，将根据帧之间的大空隙来拆分。</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="48"/>
-        <location filename="../selector.cpp" line="430"/>
+        <location filename="../selector.cpp" line="51"/>
+        <source>Extract interval...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../selector.cpp" line="52"/>
+        <source>Extract an animation from an interval of times.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../selector.cpp" line="54"/>
+        <source>Remove interval...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../selector.cpp" line="55"/>
+        <source>Remove an interval of times from the animation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../selector.cpp" line="57"/>
+        <source>Merge animations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../selector.cpp" line="58"/>
+        <source>Merge two animations into one -- intervals must be right!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../selector.cpp" line="60"/>
+        <location filename="../selector.cpp" line="453"/>
         <source>Rename</source>
         <translation>重命名</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="52"/>
+        <location filename="../selector.cpp" line="64"/>
         <source>Remove</source>
         <translation>移除</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="56"/>
+        <location filename="../selector.cpp" line="68"/>
         <source>Duplicate</source>
         <translation>重复</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="58"/>
+        <location filename="../selector.cpp" line="70"/>
         <source>next tab</source>
         <translation>下一个标签页</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="62"/>
+        <location filename="../selector.cpp" line="74"/>
         <source>left tab</source>
         <translation>上一个标签页</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="66"/>
+        <location filename="../selector.cpp" line="78"/>
         <source>Move up</source>
         <translation>上移</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="68"/>
+        <location filename="../selector.cpp" line="80"/>
         <source>Move this object upward in the list</source>
         <translation>将项目在列表中向上移动</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="71"/>
+        <location filename="../selector.cpp" line="83"/>
         <source>Move down</source>
         <translation>下移</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="73"/>
+        <location filename="../selector.cpp" line="85"/>
         <source>Move this object one step down in the list</source>
         <translation>将项目在列表中向下移动</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="76"/>
+        <location filename="../selector.cpp" line="88"/>
         <source>Add to reference animations</source>
         <translation>加入样本动画</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="77"/>
+        <location filename="../selector.cpp" line="89"/>
         <source>Add this animation to reference animations (to use it later to display rigged meshes).</source>
-        <translation>将该动画加入样本动画(用于显示绑定的模型).</translation>
+        <translation>将该动画加入样本动画(用于显示绑定的模型)。</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="79"/>
+        <location filename="../selector.cpp" line="91"/>
         <source>Add to reference skeletons</source>
         <translation>加入样本骨骼</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="80"/>
+        <location filename="../selector.cpp" line="92"/>
         <source>Add this animation to reference skeletons (to use it later for animations).</source>
-        <translation>将该动画加入样本骨骼(用于显示动画).</translation>
+        <translation>将该动画加入样本骨骼(用于显示动画)。</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="83"/>
+        <location filename="../selector.cpp" line="95"/>
         <source>set %1</source>
         <translation>%1组合</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="84"/>
+        <location filename="../selector.cpp" line="96"/>
         <source>Add this mesh to reference skins (to use it later to display animations).</source>
-        <translation>将模型加入样本皮肤(用于显示动画).</translation>
+        <translation>将模型加入样本皮肤(用于显示动画)。</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="109"/>
+        <location filename="../selector.cpp" line="121"/>
         <source>&lt;none&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="114"/>
+        <location filename="../selector.cpp" line="126"/>
         <source>mod file &lt;%1&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>模组文件 &lt;%1&gt;</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="116"/>
+        <location filename="../selector.cpp" line="128"/>
         <source>mod file &lt;%1&gt; (indirectly)</source>
-        <translation type="unfinished"></translation>
+        <translation>模组文件 &lt;%1&gt; (间接关联)</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="120"/>
+        <location filename="../selector.cpp" line="132"/>
         <source>&lt;no .txt file&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../selector.cpp" line="122"/>
-        <source>&lt;core engine&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../selector.cpp" line="124"/>
-        <source>&lt;core engine&gt; (indirectly)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../selector.cpp" line="127"/>
-        <source>&lt;not in module.ini&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../selector.cpp" line="130"/>
-        <source>(not computed: compute now)</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;非txt文件&gt;</translation>
     </message>
     <message>
         <location filename="../selector.cpp" line="134"/>
+        <source>&lt;core engine&gt;</source>
+        <translation>&lt;核心引擎文件&gt;</translation>
+    </message>
+    <message>
+        <location filename="../selector.cpp" line="136"/>
+        <source>&lt;core engine&gt; (indirectly)</source>
+        <translation>&lt;核心引擎文件&gt;(间接关联)</translation>
+    </message>
+    <message>
+        <location filename="../selector.cpp" line="139"/>
+        <source>&lt;not in module.ini&gt;</source>
+        <translation>&lt;module.ini中未声明&gt;</translation>
+    </message>
+    <message>
+        <location filename="../selector.cpp" line="141"/>
+        <source>&lt;save file to find out&gt;</source>
+        <translation>&lt;保存以更新信息&gt;</translation>
+    </message>
+    <message>
+        <location filename="../selector.cpp" line="144"/>
+        <source>(not computed: compute now)</source>
+        <translation>(未处理: 立即处理)</translation>
+    </message>
+    <message>
+        <location filename="../selector.cpp" line="148"/>
         <source>Export</source>
         <translation>导出</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="136"/>
+        <location filename="../selector.cpp" line="150"/>
         <source>Info on mesh import/export</source>
         <translation>模型导入/导出信息</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="138"/>
+        <location filename="../selector.cpp" line="152"/>
         <source>Export static mesh</source>
         <translation>导出为静态模型</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="139"/>
+        <location filename="../selector.cpp" line="153"/>
         <source>Export this model (or this frame) as a 3D static mesh.</source>
-        <translation>将该模型(或该帧)导出为一个3D静态模型.</translation>
+        <translation>将该模型(或该帧)导出为一个3D静态模型。</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="141"/>
+        <location filename="../selector.cpp" line="155"/>
         <source>Export vertex ani</source>
         <translation>导出顶点动画</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="142"/>
+        <location filename="../selector.cpp" line="156"/>
         <source>Export this model as a mesh with vertex animation.</source>
-        <translation>将该模型导出为带定点动画的模型.</translation>
+        <translation>将该模型导出为带定点动画的模型。</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="144"/>
+        <location filename="../selector.cpp" line="158"/>
         <source>Export combined mesh</source>
         <oldsource>Export mesh group</oldsource>
         <translation>导出模型组</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="145"/>
+        <location filename="../selector.cpp" line="159"/>
         <source>Export this group of models in a single OBJ.</source>
         <oldsource>Export this group of model in a single OBJ.</oldsource>
-        <translation>将该组模型导出到一个单独的OBJ中.</translation>
+        <translation>将该组模型导出到一个单独的OBJ中。</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="146"/>
+        <location filename="../selector.cpp" line="160"/>
         <source>Export all meshes</source>
         <translation>导出所有模型</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="147"/>
+        <location filename="../selector.cpp" line="161"/>
         <source>Export each of these models as separate OBJs.</source>
-        <translation>将每一个模型导出到一个单独的OBJ文件.</translation>
+        <translation>将每一个模型导出到一个单独的OBJ文件。</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="149"/>
+        <location filename="../selector.cpp" line="163"/>
         <source>Export rigged mesh</source>
         <translation>导出绑定的模型</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="150"/>
+        <location filename="../selector.cpp" line="164"/>
         <source>Export this model (or this frame) as a rigged mesh.</source>
-        <translation>将该模型(或该帧)导出为一个绑定的模型.</translation>
+        <translation>将该模型(或该帧)导出为一个绑定的模型。</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="152"/>
+        <location filename="../selector.cpp" line="166"/>
         <source>Export (nude) skeleton</source>
         <translation>导出(纯)骨骼</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="153"/>
+        <location filename="../selector.cpp" line="167"/>
         <source>Export this skeleton (as a set of nude bones).</source>
-        <translation>将该骨骼(仅骨骼块)导出.</translation>
+        <translation type="unfinished">将该骨骼(仅骨骼块)导出。</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="154"/>
+        <location filename="../selector.cpp" line="168"/>
         <source>Export skeleton with skin</source>
         <translation>导出带皮肤的骨骼</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="155"/>
+        <location filename="../selector.cpp" line="169"/>
         <source>Export this skeleton (as a rigged skin).</source>
-        <translation>将该骨骼(带绑定的皮肤)导出.</translation>
+        <translation>将该骨骼（带绑定的皮肤）导出。</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="156"/>
+        <location filename="../selector.cpp" line="170"/>
         <source>Export a skin for this ani</source>
         <translation>导出带皮肤动画</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="157"/>
+        <location filename="../selector.cpp" line="171"/>
         <source>Export a rigged skin which can be used for this animation.</source>
-        <translation>将该动画连同绑定的皮肤导出.</translation>
+        <translation>将该动画连同绑定的皮肤导出。</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="159"/>
+        <location filename="../selector.cpp" line="173"/>
         <source>Export animation</source>
         <translation>导出动画</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="160"/>
+        <location filename="../selector.cpp" line="174"/>
         <source>Export this animation.</source>
-        <translation>导出该动画.</translation>
+        <translation>导出该动画。</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="162"/>
+        <location filename="../selector.cpp" line="176"/>
         <source>Reskeletonize</source>
         <translation>骨骼转化</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="163"/>
+        <location filename="../selector.cpp" line="177"/>
         <source>Adapt this rigged mesh to a new skeleton</source>
         <translation>将该绑定的模型转移到一个新的骨骼上</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="165"/>
+        <location filename="../selector.cpp" line="179"/>
         <source>Transfer rigging</source>
         <translation>传递绑定</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="166"/>
+        <location filename="../selector.cpp" line="180"/>
         <source>Copy rigging from one mesh to another</source>
         <translation>复制一个模型的绑定到另一个</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="169"/>
+        <location filename="../selector.cpp" line="183"/>
         <source>Mirror</source>
         <translation>镜像</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="170"/>
+        <location filename="../selector.cpp" line="184"/>
         <source>Mirror this object on the X axis.</source>
-        <translation>沿X轴镜像翻转该项.</translation>
+        <translation>沿X轴镜像翻转该项。</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="172"/>
+        <location filename="../selector.cpp" line="186"/>
         <source>Roto-translate-rescale</source>
         <translation>旋转-平移-缩放</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="173"/>
+        <location filename="../selector.cpp" line="187"/>
         <source>Apply a gemoetric transform.</source>
-        <translation>进行几何变换.</translation>
+        <translation>进行几何变换。</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="175"/>
+        <location filename="../selector.cpp" line="189"/>
         <source>Rescale</source>
         <translation>缩放</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="176"/>
+        <location filename="../selector.cpp" line="190"/>
         <source>Rescale this object.</source>
-        <translation>缩放该项目.</translation>
+        <translation>缩放该项目。</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="178"/>
+        <location filename="../selector.cpp" line="192"/>
         <source>Shift time interval</source>
         <translation>平移时间区段</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="179"/>
+        <location filename="../selector.cpp" line="193"/>
         <source>Shift a time interval for this animation</source>
         <translation>将该动画的时间区段平移</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="181"/>
+        <location filename="../selector.cpp" line="195"/>
         <source>Make quad-dominant</source>
-        <translation type="unfinished"></translation>
+        <translation>四边形化</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="182"/>
+        <location filename="../selector.cpp" line="196"/>
         <source>Try to merge most triangles into fewer quads (more efficient!)</source>
-        <translation type="unfinished"></translation>
+        <translation>尝试将大部分三角形合并为四边形(节省资源)</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="183"/>
+        <location filename="../selector.cpp" line="197"/>
         <source>Combine collision objects</source>
-        <translation type="unfinished"></translation>
+        <translation>合并碰撞模型</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="184"/>
+        <location filename="../selector.cpp" line="198"/>
         <source>Make a combined collision obj. unifying these objs.</source>
-        <translation type="unfinished"></translation>
+        <translation>将这些碰撞模型合并成一个碰撞模型。</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="186"/>
+        <location filename="../selector.cpp" line="200"/>
         <source>Recompute normals</source>
         <translation>重新计算法线</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="187"/>
+        <location filename="../selector.cpp" line="201"/>
         <source>Recompute normals for this model, and unify pos and vertices</source>
         <translation>重新计算该模型的范县,统一坐标和顶点</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="189"/>
+        <location filename="../selector.cpp" line="203"/>
         <source>Unify vertices</source>
         <translation>统一顶点</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="190"/>
+        <location filename="../selector.cpp" line="204"/>
         <source>Unify identical vertices and pos.</source>
-        <translation>统一相同的顶点和坐标.</translation>
+        <translation>统一相同的顶点和坐标。</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="192"/>
+        <location filename="../selector.cpp" line="206"/>
         <source>Combine meshes</source>
         <translation>合并模型</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="193"/>
+        <location filename="../selector.cpp" line="207"/>
         <source>Make a combined mesh unifying these meshes.</source>
-        <translation>将这些模型合并成一个.</translation>
+        <translation>将这些模型合并成一个。</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="195"/>
+        <location filename="../selector.cpp" line="209"/>
+        <source>Make a collision object</source>
+        <translation>创建碰撞体</translation>
+    </message>
+    <message>
+        <location filename="../selector.cpp" line="210"/>
+        <source>Turn this mesh(es) into a combined Collision object.</source>
+        <translation>将模型合并为一个碰撞体。</translation>
+    </message>
+    <message>
+        <location filename="../selector.cpp" line="212"/>
         <source>Mount on one bone</source>
         <translation>加载到单一骨骼</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="196"/>
+        <location filename="../selector.cpp" line="213"/>
         <source>Put this mesh on top of a single skeleton bone.</source>
-        <translation>将该模型放在一块单一骨骼上.</translation>
+        <translation>将该模型放在一块单一骨骼上。</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="198"/>
+        <location filename="../selector.cpp" line="215"/>
         <source>remove all</source>
         <translation>全部移除</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="199"/>
+        <location filename="../selector.cpp" line="216"/>
         <source>Remove all faces that are backfacing (e.g. in beard meshes).</source>
-        <translation>移除所有反向的面(例:胡须模型).</translation>
+        <translation>移除所有反向的面（例：胡须模型）。</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="200"/>
+        <location filename="../selector.cpp" line="217"/>
         <source>add (x2 faces)</source>
         <translation>添加(面数翻倍)</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="201"/>
+        <location filename="../selector.cpp" line="218"/>
         <source>Duplicate all faces: for each current face, add a backfacing face.</source>
-        <translation>为每一面添加一个反向面.</translation>
+        <translation>为每一面添加一个反向面。</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="204"/>
+        <location filename="../selector.cpp" line="221"/>
+        <source>Color uniform</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../selector.cpp" line="223"/>
         <source>per-vertex color</source>
         <translation>顶点着色</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="205"/>
+        <location filename="../selector.cpp" line="224"/>
         <source>rigging</source>
         <translation>绑定</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="206"/>
+        <location filename="../selector.cpp" line="225"/>
         <source>vertex animation</source>
         <translation>顶点动画</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="207"/>
+        <location filename="../selector.cpp" line="226"/>
         <source>Discard vertex animation (keeps only current frame)</source>
         <translation>消除顶点动画(只保留当前帧)</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="211"/>
+        <location filename="../selector.cpp" line="230"/>
         <source>Make a skeleton-modification mesh</source>
         <translation>创建骨骼修改模型</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="212"/>
+        <location filename="../selector.cpp" line="231"/>
         <source>Modify from a skeleton-modification mesh</source>
         <translation>通过骨骼修改模型修改</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="430"/>
+        <location filename="../selector.cpp" line="453"/>
         <source>Group rename</source>
         <translation>批量重命名</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="281"/>
+        <location filename="../selector.cpp" line="304"/>
         <source>[Right-Click]: tools for %1. Multiple selections with [Shift]-[Ctrl].</source>
-        <translation>[右键]: %1工具.按住[Shift]或[Ctrl]多选.</translation>
+        <translation>[右键]： %1工具.按住[Shift]或[Ctrl]多选。</translation>
     </message>
     <message>
         <location filename="../selector.cpp" line="10"/>
@@ -4063,37 +4337,37 @@ Are you sure?</source>
         <translation>碰撞(&amp;C)</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="284"/>
+        <location filename="../selector.cpp" line="307"/>
         <source>[Right-Click]: tools for %1.</source>
-        <translation>[右键]: %1工具.</translation>
+        <translation>[右键]：%1工具。</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="442"/>
+        <location filename="../selector.cpp" line="465"/>
         <source>Used by...</source>
-        <translation type="unfinished"></translation>
+        <translation>被引用于...</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="525"/>
+        <location filename="../selector.cpp" line="554"/>
         <source>Backfacing faces</source>
         <translation>背向面</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="529"/>
+        <location filename="../selector.cpp" line="558"/>
         <source>Discard</source>
         <translation>抛弃</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="561"/>
+        <location filename="../selector.cpp" line="593"/>
         <source>Add to reference skins</source>
         <translation>添加到样本皮肤</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="564"/>
+        <location filename="../selector.cpp" line="596"/>
         <source>to Skin Set %1</source>
         <translation>到皮肤组%1</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="568"/>
+        <location filename="../selector.cpp" line="600"/>
         <source>to Skin Set %1 [new set]</source>
         <translation>到皮肤组%1[新组]</translation>
     </message>
@@ -4103,51 +4377,47 @@ Are you sure?</source>
     <message>
         <location filename="../tablemodel.cpp" line="73"/>
         <source>HEADER</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
     <name>TextFile</name>
     <message>
-        <location filename="../iniData.cpp" line="126"/>
         <source>cannot open file</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">无法打开文件</translation>
     </message>
     <message>
-        <location filename="../iniData.cpp" line="134"/>
         <source>expected &apos;%1&apos;,
 got &apos;%2&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">预期为&apos;%1&apos;,
+但实际为&apos;%2&apos;</translation>
     </message>
     <message>
-        <location filename="../iniData.cpp" line="138"/>
         <source>unexpected end of file</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">文件不完整</translation>
     </message>
     <message>
-        <location filename="../iniData.cpp" line="168"/>
         <source>cannot read token n. %1 from:
  &apos;%2&apos;</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">无法从以下内容读取标识 %1:
+&apos;%2&apos;</translation>
     </message>
     <message>
-        <location filename="../iniData.cpp" line="175"/>
-        <location filename="../iniData.cpp" line="183"/>
         <source>expected number istead of &apos;%1&apos; (token %2)</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">预期内容为数值而非&apos;%1&apos; (标识%2)</translation>
     </message>
     <message>
-        <location filename="../iniData.cpp" line="176"/>
         <source>wrong number : %1 (not in [%2, %3]) (token %4)</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">错误的值: %1 (不在[%2, %3]之间) (标识 %4)</translation>
     </message>
     <message>
-        <location filename="../iniData.cpp" line="193"/>
         <source>Error reading file &apos;%1&apos;,
 at line %3:
 %2
 </source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">读取文件&apos;%1&apos;发生错误,
+于第%3行:
+%2</translation>
     </message>
 </context>
 <context>
@@ -4155,7 +4425,7 @@ at line %3:
     <message>
         <location filename="../askModErrorDialog.ui" line="14"/>
         <source>OpenBRF</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="../askModErrorDialog.ui" line="45"/>
@@ -4173,7 +4443,7 @@ at line %3:
     <message>
         <location filename="../askTexturenameDialog.ui" line="14"/>
         <source>OpenBRF</source>
-        <translation type="unfinished"></translation>
+        <translation>OpenBRF</translation>
     </message>
     <message>
         <location filename="../askTexturenameDialog.ui" line="52"/>

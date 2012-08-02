@@ -26,7 +26,16 @@ AskNewUiPictureDialog::AskNewUiPictureDialog(QWidget *parent) :
     connect(ui->setFullScreen,SIGNAL(clicked()),this,SLOT(resetFullScreen()));
     connect(ui->browse,SIGNAL(clicked()),this,SLOT(browse()));
     connect(ui->setActualPixels,SIGNAL(clicked()),this,SLOT(resetActualPixels()));
-    connect(ui->setCenter, SIGNAL(clicked(bool)),this,SLOT(resetCenter()));
+
+    connect(ui->pushButton_NW, SIGNAL(clicked(bool)),this,SLOT(resetNW()));
+    connect(ui->pushButton_N, SIGNAL(clicked(bool)),this,SLOT(resetN()));
+    connect(ui->pushButton_NE, SIGNAL(clicked(bool)),this,SLOT(resetNE()));
+    connect(ui->pushButton_W, SIGNAL(clicked(bool)),this,SLOT(resetW()));
+    connect(ui->pushButton_C, SIGNAL(clicked(bool)),this,SLOT(resetC()));
+    connect(ui->pushButton_E, SIGNAL(clicked(bool)),this,SLOT(resetE()));
+    connect(ui->pushButton_SW, SIGNAL(clicked(bool)),this,SLOT(resetSW()));
+    connect(ui->pushButton_S, SIGNAL(clicked(bool)),this,SLOT(resetS()));
+    connect(ui->pushButton_SE, SIGNAL(clicked(bool)),this,SLOT(resetSE()));
 
     ui->setActualPixels->setEnabled(false);
 
@@ -38,9 +47,21 @@ AskNewUiPictureDialog::~AskNewUiPictureDialog()
     delete ui;
 }
 
-void AskNewUiPictureDialog::resetCenter(){
-  px = (100.0-sx)/2.0f;
-  py = (100.0-sy)/2.0f;
+
+
+void AskNewUiPictureDialog::resetNW(){ center(0,  1); }
+void AskNewUiPictureDialog::resetN (){ center(0.5,1); }
+void AskNewUiPictureDialog::resetNE(){ center(1,  1); }
+void AskNewUiPictureDialog::resetW (){ center(0,  0.5); }
+void AskNewUiPictureDialog::resetC (){ center(0.5,0.5); }
+void AskNewUiPictureDialog::resetE (){ center(1,  0.5); }
+void AskNewUiPictureDialog::resetSW(){ center(0,  0); }
+void AskNewUiPictureDialog::resetS (){ center(0.5,0); }
+void AskNewUiPictureDialog::resetSE(){ center(1,  0); }
+
+void AskNewUiPictureDialog::center(float relposX, float relposY){
+  px = (100.0-sx)*relposX;
+  py = (100.0-sy)*relposY;
   showSizeAndPos();
 }
 

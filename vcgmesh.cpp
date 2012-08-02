@@ -322,13 +322,13 @@ bool VcgMesh::modifyBrfSkeleton(BrfSkeleton &s){
   if (mesh.vn!=bn*6) return false;
   Point3f undef(666,666,666);
   vector<Point3f> v(6, undef);
-  if (mustUseWT()) {
+  /*if (mustUseWT()) {
     for (CMesh::FaceIterator f = mesh.face.begin(); f!=mesh.face.end(); f++) {
       f->V(0)->T() = f->WT(0);
       f->V(1)->T() = f->WT(1);
       f->V(2)->T() = f->WT(2);
     }
-  }
+  }*/
   vector< vector<Point3f> > data (s.bone.size(), v);
   for (CMesh::VertexIterator v = mesh.vert.begin(); v!=mesh.vert.end(); v++) {
     int bi = (int)v->T().P()[0]; // bone index

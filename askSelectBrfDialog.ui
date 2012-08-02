@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>389</width>
-    <height>494</height>
+    <height>518</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
       <property name="margin">
        <number>0</number>
       </property>
-      <item row="0" column="0">
+      <item row="1" column="0">
        <widget class="QLabel" name="label">
         <property name="font">
          <font>
@@ -37,10 +37,10 @@ folder:</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
+      <item row="4" column="1">
        <widget class="QListWidget" name="listComm"/>
       </item>
-      <item row="0" column="1">
+      <item row="1" column="1">
        <widget class="QListWidget" name="listMod">
         <property name="minimumSize">
          <size>
@@ -50,10 +50,10 @@ folder:</string>
         </property>
        </widget>
       </item>
-      <item row="4" column="1">
+      <item row="5" column="1">
        <widget class="QListWidget" name="listUnref"/>
       </item>
-      <item row="4" column="0">
+      <item row="5" column="0">
        <widget class="QLabel" name="label_2">
         <property name="font">
          <font>
@@ -61,7 +61,7 @@ folder:</string>
          </font>
         </property>
         <property name="text">
-         <string>Not
+         <string>Files not
 included in
 module.ini:</string>
         </property>
@@ -70,7 +70,7 @@ module.ini:</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
+      <item row="4" column="0">
        <widget class="QLabel" name="label_3">
         <property name="font">
          <font>
@@ -84,6 +84,18 @@ folder:</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTop|Qt::AlignTrailing</set>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="label_4">
+        <property name="font">
+         <font>
+          <italic>true</italic>
+         </font>
+        </property>
+        <property name="text">
+         <string>&lt;line_num&gt;.&lt;filename&gt; (&lt;#used&gt; + &lt;#unused&gt;)</string>
         </property>
        </widget>
       </item>
@@ -108,6 +120,13 @@ folder:</string>
          </size>
         </property>
        </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="openModuleIni">
+        <property name="text">
+         <string>Open module.ini</string>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QPushButton" name="refresh">

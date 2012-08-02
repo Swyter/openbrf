@@ -933,6 +933,7 @@ IniData::IniData(BrfData &_currentBrf): currentBrf(_currentBrf)
   filename.clear();
   file.clear();
   origin.clear();
+  iniLine.clear();
 
   modPath.clear();;
   mabPath.clear();
@@ -1074,16 +1075,18 @@ bool IniData::loadAll(int howFast){
 
   {
   // load core resources...
-  addBrfFile("core_shaders",CORE_RES,howFast);
-  addBrfFile("core_textures",CORE_RES,howFast);
-  addBrfFile("core_materials",CORE_RES,howFast);
-  addBrfFile("core_pictures",CORE_RES,howFast);
-  addBrfFile("core_ui_meshes",CORE_RES,howFast);
+  addBrfFile("core_shaders",CORE_RES,0,howFast);
+  addBrfFile("core_textures",CORE_RES,0,howFast);
+  addBrfFile("core_materials",CORE_RES,0,howFast);
+  addBrfFile("core_pictures",CORE_RES,0,howFast);
+  addBrfFile("core_ui_meshes",CORE_RES,0,howFast);
 
 
+  int lineN = 1;
   while (f.readLine(st,254)>-1)  {
 
     QString s = QString("%1").arg(st);
+    lineN ++;
     s = s.trimmed(); // removal of spaces
     if (s[0]=='#') continue; // skip all comments
     char com1[512], com2[512];
@@ -1091,7 +1094,7 @@ bool IniData::loadAll(int howFast){
       bool loadRes = QString(com1)=="load_resource";
       bool loadMod = ((QString(com1)=="load_mod_resource") || (QString(com1)=="load_module_resource"));
       if (loadRes || loadMod) {
-        if (!addBrfFile(com2,(loadMod)?MODULE_RES:COMMON_RES,howFast)) res=false;
+        if (!addBrfFile(com2,(loadMod)?MODULE_RES:COMMON_RES,lineN,howFast)) res=false;
       }
 
     }
@@ -1203,7 +1206,7 @@ int IniData::nObjects() const{
   return res;
 }
 
-bool IniData::addBrfFile(const char* name, Origin ori, int howFast){
+bool IniData::addBrfFile(const char* name, Origin ori, int line, int howFast){
   QString brfFn, brfPath;
   if (ori == MODULE_RES) {
     brfFn = modPath + "/Resource/" +name +".brf";
@@ -1213,6 +1216,7 @@ bool IniData::addBrfFile(const char* name, Origin ori, int howFast){
     brfFn = mabPath + "/CommonRes/" + name +".brf";
     brfPath = mabPath + "/CommonRes";
   }
+  iniLine.push_back(line);
   file.push_back(BrfData());
   filename.push_back(brfFn);
   origin.push_back(ori);

@@ -190,6 +190,21 @@ int GLWidget::getFrameNumber() const{
   return selFrameN;
 }
 
+void GLWidget::browseTexture(){
+  if (!renderedTexture.isEmpty()) {
+    //QString f = QUrl::fromLocalFile(renderedTexture).toString();
+    //f.truncate(f.lastIndexOf('/')+1);
+    //QMessageBox::warning(this,"test", f);
+    //QDesktopServices::setUrlHandler("*.*",this,"Explorer");
+    //QDesktopServices::openUrl(f);
+
+    QStringList args;
+    args << QString("/select,") << QDir::toNativeSeparators(renderedTexture);
+    QProcess::startDetached("explorer", args);
+
+  }
+}
+
 void GLWidget::renderTexture(const char* name, bool addExtension){
   glDisable(GL_LIGHTING);
 
@@ -199,9 +214,10 @@ void GLWidget::renderTexture(const char* name, bool addExtension){
   //sprintf(tname,"%s%s",name,(addExtension)?".dds":"");
 
 
-  QString fulltname = locateOnDisk( name, (addExtension)?".dds":"" );
-  if (!fulltname.isEmpty()) {
-    setTextureName(fulltname);
+  BrfMaterial::Location loc = BrfMaterial::UNKNOWN;
+  renderedTexture = locateOnDisk( name, (addExtension)?".dds":"", &loc );
+  if (!renderedTexture.isEmpty()) {
+    setTextureName(renderedTexture, loc);
   } else {
     setCheckboard();
     lastMatErr.texName=QString("%1%2").arg(name).arg((addExtension)?".dds":"");
@@ -305,11 +321,38 @@ void GLWidget::renderBrfItem (const BrfMesh& p){
 #define GL_LIGHT_MODEL_COLOR_CONTROL  0x81F8
 #define GL_SEPARATE_SPECULAR_COLOR  0x81FA
 
+bool usingProgram = false;
+
 void GLWidget::enableDefMaterial(){
   float tmps[4]={0,0,0,0};
   glMaterialfv(GL_FRONT_AND_BACK,GL_SPECULAR,tmps);
   glDisable(GL_ALPHA_TEST);
-  glUseProgram(0);
+  if (usingProgram) if (glUseProgram) glUseProgram(0);
+  usingProgram = false;
+
+}
+
+void GLWidget::initFramProgramIron(){
+
+  fragProgramIron = 0;
+  if (!glCreateShader || !glCreateProgram || !glCompileShader
+      || !glAttachShader || !glAttachShader || !glShaderSource) return;
+  GLuint shd = glCreateShader(GL_FRAGMENT_SHADER);
+  fragProgramIron = glCreateProgram();
+  const char* shaderSource =
+    "uniform vec3 spec_col;\n"
+    "sampler2D sampl;\n"
+    "void main(){\n"
+    "  vec4 tex = texture( sampl,gl_TexCoord[0].st);\n"
+    "  gl_FragColor.rgb = tex.rgb*(gl_Color.rgb "
+    "                 + gl_SecondaryColor.rgb*spec_col*tex.a*0.5);\n"
+    "  gl_FragColor.a = 1; "
+    "}\n";
+  glShaderSource(shd, 1, &shaderSource, 0);
+  glCompileShader(shd);
+  glAttachShader(fragProgramIron,shd);
+  glLinkProgram(fragProgramIron);
+
 }
 
 void GLWidget::enableMaterial(const BrfMaterial &m){
@@ -333,7 +376,7 @@ void GLWidget::enableMaterial(const BrfMaterial &m){
 
   //if (m.diffuseA[0]!=0) glEnable(GL_TEXTURE_2D); else glDisable(GL_TEXTURE_2D);
 
-  glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL,GL_SEPARATE_SPECULAR_COLOR);
+
 
   //glMateriali(GL_FRONT_AND_BACK,GL_SHININESS,(int)m.specular);
   //float tmps[4]={m.r,m.g,m.b,1};
@@ -341,31 +384,14 @@ void GLWidget::enableMaterial(const BrfMaterial &m){
 
   if (QString(m.spec)!="none") alphaShine = false;
   if (alphaShine){
-    static GLuint prg = 666666;
-    if (prg==666666) {
-
-      GLuint shd = glCreateShader(GL_FRAGMENT_SHADER);
-      prg = glCreateProgram();
-      const char* shaderSource =
-      "uniform vec3 spec_col;\n"
-      "sampler2D sampl;\n"
-      "void main(){\n"
-      "  vec4 tex = texture( sampl,gl_TexCoord[0].st);\n"
-      "  gl_FragColor.rgb = tex.rgb*(gl_Color.rgb "
-      "                 + gl_SecondaryColor.rgb*spec_col*tex.a*0.5);\n"
-      "  gl_FragColor.a = 1; "
-      "}\n";
-      glShaderSource(shd, 1, &shaderSource, 0);
-      glCompileShader(shd);
-      glAttachShader(prg,shd);
-      glLinkProgram(prg);
-    }
+    glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL,GL_SEPARATE_SPECULAR_COLOR);
     float ones[4]={1,1,1,1};
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
     glLightfv(GL_LIGHT0,GL_SPECULAR, ones);
     glMateriali(GL_FRONT_AND_BACK,GL_SHININESS, (int)m.specular);
-    glUseProgram(prg);
-    glUniform3f(1,m.r,m.g,m.b);
+    if (glUseProgram) glUseProgram(fragProgramIron);
+    usingProgram = true;
+    if (glUniform3f) glUniform3f(1,m.r,m.g,m.b);
   }
 
 
@@ -528,9 +554,10 @@ void GLWidget::forgetChachedTextures(){
   ::forgetChachedTextures();
 }
 
-void GLWidget::setTextureName(QString s){
+void GLWidget::setTextureName(QString s, int origin){
   glEnable(GL_TEXTURE_2D);
   DdsData data;
+  data.location = origin;
   if (myBindTexture( s, data )){
      //glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
      //glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
@@ -569,7 +596,7 @@ void GLWidget::setMaterialName(QString st){
     lastMatErr.texName=QString("%1.dds").arg(st);
     QString s = locateOnDisk(QString(m->diffuseA),".dds",&(m->location));
     if (inferMaterial) enableMaterial(*m );
-    if (!s.isEmpty()) setTextureName(s);
+    if (!s.isEmpty()) setTextureName(s, m->location );
     else {
       setMaterialError(2); // file not found
       setCheckboard();
@@ -846,7 +873,8 @@ QSize GLWidget::sizeHint() const
 
 void GLWidget::initializeGL()
 {
-  glewInit();
+  glewInit();glewInit();
+  initFramProgramIron();
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_CULL_FACE);
 }
@@ -1505,9 +1533,9 @@ QString GLWidget::locateOnDisk(QString nome, const char *ext, BrfMaterial::Locat
   QString tname = QString(nome);
   if (ext[0]) if (!tname.endsWith(".dds",Qt::CaseInsensitive)) tname+=ext;
   if (*loc == BrfMaterial::UNKNOWN) {
-     if (QDir(this->texturePath[2]).exists(tname)) *loc = BrfMaterial::LOCAL;
-     else if (QDir(this->texturePath[1]).exists(tname)) *loc = BrfMaterial::MODULE;
+    if (QDir(this->texturePath[1]).exists(tname)) *loc = BrfMaterial::MODULE;
      else if (QDir(this->texturePath[0]).exists(tname)) *loc = BrfMaterial::COMMON;
+     else if (QDir(this->texturePath[2]).exists(tname)) *loc = BrfMaterial::LOCAL;
      else *loc = BrfMaterial::NOWHERE;
   }
 

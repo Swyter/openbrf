@@ -13,6 +13,7 @@
 #include "askNewUiPictureDialog.h"
 #include "askUnrefTextureDialog.h"
 #include "askSelectBrfDialog.h"
+#include "askIntervalDialog.h"
 #include <QtGui>
 #include <QDebug>
 #include <algorithm>
@@ -148,7 +149,6 @@ static bool _copy(vector<T> &t, const QModelIndexList &l, vector<T> &d){
       name.truncate(name.lastIndexOf("."));
     }
 
-    QApplication::clipboard()->setText(name);
   }
 
   return true;
@@ -581,6 +581,10 @@ int MainWindow::getLanguageOption(){
   if (s.isValid()) return  s.toInt(); return  0;
 }
 
+void MainWindow::openModuleIniFile(){
+  QDesktopServices::openUrl(QUrl::fromLocalFile(modPath()+"/module.ini"));
+}
+
 MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),inidata(brfdata)
 {
   setWindowIcon(QIcon(":/openBrf.ico"));
@@ -755,32 +759,50 @@ bool MainWindow::addNewUiPicture(){
 
 
 
-template<class T>
-bool MainWindow::addNewGeneral(){
+template<class TT>
+bool MainWindow::addNewGeneral(QStringList defaultst ){
 
 
-  int tok = T::tokenIndex();
+  int tok = TT::tokenIndex();
 
-  AskTexturenameDialog d(this, tok==MATERIAL);
+  QString alsoAdd;
+  if (tok==MATERIAL) alsoAdd = QString(tokenBrfName[TEXTURE ]).toLower();
+  if (tok==TEXTURE ) alsoAdd = QString(tokenBrfName[MATERIAL]).toLower();
+
+  AskTexturenameDialog d(this, alsoAdd);
   if (tok==MATERIAL || tok==TEXTURE)
     d.setBrowsable(mabPath+"/Modules/"+modName+"/Textures");
-  d.setLabel( tr("Name:") );
+  //d.setLabel( tr("Name:") );
+  if (defaultst.empty())
+    d.setDef(tr("new_%1").arg(QString(tokenBrfName[tok]).toLower()) );
+  else
+    d.setRes(defaultst);
+
   d.setWindowTitle( tr("New %1").arg( IniData::tokenFullName(tok)  ) );
-  d.setDef(tr("new_%1").arg(QString(tokenBrfName[tok]).toLower()) );
+
+
   int ok=d.exec();
   if (ok) {
     QStringList newName=d.getRes();
 
     for (int i=0; i<newName.size(); i++) {
-      T m;
+      TT m;
       _setName(m.name,newName[i]);
       m.SetDefault();
       insert(m);
       if (d.alsoAdd()) {
-        BrfTexture t;
-        _setName(t.name,newName[i]);
-        t.SetDefault();
-        insert(t);
+        if (tok==MATERIAL) {
+          BrfTexture t;
+          _setName(t.name,newName[i]);
+          t.SetDefault();
+          insert(t);
+        }
+        if (tok==TEXTURE) {
+          BrfMaterial t;
+          _setName(t.name,newName[i]);
+          t.SetDefault();
+          insert(t);
+        }
       }
       //selector->updateData(brfdata);
     setModified(true);
@@ -792,7 +814,8 @@ bool MainWindow::addNewGeneral(){
   return false;
 }
 bool MainWindow::addNewMaterial(){
-  if (addNewGeneral<BrfMaterial>()){
+
+  if (addNewGeneral<BrfMaterial>( QStringList() )){
     /*
     int i=selector->currentIndex();
     if (i>=0 && i<(int)brfdata.material.size()) {
@@ -805,10 +828,10 @@ bool MainWindow::addNewMaterial(){
   return false;
 }
 bool MainWindow::addNewTexture(){
-  return addNewGeneral<BrfTexture>();
+  return addNewGeneral<BrfTexture>( QStringList() );
 }
 bool MainWindow::addNewShader(){
-  return addNewGeneral<BrfShader>();
+  return addNewGeneral<BrfShader>( QStringList() );
 }
 
 void MainWindow::applyAfterMeshImport(BrfMesh &m){
@@ -1078,8 +1101,11 @@ void MainWindow::bodyMakeQuadDominant(){
 }
 
 void MainWindow::shiftAni(){
-  int j = selector->firstSelected();
-  if (selector->currentTabName()==ANIMATION) {
+
+  if (selector->currentTabName()!=ANIMATION) return;
+  QModelIndexList list= selector->selectedList();
+  for (int i=0; i<list.size(); i++){
+    int j = list[i].row();
     bool ok;
     int a=brfdata.animation[j].FirstIndex();
     int b=brfdata.animation[j].LastIndex();
@@ -1097,11 +1123,60 @@ void MainWindow::shiftAni(){
   updateGl();
 }
 
+void MainWindow::aniExtractInterval(){
+  if (selector->currentTabName()!=ANIMATION) return;
+  int j = selector->firstSelected();
+  BrfAnimation newani;
+
+  BrfAnimation &ani(brfdata.animation[j]);
+  AskIntervalDialog d(this, tr("Extract Interval"), ani.FirstIndex(), ani.LastIndex());
+  if (d.exec()!=QDialog::Accepted) return;
+  int res = ani.ExtractIndexInterval(newani, d.getA(),d.getB());
+  if (res>0){
+    insert(newani);
+  }
+}
+
+
+void MainWindow::aniRemoveInterval(){
+  if (selector->currentTabName()!=ANIMATION) return;
+  int j = selector->firstSelected();
+  BrfAnimation &ani(brfdata.animation[j]);
+  AskIntervalDialog d(this, tr("Remove Interval"), ani.FirstIndex(), ani.LastIndex());
+  if (d.exec()!=QDialog::Accepted) return;
+  int res = ani.RemoveIndexInterval(d.getA(),d.getB());
+  if (res>0) {
+    setModified(true);
+    updateGui();
+    updateGl();
+  }
+}
+
+void MainWindow::aniMerge(){
+  if (selector->currentTabName()!=ANIMATION) return;
+  BrfAnimation res;
+  QModelIndexList list= selector->selectedList();
+  for (int i=0; i<list.size(); i++){
+    int j = list[i].row();
+    if (i==0) res = brfdata.animation[j];
+    else {
+      BrfAnimation tmp = res;
+      if (!res.Merge(tmp,brfdata.animation[j])) {
+         QMessageBox::information(this,"OpenBrf",
+          tr("Cannot merge these animations\n (different number of bones).\n")
+         );
+         return;
+      }
+    }
+  }
+  insert(res);
+}
+
 void MainWindow::meshDiscardRig(){
   QModelIndexList list= selector->selectedList();
   for (int j=0; j<list.size(); j++){
     BrfMesh &m(brfdata.mesh[list[j].row()]);
-    m.Unskeletonize(reference.skeleton[9]);//gimmeASkeleton(20)]);
+    //m.Unskeletonize(reference.skeleton[9]);//gimmeASkeleton(20)]);
 
     m.DiscardRigging();
     setModified(true);
@@ -1109,6 +1184,26 @@ void MainWindow::meshDiscardRig(){
   updateGui();
   updateGl();
 }
+
+void MainWindow::meshRecolor(){
+  QColor color = QColorDialog::getColor(Qt::white, this);
+  if (!color.isValid()) return;
+  uint r = color.red(); //uint(color.redF()*255.0);
+  uint g = color.green(); //uint(color.greenF()*255.0);
+  uint b = color.blue(); //uint(color.blueF()*255.0);
+  uint a = 0xFF;
+
+  uint col = b | (g<<8) | (r<<16) | (a<<24);
+  QModelIndexList list= selector->selectedList();
+  for (int j=0; j<list.size(); j++){
+    BrfMesh &m(brfdata.mesh[list[j].row()]);
+    m.ColorAll(col);
+    setModified(true);
+  }
+  updateGui();
+  updateGl();
+}
+
 void MainWindow::meshDiscardCol(){
   QModelIndexList list= selector->selectedList();
   for (int j=0; j<list.size(); j++){
@@ -1413,15 +1508,131 @@ void MainWindow::editCopyFrame(){
   clipboard.mesh.push_back(m);
   clipboard.mesh[0].KeepOnlyFrame(j);
 
+  saveSystemClipboard();
+  /*
   editPasteAct->setEnabled(true);
   editPasteFrameAct->setEnabled(true);
 
   editPasteRiggingAct->setEnabled(m.isRigged);
+  */
+}
+
+void MainWindow::onClipboardChange(){
+  const QMimeData *mime = QApplication::clipboard()->mimeData();
+  if (!mime) return;
+  bool isMyData = mime->hasFormat("application/openBrf");
+
+  //QMessageBox::information(this,"Clipboard stuff",(isMyData)?"with my data!":"not my data");
+
+  if (isMyData) {
+    loadSystemClipboard();
+  } else {
+    clipboard.Clear();
+  }
+  statusBar()->showMessage((isMyData)?
+    QString("%1 new items found in clipboard...").arg(clipboard.totSize())
+    :"Unusable data in cliboard");
+
+  editPasteAct->setEnabled( clipboard.totSize() );
+
+  if (clipboard.mesh.size()!=0){
+    // maybe it was just rigged meshes?
+
+    bool allRigged=true;
+    for (unsigned int i=0; i<clipboard.mesh.size(); i++)
+      if (!clipboard.mesh[i].isRigged) allRigged = false;
+    editPasteRiggingAct->setEnabled(allRigged && clipboard.mesh.size()>0);
+
+    // maybe it was a single frame mesh?
+    editPasteFrameAct->setEnabled((clipboard.mesh.size()==1) && (clipboard.mesh[0].frame.size()==1));
+
+    editPasteModificationAct->setEnabled(true);
+
+  } else {
+    editPasteRiggingAct->setEnabled(false);
+    editPasteFrameAct->setEnabled(false);
+    editPasteModificationAct->setEnabled(false);
+  }
+
+  editPasteTimingsAct->setEnabled(
+      (
+          ((clipboard.mesh.size()==1)&&(clipboard.mesh[0].frame.size()>0))
+          ||(clipboard.animation.size()==1)
+      )
+  );
 
 }
 
+void MainWindow::saveSystemClipboard(){
+
+  QMimeData *mime = new QMimeData();
+
+  // save string as object name
+  const char* text = clipboard.GetFirstObjectName();
+  if (text) mime->setText( text );
+
+  // save data
+  QTemporaryFile file;
+  file.open();
+  FILE* pFile = fdopen(file.handle(), "wb");
+  clipboard.Save(pFile);
+  fflush(pFile);
+
+  QFile refile(file.fileName());
+
+  refile.open(QIODevice::ReadOnly);
+
+  /*
+  //refile.reset();
+  if (!refile.isOpen()) {
+    QMessageBox::information(this,"Cannot open file",QString("%1").arg(refile.fileName()));
+  } else {
+    QMessageBox::information(this,"...",
+      QString("file size: %1 (%2)").arg(refile.size()).arg(refile.readAll().size())
+    );
+    refile.reset();
+  }*/
+
+  mime->setData("application/openBrf",refile.readAll());
+
+  refile.close();
+  file.close();
+
+  QApplication::clipboard()->setMimeData(mime);
+
+
+}
+
+void MainWindow::loadSystemClipboard(){
+  clipboard.Clear();
+  const QMimeData *mime = QApplication::clipboard()->mimeData();
+  const QByteArray &ba = mime->data("application/openBrf");
+  QTemporaryFile f;
+  wchar_t fn[1000];
+  f.open();
+  f.fileName().toWCharArray(fn);
+  fn[f.fileName().size()]=0;
+  f.write(ba);
+  f.flush();
+  /*
+  if (!f.isOpen()) {
+    QMessageBox::information(this,"Cannot open file",QString("%1").arg(f.fileName()));
+  } else {
+    QMessageBox::information(this,"load",
+      QString("filename: %3\n%4,file size: %1 (%2)").
+      arg(f.size()).arg(ba.size()).arg(f.fileName()).arg(QString("pippo"))
+    );
+  }*/
+
+  //FILE* pFile = fdopen(f.handle(), "rb");
+  clipboard.Load(fn);
+  f.close();
+  //
+}
 
 void MainWindow::editPasteRigging(){
+
+
 
   QModelIndexList list= selector->selectedList();
   bool allRigged=true;
@@ -1479,7 +1690,7 @@ void MainWindow::editPasteFrame(){
 }
 
 void MainWindow::editCut(){
-  editCopy(false);
+  editCopy(true);
   deleteSel();
 }
 
@@ -1507,7 +1718,6 @@ void MainWindow::editAddToCopy(){
 
 void MainWindow::editCopy(bool deselect){
   if (deselect) clipboard.Clear();
-  editPasteAct->setEnabled(true);
   switch (selector->currentTabName()) {
     case MESH:     _copy(brfdata.mesh,     selector->selectedList(), clipboard.mesh);  break;
     case TEXTURE:  _copy(brfdata.texture,  selector->selectedList(), clipboard.texture); break;
@@ -1518,35 +1728,7 @@ void MainWindow::editCopy(bool deselect){
     case BODY:     _copy(brfdata.body,     selector->selectedList(), clipboard.body); break;
     default: return ; //assert(0);
   }
-
-  if (selector->currentTabName()==MESH) {
-    // maybe it was just rigged meshes?
-
-    bool allRigged=true;
-    for (unsigned int i=0; i<clipboard.mesh.size(); i++)
-      if (!clipboard.mesh[i].isRigged) allRigged = false;
-    editPasteRiggingAct->setEnabled(allRigged && clipboard.mesh.size()>0);
-
-    // maybe it was a single frame mesh?
-    editPasteFrameAct->setEnabled((clipboard.mesh.size()==1) && (clipboard.mesh[0].frame.size()==1));
-
-    editPasteModificationAct->setEnabled(true);
-
-  } else {
-    editPasteRiggingAct->setEnabled(false);
-    editPasteFrameAct->setEnabled(false);
-    editPasteModificationAct->setEnabled(false);
-
-  }
-
-  editPasteTimingsAct->setEnabled(
-      (
-          ((clipboard.mesh.size()==1)&&(clipboard.mesh[0].frame.size()>0))
-          ||(clipboard.animation.size()==1)
-      )
-  );
-
-
+  saveSystemClipboard();
 }
 
 void MainWindow::editPasteTimings(){
@@ -1856,22 +2038,36 @@ void MainWindow::dragEnterEvent(QDragEnterEvent *event)
 
 void MainWindow::dropEvent(QDropEvent *event)
 {
-    QList<QUrl> urlList;
-    QString fName;
-    QFileInfo info;
+  QList<QUrl> urlList;
+  QString fName;
 
-    if (event->mimeData()->hasUrls())
+  if (event->mimeData()->hasUrls())
+  {
+    urlList = event->mimeData()->urls(); // returns list of QUrls
+    // if just text was dropped, urlList is empty (size == 0)
+
+
+    if ( urlList.size() > 0) // if at least one QUrl is present in list
     {
-        urlList = event->mimeData()->urls(); // returns list of QUrls
+      QStringList list;
+      bool areTextures = true;
+      for (int i=0; i<urlList.size(); i++) {
+        QFileInfo info( urlList[i].toLocalFile() );
+        if (info.suffix().compare("dds",Qt::CaseInsensitive)!=0) areTextures = false;
 
-        // if just text was dropped, urlList is empty (size == 0)
-        if ( urlList.size() > 0) // if at least one QUrl is present in list
-        {
-            fName = urlList[0].toLocalFile(); // convert first QUrl to local path
-            info.setFile( fName ); // information about file
-            if ( info.isFile() ) loadFile( fName ); // if is file, setText
-        }
+        list.push_back( info.completeBaseName() );
+      }
+
+      if (areTextures) {
+        addNewGeneral<BrfTexture>( list );
+      } else {
+        QFileInfo info;
+        QString fn = urlList[0].toLocalFile();
+        info.setFile( fn ); // information about file
+        if ( info.isFile() ) loadFile( list[0] ); // if is file, setText
+      }
     }
+  }
 }
 
 
@@ -1896,6 +2092,7 @@ void MainWindow::optionLanguageSet0(){setLanguage(0);}
 void MainWindow::optionLanguageSet1(){setLanguage(1);}
 void MainWindow::optionLanguageSet2(){setLanguage(2);}
 void MainWindow::optionLanguageSet3(){setLanguage(3);}
+void MainWindow::optionLanguageSet4(){setLanguage(4);}
 
 void MainWindow::optionLanguageSetCustom(){
   if (maybeSave()) {
@@ -2087,10 +2284,13 @@ bool MainWindow::loadFile(const QString &_fileName)
   setEditingRef(false);
 
   if (!brfdata.Load(fileName.toStdWString().c_str())) {
-     QMessageBox::information(this, "OpenBRF",
+
+
+    QMessageBox::information(this, "OpenBRF",
                               tr("Cannot load %1.").arg(fileName));
 
-     return false;
+    return false;
+
   } else  {
     //tryLoadMaterials();
     setCurrentFile(fileName);
@@ -2167,11 +2367,12 @@ void MainWindow::selectBrfData(){
   loadIni(1);
 
   while (1){
-  AskSelectBRFDialog d(this);
+    AskSelectBRFDialog d(this);
+    connect(d.openModuleIniButton(),SIGNAL(clicked()),this,SLOT(openModuleIniFile()));
     for (unsigned int k = 0; k<inidata.file.size(); k++){
       int h = inidata.origin[k]==IniData::MODULE_RES?0:2;
       QString shortName = inidata.filename[k];
-      shortName = QString("%1. %2").arg(k).arg(QFileInfo(shortName).baseName());
+      shortName = QString("%1. %2").arg(inidata.iniLine[k]).arg(QFileInfo(shortName).baseName());
       if (inidata.updated>2) {
         int s = inidata.totSize(k);
         if (inidata.updated<4) {
@@ -2676,17 +2877,17 @@ void MainWindow::registerExtension(){
   //settings.beginGroup("Classes");
 
   //settings.beginGroup(".brf");
-  QSettings settings(QSettings::NativeFormat,QSettings::SystemScope, "Classes", ".brf");
-    settings.setValue("","brf.resource");
+  QSettings settings(QSettings::NativeFormat,QSettings::SystemScope, "classes", ".brf");
+    settings.setValue("","brf.resourceT");
   //settings.endGroup();
   }
   //QSettings settings("HKEY_CLASSES_ROOT", QSettings::NativeFormat);
-  QSettings settings(QSettings::NativeFormat,QSettings::SystemScope,"Classes", "brf.resource");
+  QSettings settings(QSettings::NativeFormat,QSettings::SystemScope,"classes", "brf.resource");
 
   //settings.beginGroup("brf.resource");
-    settings.setValue("","Mount and Blade resource file");
+    settings.setValue("","Mount and Blade resource filess");
     settings.beginGroup("DafualtIcon");
-    settings.setValue("",QString("%1%2").arg(QCoreApplication::applicationFilePath()).arg(",0") );
+    settings.setValue("",QString("%1%2 test").arg(QCoreApplication::applicationFilePath()).arg(",0") );
     settings.endGroup();
 
     settings.beginGroup("shell");

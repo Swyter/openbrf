@@ -46,11 +46,13 @@ public:
   int FirstToken() const;
 
   bool Save(const wchar_t* f) const;
+  bool Save(FILE* f) const;
   void  Merge(const BrfData& b);
   const char* GetName(int i, int token) const;
 
   int GetFirstUnusedLetter() const; // return first unused alphabet letter in meshes
   BrfMesh GetCompleteSkin(int i) const; // returns a mesh composed of all skin pieces
+  const char* GetFirstObjectName() const; // returns name of first object
 
   int getOneSkeleton(int nbones, int after);
   int Find(char* name, int token);
@@ -58,6 +60,7 @@ public:
   //const vector<ObjCoord>& GetUsedBy(int i, int token) const;
 
   unsigned int size(int token) const;
+  unsigned int totSize() const;
 
   template<class BrfType> vector<BrfType>& Vector();
 

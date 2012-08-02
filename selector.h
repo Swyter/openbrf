@@ -67,6 +67,10 @@ private:
     *goPrevTabAct,
 
      // tools
+    *aniExtractIntervalAct,
+    *aniRemoveIntervalAct,
+    *aniMergeAct,
+
     *breakAniAct,
     *breakAniWithIniAct,
     *meshRecomputeNormalsAndUnify,
@@ -76,6 +80,7 @@ private:
     *meshMountOnBone,
     *meshRemoveBackfacing,
     *meshAddBackfacing,
+    *meshRecolorAct,
 
 
     *renameAct,
@@ -103,6 +108,7 @@ private:
     *exportSkinForAnimationAct,
     *exportAnimationAct,
     *exportBodyAct,
+
 
     *reskeletonizeAct,
     *transferRiggingAct,

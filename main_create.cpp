@@ -202,6 +202,7 @@ void MainWindow::createMenus()
     lang -> addAction( optionLanguage[2] = new QAction(QString("%1%2(%3%4)")
       .arg(QChar(20013)).arg(QChar(25991)).arg(QChar(31616)).arg(QChar( 20307))
     ,this ) );
+    lang -> addAction( optionLanguage[4] = new QAction("Deutsche",this) );
     lang -> addAction( optionLanguage[3] = new QAction("Español",this) );
     lang -> addSeparator();
     lang -> addAction( optionLanguageCustom = new QAction(tr("Test a custom translation file..."),this) );
@@ -211,10 +212,11 @@ void MainWindow::createMenus()
     connect(optionLanguage[1],SIGNAL(triggered()), this, SLOT(optionLanguageSet1()));
     connect(optionLanguage[2],SIGNAL(triggered()), this, SLOT(optionLanguageSet2()));
     connect(optionLanguage[3],SIGNAL(triggered()), this, SLOT(optionLanguageSet3()));
+    connect(optionLanguage[4],SIGNAL(triggered()), this, SLOT(optionLanguageSet4()));
     connect(optionLanguageCustom,SIGNAL(triggered()), this, SLOT(optionLanguageSetCustom()));
     optionMenu-> addSeparator();
 
-    //optionMenu->addAction(registerMime);
+    optionMenu->addAction(registerMime);
     optionMenu->addAction(aboutCheckboardAct);
     optionMenu->addAction(aboutAct);
 }
@@ -373,11 +375,11 @@ void MainWindow::createActions()
     checkIniAct->setShortcut(tr("ctrl+E"));
     checkIniAct->setStatusTip(tr("Scan module.ini and included brf files for inconsistencies."));
 
-    searchIniAct = new QAction(tr("Find in module"),this);
+    searchIniAct = new QAction(tr("Find in module..."),this);
     searchIniAct->setShortcut(tr("ctrl+F"));
     searchIniAct->setStatusTip(tr("Look for an object in all brf listed inside current module.ini."));
 
-    selectBrfDataAct = new QAction(tr("Select a BRF in module"),this);
+    selectBrfDataAct = new QAction(tr("Select a BRF in module..."),this);
     selectBrfDataAct->setStatusTip(tr("Select a BRF file of this module."));
     selectBrfDataAct->setShortcut(tr("F7"));
     showUnrefTexturesAct = new QAction(tr("Show unreferenced texture files"),this);
@@ -574,6 +576,8 @@ void MainWindow::createConnections(){
   //connect(guiPanel, SIGNAL(dataMaterialChanged()), this, SLOT(updateDataMaterial()));
   connect(guiPanel->ui->buFlagMat, SIGNAL(clicked()), this, SLOT(setFlagsMaterial()));
 
+  connect(guiPanel->ui->browseTextureButton, SIGNAL(clicked()), glWidget, SLOT(browseTexture()));
+
   // make material texture selection: select rendererd texture too
   connect(guiPanel->ui->leMatDifA,SIGNAL(cursorPositionChanged(int,int)), glWidget, SLOT(showMaterialDiffuseA()));
   connect(guiPanel->ui->leMatDifB,SIGNAL(cursorPositionChanged(int,int)), glWidget, SLOT(showMaterialDiffuseB()));
@@ -659,5 +663,7 @@ void MainWindow::createConnections(){
   //         this    ,  SLOT(addToRefMesh(int)) );
 
   //main->setLayout(mainLayout);
+  connect( QApplication::clipboard(), SIGNAL(dataChanged()), this, SLOT(onClipboardChange()) );
+  onClipboardChange();
 }
 

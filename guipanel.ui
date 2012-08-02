@@ -977,9 +977,9 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>920</y>
+     <y>900</y>
      <width>181</width>
-     <height>181</height>
+     <height>221</height>
     </rect>
    </property>
    <property name="title">
@@ -1218,6 +1218,48 @@
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_47">
+    <property name="geometry">
+     <rect>
+      <x>4</x>
+      <y>180</y>
+      <width>51</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>location:</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="boxOrigin">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>61</x>
+      <y>180</y>
+      <width>47</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="browseTextureButton">
+    <property name="geometry">
+     <rect>
+      <x>115</x>
+      <y>179</y>
+      <width>59</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>open it</string>
     </property>
    </widget>
   </widget>
@@ -2220,7 +2262,7 @@ p, li { white-space: pre-wrap; }
      <x>10</x>
      <y>1600</y>
      <width>181</width>
-     <height>231</height>
+     <height>221</height>
     </rect>
    </property>
    <property name="title">
@@ -2251,7 +2293,7 @@ p, li { white-space: pre-wrap; }
       <x>10</x>
       <y>90</y>
       <width>161</width>
-      <height>131</height>
+      <height>121</height>
      </rect>
     </property>
     <property name="title">
@@ -2462,14 +2504,14 @@ p, li { white-space: pre-wrap; }
        <widget class="QLCDNumber" name="leBodyNVert">
         <property name="geometry">
          <rect>
-          <x>50</x>
+          <x>45</x>
           <y>4</y>
-          <width>41</width>
+          <width>60</width>
           <height>21</height>
          </rect>
         </property>
         <property name="numDigits">
-         <number>8</number>
+         <number>7</number>
         </property>
         <property name="segmentStyle">
          <enum>QLCDNumber::Flat</enum>
@@ -2504,14 +2546,14 @@ p, li { white-space: pre-wrap; }
        <widget class="QLCDNumber" name="leBodyNFace">
         <property name="geometry">
          <rect>
-          <x>50</x>
+          <x>45</x>
           <y>5</y>
-          <width>41</width>
+          <width>60</width>
           <height>20</height>
          </rect>
         </property>
         <property name="numDigits">
-         <number>8</number>
+         <number>7</number>
         </property>
         <property name="segmentStyle">
          <enum>QLCDNumber::Flat</enum>
@@ -2601,9 +2643,9 @@ p, li { white-space: pre-wrap; }
        <widget class="QLineEdit" name="leBodySign">
         <property name="geometry">
          <rect>
-          <x>50</x>
+          <x>45</x>
           <y>5</y>
-          <width>41</width>
+          <width>29</width>
           <height>20</height>
          </rect>
         </property>

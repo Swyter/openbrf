@@ -13,6 +13,16 @@
 };
 
 
+const char* BrfData::GetFirstObjectName() const{
+  if (mesh.size()!=0) return mesh[0].name;
+  if (texture.size()!=0) return texture[0].name;
+  if (shader.size()!=0) return shader[0].name;
+  if (material.size()!=0) return material[0].name;
+  if (skeleton.size()!=0) return skeleton[0].name;
+  if (animation.size()!=0) return animation[0].name;
+  if (body.size()!=0) return body[0].name;
+  return NULL;
+}
 
 BrfData::BrfData(){
   version = 0;
@@ -61,6 +71,17 @@ template <class T>
 static int myfind(const vector<T> &b, char* name){
   for (unsigned int i=0; i<b.size(); i++) if (strcmp(b[i].name,name)==0) return i;
   return -1;
+}
+
+
+unsigned int BrfData::totSize() const{
+  return mesh.size() +
+         material.size() +
+         shader.size() +
+         texture.size() +
+         body.size() +
+         skeleton.size() +
+         animation.size();
 }
 
 unsigned int BrfData::size(int token) const{
@@ -129,11 +150,7 @@ int BrfData::getOneSkeleton(int nbones, int after){
 
 int globVersion;
 
-bool BrfData::Save(const wchar_t*fn) const{
-  globVersion = version;
-
-  FILE *f = _wfopen(fn,L"wb");
-  if (!f) return false;
+bool BrfData::Save(FILE *f) const{
   if (globVersion==1) { SaveString(f, "rfver "); SaveInt(f,1); }
   SaveAll(f,texture);
   SaveAll(f,shader);
@@ -144,6 +161,17 @@ bool BrfData::Save(const wchar_t*fn) const{
   SaveAll(f,body);
 
   SaveString(f,"end");
+  return true;
+}
+
+bool BrfData::Save(const wchar_t*fn) const{
+  globVersion = version;
+
+  FILE *f = _wfopen(fn,L"wb");
+  if (!f) return false;
+
+  Save(f);
+
   fclose(f);
 
   return true;

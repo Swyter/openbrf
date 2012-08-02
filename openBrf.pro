@@ -43,7 +43,8 @@ SOURCES += main.cpp \
     ioMD3.cpp \
     askNewUiPictureDialog.cpp \
     askSelectBrfDialog.cpp \
-    askUnrefTextureDialog.cpp
+    askUnrefTextureDialog.cpp \
+    askIntervalDialog.cpp
 HEADERS += mainwindow.h \
     glwidgets.h \
     saveLoad.h \
@@ -78,7 +79,8 @@ HEADERS += mainwindow.h \
     ioMD3.h \
     askNewUiPictureDialog.h \
     askSelectBrfDialog.h \
-    askUnrefTextureDialog.h
+    askUnrefTextureDialog.h \
+    askIntervalDialog.h
 FORMS += guipanel.ui \
     askBoneDialog.ui \
     askSkelDialog.ui \
@@ -90,13 +92,15 @@ FORMS += guipanel.ui \
     mainwindow.ui \
     askNewUiPictureDialog.ui \
     askSelectBrfDialog.ui \
-    askUnrefTextureDialog.ui
+    askUnrefTextureDialog.ui \
+    askIntervalDialog.ui
 INCLUDEPATH += "C:\projects\vcglib"
 INCLUDEPATH += "C:\libs\lib3ds-1.3.0"
 RESOURCES += resource.qrc
 TRANSLATIONS += translations/openbrf_zh.ts
 TRANSLATIONS += translations/openbrf_en.ts
 TRANSLATIONS += translations/openbrf_es.ts
+TRANSLATIONS += translations/openbrf_de.ts
 RC_FILE = openBrf.rc
 win32 { 
     DEFINES += NOMINMAX
@@ -105,5 +109,6 @@ win32 {
 INCLUDEPATH += "C:\projects\libraries\include"
 DEFINES += GLEW_STATIC
 SOURCES += "C:\projects\libraries\sources\glew-1.5.3\src\glew.c"
+#LIBS += -L"C:\projects\libraries\lib" -lglew32
 MOC_DIR = tmp
 UI_DIR = tmp

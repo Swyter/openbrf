@@ -47,6 +47,16 @@ Selector::Selector(QWidget *parent)
   breakAniAct = new QAction(tr("Auto-split"), this);
   breakAniAct->setStatusTip(tr("Auto-split sequence into its separated chunks, separating it at lasge gaps in frames."));
 
+
+  aniExtractIntervalAct = new QAction(tr("Extract interval..."), this);
+  aniExtractIntervalAct->setStatusTip(tr("Extract an animation from an interval of times."));
+
+  aniRemoveIntervalAct = new QAction(tr("Remove interval..."), this);
+  aniRemoveIntervalAct->setStatusTip(tr("Remove an interval of times from the animation."));
+
+  aniMergeAct = new QAction(tr("Merge animations"), this);
+  aniMergeAct->setStatusTip(tr("Merge two animations into one -- intervals must be right!"));
+
   renameAct = new QAction(tr("Rename"), this);
   renameAct->setShortcut(QString("F2"));
   addAction(renameAct);
@@ -208,6 +218,8 @@ Selector::Selector(QWidget *parent)
   meshAddBackfacing->setStatusTip(tr("Duplicate all faces: for each current face, add a backfacing face."));
 
 
+  meshRecolorAct = new QAction(tr("Color uniform"), this);
+
   discardColAct = new QAction(tr("per-vertex color"), this);
   discardRigAct = new QAction(tr("rigging"), this);
   discardAniAct = new QAction(tr("vertex animation"), this);
@@ -221,9 +233,12 @@ Selector::Selector(QWidget *parent)
   connect(goNextTabAct, SIGNAL(triggered()),this,SLOT(goNextTab()));
   connect(goPrevTabAct, SIGNAL(triggered()),this,SLOT(goPrevTab()));
 
-
   connect(breakAniAct, SIGNAL(triggered()),this,SLOT(onBreakAni()));
+  connect(aniExtractIntervalAct, SIGNAL(triggered()),parent,SLOT(aniExtractInterval()));
+  connect(aniRemoveIntervalAct, SIGNAL(triggered()),parent,SLOT(aniRemoveInterval()));
+  connect(aniMergeAct, SIGNAL(triggered()),parent,SLOT(aniMerge()));
   connect(breakAniWithIniAct, SIGNAL(triggered()),this,SLOT(onBreakAniWithIni()));
+  connect(meshRecolorAct,SIGNAL(triggered()),parent,SLOT(meshRecolor()));
   connect(meshRecomputeNormalsAndUnify,  SIGNAL(triggered()),parent,SLOT(meshRecomputeNormalsAndUnify()));
   connect(meshUnify,  SIGNAL(triggered()),parent,SLOT(meshUnify()));
   connect(meshMerge,  SIGNAL(triggered()),parent,SLOT(meshMerge()));
@@ -284,7 +299,7 @@ Selector::Selector(QWidget *parent)
 
     tab[ti]->setModel(tableModel[ti]);
 
-    if (ti==MESH || ti==MATERIAL || ti==BODY || ti==TEXTURE || ti==SKELETON ) {
+    if (ti==MESH || ti==MATERIAL || ti==BODY || ti==TEXTURE || ti==SKELETON || ti==ANIMATION) {
       tab[ti]->setSelectionMode(QAbstractItemView::ExtendedSelection);
       tab[ti]->setStatusTip(QString(tr("[Right-Click]: tools for %1. Multiple selections with [Shift]-[Ctrl].")).arg(IniData::tokenFullName(ti)));
     }
@@ -535,6 +550,7 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
      if (!nosel)  menu.addAction(meshToBody);
      if (!onesel && !nosel)  menu.addAction(meshMerge);
      menu.addAction(meshMountOnBone);
+     menu.addAction(meshRecolorAct);
      QMenu *m = menu.addMenu(tr("Backfacing faces"));
      m->addAction(meshRemoveBackfacing);
      m->addAction(meshAddBackfacing);
@@ -563,7 +579,10 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
        menu.addAction(breakAniAct);
        menu.addAction(breakAniWithIniAct);
        menu.addAction(shiftAniAct);
+       menu.addAction(aniExtractIntervalAct);
+       menu.addAction(aniRemoveIntervalAct);
      }
+     if (mulsel) menu.addAction(aniMergeAct);
    }
    }
 
