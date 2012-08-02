@@ -70,8 +70,8 @@ public:
 
   Box3f bbox;
 
-  bool ExportOBJ(char *fn) const;
-  bool ImportOBJ(char *fn);
+  bool ExportOBJ(const wchar_t *fn) const;
+  bool ImportOBJ(const wchar_t *fn);
 private:
   void UpdateBBox();
 };

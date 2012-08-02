@@ -152,7 +152,7 @@ public:
   void Save(FILE*f) const;
   bool Skip(FILE* f);
 
-  bool SaveAsPly(int nframe=0, char* path="") const;
+  bool SaveAsPly(int nframe=0, const wchar_t* path="") const;
   bool HasVertexAni() const;
   
   void Flip();
@@ -186,6 +186,9 @@ public:
 
   void RemoveBackfacingFaces();
   void AddBackfacingFaces();
+
+  void GetTimings(std::vector<int> &v);
+  void SetTimings(const std::vector<int> &v);
 
 private:
   void CopyTimesFrom(const BrfMesh &brf);

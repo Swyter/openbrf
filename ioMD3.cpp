@@ -15,7 +15,7 @@ using namespace std;
 #include "ioMD3.h"
 #include "saveLoad.h"
 
-static char errorStr[512];
+static wchar_t errorStr[512];
 static const unsigned int MAGIC = 0x33504449;
 
 
@@ -65,7 +65,7 @@ static void tryExtractNumber(char* st, int &res){
   sscanf(st,"%d",&res);
 }
 
-char* IoMD3::LastErrorString(){
+wchar_t* IoMD3::LastErrorString(){
   return errorStr;
 }
 
@@ -97,23 +97,23 @@ static void norm2int(vcg::Point3f  res, Byte &zenb,Byte &azib){
 
 
 
-bool IoMD3::Export(const char *filename, const BrfMesh &m){
+bool IoMD3::Export(const wchar_t *filename, const BrfMesh &m){
   if (m.frame.size()>1024){
-    sprintf(errorStr,"Too many frames %d. Max = 1024",m.frame.size());
+    swprintf(errorStr,L"Too many frames %d. Max = 1024",m.frame.size());
     return false;
   }
   if (m.vert.size()>4096){
-    sprintf(errorStr,"Too many vertices %d. Max = 4096",m.vert.size());
+    swprintf(errorStr,L"Too many vertices %d. Max = 4096",m.vert.size());
     return false;
   }
   if (m.face.size()>8192){
-    sprintf(errorStr,"Too many faces: %d. Max = 8192",m.face.size());
+    swprintf(errorStr,L"Too many faces: %d. Max = 8192",m.face.size());
     return false;
   }
-  FILE *f = fopen(filename,"wb");
+  FILE *f = _wfopen(filename,L"wb");
 
   if (!f){
-    sprintf(errorStr,"Cannot write on file:\n %s",filename);
+    swprintf(errorStr,L"Cannot write on file:\n %ls",filename);
     return false;
   }
   SaveUint(f,MAGIC);
@@ -132,7 +132,7 @@ bool IoMD3::Export(const char *filename, const BrfMesh &m){
   off += 10000 ;
   SaveUint(f,off); // oef
 
-  //sprintf(errorStr,"TEST1 %d == %d\n",ftell(f),64+11*4);
+  //swprintf(errorStr,"TEST1 %d == %d\n",ftell(f),64+11*4);
 
   // frames
   for (uint i=0; i<m.frame.size(); i++){
@@ -205,7 +205,7 @@ bool IoMD3::Import(FILE *f, BrfMesh &m){
   unsigned int magic=0;
   LoadUint(f,magic);
   if (magic != MAGIC) {
-    sprintf(errorStr,"Invalid magic number in surface: %X",magic);
+    swprintf(errorStr,L"Invalid magic number in surface: %X",magic);
     return false;
   }
 
@@ -228,7 +228,7 @@ bool IoMD3::Import(FILE *f, BrfMesh &m){
   LoadUint(f,oxyz);
   LoadUint(f,oend);
 
-  sprintf(errorStr, "Loaded: %dv %dt %df\n",nverts,ntriangles,nframes);
+  swprintf(errorStr, L"Loaded: %dv %dt %df\n",nverts,ntriangles,nframes);
 
   m.face.resize(ntriangles);
   m.vert.resize(nverts);
@@ -237,7 +237,8 @@ bool IoMD3::Import(FILE *f, BrfMesh &m){
   for (unsigned int i=0; i<nframes; i++) {
     m.frame[i].pos.resize(nverts);
     m.frame[i].norm.resize(nverts);
-    m.frame[i].time = i*10;m.frame[i].time = i*10;
+    m.frame[i].time = (i<2)?i:99+(i-2)*5; // default timings for icon animations
+
   }
 
 
@@ -283,17 +284,17 @@ bool IoMD3::Import(FILE *f, BrfMesh &m){
   return true;
 }
 
-bool IoMD3::Import(const char *filename, std::vector<BrfMesh> &mv){
+bool IoMD3::Import(const wchar_t *filename, std::vector<BrfMesh> &mv){
 
-  FILE *f = fopen(filename,"rb");
+  FILE *f = _wfopen(filename,L"rb");
   if (!f) {
-    sprintf(errorStr,"File not found");
+    swprintf(errorStr,L"File not found");
     return false;
   }
   unsigned int magic=0,ver=0;
   LoadUint(f,magic);
   if (magic != MAGIC) {
-    sprintf(errorStr,"Invalid magic number: %X",magic);
+    swprintf(errorStr,L"Invalid magic number: %X",magic);
     return false;
   }
 
@@ -314,12 +315,12 @@ bool IoMD3::Import(const char *filename, std::vector<BrfMesh> &mv){
   //sprintf(errorStr,"Found: %s (%d surface %d frames, off: %0X)",name,nsurfaces,nframes,osurfaces);
 
   if (nsurfaces>255 ) {
-    sprintf(errorStr,"File format error (%d surfaces?)",nsurfaces);
+    swprintf(errorStr,L"File format error (%d surfaces?)",nsurfaces);
     return false;
   }
 
   if (nsurfaces==0 ) {
-    sprintf(errorStr,"no \"surface\" found");
+    swprintf(errorStr,L"no \"surface\" found");
     return false;
   }
   fseek(f,osurfaces,SEEK_SET);

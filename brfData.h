@@ -29,7 +29,7 @@ using namespace std;
 class BrfData {
 public:
   BrfData();
-  BrfData(char*f,int verbose=1);
+  BrfData(const wchar_t*f,int verbose=1);
   BrfData(FILE*f,int verbose=1);
   vector<BrfMesh> mesh;
   vector<BrfTexture> texture;
@@ -39,13 +39,13 @@ public:
   vector<BrfAnimation> animation;
   vector<BrfBody> body;
   bool Load(FILE*f,int verbose=1, int imposeVers = -1);
-  bool Load(char*filename,int verbose=1, int imposeVers = -1);
-  bool LoadFast(char*filename, bool ultrafast); // skips most data
+  bool Load(const wchar_t*filename,int verbose=1, int imposeVers = -1);
+  bool LoadFast(const wchar_t*filename, bool ultrafast); // skips most data
   bool LoadMat(FILE *f);
   void Clear();
   int FirstToken() const;
 
-  bool Save(const char* f) const;
+  bool Save(const wchar_t* f) const;
   void  Merge(const BrfData& b);
   const char* GetName(int i, int token) const;
 

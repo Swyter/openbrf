@@ -22,7 +22,7 @@ BrfData::BrfData(){
 BrfData::BrfData(FILE*f,int verbose){
   Load(f,verbose);
 }
-BrfData::BrfData(char*f,int verbose){
+BrfData::BrfData(const wchar_t*f,int verbose){
   Load(f,verbose);
 }
 
@@ -87,8 +87,8 @@ void  BrfData::Merge(const BrfData& b){
 }
 
 
-bool BrfData::Load(char*filename,int verbose, int imposeVersion){
-  FILE *f = fopen(filename,"rb");
+bool BrfData::Load(const wchar_t *filename,int verbose, int imposeVersion){
+  FILE *f = _wfopen(filename,L"rb");
   if (!f) return false;
   return Load(f, verbose, imposeVersion);
 }
@@ -114,10 +114,10 @@ int BrfData::getOneSkeleton(int nbones, int after){
 
 int globVersion;
 
-bool BrfData::Save(const char*fn) const{
+bool BrfData::Save(const wchar_t*fn) const{
   globVersion = version;
 
-  FILE *f = fopen(fn,"wb");
+  FILE *f = _wfopen(fn,L"wb");
   if (!f) return false;
   if (globVersion==1) { SaveString(f, "rfver "); SaveInt(f,1); }
   SaveAll(f,texture);
@@ -217,8 +217,8 @@ bool BrfData::Load(FILE*f,int verbose,int imposeVers){
 }
 
 
-bool BrfData::LoadFast(char*filename, bool faster){
-  FILE *f = fopen(filename,"rb");
+bool BrfData::LoadFast(const wchar_t*filename, bool faster){
+  FILE *f = _wfopen(filename,L"rb");
   if (!f) return false;
 
   version = 0;

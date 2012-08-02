@@ -27,7 +27,7 @@ bool MainWindow::scanBrfDataForMaterials(const BrfData& tmp){
 bool MainWindow::scanBrfForMaterials(const QString fname){
   char st[500];
   sprintf(st,fname.toAscii().data());
-  FILE *f =fopen(fname.toAscii().data(),"rb");
+  FILE *f =_wfopen(fname.toAscii().data(),"rb");
   if (!f) return false;
   BrfData tmp;
   //tmp.LoadMat(f);
@@ -86,7 +86,7 @@ bool MainWindow::maybeSave()
       QMessageBox::StandardButton ret;
       ret = QMessageBox::warning(this, tr("OpenBrf"),
                      tr("%1 been modified.\n"
-                        "Save changes?").arg((editingRef)?tr("Internal reference objects have"):tr("The dataset has")),//revised foxyman
+                        "Save changes?").arg((editingRef)?tr("Internal reference objects have"):tr("The dataset has")),
                      QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
       if (ret == QMessageBox::Save) {
         if (editingRef)
@@ -626,8 +626,8 @@ int MainWindow::getLanguageOption(){
 
   QVariant s =settings->value("curLanguage");
   if (s.isValid()) return  s.toInt(); return  0;
-
 }
+
 MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),inidata(brfdata)
 {
   setWindowIcon(QIcon(":/openBrf.ico"));
@@ -656,7 +656,7 @@ MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),inidata(brfdata)
   createConnections();
 
 
-  reference.Load(QString("%1/%2").arg(QCoreApplication::applicationDirPath()).arg("reference.brf").toAscii().data());
+  reference.Load(QString("%1/%2").arg(QCoreApplication::applicationDirPath()).arg("reference.brf").toStdWString().c_str());
   setCentralWidget(main);
 
   updateTitle();
@@ -685,10 +685,10 @@ MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),inidata(brfdata)
 bool MainWindow::setEditingRef(bool mode){
   editingRef = mode;
   if (editingRef) {
-    editRefAct->setText(tr("Stop editing reference data")); //revised foxyman
+    editRefAct->setText(tr("Stop editing reference data"));
     editRefAct->setStatusTip(tr("Stop editing \"reference\" skeletons, animations & meshes, that OpenBrf uses to display data."));
   } else {
-    editRefAct->setText(tr("Edit reference data")); //revised foxyman
+    editRefAct->setText(tr("Edit reference data"));
     editRefAct->setStatusTip(tr("Edit \"reference\" skeletons, animations & meshes, that OpenBrf uses to display data."));
   }
   glWidget->setEditingRef(mode);
@@ -1247,7 +1247,7 @@ void MainWindow::renameSel(){
       newPrefix = QInputDialog::getText(
         this,
         tr("OpenBrf"),
-        tr("%3 common prefix for %1 %2...\nnew prefix:").arg(n).arg(IniData::tokenPlurName(t)).arg((ps)?tr("Changing the"):tr("Adding a")), //revised foxyman
+        tr("%3 common prefix for %1 %2...\nnew prefix:").arg(n).arg(IniData::tokenPlurName(t)).arg((ps)?tr("Changing the"):tr("Adding a")),
         QLineEdit::Normal,
         commonPrefix, &ok
       );
@@ -1417,8 +1417,12 @@ void MainWindow::sortEntries(){
   updateGui();
 }
 
+void MainWindow::editAddToCopy(){
+  editCopy(false);
+}
+
 void MainWindow::editCopy(bool deselect){
-  clipboard.Clear();
+  if (deselect) clipboard.Clear();
   editPasteAct->setEnabled(true);
   switch (selector->currentTabName()) {
     case MESH:     _copy(brfdata.mesh,     selector->selectedList(), clipboard.mesh);  break;
@@ -1442,22 +1446,58 @@ void MainWindow::editCopy(bool deselect){
     // maybe it was a single frame mesh?
     editPasteFrameAct->setEnabled((clipboard.mesh.size()==1) && (clipboard.mesh[0].frame.size()==1));
 
-
-
-
-
-
-
-
     editPasteModificationAct->setEnabled(true);
 
   } else {
     editPasteRiggingAct->setEnabled(false);
     editPasteFrameAct->setEnabled(false);
     editPasteModificationAct->setEnabled(false);
+
   }
 
+  editPasteTimingsAct->setEnabled(
+      (
+          ((clipboard.mesh.size()==1)&&(clipboard.mesh[0].frame.size()>0))
+          ||(clipboard.animation.size()==1)
+      )
+  );
 
+
+}
+
+void MainWindow::editPasteTimings(){
+  std::vector<int> timings;
+  if (clipboard.mesh.size()==1) {
+    clipboard.mesh[0].GetTimings(timings);
+  } else if (clipboard.animation.size()==1) {
+    clipboard.animation[0].GetTimings(timings);
+  } else {
+    statusBar()->showMessage(tr("Cannot paste timings! Select *one* animated mesh or skel animation"),8000);
+    return;
+  }
+
+  int max = selector->selectedList().size();
+  TokenEnum t=(TokenEnum)selector->currentTabName();
+
+
+  if (t==MESH){
+    for (int j=0; j<max; j++) {
+      int i = selector->selectedList()[j].row();
+      brfdata.mesh[i].SetTimings(timings);
+    }
+    statusBar()->showMessage(tr("Pasted timings over %1 (animated) mesh").arg(max),8000);
+  } else if (t==ANIMATION){
+    for (int j=0; j<max; j++) {
+      int i = selector->selectedList()[j].row();
+      brfdata.animation[i].SetTimings(timings);
+    }
+    statusBar()->showMessage(tr("Pasted timings over %1 skeletal animations").arg(max),8000);
+  } else {
+    max =0;
+    statusBar()->showMessage(tr("Cannot paste times over that").arg(max),8000);
+  }
+
+  if (max>0) {  updateGui();  setModified(true);  }
 }
 
 void MainWindow::editPasteMod(){
@@ -1695,8 +1735,8 @@ void MainWindow::breakAni(int which, bool useIni){
         return;
       }
       //settings->setValue("LastModulePath",QFileInfo(fileName).absolutePath());
-      char newTxt[2048];
-      int res = ani.Break(brfdata.animation, fileName.toAscii().data(),newTxt );
+      wchar_t newTxt[2048];
+      int res = ani.Break(brfdata.animation, fileName.toStdWString().c_str(),newTxt );
 
       if (res==0) statusBar()->showMessage(tr("Nothing to split (or could not split)."));
       else {
@@ -1704,7 +1744,9 @@ void MainWindow::breakAni(int which, bool useIni){
         setModified(true);
         //selector->setCurrentIndex(2);
 
-        statusBar()->showMessage(tr("Animation %2 split in %1 chunks -- new animation.txt file save in \"%3\"!").arg(res).arg(ani.name).arg(newTxt), 8000);
+        statusBar()->showMessage(
+            tr("Animation %2 split in %1 chunks -- new animation.txt file save in \"%3\"!")
+            .arg(res).arg(ani.name).arg(QString::fromStdWString(std::wstring(newTxt))), 8000);
       }
     }
   }
@@ -1763,16 +1805,25 @@ void MainWindow::optionLanguageSet0(){setLanguage(0);}
 void MainWindow::optionLanguageSet1(){setLanguage(1);}
 void MainWindow::optionLanguageSet2(){setLanguage(2);}
 
+void MainWindow::optionLanguageSetCustom(){
+  if (maybeSave()) {
+    nextTranlationFilename = askImportFilename("QLinguist translation file (*.qm)");
+    if (!nextTranlationFilename.isEmpty())
+    qApp->exit(101);
+  }
+}
+
 void MainWindow::setLanguage(int k){
 
 
   if (k!=curLanguage) {
-    if (maybeSave()) {
-      for (int i=0; i<3; i++) optionLanguage[i]->setChecked(i==k);
-      curLanguage = k;
-      // quit and restart
-      qApp->exit(101);
-    }
+    if (!maybeSave()) return;
+
+    curLanguage = k;
+
+    // quit and restart
+    qApp->exit(101);
+
     //QMessageBox::information(this,"OpenBrf",tr("Language changed:\nRerun OpenBrf for changes to take place"));
   }
   for (int i=0; i<3; i++) optionLanguage[i]->setChecked(i==k);
@@ -1872,7 +1923,7 @@ bool MainWindow::saveReference(){
   if ((int)reference.animation.size()>=glWidget->selRefAnimation) glWidget->selRefAnimation=-1;
   if (reference.GetFirstUnusedLetter()>=glWidget->selRefSkin) glWidget->selRefSkin=-1;
   if (!reference.Save(
-       QString("%1/%2").arg(QCoreApplication::applicationDirPath()).arg("reference.brf").toAscii().data()
+       QString("%1/%2").arg(QCoreApplication::applicationDirPath()).arg("reference.brf").toStdWString().c_str()
      ))
   {
     QMessageBox::information(this, tr("Open BRF"),
@@ -1920,7 +1971,7 @@ bool MainWindow::loadFile(const QString &_fileName)
   if (!maybeSave()) return false;
   setEditingRef(false);
   setCurrentFile(fileName);
-  if (!brfdata.Load(fileName.toAscii().data())) {
+  if (!brfdata.Load(fileName.toStdWString().c_str())) {
      QMessageBox::information(this, tr("Open BRF"),
                               tr("Cannot load %1.").arg(fileName));
 
@@ -1949,12 +2000,15 @@ bool MainWindow::saveFile(const QString &fileName)
     inidata.updateLists();
   }
   //setCurrentFile(fileName);
-  if (!brfdata.Save(fileName.toAscii().data())) {
+  if (!brfdata.Save(fileName.toStdWString().c_str())) {
      QMessageBox::information(this, tr("Open BRF"),
                                  tr("Cannot write file %1.").arg(fileName));
      return false;
    } else {
      statusBar()->showMessage(tr("File saved!"), 2000);
+     if (curFileIndex>=0 && curFileIndex<inidata.file.size()){
+       inidata.file[curFileIndex]=brfdata; // update ini file
+     }
      setModified(false);
      return true;
    }
@@ -1995,7 +2049,7 @@ bool MainWindow::save()
 
 bool MainWindow::saveAs()
 {
-  QString f0=tr("M&B Resource (*.brf)"),f1 = tr("WarBand Resource v.1 (*.brf)"); //revised foxyman
+  QString f0=tr("M&B Resource (*.brf)"),f1 = tr("WarBand Resource v.1 (*.brf)");
   QString selectedf = (brfdata.version==1)?f1:f0;
   QString fileName = QFileDialog::getSaveFileName(this,
     tr("Save File") ,
@@ -2092,7 +2146,7 @@ bool MainWindow::loadIni(){
   QTime qtime;
   qtime.start();
 
-  bool res = (!inidata.load(true));
+  bool res = (!inidata.loadAll(true));
 
   cancelNavStack();
 
@@ -2420,7 +2474,7 @@ QString MainWindow::strippedName(const QString &fullFileName)
 void MainWindow::setFlagsMaterial(){
   unsigned int curfOR=0, curfAND = 0xFFFFFFFF;
 
-  //revised foxyman
+
   QString FlagNameArray[32] = {
      AskFlagsDialog::tr("No fog"),
      AskFlagsDialog::tr("No Lighting"),
@@ -2479,7 +2533,7 @@ void MainWindow::setFlagsMaterial(){
   for (int i=0; i<32; i++) l.append(FlagNameArray[i]);
 
   AskFlagsDialog *d = new AskFlagsDialog(this,curfOR,curfAND, l);
-  d->setWindowTitle(tr("Material flags"));//revised foxyman
+  d->setWindowTitle(tr("Material flags"));
   if (d->exec()==QDialog::Accepted) {
     //ui->leMatFlags->setText(StringH( d->getRes() ));
     //emit(dataMaterialChanged());

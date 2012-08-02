@@ -17,7 +17,7 @@ BrfShaderOpt::BrfShaderOpt()
 BrfShader::BrfShader()
 {
 }
-//FILE *fff=fopen("prova.txt","wt");
+//FILE *fff=wfopen("prova.txt","wt");
 
 bool BrfShaderOpt::Load(FILE*f, int verbose){
   //map, colorOp, alphaOp, flags

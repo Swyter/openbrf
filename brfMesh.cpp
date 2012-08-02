@@ -1239,13 +1239,29 @@ bool BrfMesh::HasVertexAni() const{
   return frame.size()>1;
 }
 
-bool BrfMesh::SaveAsPly(int frameIndex, char* path) const{
-  char filename[255];
-  if (frame.size()==0) sprintf(filename,"%s%s.ply",path, name);
-  else sprintf(filename,"%s\%s%02d.ply",path, name,frameIndex);
-  FILE* f = fopen(filename,"wt");
-  if (!f) { printf("Cannot save \"%s\"!\n",filename); return false;}
-  printf("Saving \"%s\"...\n",filename);
+void BrfMesh::GetTimings(std::vector<int> &v){
+  v.resize(frame.size());
+  for (unsigned int i=0; i<frame.size(); i++){
+    v[i]= frame[i].time;
+  }
+}
+
+void BrfMesh::SetTimings(const std::vector<int> &v){
+  int last = 0;
+  for (unsigned int i=0; i<frame.size(); i++){
+    if (i<v.size()) frame[i].time = last = v[i] ;
+    else { last+=10; frame[i].time = last;}
+  }
+}
+
+
+bool BrfMesh::SaveAsPly(int frameIndex, const wchar_t* path) const{
+  wchar_t filename[255];
+  if (frame.size()==0) swprintf(filename,L"%ls%s.ply",path, name);
+  else swprintf(filename,L"%ls\%s%02d.ply",path, name,frameIndex);
+  FILE* f = _wfopen(filename,L"wt");
+  if (!f) { printf("Cannot save \"%ls\"!\n",filename); return false;}
+  printf("Saving \"%ls\"...\n",filename);
   fprintf(f,
     "ply\n"
     "format ascii 1.0\n"
@@ -1624,7 +1640,7 @@ bool BrfVert::Load(FILE*f){
     LoadPoint(f,tang);
     LoadByte(f,ti);
 
-    //static FILE*_f =fopen("testLoadV.txt","wt"); fprintf(_f,"%d ",int(p2));//TEST
+    //static FILE*_f =wfopen("testLoadV.txt","wt"); fprintf(_f,"%d ",int(p2));//TEST
 
     LoadPoint(f,ta); ta[1]=1-ta[1]; tb = ta;
   } else if (globVersion == 2) {

@@ -302,8 +302,8 @@ void BrfSkeleton::BuildTree(){
 }
 
 
-void BrfSkeleton::Export(char* fn){
-  FILE* f = fopen(fn,"wt");
+void BrfSkeleton::Export(const wchar_t* fn){
+  FILE* f = _wfopen(fn,L"wt");
   fprintf(f,"%s -- %d bones:\n",name,bone.size());
   for (unsigned int i=0; i<bone.size(); i++){
     fprintf(f,"\n (%d) ",i);

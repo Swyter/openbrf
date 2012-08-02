@@ -18,8 +18,8 @@ void AskModErrorDialog::moreErrors(){
 }
 
 void AskModErrorDialog::getIniDataReady(){
-  inidata->updated=false;
-  inidata->load(false);
+  //inidata->updated=false;
+  inidata->loadAll(false);
   iniDataReady=true;
 
   if (!isSearch) {
@@ -48,9 +48,9 @@ void AskModErrorDialog::setup(){
     m_ui->lineEdit->blockSignals(false);
   }
   else{
-    m_ui->label->setText(tr("Searching for errors...")); //revised foxyman
+    m_ui->label->setText(tr("Searching for errors..."));
   }
-  m_ui->textBrowser->setText(tr("<i>scanning data...</i>")); //revised foxyman
+  m_ui->textBrowser->setText(tr("<i>scanning data...</i>"));
   i = j = kind = -1;
 }
 
@@ -86,7 +86,7 @@ void AskModErrorDialog::performErrorSearch(){
     te->setText(inidata->errorList.join("<p>"));
     int ne=inidata->errorList.size();
     if (!ne) {
-      m_ui->label->setText(tr("Found 0 errors in module!"));//revised foxyman
+      m_ui->label->setText(tr("Found 0 errors in module!"));
     }
     else m_ui->label->setText(tr("Found %n%1 error:", "", ne).arg((more)?"+":""));
 
@@ -98,7 +98,8 @@ void AskModErrorDialog::performSearch(){
   searchString = m_ui->lineEdit->text();
   searchCommonRes = m_ui->checkBox->isChecked();
   searchToken = m_ui->comboBox->currentIndex()-1;
-  if (searchString.length()>=3) {
+  if ((searchString.length()>=3)
+      ||(searchToken==ANIMATION)||(searchToken==SKELETON)||(searchToken==SHADER)) {
     m_ui->textBrowser->setText(inidata->searchAllNames(searchString,searchCommonRes,searchToken));
   } else {
     m_ui->textBrowser->setText(tr("<i>[ready]</i>"));
@@ -140,7 +141,7 @@ AskModErrorDialog::AskModErrorDialog(QWidget *parent, IniData &i,bool search, QS
   searchToken = -1;
   maxErr = 10;
 
-  setWindowTitle(tr("OpenBrf -- Module %1").arg(i.name()));//revised foxyman
+  setWindowTitle(tr("OpenBrf -- Module %1").arg(i.name()));
   if (search) {
 
     resize(510, 250);

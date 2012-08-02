@@ -197,7 +197,7 @@ static bool fscanln(FILE*f, char *ln){
   return false;
 }
 
-bool BrfBody::ImportOBJ(char *fn){
+bool BrfBody::ImportOBJ(const wchar_t *fn){
 
   BrfBodyPart dump, curr;
   dump.flags=0;
@@ -207,7 +207,7 @@ bool BrfBody::ImportOBJ(char *fn){
   int startV = 0; // starting v
 
   // to do: read all v and f fields, looking for "o" (objects)
-  FILE* f = fopen(fn,"rt");
+  FILE* f = _wfopen(fn,L"rt");
   if (!f) return false;
 
   std::string s;
@@ -303,13 +303,11 @@ void BrfBody::UpdateBBox(){
 
 bool BrfBodyPart::Load(FILE*f, char* _firstWord, int verbose ){
   char firstWord[255];
-  //static FILE* fff = fopen("flags.txt","wt");
+
   if (!_firstWord) {
     if (!LoadString(f,firstWord)) return false;
   }
   else sprintf(firstWord,_firstWord);
-
-  //static FILE* ftmp=NULL; //if (!ftmp) ftmp=fopen("debug.txt","wt");
 
   if (!strcmp(firstWord,"manifold")) {
     type=MANIFOLD;
@@ -551,8 +549,8 @@ bool BrfBodyPart::ExportOBJ(FILE* f, int i, int &vc) const{
   return true;
 }
 
-bool BrfBody::ExportOBJ(char* fn) const {
-  FILE* f =fopen(fn,"wb");
+bool BrfBody::ExportOBJ(const wchar_t* fn) const {
+  FILE* f =_wfopen(fn,L"wb");
   if (!f) return false;
   fprintf(f,
     "# export of a body (Mount and Blade collision object)\n"
