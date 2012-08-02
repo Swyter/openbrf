@@ -123,6 +123,7 @@ static bool LoadMask(const char * filename, int &mask)
   }
   else if(FileExtension(filename,"stl"))
   {
+    err=false;
     mask = Mask::IOM_VERTCOORD | Mask::IOM_FACEINDEX;
     LastType()=KT_STL;
   }
@@ -140,6 +141,7 @@ static bool LoadMask(const char * filename, int &mask)
   else if(FileExtension(filename,"dae"))
   {
     //err = ImporterDAE<OpenMeshType>::LoadMask(filename, mask);
+    err= false;
     LastType()=KT_DAE;
   }
   else

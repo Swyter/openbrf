@@ -4,6 +4,10 @@
 
 #include "brfToken.h"
 
+namespace vcg {
+template <class T> class Matrix44;
+}
+
 class BrfVert{
 public:
   BrfVert();
@@ -33,6 +37,7 @@ public:
   void Flip() { int tmp=index[1]; index[1]=index[2]; index[2]=tmp;}
   bool Load(FILE*f,int verbose=1);
   void Save(FILE*f) const;
+
 };
 
 class BrfRigging{
@@ -53,12 +58,14 @@ public:
   bool Load(FILE*f, int verbose);
   void Save(FILE*f) const;
   void LoadV1(FILE*f, int verbose);
+  static void Skip(FILE*f);
   
   BrfFrame Average(BrfFrame& b, float t);
   BrfFrame Average(BrfFrame& b, float t, const vector<bool> &sel);
   
   Point3f MinPos();
   Point3f MaxPos();
+  void Apply(Matrix44<float> m);
 
 };
 
@@ -67,6 +74,7 @@ private:
 
 
 public:
+  void Apply(Matrix44<float> m);
   int GetFirstSelected(int after=-1) const;
   
   // adds a rope from avg selected pos to To.AvgSelPos
@@ -83,6 +91,9 @@ public:
   char name[255];
   char material[255];
   static int tokenIndex(){return MESH;}
+
+  void KeepOnlyFrame(int i);
+
   vector<bool> selected; 
   
   vector<BrfFrame> frame;
@@ -92,9 +103,14 @@ public:
   vector<BrfFace> face;
 
   Box3f bbox;
+  int maxBone; // if rigged, what is the max bone index
+
+  bool SaveSMD(FILE *f) const;
+  bool LoadSMD(FILE *f) const;
 
   bool isRigged; // for convenience
   void UpdateBBox();
+  void SetUniformRig(int nbone);
  
   void AdjustNormDuplicates(); // copys normals
   // sanity check
@@ -105,9 +121,20 @@ public:
   static void Skip(FILE* f);
 
   bool SaveAsPly(int nframe=0, char* path="") const;
+  bool HasVertexAni() const;
   
+  void Flip();
+  void PaintAll(int r, int g, int b);
+
   void Bend(int frame, float range); // bends as if on a cylinder
-  
+
+  bool IsAnimable() const;
+  void ComputeNormals();
+  void UnifyPos();
+  void AfterLoad();
+  bool hasVertexColor;
+
+private:
   void CopyTimesFrom(const BrfMesh &brf);
   void Average(const BrfMesh &brf);
   void Merge(const BrfMesh &brf);
@@ -129,7 +156,7 @@ public:
   
   void SelectRed(const BrfMesh &brf);
   void SelectRand();
-  void PaintAll(int r, int g, int b);
+
   
   float GetTopPos(int frame, int axis=1) const;
     
@@ -137,7 +164,7 @@ public:
   void Scale(float f);
   void TranslateSelected(Point3f p);
   void CycleFrame(int i);
-  void Flip();
+
   void Hasten(float timemult);
   void FixTextcoord(const BrfMesh &newbrf, BrfMesh &refbrf, int nframe=0);
   void FixPosOrder(const BrfMesh &refbrf);
@@ -164,11 +191,7 @@ public:
   static void AlignToTop(BrfMesh& a, BrfMesh& b);
   BrfMesh SingleFrame(int i) const; // returns a BrfMesh consisting only of frame i
 
-  bool IsAnimable() const;
-  void ComputeNormals();
-  void UnifyPos();
-  void AfterLoad();
-  bool hasVertexColor;
+
 
 };
 

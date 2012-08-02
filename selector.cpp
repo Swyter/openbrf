@@ -6,6 +6,19 @@
 
 #include "tablemodel.h"
 
+
+
+void Selector::addToRefMeshA(){ emit(addToRefMesh(0)); }
+void Selector::addToRefMeshB(){ emit(addToRefMesh(1)); }
+void Selector::addToRefMeshC(){ emit(addToRefMesh(2)); }
+void Selector::addToRefMeshD(){ emit(addToRefMesh(3)); }
+void Selector::addToRefMeshE(){ emit(addToRefMesh(4)); }
+void Selector::addToRefMeshF(){ emit(addToRefMesh(5)); }
+void Selector::addToRefMeshG(){ emit(addToRefMesh(6)); }
+void Selector::addToRefMeshH(){ emit(addToRefMesh(7)); }
+void Selector::addToRefMeshI(){ emit(addToRefMesh(8)); }
+void Selector::addToRefMeshJ(){ emit(addToRefMesh(9)); }
+
 Selector::Selector(QWidget *parent)
    : QTabWidget(parent)
 {
@@ -26,11 +39,31 @@ Selector::Selector(QWidget *parent)
   removeAct = new QAction(tr("Remove"), this);
   duplicateAct = new QAction(tr("Duplicate"), this);
   moveUpAct = new QAction(tr("Move up"), this);
-  //moveUpAct->setShortcut(QString("u"));
+  moveUpAct->setShortcut(QString("F3"));
   //moveUpAct->setShortcutContext(Qt::ApplicationShortcut);
   //this->setShortcutEnabled();
   moveDownAct = new QAction(tr("Move down"), this);
-  //moveDownAct->setShortcut(QString("Alt+d"));
+  moveDownAct->setShortcut(QString("Alt+d"));
+
+  addToRefAniAct = new QAction(tr("Add to reference animations"), this);
+  addToRefAniAct->setStatusTip(tr("Add this animation to reference animations (which OpenBrf can use while showing rigged meshes)."));
+
+  for (int i=0; i<10; i++) {
+    this->addToRefMeshAct[i]= new QAction(tr("set %1").arg(char('A'+i)), this);
+    addToRefMeshAct[i]->setStatusTip(tr("Add this mesh to reference skins (which OpenBrf can use to display animation)."));
+
+  }
+  connect(addToRefMeshAct[0], SIGNAL(triggered()), this, SLOT(addToRefMeshA()));
+  connect(addToRefMeshAct[1], SIGNAL(triggered()), this, SLOT(addToRefMeshB()));
+  connect(addToRefMeshAct[2], SIGNAL(triggered()), this, SLOT(addToRefMeshC()));
+  connect(addToRefMeshAct[3], SIGNAL(triggered()), this, SLOT(addToRefMeshD()));
+  connect(addToRefMeshAct[4], SIGNAL(triggered()), this, SLOT(addToRefMeshE()));
+  connect(addToRefMeshAct[5], SIGNAL(triggered()), this, SLOT(addToRefMeshF()));
+  connect(addToRefMeshAct[6], SIGNAL(triggered()), this, SLOT(addToRefMeshG()));
+  connect(addToRefMeshAct[7], SIGNAL(triggered()), this, SLOT(addToRefMeshH()));
+  connect(addToRefMeshAct[8], SIGNAL(triggered()), this, SLOT(addToRefMeshI()));
+  connect(addToRefMeshAct[9], SIGNAL(triggered()), this, SLOT(addToRefMeshJ()));
+  connect(this, SIGNAL(addToRefMesh(int)), parent, SLOT(addToRefMesh(int)));
 
   exportImportMeshInfoAct = new QAction(tr("Info on mesh import/export"), this);
   exportStaticMeshAct = new QAction(tr("as a mesh"), this);
@@ -43,8 +76,6 @@ Selector::Selector(QWidget *parent)
   importAnyBrfAct = new QAction(tr("from a BRF"), this);
   importStaticMeshAct = new QAction(tr("from a mesh"), this);
   importSkeletonModAct = new QAction(tr("modify with a skeletal-modification-mesh"), this);
-
-
 
   connect(breakAniAct, SIGNAL(triggered()),this,SLOT(onBreakAni()));
   connect(breakAniWithIniAct, SIGNAL(triggered()),this,SLOT(onBreakAniWithIni()));
@@ -63,10 +94,13 @@ Selector::Selector(QWidget *parent)
   connect(duplicateAct, SIGNAL(triggered()), parent, SLOT(duplicateSel()));
   //
   connect(renameAct, SIGNAL(triggered()), parent, SLOT(renameSel()));
+
+  connect(addToRefAniAct, SIGNAL(triggered()), parent, SLOT(addToRef()));
   this->setMinimumWidth(200);
 
 }
 
+/*
 void Selector::onRenameSel(){
   QListView* tab = (QListView*)currentWidget();
   if (!tab) return;
@@ -76,6 +110,7 @@ void Selector::onRenameSel(){
   //tab->e
   tab->edit(i);
 }
+*/
 
 int Selector::firstSelected() const{
   if (!this->currentWidget()) return -1;
@@ -175,9 +210,6 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
      exportMenu->addAction(exportAnyBrfAct);
      if (t==MESH) exportMenu->addAction(exportStaticMeshAct);
      if (t==SKELETON) exportMenu->addAction(exportSkeletonModAct);
-     //exportMenu->addSeparator();
-     //if (t==MESH)
-     //  exportMenu->addAction(exportImportMeshInfoAct);
    }
    if (onesel || nosel) {
      QMenu* importMenu=menu.addMenu("Import");
@@ -188,6 +220,24 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
        //importMenu->addAction(exportImportMeshInfoAct);
      }
      if (onesel) if (t==SKELETON) importMenu->addAction(importSkeletonModAct);
+   }
+
+   if (onesel && t==MESH) {
+     menu.addSeparator();
+     QMenu* refMenu=menu.addMenu("Add to reference skins");
+     int N=reference->GetFirstUnusedLetter();
+     for (int i=0; i<N; i++) {
+       addToRefMeshAct[i]->setText(tr("to Skin Set %1").arg(char('A'+i)) );
+       refMenu->addAction(addToRefMeshAct[i]);
+     }
+     if (N<10) {
+       addToRefMeshAct[N]->setText(tr("to Skin Set %1 [new set]").arg(char('A'+N)) );
+       refMenu->addAction(addToRefMeshAct[N]);
+     }
+   }
+   if (onesel && t==ANIMATION) {
+     menu.addSeparator();
+     menu.addAction(addToRefAniAct);
    }
 
 

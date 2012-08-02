@@ -6,13 +6,15 @@
 #include "brfData.h"
 class BrfData;
 
+typedef std::map< std::string, std::string > MapSS;
+
 class GLWidget : public QGLWidget
 {
     Q_OBJECT
     QSize minimumSizeHint() const;
     QSize sizeHint() const;
 public:
-    GLWidget(QWidget *parent = 0);
+    GLWidget(QWidget *parent, MapSS* mapMT);
     ~GLWidget();
 
     BrfData* data;
@@ -20,8 +22,11 @@ public:
                        // e.g. skeletons for animations
 
     int selected;
+    int selRefAnimation; // animation selected to view rigged mesh
+    int selRefSkin; // rigged mesh
 
     void selectNone();
+    void setEditingRef(bool mode);
     TokenEnum displaying;
 
 private slots:
@@ -29,9 +34,12 @@ private slots:
 
 public slots:
    void setSelection(const QModelIndexList &, int k);
+   void setRefAnimation(int i);
+   void setRefSkin(int i);
    void setWireframe(int i);
    void setLighting(int i);
    void setTexture(int i);
+   void setFloor(int i);
    void setPlay();
    void setStop();
    void setPause();
@@ -39,8 +47,9 @@ public slots:
    void setColorPerRig();
    void setColorPerWhite();
 public:
-bool useWireframe, useLighting, useTexture;
+bool useWireframe, useLighting, useTexture , useFloor;
 int colorMode;
+QString texturePath;
 
 enum{STOP, PAUSE, PLAY} runningState;
 float runningSpeed;
@@ -49,6 +58,7 @@ int relTime; // msec, zeroed at stop.
 signals:
 
 protected:
+    MapSS *mapMT;
     void paintGL();
     void resizeGL(int width, int height);
     void mousePressEvent(QMouseEvent *event);
@@ -65,10 +75,11 @@ protected:
 
 
     // basic rendering of Brf Items & c:
-    void renderMesh(const BrfMesh& p, float frame)const;
-    void renderSkeleton(const BrfSkeleton& p) const;
-    void renderAnimation(const BrfAnimation& p, const BrfSkeleton& p, float frame)const;
-    void renderBody(const BrfBody& p) const;
+    void renderMesh(const BrfMesh& p, float frame);
+    void renderRiggedMesh(const BrfMesh& p,  const BrfSkeleton& s, const BrfAnimation& a, float frame);
+    void renderSkeleton(const BrfSkeleton& p);
+    void renderAnimation(const BrfAnimation& p, const BrfSkeleton& p, float frame);
+    void renderBody(const BrfBody& p);
 
     void renderBone(const BrfAnimation& p, const BrfSkeleton& p,  float frame, int i, int lvl)const; // recursive
     void renderBone(const BrfSkeleton& p, int i, int lvl) const; // recursive
@@ -76,10 +87,12 @@ protected:
 
     void renderSphereWire() const;
     void renderOcta() const;
+    void renderFloor();
     
     // rendering mode (just changes of openGL status):
     void setShadowMode(bool on) const;
-    void setWireframeLightingTextureMode(bool on, bool light, bool texture) const;
+    void setWireframeLightingMode(bool on, bool light, bool text) const;
+    void setTextureName(const char* text=NULL);
     void initializeGL();
 
 
@@ -91,6 +104,7 @@ public:
 
 private:
     int w, h; // screen size
+    float bg_r, bg_g, bg_b; // bgcolor
     QPoint lastPos; // mouse pos
     float phi, theta, dist;
     QTimer *timer;

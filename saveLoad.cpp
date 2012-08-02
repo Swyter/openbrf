@@ -133,3 +133,16 @@ template<class T> void LoadVector(FILE *f,std::vector<T, std::allocator<T> > &v)
 }
 
 
+void Skip(FILE *f, int k){
+  fseek(f,k, SEEK_CUR);
+}
+
+void SkipString(FILE *f){
+  int k;
+  LoadInt(f,k);
+  fseek(f,k, SEEK_CUR);
+}
+
+
+
+

@@ -46,3 +46,29 @@ template<class T> void LoadVector(FILE *f,std::vector<T, std::allocator<T> > &v)
   v.resize(k);
   for (unsigned int i=0; i<v.size(); i++) v[i].Load(f);
 }
+
+
+template<class T>
+void Skip(FILE *f){
+  fseek(f,sizeof(T), SEEK_CUR);
+}
+
+void SkipString(FILE *f);
+
+void Skip(FILE *f, int k);
+
+// skip of a vector, when objects are variablesize  size
+template<class T> void SkipVectorV(FILE *f){
+  unsigned int k;
+  LoadUint(f,k);
+  for (unsigned int i=0; i<k; i++) T::Skip(f);
+
+}
+
+// direct skip of a vector, when objects are fixed size
+template<class T> void SkipVectorF(FILE *f){
+  unsigned int k;
+  LoadUint(f,k);
+  fseek(f,k*sizeof(int), SEEK_CUR);
+}
+

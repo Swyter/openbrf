@@ -21,8 +21,10 @@ SOURCES += main.cpp \
     brfBody.cpp \
     guipanel.cpp \
     vcgmesh.cpp \
-    ../../vcglib/wrap/ply/plylib.cpp \
+    askBoneDialog.cpp \
+   ../../vcglib/wrap/ply/plylib.cpp \
     ../../vcglib/wrap/dae/xmldocumentmanaging.cpp
+
 HEADERS += mainwindow.h \
     glwidgets.h \
     saveLoad.h \
@@ -40,8 +42,9 @@ HEADERS += mainwindow.h \
     guipanel.h \
     vcgmesh.h \
     vcgExport.h \
-    vcgImport.h
-FORMS += guipanel.ui
+    vcgImport.h \
+    askBoneDialog.h
+FORMS += guipanel.ui \
+    askBoneDialog.ui
 INCLUDEPATH += "C:\projects\vcglib"
 INCLUDEPATH += "C:\libs\lib3ds-1.3.0"
-QMAKE_CXXFLAGS += "-Wno-uninitialized"
