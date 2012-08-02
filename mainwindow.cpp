@@ -148,7 +148,7 @@ template< class T >
 static bool _dup(vector<T> &t, int i){
   if (i<0 || i>=(int)t.size()) return false;
   t.insert(t.begin()+i,t.begin()+i,t.begin()+i+1);
-  sprintf(t[i+1].name,"%s_copy",t[i].name);
+	sprintf(t[i+1].name,"copy_%s",t[i].name);
   return true;
 }
 template< class T >
@@ -160,12 +160,20 @@ static bool _dupNN(vector<T> &t, int i){
 template< class T >
 
 static unsigned int _del(vector<T> &t, const QModelIndexList &l){
-  for (int k=l.size()-1; k>=0; k--) {
+	vector<bool> killme(t.size(),false);
+
+	for (int k=0; k<l.size(); k++) {
     int i=l[k].row();
     if (i<0 || i>=(int)t.size()) continue;
-
-    t.erase(t.begin()+i,t.begin()+i+1);
+		killme[i] = true;
   }
+	uint j=0;
+	for (uint i=0; i<t.size(); i++) {
+		if (i!=j) t[j]=t[i];
+		if (!killme[i]) j++;
+	}
+	t.resize(j);
+
   return t.size();
 }
 template< class T >
@@ -422,6 +430,23 @@ void MainWindow::tldMakeDwarfSlim(){
     updateGl();
   }
 
+}
+
+void MainWindow::tldGrassAlphaPaint(){
+  if (selector->currentTabName()!=MESH) return;
+  bool done = false;
+  for (int ii=0; ii<selector->selectedList().size(); ii++) {
+      int i = selector->selectedList()[ii].row();
+      if (i<0) continue;
+      if (i>(int)brfdata.mesh.size()) continue;
+      brfdata.mesh[i].paintAlphaAsZ(0,0.5);
+      done = true;
+  }
+  if (done) {
+    setModified(true);
+    updateGl();
+    updateGui();
+  }
 }
 
 void MainWindow::tldShrinkAroundBones(){
@@ -971,14 +996,13 @@ int MainWindow::currentDisplaySkelAniFrame(){
   return glWidget->lastSkelAniFrameUsed;
 }
 
+
 void MainWindow::meshUnify(){
 
   for (int k=0; k<selector->selectedList().size(); k++) {
     int i= selector->selectedList()[k].row();
     if (i<0) continue;
     if (i>(int)brfdata.mesh.size()) continue;
-
-
 
 
     BrfMesh &m (brfdata.mesh[i]);
@@ -992,6 +1016,62 @@ void MainWindow::meshUnify(){
 
   setModified(true);
   statusBar()->showMessage(tr("Vertex unified."), 2000);
+}
+
+void MainWindow::meshSubdivideIntoComponents(){
+	for (int k=0; k<selector->selectedList().size(); k++) {
+		int i= selector->selectedList()[k].row();
+		if (i<0) continue;
+		if (i>(int)brfdata.mesh.size()) continue;
+
+		BrfMesh &m (brfdata.mesh[i]);
+		//m.FixRigidObjectsInRigging();
+
+		std::vector<BrfMesh> res;
+		m.SubdivideIntoConnectedComponents(res);
+		if (res.size()>10) {
+			if (QMessageBox::warning(
+				 this, tr("OpenBrf"),
+				 tr("Mesh %1 will be \nsplit in %2 sub-meshes!.\n\nProceed?").arg(m.name).arg(res.size()),
+				 QMessageBox::Yes | QMessageBox::No ) == QMessageBox::No )
+			break;
+		}
+
+		for (uint i=0; i<res.size(); i++) insert(res[i]);
+
+		if (!res.size())
+			statusBar()->showMessage(tr("Only one component found"), 2000);
+		else
+			statusBar()->showMessage(tr("Mesh separated into %1 pieces.").arg(res.size()), 2000);
+
+		updateGui();
+		updateGl();
+
+		setModified(true);
+
+		break;
+
+	}
+
+
+}
+
+void MainWindow::meshFixRiggingRigidParts(){
+
+	for (int k=0; k<selector->selectedList().size(); k++) {
+		int i= selector->selectedList()[k].row();
+		if (i<0) continue;
+		if (i>(int)brfdata.mesh.size()) continue;
+
+		BrfMesh &m (brfdata.mesh[i]);
+		m.FixRigidObjectsInRigging();
+	}
+	updateGui();
+	updateGl();
+
+
+	setModified(true);
+	statusBar()->showMessage(tr("Autofixed rigid parts."), 2000);
 }
 
 
@@ -1019,7 +1099,8 @@ void MainWindow::objectMergeSelected(vector<BrfType> &v){
     }
     first=false;
   }
-  commonPrefix+="_combined";
+	if (commonPrefix.endsWith(".")) commonPrefix.chop(1);
+	else commonPrefix+="_combined";
   sprintf(res.name,"%s",commonPrefix.toAscii().data());
   insert(res);
   setModified(true);
@@ -1033,12 +1114,13 @@ void MainWindow::meshComputeAo(){
     currAoPerFace(),
     inAlpha
   );
-  guiPanel->ui->rbVertexcolor->click();
   setModified(true);
   statusBar()->showMessage(tr("Computed AO%1").arg(inAlpha?tr("(in alpha channel)"):""), 2000);
 
   updateGui();
   updateGl();
+	//guiPanel->ui->rbVertexcolor->setEnabled(true);
+	guiPanel->ui->rbVertexcolor->click();
 
 }
 
@@ -1156,6 +1238,7 @@ void MainWindow::meshRecomputeNormalsAndUnifyDoIt(){
 
     BrfMesh &m (brfdata.mesh[i]);
 
+
     m.UnifyPos();
 
     m.DivideVert();
@@ -1203,13 +1286,17 @@ void MainWindow::meshRecomputeNormalsAndUnify(){
 
 
 void MainWindow::flip(){
-  int i =  selector->firstSelected();
+  QModelIndexList list= selector->selectedList();
   switch (selector->currentTabName()) {
   case MESH:
-    brfdata.mesh[i].Flip();
+    for (int j=0; j<list.size(); j++){
+       brfdata.mesh[list[j].row()].Flip();
+    }
     break;
   case BODY:
-    brfdata.body[i].Flip();
+    for (int j=0; j<list.size(); j++){
+      brfdata.body[list[j].row()].Flip();
+    }
     break;
   default: return;
   }
@@ -2447,7 +2534,7 @@ bool MainWindow::currAoPerFace() const{
 }
 
 void MainWindow::optionAutoFixTextureUpdated(){
-  if (glWidget->fixTexturesOnSight  = optionAutoFixTextureOn->isChecked())
+  if ( (glWidget->fixTexturesOnSight  = optionAutoFixTextureOn->isChecked()) )
     updateGl();
 }
 
@@ -3714,9 +3801,9 @@ void MainWindow::setFlagsTexture(){
   AskFlagsDialog *d = new AskFlagsDialog(this,curfOR,curfAND, l,tips);
   int aniVals[16] = {0,4,8,12,16,20,24,28,32,36,40,44,48,52,56,60};
   d->setBitCombo(TR("Animation frames"),TR("N. of frames of texture anim (append \"_0\", \"_1\" ... to dds file names)."),24,28,aniVals);
-  char* aniPows[16] = {"default","2","4","8","16","32","64","128","256","512","1024","2K", "4K","8K","16K","32K",};
-  d->setBitCombo(TR("Size U (?)"),"Unclear meaining, usually only set for face textures",12,16,aniPows);
-  d->setBitCombo(TR("Size V (?)"),"Unclear meaining, usually only set for face textures",16,20,aniPows);
+  const char* aniPows[16] = {"default","2","4","8","16","32","64","128","256","512","1024","2K", "4K","8K","16K","32K",};
+  d->setBitCombo(TR("Size U (?)"),TR("Unclear meaining, usually only set for face textures"),12,16,aniPows);
+  d->setBitCombo(TR("Size V (?)"),TR("Unclear meaining, usually only set for face textures"),16,20,aniPows);
 
   d->setWindowTitle(tr("Texture flags"));
   if (d->exec()==QDialog::Accepted) {
@@ -3751,7 +3838,7 @@ void MainWindow::setFlagsMaterial(){
      TR("No Z-write"),TR("Rendering object leaves the depth buffer unaffected"),
      TR("No depth Test"),TR("Object ignores the depth test: i.e. it will be always drawn over others."), //
      TR("Specular enable"),TR("Specular reflections are enabled."),
-     TR("Alpha test"),TR("Enable alpha testing (for cutouts)."),
+     TR("Unknown (for alpha test?)"),TR("Exact meaning of this flag is unknown."),
      TR("Uniform lighting"),"",
 
 
@@ -3761,7 +3848,7 @@ void MainWindow::setFlagsMaterial(){
      TR("Blend factor"),TR("Alpha-blend function: factor"),
      "B:","", // alpha test value
      "B:","", // alpha test value
-     "B:","", // alpha test value
+     TR("Unknown (for alpha test?)"),TR("Exact meaning of this flag is unknown."),
     "","",
 
      TR("Render 1st"),"",
@@ -3810,8 +3897,8 @@ void MainWindow::setFlagsMaterial(){
   int vals[16] = {-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7};
   d->setBitCombo(TR("Render order"),TR("Determines what is rendered first (neg number), or later (pos numbers)"),24,28, vals,8);
 
-  char* valsAlpha[8] = {"0","1/4","3/8","1/2","5/8","3/4","7/8","1"};
-  d->setBitCombo(TR("Alpha test value"),TR("If alpha test: discard stuff more transparent than this value"),12,15, valsAlpha);
+  const char* valsAlpha[4] = {"No","< 8/256","< 136/256","< 251/256"};
+  d->setBitCombo(TR("Alpha test:"),TR("Alpha testing (for cutouts). Pixels more transparent than a given number will be not drawn."),12,14, valsAlpha);
 
   d->setWindowTitle(tr("Material flags"));
   if (d->exec()==QDialog::Accepted) {

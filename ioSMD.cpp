@@ -65,10 +65,10 @@ float* matrix2euler(const Matrix44f &_m){
 
 static int lastErr;
 static int nMaxBones;
-char *expectedErr, *foundErr;
+const char *expectedErr, *foundErr;
 int versionErr;
 
-static bool expect(FILE* f, char* what){
+static bool expect(FILE* f, const char* what){
   static char str[255];
   fscanf(f, "%s", str);
   if (strcmp(str,what)){
@@ -80,7 +80,7 @@ static bool expect(FILE* f, char* what){
   return true;
 }
 
-static bool expectLine(FILE* f, char* what){
+static bool expectLine(FILE* f, const char* what){
   static char str[255];
   fscanf(f, "%s\n", str);
   if (strcmp(str,what)){

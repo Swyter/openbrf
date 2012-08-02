@@ -23,7 +23,7 @@ static float values[16] = {
 
 static vcg::Matrix44f matr(values);
 
-int BrfSkeleton::FindBoneByName(char * name) const{
+int BrfSkeleton::FindBoneByName(const char * name) const{
   for (unsigned int i=0; i<bone.size(); i++){
     if (strcmp(bone[i].name,name)==0) return i;
   }

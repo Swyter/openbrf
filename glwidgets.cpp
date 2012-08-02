@@ -364,7 +364,27 @@ void GLWidget::enableDefMaterial(){
 
 #define STRINGIFY(X) #X
 
-int newShaderProgram(const char* prefix, const char* vs, const char* fs) {
+void GLWidget::newShaderProgram(QGLShaderProgram& s, const char* prefix, const char* vs, const char* fs) {
+
+	if (fs!=0) {
+		QFile file(fs); file.open(QIODevice::Text|QIODevice::ReadOnly);
+
+		QString src = QString(prefix)+QString(file.readAll());
+		//qDebug("PROGRAM: \n%s",src.toAscii().data());
+		s.addShaderFromSourceCode(QGLShader::Fragment,src);
+	}
+	if (vs!=0) {
+		QFile file(vs); file.open(QIODevice::Text|QIODevice::ReadOnly);
+		QString src = QString(prefix)+QString(file.readAll());
+		s.addShaderFromSourceCode(QGLShader::Vertex, src);
+	}
+	s.link();
+	//s.addShaderFromSourceCode(QGLShader::Fragment,QString(prefix)+(QString(fs).arg("\n#").arg('\n')));
+	//s.addShaderFromSourceCode(QGLShader::Fragment,QString(prefix)+(QString(fs).arg("\n#").arg('\n')));
+	s.bind();
+	/*
+  //QGLContext.bindTexture()
+
   GLuint prog = glCreateProgram();
   if (!prefix) prefix = "";
   if (fs) {
@@ -384,109 +404,111 @@ int newShaderProgram(const char* prefix, const char* vs, const char* fs) {
   }
   glLinkProgram(prog);
 
-  return prog;
+	return prog;*/
 }
 
 void GLWidget::initFramPrograms(){
 
+	/*
   fragProgramIron = 0;
   for (int k=0; k<NM_MODES; k++)
     for (int h=0; h<2; h++)
   programNormalMap[k][h] = 0;
+	*/
 
   if (!glCreateShader || !glCreateProgram || !glCompileShader
       || !glAttachShader || !glAttachShader || !glShaderSource) return;
 
   const char* ironFs = STRINGIFY(
     %1define TMP 1 %2
-    uniform vec3 spec_col;
-    uniform sampler2D samplRgb;
-    void main(){
-      vec4 tex = texture( samplRgb,gl_TexCoord[0].st);
-      gl_FragColor.rgb = tex.rgb*(gl_Color.rgb
-                     + gl_SecondaryColor.rgb*spec_col*tex.a*1.0);
-      gl_FragColor.a = 1.0;
+		uniform vec3 spec_col;%2
+		uniform sampler2D samplRgb;%2
+		void main(){%2
+			vec4 tex = texture( samplRgb,gl_TexCoord[0].st);%2
+			gl_FragColor.rgb = tex.rgb*(gl_Color.rgb%2
+										 + gl_SecondaryColor.rgb*spec_col*tex.a*1.0);%2
+			gl_FragColor.a = 1.0;%2
 
-    }
+		}%2
 
   );
 
 
   const char* normalVSource = STRINGIFY(
 
-    varying vec3 lightDir;
-    varying vec4 color;
-    varying vec2 tc;
-    varying vec3 norm;
-    varying vec3 tanx;
-    varying vec3 tany;
-    uniform float usePerVertColor;
+		varying vec3 lightDir;%2
+		varying vec4 color;%2
+		varying vec2 tc;%2
+		varying vec3 norm;%2
+		varying vec3 tanx;%2
+		varying vec3 tany;%2
+		uniform float usePerVertColor;%2
 
-    void main(){
-      gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-      lightDir = vec3(0.0,0.0,1.0)*gl_NormalMatrix;
-      color = (usePerVertColor>0)?gl_Color:vec4(1.0,1.0,1.0,1.0);
-      tc = gl_MultiTexCoord0.st;
-      lightDir =  normalize( vec3(0.0,0.0,1.0) * gl_NormalMatrix );
-      norm =  normalize( gl_Normal );
-      tanx = gl_MultiTexCoord1.xyz;
-      tany = cross( norm, tanx );
-      tany *= (gl_MultiTexCoord2.x==0.0)?-1.0:1.0;
-      /*norm = normalize(norm);*/
-    }
+		void main(){%2
+			gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;%2
+			lightDir = vec3(0.0,0.0,1.0)*gl_NormalMatrix;%2
+			color = (usePerVertColor>0)?gl_Color:vec4(1.0,1.0,1.0,1.0);%2
+			tc = gl_MultiTexCoord0.st;%2
+			lightDir =  normalize( vec3(0.0,0.0,1.0) * gl_NormalMatrix );%2
+			norm =  normalize( gl_Normal );%2
+			tanx = gl_MultiTexCoord1.xyz;%2
+			tany = cross( norm, tanx );%2
+			tany *= (gl_MultiTexCoord2.x==0.0)?-1.0:1.0;%2
+			/*norm = normalize(norm);*/%2
+		}%2
 
-  );
+	);
   const char* normalFSource = STRINGIFY(
 
-    uniform vec3 spec_col;
-    uniform float spec_exp;
-    varying vec3 lightDir;
-    varying vec4 color;
-    varying vec2 tc;
-    varying vec3 norm;
-    varying vec3 tanx;
-    varying vec3 tany;
-
-    uniform sampler2D samplRgb;
-    uniform sampler2D samplBump;
-    uniform sampler2D samplSpec;
-
-    void main(){
-      vec4 tex = texture( samplRgb,tc);
-      %1if USE_GREEN_NM%2
-        vec3 normt;
-        normt.xy = +texture( samplBump,tc).ag * 2.0 - vec2(1.0);
-        /*normt.z = 1.0;normalize(normt);*/
-        normt.z = sqrt( 1.0-dot(normt.xy,normt.xy));
-      %1else%2
-        vec3 normt = (texture( samplBump,tc).xyz * 2.0 )- vec3(1.0);
+		uniform vec3 spec_col;%2
+		uniform float spec_exp;%2
+		varying vec3 lightDir;%2
+		varying vec4 color;%2
+		varying vec2 tc;%2
+		varying vec3 norm;%2
+		varying vec3 tanx;%2
+		varying vec3 tany;%2
+%2
+		uniform sampler2D samplRgb;%2
+		uniform sampler2D samplBump;%2
+		uniform sampler2D samplSpec;%2
+%2
+		void main(){%2
+			vec4 tex = texture( samplRgb,tc);%2
+			%1if USE_GREEN_NM%2%2
+				vec3 normt;%2
+				normt.xy = +texture( samplBump,tc).ag * 2.0 - vec2(1.0);%2
+				/*normt.z = 1.0;normalize(normt);*/%2
+				normt.z = sqrt( 1.0-dot(normt.xy,normt.xy));%2
+			%1else%2
+				vec3 normt = (texture( samplBump,tc).xyz * 2.0 )- vec3(1.0);%2
       %1endif%2
 
 
-      normt = normt.z * norm +
-              normt.x * tanx +
-              normt.y * tany;
-      float diffuse = dot(normt , lightDir ) ;
-      diffuse = (diffuse<0.0)?0.0:diffuse;
-      diffuse = (diffuse>1.0)?1.0:diffuse;
-      %1if SPECULAR_MAP%2
-      vec3 specmapVal =  texture( samplSpec,tc).rgb;
+			normt = normt.z * norm +%2
+							normt.x * tanx +%2
+							normt.y * tany;%2
+			float diffuse = dot(normt , lightDir ) ;%2
+			diffuse = (diffuse<0.0)?0.0:diffuse;%2
+			diffuse = (diffuse>1.0)?1.0:diffuse;%2
+			%1if SPECULAR_MAP%2
+			vec3 specmapVal =  texture( samplSpec,tc).rgb;%2
       %1endif%2
-      gl_FragColor.rgb = tex.rgb*color.rgb*(vec3(diffuse*0.8+0.2)
+			gl_FragColor.rgb = tex.rgb*color.rgb*(vec3(diffuse*0.8+0.2)%2
       %1if SPECULAR_ALPHA%2
-                       + spec_col*(   tex.a  *pow( diffuse , spec_exp))
+											 + spec_col*(   tex.a  *pow( diffuse , spec_exp))%2
       %1endif%2
       %1if SPECULAR_MAP%2
-                       + spec_col*(specmapVal*pow( diffuse , spec_exp))
+											 + spec_col*(specmapVal*pow( diffuse , spec_exp))%2
       %1endif%2
       );
       %1if ALPHA_CUTOUTS%2
-      if (tex.a<0.1) discard;
-      gl_FragColor.a = tex.a;
+			if (tex.a<0.1) discard;%2
+			gl_FragColor.a = tex.a;%2
       %1else%2
-      gl_FragColor.a = 1.0;
+			gl_FragColor.a = 1.0;%2
       %1endif%2
-    }
+		}%2
 
   );
 
@@ -502,12 +524,14 @@ void GLWidget::initFramPrograms(){
     }
 
     if (i==1) arg = arg+"#define USE_GREEN_NM 1\n";
-    programNormalMap[k][i] = newShaderProgram(arg.toAscii().data(),normalVSource,normalFSource);
+		//programNormalMap[k][i] = newShaderProgram(arg.toAscii().data(),normalVSource,normalFSource);
+		//newShaderProgram(programNormalMap[k][i], arg.toAscii().data(),normalVSource,normalFSource);
+
+		newShaderProgram(programNormalMap[k][i], arg.toAscii().data(),":/shaders/bump_vertex.cpp",":/shaders/bump_fragment.cpp");
   }
-  fragProgramIron = newShaderProgram("",0,ironFs);
-
-
+	newShaderProgram(fragProgramIron , "",0,":/shaders/iron_fragment.cpp");
 }
+
 
 void GLWidget::enableMaterial(const BrfMaterial &m){
 
@@ -549,24 +573,32 @@ void GLWidget::enableMaterial(const BrfMaterial &m){
   if (bumpmapActivated) {
 
     if (useOpenGL2) {
-      int prog;
 
       int w;
-      if (mapShine) prog = programNormalMap[w=NM_SHINE][bumpmapUsingGreen];
-      else if (alphaCutout) prog = programNormalMap[w=NM_ALPHA][bumpmapUsingGreen];
-      else if (alphaShine) prog = programNormalMap[w=NM_IRON][bumpmapUsingGreen];
-      else prog = programNormalMap[w=NM_PLAIN][bumpmapUsingGreen];
+			if (mapShine) w=NM_SHINE ; //prog = programNormalMap[w=NM_SHINE][bumpmapUsingGreen];
+			else if (alphaCutout) w=NM_ALPHA; // prog = programNormalMap[w=NM_ALPHA][bumpmapUsingGreen];
+			else if (alphaShine) w=NM_IRON; //prog = programNormalMap[w=NM_IRON][bumpmapUsingGreen];
+			else w=NM_PLAIN; //prog = programNormalMap[w=NM_PLAIN][bumpmapUsingGreen];
 
+
+			QGLShaderProgram &p(programNormalMap[w][bumpmapUsingGreen]);
+			p.bind();
       //qDebug("using program %d (%d %d)",prog,w,bumpmapUsingGreen );
-      if (glUseProgram) glUseProgram(prog);
+			//if (glUseProgram) glUseProgram(prog);
       if (glUniform3f && glUniform1f && glUniform1i )  {
-        glUniform1f( glGetUniformLocation(prog,"usePerVertColor"), (colorMode==0)?-1:+1);
+				p.setUniformValue("usePerVertColor", (colorMode==0)?GLfloat(-1):GLfloat(1));
+				p.setUniformValue("spec_col",m.r,m.g,m.b);
+				p.setUniformValue("spec_exp",m.specular);
+				p.setUniformValue("samplRgb",0);
+				p.setUniformValue("samplBump",1);
+				p.setUniformValue("samplSpec",2);
+				//glUniform1f( glGetUniformLocation(prog,"usePerVertColor"), (colorMode==0)?-1:+1);
 
-        glUniform3f( glGetUniformLocation(prog,"spec_col"),m.r,m.g,m.b );
-        glUniform1f( glGetUniformLocation(prog,"spec_exp"),m.specular );
-        glUniform1i( glGetUniformLocation(prog,"samplRgb"),0 );
-        glUniform1i( glGetUniformLocation(prog,"samplBump"),1 );
-        glUniform1i( glGetUniformLocation(prog,"samplSpec"),2 );
+				//glUniform3f( glGetUniformLocation(prog,"spec_col"),m.r,m.g,m.b );
+				//glUniform1f( glGetUniformLocation(prog,"spec_exp"),m.specular );
+				//glUniform1i( glGetUniformLocation(prog,"samplRgb"),0 );
+				//glUniform1i( glGetUniformLocation(prog,"samplBump"),1 );
+				//glUniform1i( glGetUniformLocation(prog,"samplSpec"),2 );
       }
       usingProgram = true;
     }
@@ -584,14 +616,19 @@ void GLWidget::enableMaterial(const BrfMaterial &m){
         glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
         glLightfv(GL_LIGHT0,GL_SPECULAR, ones);
         glMateriali(GL_FRONT_AND_BACK,GL_SHININESS, (int)m.specular);
-        if (glUseProgram) glUseProgram(fragProgramIron);
+				if (glUseProgram) fragProgramIron.bind(); //glUseProgram(fragProgramIron);
         usingProgram = true;
+				fragProgramIron.setUniformValue("spec_col",m.r,m.g,m.b);
+				fragProgramIron.setUniformValue("samplRgb",0);
+				/*
         if (glUniform3f) glUniform3f(
-          glGetUniformLocation(fragProgramIron,"spec_col"),m.r,m.g,m.b
+
+					glGetUniformLocation(fragProgramIron,"spec_col"),m.r,m.g,m.b
         );
         if (glUniform1i) glUniform1i(
+					fragProgramIron,"samplRgb"
           glGetUniformLocation(fragProgramIron,"samplRgb"),0
-        );
+				);*/
       }
     }
 
@@ -1074,6 +1111,10 @@ void GLWidget::onTimer(){
   static int done;
   if (lasttime==-1) {lasttime=time; done=time;}
   int elapsed = time-lasttime;
+	if (elapsed<0) {
+		lasttime = -1;
+		return;
+	}
   lasttime=time;
 
 
@@ -1135,23 +1176,6 @@ void GLWidget::onTimer(){
   if (needUpdate) update();
 }
 
-void GLWidget::keyPressEvent( QKeyEvent * e ){
-  if (e->key()==Qt::Key_W || e->key()==Qt::Key_Forward) keys[0]=true;
-  if (e->key()==Qt::Key_S || e->key()==Qt::Key_Back) keys[1]=true;
-  if (e->key()==Qt::Key_A || e->key()==Qt::Key_Left) keys[2]=true;
-  if (e->key()==Qt::Key_D || e->key()==Qt::Key_Right) keys[3]=true;
-  if (e->key()==Qt::Key_Shift) keys[4]=true;
-  else QWidget::keyPressEvent(e);
-}
-
-void GLWidget::keyReleaseEvent( QKeyEvent * e ){
-  if (e->key()==Qt::Key_W || e->key()==Qt::Key_Forward) keys[0]=false;
-  if (e->key()==Qt::Key_S || e->key()==Qt::Key_Back) keys[1]=false;
-  if (e->key()==Qt::Key_A || e->key()==Qt::Key_Left) keys[2]=false;
-  if (e->key()==Qt::Key_D || e->key()==Qt::Key_Right) keys[3]=false;
-  if (e->key()==Qt::Key_Shift) keys[4]=false;
-  else QWidget::keyReleaseEvent(e);
-}
 
 
 QSize GLWidget::minimumSizeHint() const
@@ -1950,7 +1974,7 @@ void GLWidget::mySetViewport(int x,int y,int w,int h){
     else
       gluOrtho2D(-wh,+wh,-1,+1);
   } else {
-    gluPerspective(60-closingUp*40,wh,0.2,20+currViewmodeInterior*500);
+		gluPerspective(60-closingUp*40,wh,0.02,20+currViewmodeInterior*500);
     if (wh<1) glScalef(wh,wh,1);
     glScalef(0.2,0.2,0.2);
   }
@@ -2029,27 +2053,7 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
     lastPos = event->pos();
 }
 
-void GLWidget::wheelEvent(QWheelEvent *event)
-{
-  if (event->delta()>0) {
-    if (displaying==TEXTURE || displaying==MATERIAL) zoom/=1.2; else {
-      if(viewmode==2) avatP[1]+=0.2;
-      else dist*=1.1;
 
-    }
-  } else {
-    if (displaying==TEXTURE || displaying==MATERIAL) zoom*=1.2; else {
-      if(viewmode==2) avatP[1]-=0.2;
-      else dist/=1.1;
-    }
-  }
-  if (zoom<1.0) zoom = 1.0;
-  if (zoom>32.0) zoom = 32.0;
-  if (dist>18.0) dist=18.0;
-  if (dist<0.5) dist=0.5;
-
-  update();
-}
 
 QString GLWidget::locateOnDisk(QString nome, const char *ext, BrfMaterial::Location *loc){
   BrfMaterial::Location aloc=BrfMaterial::UNKNOWN;
@@ -2084,6 +2088,16 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     int dx = event->x() - lastPos.x();
     int dy = event->y() - lastPos.y();
 
+		if (event->modifiers()&Qt::ShiftModifier) {
+			if (displaying==TEXTURE || displaying==MATERIAL)
+				zoom*=(1.0+dy*0.02);
+			else dist*=(1.0+dy*0.01);
+
+			if (zoom<1.0) zoom = 1.0;
+			if (zoom>32.0) zoom = 32.0;
+			if (dist>18.0) dist=18.0;
+			if (dist<0.5) dist=0.5;
+		} else {
     if (displaying==TEXTURE || displaying==MATERIAL) {
       cx += 1/zoom*dx*0.01;
       cy += 1/zoom*dy*0.01;
@@ -2099,8 +2113,54 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
       if (theta>90) theta=90;
       if (theta<-90) theta=-90;
     }
+		}
     lastPos = event->pos();
     this->update();
 }
 
 
+void GLWidget::keyPressEvent( QKeyEvent * e ){
+	if (e->key()==Qt::Key_W || e->key()==Qt::Key_Forward) keys[0]=true;
+	if (e->key()==Qt::Key_S || e->key()==Qt::Key_Back) keys[1]=true;
+	if (e->key()==Qt::Key_A || e->key()==Qt::Key_Left) keys[2]=true;
+	if (e->key()==Qt::Key_D || e->key()==Qt::Key_Right) keys[3]=true;
+	if (e->key()==Qt::Key_Shift) keys[4]=true;
+
+	if(viewmode==2) {
+		if (e->key()==Qt::Key_R) { avatP[1]+=0.2; update(); }
+		if (e->key()==Qt::Key_F) { avatP[1]-=0.2; update(); }
+	}
+
+	QWidget::keyPressEvent(e);
+}
+
+void GLWidget::keyReleaseEvent( QKeyEvent * e ){
+	if (e->key()==Qt::Key_W || e->key()==Qt::Key_Forward) keys[0]=false;
+	if (e->key()==Qt::Key_S || e->key()==Qt::Key_Back) keys[1]=false;
+	if (e->key()==Qt::Key_A || e->key()==Qt::Key_Left) keys[2]=false;
+	if (e->key()==Qt::Key_D || e->key()==Qt::Key_Right) keys[3]=false;
+	if (e->key()==Qt::Key_Shift) keys[4]=false;
+	else QWidget::keyReleaseEvent(e);
+}
+
+void GLWidget::wheelEvent(QWheelEvent *event)
+{
+	if (event->delta()>0) {
+		if (displaying==TEXTURE || displaying==MATERIAL) zoom/=1.2; else {
+			if(viewmode==2) avatP[1]+=0.2;
+			else dist*=1.1;
+
+		}
+	} else {
+		if (displaying==TEXTURE || displaying==MATERIAL) zoom*=1.2; else {
+			if(viewmode==2) avatP[1]-=0.2;
+			else dist/=1.1;
+		}
+	}
+	if (zoom<1.0) zoom = 1.0;
+	if (zoom>32.0) zoom = 32.0;
+	if (dist>18.0) dist=18.0;
+	if (dist<0.5) dist=0.5;
+
+	update();
+}

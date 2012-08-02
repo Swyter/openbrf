@@ -103,6 +103,11 @@ void MainWindow::createMenus()
     tldSpecial->addAction(mab2tldHeadAct);
     tldSpecial->addAction(tld2mabHeadAct);
 
+    tldGrassAlphaPaintAct = new QAction("Paint alpha for grass shader!",this);
+    connect(tldGrassAlphaPaintAct,SIGNAL(triggered()),this,SLOT(tldGrassAlphaPaint()));
+    tldSpecial->addAction(tldGrassAlphaPaintAct);
+
+
     tldSpecial->addSeparator();
 
     mab2tldArmorAct = new QAction("Make TLD armour",this);

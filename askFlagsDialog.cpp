@@ -90,7 +90,7 @@ AskFlagsDialog::AskFlagsDialog(QWidget *parent, unsigned int ones, unsigned int 
 
 }
 
-void AskFlagsDialog::setBitCombo(QString name, QString tip, int aa, int bb, char** options, int zeroIndex){
+void AskFlagsDialog::setBitCombo(QString name, QString tip, int aa, int bb, const char** options, int zeroIndex){
   _setBitCombo(name,tip,aa,bb,NULL,options,zeroIndex);
 }
 
@@ -98,7 +98,7 @@ void AskFlagsDialog::setBitCombo(QString name, QString tip, int aa, int bb, int*
   _setBitCombo(name,tip,aa,bb,options,NULL,zeroIndex);
 }
 
-void AskFlagsDialog::_setBitCombo(QString name, QString tip, int aa, int bb, int* optionsInt, char** optionsChar, int zeroIndex){
+void AskFlagsDialog::_setBitCombo(QString name, QString tip, int aa, int bb, int* optionsInt, const char** optionsChar, int zeroIndex){
   QWidget *g = new QWidget(this);// or QGroupBox(t,this);
   g->setLayout(new QHBoxLayout(g));
 

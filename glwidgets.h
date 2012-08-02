@@ -2,6 +2,7 @@
 #define GLWIDGETS_H
 
 #include <QGLWidget>
+#include <QGLShaderProgram>
 #include <QtGui>
 #include "brfData.h"
 #include "iniData.h"
@@ -224,9 +225,13 @@ private:
     QString renderedTexture;
     // fragment programs
     enum { NM_PLAIN = 0, NM_ALPHA, NM_IRON, NM_SHINE, NM_MODES};
-    unsigned int
-        fragProgramIron,
-        programNormalMap[NM_MODES][NM_MODES];
+		//unsigned int
+		QGLShaderProgram
+				fragProgramIron,
+				programNormalMap[NM_MODES][NM_MODES];
+
+		void newShaderProgram(QGLShaderProgram& s, const char* prefix, const char* vs, const char* fs);
+
     void initFramPrograms();
 };
 

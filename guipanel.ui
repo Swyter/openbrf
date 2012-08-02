@@ -84,9 +84,9 @@
    <widget class="QLCDNumber" name="boxNVerts">
     <property name="geometry">
      <rect>
-      <x>47</x>
+      <x>45</x>
       <y>130</y>
-      <width>42</width>
+      <width>46</width>
       <height>24</height>
      </rect>
     </property>
@@ -204,9 +204,9 @@
    <widget class="QLCDNumber" name="boxNFaces">
     <property name="geometry">
      <rect>
-      <x>3</x>
+      <x>1</x>
       <y>130</y>
-      <width>42</width>
+      <width>46</width>
       <height>24</height>
      </rect>
     </property>
@@ -242,9 +242,9 @@
    <widget class="QLCDNumber" name="boxNPos">
     <property name="geometry">
      <rect>
-      <x>93</x>
+      <x>91</x>
       <y>130</y>
-      <width>42</width>
+      <width>46</width>
       <height>24</height>
      </rect>
     </property>
@@ -283,9 +283,9 @@
    <widget class="QLCDNumber" name="boxNFrames">
     <property name="geometry">
      <rect>
-      <x>136</x>
+      <x>134</x>
       <y>130</y>
-      <width>42</width>
+      <width>46</width>
       <height>24</height>
      </rect>
     </property>
@@ -294,9 +294,6 @@
     </property>
     <property name="statusTip">
      <string>Number of frames (&gt;1 for vertex animated meshes).</string>
-    </property>
-    <property name="smallDecimalPoint">
-     <bool>false</bool>
     </property>
     <property name="numDigits">
      <number>6</number>
@@ -1189,7 +1186,7 @@
      </rect>
     </property>
     <property name="numDigits">
-     <number>7</number>
+     <number>5</number>
     </property>
     <property name="segmentStyle">
      <enum>QLCDNumber::Flat</enum>
@@ -1208,7 +1205,7 @@
      <string>Space taken on disk (compressed).</string>
     </property>
     <property name="numDigits">
-     <number>7</number>
+     <number>5</number>
     </property>
     <property name="segmentStyle">
      <enum>QLCDNumber::Flat</enum>
@@ -1224,7 +1221,7 @@
      </rect>
     </property>
     <property name="numDigits">
-     <number>7</number>
+     <number>5</number>
     </property>
     <property name="segmentStyle">
      <enum>QLCDNumber::Flat</enum>
@@ -1256,7 +1253,7 @@
      </rect>
     </property>
     <property name="numDigits">
-     <number>7</number>
+     <number>5</number>
     </property>
     <property name="segmentStyle">
      <enum>QLCDNumber::Flat</enum>
@@ -2103,7 +2100,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>&lt;a href=&quot;link&quot;&gt;Fallback:&lt;/a&gt;</string>
+     <string>&lt;a href=&quot;link&quot;&gt;Fallback&lt;/a&gt;:</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>

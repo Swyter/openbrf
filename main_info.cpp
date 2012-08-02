@@ -3,7 +3,7 @@
 
 #include <QtGui>
 
-char* applVersion = "0.0.64";
+const char* applVersion = "0.0.65";
 QString IniData::tokenFullName(int k){
 
   switch (k){

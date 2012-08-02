@@ -2,7 +2,7 @@
 
 #include "saveLoad.h"
 
- char * tokenBrfName[N_TOKEN] = {
+ const char * tokenBrfName[N_TOKEN] = {
   "mesh",
   "texture",
   "shader",
@@ -68,7 +68,7 @@ static void mergeVec(vector<T> &a, const vector<T> &b){
 }
 
 template <class T>
-static int myfind(const vector<T> &b, char* name){
+static int myfind(const vector<T> &b, const char* name){
   for (unsigned int i=0; i<b.size(); i++) if (strcmp(b[i].name,name)==0) return i;
   return -1;
 }
@@ -99,7 +99,7 @@ unsigned int BrfData::size(int token) const{
 
 }
 
-int BrfData::FindTextureWithExt(char* name){
+int BrfData::FindTextureWithExt(const char* name){
   int k = myfind(texture,name);
   if (k>=0) return k;
   char full[1024];
@@ -114,7 +114,7 @@ bool BrfData::HasAnyTangentDirs() const{
   return false;
 }
 
-int BrfData::Find(char* name, int token){
+int BrfData::Find(const char* name, int token){
   switch (token) {
     case MESH: return myfind(mesh,name);
     case MATERIAL: return myfind(material,name);

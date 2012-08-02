@@ -252,8 +252,8 @@ void GuiPanel::setAnimation(const BrfAnimation* a){
   int n = ui->cbRefSkel->currentIndex();
   ui->cbRefSkel->clear();
   for (unsigned int i=0; i<reference->skeleton.size(); i++)
-    if (a->nbones==(int)reference->skeleton[i].bone.size())
-      ui->cbRefSkel->addItem(reference->skeleton[i].name);
+		//if (a->nbones==(int)reference->skeleton[i].bone.size())
+		ui->cbRefSkel->addItem(reference->skeleton[i].name);
   if (n<0 || n>=ui->cbRefSkel->count()) n=0;
   ui->cbRefSkel->setCurrentIndex(n);
 }

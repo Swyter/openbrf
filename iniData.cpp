@@ -5,7 +5,7 @@
 #include "brfData.h"
 #include "iniData.h"
 
-char* txtFileName[N_TXTFILES] = {
+const char* txtFileName[N_TXTFILES] = {
   "actions.txt",          // TXTFILE_ACTIONS,
   "skins.txt",            // TXTFILE_SKIN,
   "item_kinds1.txt",      // TXTFILE_ITEM,
@@ -127,7 +127,7 @@ public:
       error(QTextBrowser::tr("cannot open file"));
     }
   }
-  void expectLine(char* st) throw (int){
+  void expectLine(const char* st) throw (int){
     qf.readLine(data,4023);
     line++;
     QString dataS = QString(data).remove(QChar('\n'), Qt::CaseSensitive);
@@ -784,7 +784,7 @@ QString IniData::stats() {
 int IniData::totSize(uint t,bool commonRes) const{
   int res=0;
   for (unsigned int i=0; i<file.size(); i++) {
-    if (origin[i]!=MODULE_RES == !commonRes) res+=file[i].size(t);
+    if ((origin[i]!=MODULE_RES) == !commonRes) res+=file[i].size(t);
   }
   return res;
 }
@@ -792,7 +792,7 @@ int IniData::totSize(uint t,bool commonRes) const{
 int IniData::totFiles( bool commonRes) const{
   int res=0;
   for (unsigned int i=0; i<file.size(); i++) {
-    if (origin[i]!=MODULE_RES == !commonRes) res++;
+    if ((origin[i]!=MODULE_RES) == !commonRes) res++;
   }
   return res;
 }
@@ -804,7 +804,7 @@ int IniData::totUsed(uint t, bool commonRes) const{
   ObjCoord o;
   o.t=t;
   for (o.fi=0; o.fi<(int)file.size(); o.fi++) {
-    if (origin[o.fi]!=MODULE_RES == !commonRes) {
+    if ((origin[o.fi]!=MODULE_RES) == !commonRes) {
       for (o.oi=0; o.oi<int(usedInV[o.t].at(o.fi).size()); o.oi++)
         if (usedIn(o).directOrIndirect()) res++;
     }
