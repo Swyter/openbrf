@@ -1,3 +1,5 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 #include "askBoneDialog.h"
 #include "ui_askBoneDialog.h"
 

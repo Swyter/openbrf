@@ -1,3 +1,5 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 #include <vector>
 #include <vcg/space/box3.h>
 #include <vcg/math/quaternion.h>
@@ -273,6 +275,22 @@ void BrfFrame2TmpBone(const vector<BrfAnimationFrame> &vf,
     c.rot = vf[ fi ].tra;
     if ((!vf[ fi ].wasImplicit[nbones]) || vt.size()==0 ) vt.push_back(c);
   }
+}
+
+
+bool BrfAnimationFrame::CopyLowerParts(const BrfAnimationFrame& from){
+	tra = from.tra;
+	if ((int)rot.size()<7) return false;
+	if ((int)from.rot.size()<7) return false;
+	for (int i=0; i<7; i++) rot[i]= from.rot[i];
+	for (int i=0; i<7; i++) wasImplicit[i]= from.wasImplicit[i];
+	return true;
+}
+
+bool BrfAnimation::CopyLowerParts(const BrfAnimation& from){
+	for (unsigned int i=0; i<frame.size(); i++)
+		if (!frame[i].CopyLowerParts(from.frame[i%from.frame.size()])) return false;
+	return true;
 }
 
 bool BrfAnimationFrame::Reskeletonize(const BrfSkeleton& from, const BrfSkeleton& to){

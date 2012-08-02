@@ -1,3 +1,5 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 #ifndef IOMD3_H
 #define IOMD3_H
 

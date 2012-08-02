@@ -1,3 +1,5 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 #ifndef BRFANIMATION_H
 #define BRFANIMATION_H
 
@@ -16,6 +18,7 @@ public:
   std::vector< bool > wasImplicit;
 
   bool Reskeletonize(const BrfSkeleton& from, const BrfSkeleton& to);
+	bool CopyLowerParts(const BrfAnimationFrame& from);
 
 };
 
@@ -37,6 +40,8 @@ public:
 
   // to dysplay the animation...
   bool IsAnimable() const{return true;}
+	bool CopyLowerParts(const BrfAnimation& from);
+
 
   static Box3f bbox;
 

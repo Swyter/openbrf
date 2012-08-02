@@ -1,3 +1,5 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 #ifndef ASKINTERVALDIALOG_H
 #define ASKINTERVALDIALOG_H
 

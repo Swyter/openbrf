@@ -1,9 +1,11 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 #include "glwidgets.h"
 #include "mainwindow.h"
 
 #include <QtGui>
 
-const char* applVersion = "0.0.65";
+const char* applVersion = "0.0.66";
 QString IniData::tokenFullName(int k){
 
   switch (k){
@@ -58,20 +60,21 @@ void MainWindow::about()
                "<p><i>Translations by:</i> %5</p>")
              ).arg(__DATE__)
               .arg("[mtarini] --- Marco Tarini")
-              .arg(" <br>[Abhuva], [amade], [Andrde Cuyne], [Barf], [Bolkonsky], [Barf], [Brutus], [Caba`drin], "
-                   "[captain lust], [cdvader], [Chel], [cmpxchg8b], [DaBlade], [Dain Ironfoot], "
+							.arg(" <br>[Abhuva], [amade], [Andrde Cuyne], [Barf], [Bilwit], [Bolkonsky], [Brutus], [Caba`drin], "
+									 "[captain lust], [cdvader], [Chel], [Computica], [cmpxchg8b], [Crazy-Q], [DaBlade], [Dain Ironfoot], "
                    "[Darwin], [dreamterror], [dunde], [ealabor], [eierkopf], "
                    "[EvolutiveBrain], "
-                   "[fedeita], [Fafhrd], [Fei Dao], [foxyman], [Freddex], [FrisianDude], "
+									 "[Fafhrd], [fedeita], [Fei Dao], [foxyman], [Freddex], [FrisianDude], "
                    "[Geroj], [GetAssista], [giles], [Gothic Knight], [Hatonastick], "
                    "[havarez], "
-                   "[Highelf], [Highlander], [HokieBT], [Jai], [killkhergit], "
+									 "[Highelf], [Highlander], [HokieBT], [iLag], [Jai], [killkhergit], "
                    "[Konar], [Llew], [Lord_Cheap], "
-                   "[LordRaglan], [Lumos], [MadVader], [Mandible], [Mekelan], "
+									 "[LordRaglan], [Lumos], [MadocComadrin], [MadVader], [Mandible], [Mekelan], "
                    "[Merlkir], [mr.master], "
                    "[mysstick], [N0body], [newaxekub], "
                    "[octoburn], [pagan], [Percus], [qlithe], [Rath0s], [RATMdude92], [Red River], "
-                   "[Romainoir], [Septa Scarabae], [Silesian], [Shik], [Silver Wolf], [Somebody], [Spak], [Swyter], "
+									 "[rgcotl], [Romainoir], [Septa Scarabae], [Sayd Ûthman], [Silesian], [Shik], "
+									 "[Silver Wolf], [Somebody], [SonKidd], [Spak], [Stefano], [Sunnetci_Dede], [Swyter], "
                    "[Triglav], [Tul], [Ursca], [Vlejundo], [Vornne], [WilliamBerne], "
                    "[yellowmosquito], [Yoshiboy], [xenoargh]")
               .arg("<br>[amade], [Swyter]!")
@@ -113,6 +116,29 @@ bool MainWindow::askIfUseOpenGL2(bool e){
     ).arg(e?tr("<i>(later you can set this option under [Settings])"):""),QMessageBox::Yes|QMessageBox::No,QMessageBox::Yes)==QMessageBox::Yes);
 }
 
+void MainWindow::aboutCurrentShader(){
+	QString log  = glWidget->getCurrentShaderLog();
+	QString extraText  = tr("<br><p><i>This info has been copyed to clipboard</i>");
+	bool errors = true;
+	if (log.isEmpty()) {
+		log = tr("ok");
+		extraText = "";
+		errors = false;
+	};
+	QString text = tr(
+		"<p><i>Currently used preview Shader:</i><br />%1</p>"
+		"<p><br /><i>Shader status:</i><br />%2</p>"
+	).arg(glWidget->getCurrentShaderDescriptor()).arg(log);
+
+	QMessageBox::about(this,tr("OpenBrf - Preview Shader info"),text+extraText);
+	if (errors)
+	QApplication::clipboard()->setText(
+		text.replace("<br />","\n").replace("<p>","\n").replace("</p>","\n").replace("<i>","").replace("</i>","")
+	);
+
+
+}
+
 void MainWindow::aboutCheckboard(){
   int t = glWidget->lastMatErr.type;
   QString mot;
@@ -141,7 +167,7 @@ void MainWindow::aboutCheckboard(){
         glWidget->texturePath[0]).arg(glWidget->texturePath[1]).arg(glWidget->texturePath[2]);
     cure = QString(tr("<br>- double check DiffuesA texture name of the material<br>"
                    "- (hint: remember you can navigate with ctrl-left/right)<br>"
-                   "<b>or</b>"
+									 "<b>or</b><br>"
                    "<br>- make sure the missing texture file in mod texture folder!"
                    "<br>- put it there if it is missing")
                    );
@@ -156,7 +182,7 @@ void MainWindow::aboutCheckboard(){
     ingame=false;
   }
   //if (t!=0)
-  QMessageBox::about(this, tr("Open-Brf"),
+	QMessageBox::about(this, "OpenBrf",
      QString(tr("<i>I could not display the real texture because:</i><br><b>%1</b><br><br>%2<br><br><b>Cure: </b>%3")).arg(mot).arg(longmot).arg(cure));
 }
 

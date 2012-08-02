@@ -1,3 +1,5 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 #include "askTexturenameDialog.h"
 #include "ui_askTexturenameDialog.h"
 #include <QtGui>

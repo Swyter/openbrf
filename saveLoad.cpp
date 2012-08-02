@@ -1,3 +1,5 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

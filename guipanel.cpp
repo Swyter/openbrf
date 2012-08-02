@@ -1,3 +1,5 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 #include "guipanel.h"
 #include "ui_guipanel.h"
 

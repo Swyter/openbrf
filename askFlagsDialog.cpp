@@ -1,3 +1,5 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 #include "askFlagsDialog.h"
 #include "ui_askFlagsDialog.h"
 

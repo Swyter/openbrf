@@ -1,3 +1,5 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 #include "askIntervalDialog.h"
 #include "ui_askIntervalDialog.h"
 #include <QPushButton>

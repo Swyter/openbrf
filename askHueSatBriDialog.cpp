@@ -1,3 +1,5 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 #include "ui_askHueSatBriDialog.h"
 #include "askHueSatBriDialog.h"
 

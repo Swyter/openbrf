@@ -1,3 +1,5 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 #ifndef BINDTEXTUREPATCH_H
 #define BINDTEXTUREPATCH_H
 

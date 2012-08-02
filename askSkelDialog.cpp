@@ -1,3 +1,5 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 #include "askSkelDialog.h"
 #include "ui_askSkelDialog.h"
 

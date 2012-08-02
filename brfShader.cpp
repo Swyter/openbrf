@@ -1,3 +1,5 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 #include <vector>
 #include <stdio.h>
 #include <vcg/space/point4.h>

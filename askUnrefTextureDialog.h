@@ -1,3 +1,5 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 #ifndef ASKUNREFTEXTUREDIALOG_H
 #define ASKUNREFTEXTUREDIALOG_H
 

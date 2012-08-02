@@ -1,3 +1,5 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 #include "askSelectBrfDialog.h"
 #include "ui_askSelectBrfDialog.h"
 

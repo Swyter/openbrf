@@ -1,3 +1,5 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
@@ -68,7 +70,8 @@ private:
 
     void about();
     void aboutCheckboard();
-    void breakAni(int which, bool useIni);
+		void aboutCurrentShader();
+		void breakAni(int which, bool useIni);
     void shiftAni();
     void bodyMakeQuadDominant();
     void bodyMerge();
@@ -136,8 +139,10 @@ private:
     void editPasteFrame();
     void editPasteRigging();
     void editPasteMod();
-    void editPasteTimings();
-    void sortEntries();
+		void editPasteAniLowerParts();
+		void editPasteTimings();
+		void editPasteTextcoords();
+		void sortEntries();
     void meshRecomputeNormalsAndUnifyDoIt();
     void meshRecomputeNormalsAndUnify_onSlider(int i);
     void meshRecomputeNormalsAndUnify_onCheckbox(bool i);
@@ -330,7 +335,8 @@ private:
     QAction *exitAct;
     QAction *sortEntriesAct;
     QAction *aboutCheckboardAct;
-    QAction *aboutAct;
+		QAction *aboutCurrentShaderAct;
+		QAction *aboutAct;
     QAction *editRefAct;
     QAction *separatorAct;
     QAction *editCutAct;
@@ -341,10 +347,12 @@ private:
     QAction *editPasteAct;
     QAction *editPasteRiggingAct;
     QAction *editPasteTimingsAct;
-    QAction *editPasteModificationAct;
+		QAction *editPasteAniLowerPartsAct;
+		QAction *editPasteModificationAct;
     QAction *editCutFrameAct;
     QAction *editCopyFrameAct;
     QAction *editPasteFrameAct;
+		QAction *editPasteTextcoordsAct;
 
     QAction *searchBrfAct;
     QAction *navigateLeftAct;

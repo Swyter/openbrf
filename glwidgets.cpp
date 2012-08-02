@@ -1,6 +1,9 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 #include <GL/glew.h>
 #include <QtGui>
 #include <QtOpenGL>
+#include <QGLShaderProgram>
 
 #include <math.h>
 
@@ -13,6 +16,7 @@
 
 #include <vcg/math/matrix44.h>
 #include <wrap/gl/space.h>
+
 
 void GLWidget::setFrameNumber(int i){
   if (i<0) return;
@@ -364,172 +368,84 @@ void GLWidget::enableDefMaterial(){
 
 #define STRINGIFY(X) #X
 
-void GLWidget::newShaderProgram(QGLShaderProgram& s, const char* prefix, const char* vs, const char* fs) {
 
-	if (fs!=0) {
-		QFile file(fs); file.open(QIODevice::Text|QIODevice::ReadOnly);
+QGLShaderProgram* GLWidget::initFramPrograms(int mode, bool green){
 
-		QString src = QString(prefix)+QString(file.readAll());
-		//qDebug("PROGRAM: \n%s",src.toAscii().data());
-		s.addShaderFromSourceCode(QGLShader::Fragment,src);
-	}
-	if (vs!=0) {
-		QFile file(vs); file.open(QIODevice::Text|QIODevice::ReadOnly);
-		QString src = QString(prefix)+QString(file.readAll());
-		s.addShaderFromSourceCode(QGLShader::Vertex, src);
-	}
-	s.link();
-	//s.addShaderFromSourceCode(QGLShader::Fragment,QString(prefix)+(QString(fs).arg("\n#").arg('\n')));
-	//s.addShaderFromSourceCode(QGLShader::Fragment,QString(prefix)+(QString(fs).arg("\n#").arg('\n')));
-	s.bind();
-	/*
-  //QGLContext.bindTexture()
+	lastUsedShader = mode;
+	lastUsedShaderBumpgreen = green;
 
-  GLuint prog = glCreateProgram();
-  if (!prefix) prefix = "";
-  if (fs) {
-    const char* sourcef = (QString(prefix)+QString(fs).arg("\n#").arg('\n')).toAscii().data();
-    GLuint shdf = glCreateShader(GL_FRAGMENT_SHADER);
-    //qDebug("%s",sourcef);
-    glShaderSource(shdf, 1, &sourcef, 0);
-    glCompileShader(shdf);
-    glAttachShader(prog,shdf);
-  }
-  if (vs) {
-    const char* sourcev = (QString(prefix)+QString(vs)).toAscii().data();
-    GLuint shdv = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(shdv, 1, &sourcev, 0);
-    glCompileShader(shdv);
-    glAttachShader(prog,shdv);
-  }
-  glLinkProgram(prog);
+	if (shaderTried[mode][green]) return NULL;
 
-	return prog;*/
-}
+	QGLShaderProgram * s(shaderProgram[mode][green]);
+	QString& log(shaderLog[mode][green]);
 
-void GLWidget::initFramPrograms(){
+	if (s->isLinked()) {
+		if (s->bind()) {
+			usingProgram = true;
+			return s;
+		} else return NULL;
+	} else {
 
-	/*
-  fragProgramIron = 0;
-  for (int k=0; k<NM_MODES; k++)
-    for (int h=0; h<2; h++)
-  programNormalMap[k][h] = 0;
-	*/
+		QString prefix;
+		QString fileVertexSource =  ":/shaders/bump_vertex.cpp";
+		QString fileFragmentSource =  ":/shaders/bump_fragment.cpp";
 
-  if (!glCreateShader || !glCreateProgram || !glCompileShader
-      || !glAttachShader || !glAttachShader || !glShaderSource) return;
+		prefix = (green)?"#define USE_GREEN_NM\n":"";
 
-  const char* ironFs = STRINGIFY(
-    %1define TMP 1 %2
-		uniform vec3 spec_col;%2
-		uniform sampler2D samplRgb;%2
-		void main(){%2
-			vec4 tex = texture( samplRgb,gl_TexCoord[0].st);%2
-			gl_FragColor.rgb = tex.rgb*(gl_Color.rgb%2
-										 + gl_SecondaryColor.rgb*spec_col*tex.a*1.0);%2
-			gl_FragColor.a = 1.0;%2
-
-		}%2
-
-  );
-
-
-  const char* normalVSource = STRINGIFY(
-
-		varying vec3 lightDir;%2
-		varying vec4 color;%2
-		varying vec2 tc;%2
-		varying vec3 norm;%2
-		varying vec3 tanx;%2
-		varying vec3 tany;%2
-		uniform float usePerVertColor;%2
-
-		void main(){%2
-			gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;%2
-			lightDir = vec3(0.0,0.0,1.0)*gl_NormalMatrix;%2
-			color = (usePerVertColor>0)?gl_Color:vec4(1.0,1.0,1.0,1.0);%2
-			tc = gl_MultiTexCoord0.st;%2
-			lightDir =  normalize( vec3(0.0,0.0,1.0) * gl_NormalMatrix );%2
-			norm =  normalize( gl_Normal );%2
-			tanx = gl_MultiTexCoord1.xyz;%2
-			tany = cross( norm, tanx );%2
-			tany *= (gl_MultiTexCoord2.x==0.0)?-1.0:1.0;%2
-			/*norm = normalize(norm);*/%2
-		}%2
-
-	);
-  const char* normalFSource = STRINGIFY(
-
-		uniform vec3 spec_col;%2
-		uniform float spec_exp;%2
-		varying vec3 lightDir;%2
-		varying vec4 color;%2
-		varying vec2 tc;%2
-		varying vec3 norm;%2
-		varying vec3 tanx;%2
-		varying vec3 tany;%2
-%2
-		uniform sampler2D samplRgb;%2
-		uniform sampler2D samplBump;%2
-		uniform sampler2D samplSpec;%2
-%2
-		void main(){%2
-			vec4 tex = texture( samplRgb,tc);%2
-			%1if USE_GREEN_NM%2%2
-				vec3 normt;%2
-				normt.xy = +texture( samplBump,tc).ag * 2.0 - vec2(1.0);%2
-				/*normt.z = 1.0;normalize(normt);*/%2
-				normt.z = sqrt( 1.0-dot(normt.xy,normt.xy));%2
-			%1else%2
-				vec3 normt = (texture( samplBump,tc).xyz * 2.0 )- vec3(1.0);%2
-      %1endif%2
-
-
-			normt = normt.z * norm +%2
-							normt.x * tanx +%2
-							normt.y * tany;%2
-			float diffuse = dot(normt , lightDir ) ;%2
-			diffuse = (diffuse<0.0)?0.0:diffuse;%2
-			diffuse = (diffuse>1.0)?1.0:diffuse;%2
-			%1if SPECULAR_MAP%2
-			vec3 specmapVal =  texture( samplSpec,tc).rgb;%2
-      %1endif%2
-			gl_FragColor.rgb = tex.rgb*color.rgb*(vec3(diffuse*0.8+0.2)%2
-      %1if SPECULAR_ALPHA%2
-											 + spec_col*(   tex.a  *pow( diffuse , spec_exp))%2
-      %1endif%2
-      %1if SPECULAR_MAP%2
-											 + spec_col*(specmapVal*pow( diffuse , spec_exp))%2
-      %1endif%2
-      );
-      %1if ALPHA_CUTOUTS%2
-			if (tex.a<0.1) discard;%2
-			gl_FragColor.a = tex.a;%2
-      %1else%2
-			gl_FragColor.a = 1.0;%2
-      %1endif%2
-		}%2
-
-  );
-
-  for (int i=0; i<2; i++)
-  for (int k=0; k<NM_MODES; k++){
-
-    QString arg;
-    switch (k) {
-    case NM_PLAIN: arg = ""; break;
-    case NM_ALPHA: arg = "#define ALPHA_CUTOUTS 1\n"; break;
-    case NM_IRON: arg = "#define SPECULAR_ALPHA 1\n"; break;
-    case NM_SHINE: arg = "#define ALPHA_CUTOUTS 1\n#define SPECULAR_MAP 1\n"; break;
+		switch (mode) {
+		case NM_PLAIN:
+			break;
+		case NM_ALPHA:
+			prefix += "#define ALPHA_CUTOUTS\n";
+			break;
+		case NM_IRON:
+			prefix += "#define SPECULAR_ALPHA\n";
+			break;
+		case NM_SHINE:
+			prefix += "#define ALPHA_CUTOUTS\n#define SPECULAR_MAP\n";
+			break;
+		case SHADER_IRON:
+			prefix = "";
+			fileFragmentSource = ":/shaders/iron_fragment.cpp";
+			fileVertexSource = "";
+			break;
     }
 
-    if (i==1) arg = arg+"#define USE_GREEN_NM 1\n";
-		//programNormalMap[k][i] = newShaderProgram(arg.toAscii().data(),normalVSource,normalFSource);
-		//newShaderProgram(programNormalMap[k][i], arg.toAscii().data(),normalVSource,normalFSource);
+		bool res = true;
+		if (!fileVertexSource.isEmpty()) {
+			QFile file(fileVertexSource);
+			file.open(QIODevice::Text|QIODevice::ReadOnly);
+			QString src = QString(file.readAll()).arg(prefix);
+			res &= s->addShaderFromSourceCode(QGLShader::Vertex,src);
+			if (!s->log().isEmpty())
+				log += tr("<br />Vertex compilation: <br />")+s->log().replace("\n","<br />");
+		}
+		if (res) if (!fileFragmentSource.isEmpty()) {
+			QFile file(fileFragmentSource);
+			file.open(QIODevice::Text|QIODevice::ReadOnly);
+			QString src = QString(file.readAll()).arg(prefix);
+			res &= s->addShaderFromSourceCode(QGLShader::Fragment, src);
+			if (!s->log().isEmpty())
+				log += tr("<br />Fragment compilation: <br />")+s->log().replace("\n","<br />");
+		}
+		if (res) {
+			res &= s->link();
+			if (!s->log().isEmpty())
+				log += tr("<br />Linking: <br />")+s->log().replace("\n","<br />");
+		}
+		if (res) {
+			res &= s->bind();
 
-		newShaderProgram(programNormalMap[k][i], arg.toAscii().data(),":/shaders/bump_vertex.cpp",":/shaders/bump_fragment.cpp");
-  }
-	newShaderProgram(fragProgramIron , "",0,":/shaders/iron_fragment.cpp");
+			if (!s->log().isEmpty())
+				log += tr("<br />Binding: <br />")+s->log().replace("\n","<br />");
+			usingProgram = true;
+		}
+
+		if (!res) {
+			shaderTried[mode][green] = true;
+			return NULL;
+		} else return s;
+	}
 }
 
 
@@ -581,30 +497,22 @@ void GLWidget::enableMaterial(const BrfMaterial &m){
 			else w=NM_PLAIN; //prog = programNormalMap[w=NM_PLAIN][bumpmapUsingGreen];
 
 
-			QGLShaderProgram &p(programNormalMap[w][bumpmapUsingGreen]);
-			p.bind();
-      //qDebug("using program %d (%d %d)",prog,w,bumpmapUsingGreen );
-			//if (glUseProgram) glUseProgram(prog);
-      if (glUniform3f && glUniform1f && glUniform1i )  {
-				p.setUniformValue("usePerVertColor", (colorMode==0)?GLfloat(-1):GLfloat(1));
-				p.setUniformValue("spec_col",m.r,m.g,m.b);
-				p.setUniformValue("spec_exp",m.specular);
-				p.setUniformValue("samplRgb",0);
-				p.setUniformValue("samplBump",1);
-				p.setUniformValue("samplSpec",2);
-				//glUniform1f( glGetUniformLocation(prog,"usePerVertColor"), (colorMode==0)?-1:+1);
+			QGLShaderProgram* p = initFramPrograms(w, bumpmapUsingGreen);
 
-				//glUniform3f( glGetUniformLocation(prog,"spec_col"),m.r,m.g,m.b );
-				//glUniform1f( glGetUniformLocation(prog,"spec_exp"),m.specular );
-				//glUniform1i( glGetUniformLocation(prog,"samplRgb"),0 );
-				//glUniform1i( glGetUniformLocation(prog,"samplBump"),1 );
-				//glUniform1i( glGetUniformLocation(prog,"samplSpec"),2 );
-      }
-      usingProgram = true;
+			if (p)  {
+				p->setUniformValue("usePerVertColor", (colorMode==0)?GLfloat(-1):GLfloat(1));
+				p->setUniformValue("spec_col",m.r,m.g,m.b);
+				p->setUniformValue("spec_exp",m.specular);
+				p->setUniformValue("samplRgb",0);
+				p->setUniformValue("samplBump",1);
+				p->setUniformValue("samplSpec",2);
+
+			}
     }
   } else {
 
     if (useOpenGL2) {
+
       // disable bump texture
       glActiveTexture(GL_TEXTURE1); glDisable(GL_TEXTURE_2D);
       glActiveTexture(GL_TEXTURE2); glDisable(GL_TEXTURE_2D);
@@ -616,21 +524,16 @@ void GLWidget::enableMaterial(const BrfMaterial &m){
         glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, ones);
         glLightfv(GL_LIGHT0,GL_SPECULAR, ones);
         glMateriali(GL_FRONT_AND_BACK,GL_SHININESS, (int)m.specular);
-				if (glUseProgram) fragProgramIron.bind(); //glUseProgram(fragProgramIron);
-        usingProgram = true;
-				fragProgramIron.setUniformValue("spec_col",m.r,m.g,m.b);
-				fragProgramIron.setUniformValue("samplRgb",0);
-				/*
-        if (glUniform3f) glUniform3f(
 
-					glGetUniformLocation(fragProgramIron,"spec_col"),m.r,m.g,m.b
-        );
-        if (glUniform1i) glUniform1i(
-					fragProgramIron,"samplRgb"
-          glGetUniformLocation(fragProgramIron,"samplRgb"),0
-				);*/
+				QGLShaderProgram* p = initFramPrograms(SHADER_IRON, false);
+
+				if (p) {
+					p->setUniformValue("spec_col",m.r,m.g,m.b);
+					p->setUniformValue("samplRgb",0);
+				}
       }
-    }
+		}
+
 
   }
 
@@ -896,6 +799,7 @@ void GLWidget::setMaterialName(QString st){
       setDummyRgbTexture();
     }
 
+		lastUsedShader = SHADER_FIXEDFUNC;
     if (useOpenGL2 && inferMaterial && glMultiTexCoord3fv) {
       bool useN = useNormalmap && m->HasBump();
       bool useS = useSpecularmap && m->HasSpec();
@@ -1014,6 +918,28 @@ void GLWidget::setSelection(const QModelIndexList &newsel, int k){
   update();
 }
 
+QString GLWidget::getCurrentShaderDescriptor() const{
+	QString st =  (lastUsedShaderBumpgreen)?tr("\"green\" NM"):tr("\"blue\" NM");
+	switch (lastUsedShader) {
+	case SHADER_FIXEDFUNC: return tr("Deafult (fixed functionality)");
+	case SHADER_IRON: return tr("Alpha to Shininess");
+	case NM_PLAIN: return tr("Plain NormalMap (%1)").arg(st);
+	case NM_ALPHA: return tr("NormalMap + Alpha to Transparency (%1)").arg(st);
+	case NM_IRON: return tr("NormalMap + Alpha to Shininiess (%1)").arg(st);
+	case NM_SHINE: return tr("NormalMap + ShininessMap (%1)").arg(st);
+	default: return "ERROR";
+	}
+}
+QString GLWidget::getCurrentShaderLog() const{
+
+	switch (lastUsedShader) {
+	case SHADER_FIXEDFUNC: return "";
+	default: return shaderLog[lastUsedShader][lastUsedShaderBumpgreen] ;
+		//(shaderProgram[lastUsedShader][lastUsedShaderBumpgreen])->log();
+	}
+
+}
+
 GLWidget::GLWidget(QWidget *parent, IniData &_inidata)
     : QGLWidget(parent), inidata(_inidata)
 {
@@ -1036,7 +962,18 @@ GLWidget::GLWidget(QWidget *parent, IniData &_inidata)
   lastScale = 1;
   closingUp = 0;
 
+	lastUsedShader = SHADER_FIXEDFUNC;
+	lastUsedShaderBumpgreen = 0;
+
+
   keys[0]=keys[1]=keys[2]=keys[3]=keys[4]=false;
+
+	for (int j=0; j<2; j++)
+	for (int i=0; i<SHADER_MODES; i++) {
+		shaderTried[i][j] = false;
+		shaderProgram[i][j] = new QGLShaderProgram();
+	}
+
 
   useNormalmap = true;
   useSpecularmap = true;
@@ -1066,6 +1003,7 @@ GLWidget::GLWidget(QWidget *parent, IniData &_inidata)
   clearExtraMatrix();
 
   connect(timer, SIGNAL(timeout()), this, SLOT(onTimer()));
+
   tw=th=1;
 }
 
@@ -1192,8 +1130,8 @@ QSize GLWidget::sizeHint() const
 void GLWidget::initOpenGL2(){
   if (openGL2ready) return;
   glewInit();
-  initFramPrograms();
-  qDebug("Init glew and shaders loaded!");
+	//initFramPrograms();
+	qDebug("Init glew!");
   openGL2ready = true;
 }
 

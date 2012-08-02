@@ -1,3 +1,5 @@
+/* OpenBRF -- by marco tarini. Provided under GNU General Public License */
+
 #include <qfiledialog.h>
 #include <qmessagebox.h>
 #include <algorithm>
