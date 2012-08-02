@@ -2,6 +2,7 @@
 #include "ui_askFlagsDialog.h"
 
 #include<qtgui>
+#include<assert.h>
 
 AskFlagsDialog::AskFlagsDialog(QWidget *parent, unsigned int ones, unsigned int zeros, QStringList l) :
     QDialog(parent),

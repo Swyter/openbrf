@@ -13,6 +13,7 @@
 
 #include <QtGui>
 #include <QDebug>
+#include <algorithm>
 
 typedef QPair<int, int> Pair;
 

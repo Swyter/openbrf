@@ -391,8 +391,8 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
        menu.addAction(exportStaticMeshAct);
        if (data->mesh[ seli ].isRigged)
          menu.addAction(exportRiggedMeshAct);
-       //if (data->mesh[ seli ].frame.size()>0)
-       //  menu.addAction(exportMovingMeshAct);
+       if (data->mesh[ seli ].frame.size()>0)
+          menu.addAction(exportMovingMeshAct);
      }
 
      if (t==SKELETON) {

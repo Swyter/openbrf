@@ -73,9 +73,9 @@ static int Open(OpenMeshType &m, const char *filename, int &loadmask, CallBackPo
   }
   else if(FileExtension(filename,"dae"))
   {
-    InfoDAE* infoDAE;
+    InfoDAE infoDAE;
     err = ImporterDAE<OpenMeshType>::Open(m, filename, infoDAE, cb);
-    loadmask=infoDAE->mask;
+    loadmask=infoDAE.mask;
     LastType()=KT_DAE;
   }  else {
     err=1;

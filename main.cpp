@@ -7,6 +7,11 @@ int main(int argc, char *argv[])
   //Q_INIT_RESOURCE(application);
 
   QApplication app(argc, argv);
+
+  QTranslator translator;
+  translator.load(QString("openbrf"));
+  app.installTranslator(&translator);
+
   MainWindow w;
   w.show();
 /*

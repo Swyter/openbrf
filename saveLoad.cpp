@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include <strings.h>
+//#include <strings>
 #include <vector>
 
 #include <vcg/space/point4.h>
@@ -30,6 +30,10 @@ void SaveByte(FILE *f, unsigned char x){
 
 void SaveUint(FILE *f, unsigned int x){
   fwrite(&x, 4, 1,  f);
+}
+
+void SaveShort(FILE *f, short int x){
+  fwrite(&x, 2, 1,  f);
 }
 
 void SaveFloat(FILE *f, float x){
@@ -110,6 +114,11 @@ void LoadFloat(FILE *f, float &x){
 
 void LoadUint(FILE *f, unsigned int &x){
   fread(&x, 4, 1,  f);
+  //printf("%ud ",x);
+}
+
+void LoadShort(FILE *f, short int &x){
+  fread(&x, 2, 1,  f);
   //printf("%ud ",x);
 }
 

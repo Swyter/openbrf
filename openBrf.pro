@@ -38,7 +38,8 @@ SOURCES += main.cpp \
     main_info.cpp \
     main_create.cpp \
     main_ImpExp.cpp \
-    brfHitBox.cpp
+    brfHitBox.cpp \
+    ioMD3.cpp
 HEADERS += mainwindow.h \
     glwidgets.h \
     saveLoad.h \
@@ -69,7 +70,8 @@ HEADERS += mainwindow.h \
     bindTexturePatch.h \
     ddsData.h \
     askCreaseDialog.h \
-    ioOBJ.h
+    ioOBJ.h \
+    ioMD3.h
 FORMS += guipanel.ui \
     askBoneDialog.ui \
     askSkelDialog.ui \
@@ -81,3 +83,7 @@ FORMS += guipanel.ui \
 INCLUDEPATH += "C:\projects\vcglib"
 INCLUDEPATH += "C:\libs\lib3ds-1.3.0"
 RESOURCES += resource.qrc
+win32 { 
+    DEFINES += NOMINMAX
+    DEFINES += _CRT_SECURE_NO_DEPRECATE
+}

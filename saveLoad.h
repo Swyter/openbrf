@@ -5,8 +5,9 @@
 void SaveString(FILE *f, const char *st);
 void SaveStringNotempty(FILE *f, const char *st, const char *ifnot);
 void SaveInt(FILE *f, int i);
-void SaveFloat(FILE *f, float f);
+void SaveFloat(FILE *f, float fl);
 void SaveUint(FILE *f, unsigned int x);
+void SaveShort(FILE *f, short int x);
 void SavePoint(FILE *f, Point4f p);
 void SavePoint(FILE *f, Point3f p);
 void SavePoint(FILE *f, Point2f p);
@@ -18,8 +19,9 @@ void SaveByte(FILE *f, unsigned char p);
 bool LoadString(FILE *f, char *st);
 bool LoadStringMaybe(FILE *f, char *st, const char *ifnot); // if it does not look like a string, uses ifnot
 void LoadInt(FILE *f, int &i);
-void LoadFloat(FILE *f, float &f);
+void LoadFloat(FILE *f, float &fl);
 void LoadUint(FILE *f, unsigned int &x);
+void LoadShort(FILE *f, short int &x);
 void LoadPoint(FILE *f, Point4f &p);
 void LoadPoint(FILE *f, Point3f &p);
 void LoadPoint(FILE *f, Point2f &p);

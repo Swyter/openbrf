@@ -225,7 +225,10 @@ bool BrfData::Load(FILE*f,int verbose, int stopAt){
     if (verbose>1) printf("Read \"%s\"\n",str);
     if (!strcmp(str,"end")) break;
     else if (!strcmp(str,"rfver ")) LoadVersion(f);
-    else if (!strcmp(str,"mesh"))  {if (!LoadVector(f,mesh)) return false;}
+    else if (!strcmp(str,"mesh"))  {
+      if (!LoadVector(f,mesh)) return false;
+    //  int k; LoadInt(f,k); mesh.resize(1); mesh[0].Load(f); return true;
+    }
     else if (!strcmp(str,"texture")) {if (!LoadVector(f,texture)) return false;}
     else if (!strcmp(str,"shader")) {if (!LoadVector(f,shader)) return false;}
     else if (!strcmp(str,"material")) {if (!LoadVector(f,material)) return false;}

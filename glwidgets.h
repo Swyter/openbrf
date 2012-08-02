@@ -131,10 +131,10 @@ protected:
     void renderMesh(const BrfMesh& p, float frame);
     void renderRiggedMesh(const BrfMesh& p,  const BrfSkeleton& s, const BrfAnimation& a, float frame);
     void renderSkeleton(const BrfSkeleton& p);
-    void renderAnimation(const BrfAnimation& p, const BrfSkeleton& p, float frame);
+    void renderAnimation(const BrfAnimation& p, const BrfSkeleton& s, float frame);
     void renderBody(const BrfBody& p);
 
-    void renderBone(const BrfAnimation& p, const BrfSkeleton& p,  float frame, int i, int lvl)const; // recursive
+    void renderBone(const BrfAnimation& p, const BrfSkeleton& s,  float frame, int i, int lvl)const; // recursive
     void renderBone(const BrfSkeleton& p, int i, int lvl) const; // recursive
     void renderBodyPart(const BrfBodyPart &b) const;
 

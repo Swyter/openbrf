@@ -82,6 +82,7 @@ private:
     bool importStaticMesh();
     bool exportRiggedMesh();
     bool importRiggedMesh();
+    bool importMovingMeshFrame();
     bool exportMovingMesh();
     bool importMovingMesh();
     bool exportSkeletonMod();
@@ -284,6 +285,7 @@ private:
     QAction
       *importStaticMeshAct,
       *importRiggedMeshAct,
+      *importMovingMeshFrameAct,
       *importMovingMeshAct,
       *importSkeletonAct,
       *importAnimationAct,
