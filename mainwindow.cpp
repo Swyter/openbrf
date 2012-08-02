@@ -21,6 +21,16 @@
 
 typedef QPair<int, int> Pair;
 
+bool MainWindow::loadModAndDump(QString modpath, QString file){
+  modpath = modpath.replace('/','\\');
+  if (modpath.endsWith('\\')) modpath.chop(1);
+  if (!guessPaths(modpath+"\\Resource")) return false;
+  if (!inidata.loadAll(3)) return false;
+  inidata.updateAllLists();
+  if (!inidata.saveLists(file)) return false;
+  return true;
+}
+
 void MainWindow::notifyDataChanged(){
   setModified(false);
 }
@@ -1222,7 +1232,9 @@ unsigned int tuneColor(unsigned int col, int contr, int dh, int ds, int db){
   c.convertTo(QColor::Hsv);
   qreal h,s,b,a;
   c.getHsvF(&h,&s,&b,&a);
+  h = c.hueF();
   h+=dh/100.0;
+  //h = dh;
   b+= 0.5 * contr/50.0 * (0.5*(sin(3.1415*(b-0.5))+1.0)-b) + db/100.0;
   s+=ds/100.0;
   if (h<0) h=0;
@@ -1232,6 +1244,7 @@ unsigned int tuneColor(unsigned int col, int contr, int dh, int ds, int db){
   if (s>1) s=1;
   if (b>1) b=1;
   c.setHsvF(h,s,b,a);
+
   c.convertTo(QColor::Rgb);
   unsigned int alpha = c.alpha();
   return (c.red()&0xff) | ((c.green()&0xff)<<8) | ((c.blue()&0xff)<<16) | (alpha<<24);
@@ -1254,9 +1267,8 @@ void MainWindow::meshTuneColorUndo(bool storeUndo){
 
 void MainWindow::meshTuneColorDo(int c,int h,int s,int b){
   meshTuneColorUndo(false);
-
   QModelIndexList list= selector->selectedList();
-  for (int j=0,h=0; j<list.size(); j++){
+  for (int j=0; j<list.size(); j++){
     BrfMesh &m(brfdata.mesh[list[j].row()]);
     m.TuneColors(c,h,s,b);
   }

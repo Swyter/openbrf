@@ -1099,7 +1099,7 @@ bool IniData::loadAll(int howFast){
 
     }
   }
-  updateLists();
+  updateNeededLists();
   }
   if (howFast>=3){
     res = true;
@@ -1171,7 +1171,7 @@ void IniData::updateUsedIn(){
 
 void IniData::updateBeacuseBrfDataSaved(){
   if (updated>=1) {
-    updateLists();
+    updateNeededLists();
   }
   if (updated>=3) {
     updateUsedBy();
@@ -1252,12 +1252,51 @@ template <class T>
 void _updateListNoExt(QStringList &l, const vector<T> &d){
   for (unsigned int i=0; i<d.size(); i++) {
     QString s(d[i].name);
-    s.truncate( s.lastIndexOf("."));
+    int i = s.indexOf(".");
+    if (i>0) s.truncate( i );
     l.append(s);
   }
 }
 
-void IniData::updateLists(){
+void IniData::updateAllLists(){
+  for (int i=0; i<N_TOKEN; i++)  namelist[i].clear();
+  for (unsigned int i=0; i<file.size(); i++) {
+    _updateListNoExt( namelist[TEXTURE], file[i].texture);
+    _updateList( namelist[MATERIAL], file[i].material);
+    _updateList( namelist[SHADER], file[i].shader);
+    _updateListNoExt( namelist[MESH], file[i].mesh);
+    _updateList( namelist[BODY], file[i].body);
+    _updateList( namelist[ANIMATION], file[i].animation);
+    _updateList( namelist[SKELETON], file[i].skeleton);
+  }
+  //namelist[TEXTURE].append("none");
+
+  for (int i=0; i<N_TOKEN; i++) {
+    namelist[i] = namelist[i].replaceInStrings(" " , "_");
+    namelist[i] = namelist[i].replaceInStrings("," , "_");
+    namelist[i].sort();
+    namelist[i].removeDuplicates();
+  }
+
+}
+
+bool IniData::saveLists(const QString &fn){
+  QFile f(fn);
+  f.open(QIODevice::WriteOnly);
+  if (!f.isOpen()) return false;
+  for (int i=0; i<N_TOKEN; i++) {
+    int s = namelist[i].size();
+    f.write( QString("[%1] %2:\n").arg(tokenBrfName[i]).arg(s).toAscii().data());
+    for (int j=0; j<s; j++){
+      f.write( QString("%1,").arg(namelist[i][j]).toAscii().data() );
+    }
+    f.write( "\n" );
+  }
+  f.write("[end].\n");
+  return true;
+}
+
+void IniData::updateNeededLists(){
   for (int i=0; i<N_TOKEN; i++)
     namelist[i].clear();
   for (unsigned int i=0; i<file.size(); i++) {
