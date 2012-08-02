@@ -158,6 +158,9 @@ protected:
     void renderRuler();
     void mySetViewport(int x,int y,int w,int h);
 
+    void renderAoOnMeshesAllSelected(float brightness, float fromAbove);
+
+
     void glClearCheckBoard();
     // rendering mode (just changes of openGL status):
     void setShadowMode(bool on) const;

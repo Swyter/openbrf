@@ -179,12 +179,13 @@ static bool myBindTexture(const QString &fileName, DdsData &data)
 
     glBindTexture(GL_TEXTURE_2D, tx_id);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    if (((1<<(ddsHeader.dwMipMapCount-1))>=(int)ddsHeader.dwWidth)|| ((1<<(ddsHeader.dwMipMapCount-1))>=(int)ddsHeader.dwWidth))
+    if (((1<<(ddsHeader.dwMipMapCount-1))>=(int)ddsHeader.dwWidth) &&
+        ((1<<(ddsHeader.dwMipMapCount-1))>=(int)ddsHeader.dwHeight)) {
       glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    else
+      //test: glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    } else
       glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-    int size;
     int offset = 0;
     int w = ddsHeader.dwWidth;
     int h = ddsHeader.dwHeight;
@@ -197,10 +198,12 @@ static bool myBindTexture(const QString &fileName, DdsData &data)
 
     // load mip-maps
     for(int i = 0; i < (int) ddsHeader.dwMipMapCount; ++i) {
+        //if (i>4)  continue;
         if (w == 0) w = 1;
         if (h == 0) h = 1;
+        int size = ((w+3)/4) * ((h+3)/4) * blockSize;
+        if (offset+size>=bufferSize) offset = bufferSize-size;
 
-        size = ((w+3)/4) * ((h+3)/4) * blockSize;
 
         //glCompressedTexImage2DARB
         qt_glCompressedTexImage2DARB

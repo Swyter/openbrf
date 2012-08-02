@@ -597,7 +597,7 @@
         <string>Texture</string>
        </property>
        <property name="shortcut">
-        <string>Ctrl+R</string>
+        <string>Ctrl+T</string>
        </property>
        <property name="checked">
         <bool>true</bool>

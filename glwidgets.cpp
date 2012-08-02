@@ -1330,24 +1330,53 @@ static Point3f randomUpVector(int, float above){
   return res;
 }
 
-void GLWidget::renderAoOnMeshes(float brightness, float howMuchFromAbove){
+void GLWidget::renderAoOnMeshes(float brightness, float fromAbove){
+  if (!data) return;
+  if (!viewmodeMult) {
+    // ao, combined
+    renderAoOnMeshesAllSelected(brightness, fromAbove);
+  } else {
+    // ao, separated
+
+    bool selGroupBackup[MAXSEL];
+    for (int i=0;i<MAXSEL; i++) {
+      selGroupBackup[i] = selGroup[i];
+      selGroup[i] = false;
+    }
+    for (uint i=0; i<data->mesh.size(); i++) {
+      assert(i<MAXSEL);
+      if (!(selGroupBackup[i])) continue;
+      selGroup[i] = true;
+      renderAoOnMeshesAllSelected(brightness, fromAbove);
+      selGroup[i] = false;
+    }
+    for (int i=0;i<MAXSEL; i++) selGroup[i] = selGroupBackup[i];
+  }
+}
+
+void GLWidget::renderAoOnMeshesAllSelected(float brightness, float howMuchFromAbove){
   makeCurrent();
   if (!data) return;
-  const int RES = 255;
-  const int NPASS = 256;
+
   std::vector<BrfMesh>& v(data->mesh);
 
-  Box3f bbox;bbox.SetNull();
-  for (uint i=0; i<v.size(); i++) if (selGroup[i]) {
-    bbox.Add( v[i].bbox );
-  }
+  // set color to at all meshes black
+  for (uint i=0; i<v.size(); i++) if (selGroup[i]) v[i].ColorAll(0);
+
+  const int RES = 255;
+  const int NPASS = 256;
+
   glMatrixMode(GL_PROJECTION);
   glPushMatrix(); glLoadIdentity();
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
 
 
-  for (uint i=0; i<v.size(); i++) if (selGroup[i]) v[i].ColorAll(0);
+
+  Box3f bbox;bbox.SetNull();
+  for (uint i=0; i<v.size(); i++) if (selGroup[i]) {
+    bbox.Add( v[i].bbox );
+  }
 
   float maxLight = 0;
   for (int n=0; n<NPASS; n++)  {
@@ -1397,6 +1426,7 @@ void GLWidget::renderAoOnMeshes(float brightness, float howMuchFromAbove){
     }
 
   }
+
   // find final color
   for (uint i=0; i<v.size(); i++) if (selGroup[i]) {
     BrfMesh &m(v[i]);

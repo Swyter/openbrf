@@ -18,8 +18,155 @@ using namespace vcg;
 
 #include "saveLoad.h"
 typedef vcg::Point3f Pos;
+typedef unsigned int uint;
 
 extern int globVersion;
+
+void MeshMorpher::ResetLearning(){
+  for (int i=0; i<MAX_BONES; i++) {
+    css[i].SetZero();
+    ctt[i].SetZero();
+    cst[i].SetZero();
+    cs[i].SetZero();
+    ct[i].SetZero();
+    cc[i].SetZero();
+  }
+}
+
+void MeshMorpher::LearnFrom(BrfMesh& a, int framei, int framej){
+  for (uint vi = 0; vi<a.vert.size(); vi++){
+    int pi = a.vert[vi].index;
+    Pos p0 = a.frame[framei].pos[pi];
+    Pos p1 = a.frame[framej].pos[pi];
+    for (int k=0; k<4; k++) {
+      int bi = a.rigging[pi].boneIndex[k];
+      if (bi==-1) continue;
+      if (p0.Z()>0) bi+=POSZ_BONES;
+      float w = a.rigging[pi].boneWeight[k];
+      if (!w) continue;
+      for (int i=0; i<3; i++)
+      {
+        float x0 = p0[i];
+        float x1 = p1[i];
+        css[bi][i]+= w* x0*x0;
+        ctt[bi][i]+= w* 1 ;
+        cst[bi][i]+= w* 2*x0;
+        cs [bi][i]+= w* -2*x0*x1;
+        ct [bi][i]+= w* -2*x1;
+        cc [bi][i]+= w* x1*x1;
+      }
+    }
+
+  }
+}
+
+void MeshMorpher::FinishLearning(){
+  for (int bi=0; bi<MAX_BONES; bi++) {
+    for (int i=0; i<3; i++) {
+      float det = 4*css[bi][i]*ctt[bi][i] - cst[bi][i]*cst[bi][i];
+      if (!det) {
+        s[bi][i]=1.0; t[bi][i]=0.0; // identity
+      } else {
+        s[bi][i] = -2*ctt[bi][i]*cs[bi][i]
+                   +  cst[bi][i]*ct[bi][i];
+        t[bi][i] = +  cst[bi][i]*cs[bi][i] +
+                   -2*css[bi][i]*ct[bi][i];
+        s[bi][i]/=det;
+        t[bi][i]/=det;
+      }
+    }
+  }
+}
+
+bool MeshMorpher::Save(const char* filename) const{
+
+  FILE *f = fopen(filename,"wt");
+  if (!f) return false;
+  for (int bi=0; bi<MAX_BONES; bi++) {
+    for (int i=0; i<3; i++) {
+      fprintf(f,"%10f %10f ",s[bi][i],t[bi][i]);
+    }
+  }
+  fclose(f);
+  return true;
+}
+
+
+bool MeshMorpher::Load(const char* text){
+
+//  if (!f) return false;
+  int offset=0;
+  for (int bi=0; bi<MAX_BONES; bi++) {
+    for (int i=0; i<3; i++) {
+      //if (
+       sscanf(text+offset,"%f %f ",&(s[bi][i]),&(t[bi][i]))
+      //!=2) return false;
+      ;
+      offset+=22; // space for "%10f %10f "
+    }
+  }
+  //fclose(f);
+  return true;
+}
+
+
+
+void MeshMorpher::Emphatize(float k){
+  for (int bi=0; bi<MAX_BONES; bi++) {
+    s[bi] += s[bi]*k - Pos(k,k,k);
+    t[bi] *= (1+k);
+  }
+}
+
+void BrfMesh::MorphFrame(int framei, int framej, const MeshMorpher& m){
+  for (uint vi = 0; vi<vert.size(); vi++){
+    int pi = vert[vi].index;
+
+    Pos p0 = frame[framei].pos[pi];
+
+    Pos scale(0,0,0);
+    Pos trans(0,0,0);
+    for (int k=0; k<4; k++) {
+      int bi = rigging[pi].boneIndex[k];
+      if (bi==-1) continue;
+
+      if (p0.Z()>0) bi+=MeshMorpher::POSZ_BONES;
+
+      if (bi>=MeshMorpher::MAX_BONES) continue;
+      float w = rigging[pi].boneWeight[k];
+      if (!w) continue;
+      scale += m.s[bi]*w;
+      trans += m.t[bi]*w;
+    }
+
+
+    p0.X() *= scale.X();
+    p0.Y() *= scale.Y();
+    p0.Z() *= scale.Z();
+    frame[framej].pos[pi] = p0 + trans;
+
+  }
+
+}
+
+
+void BrfMesh::AddALittleOfBreast(int framei){
+  Pos p0(+0.0793, 1.3443, 0.1210);
+  Pos p1(-0.0793, 1.3443, 0.1210);
+  float r = 0.066;
+  BrfFrame& f(frame[framei]);
+  for (uint i=0; i<f.pos.size(); i++){
+    Pos &q(f.pos[i]);
+    float s0 = 1.0-(q-p0).Norm()/r;
+    float s1 = 1.0-(q-p1).Norm()/r;
+    float s = max(s0,s1);
+    if (s>0) {
+      s = pow( s ,0.3);
+      q.Z()+=s*0.016;
+    }
+  }
+}
+
 
 void BrfMesh::TowardZero(float x,float y, float z){
   for (unsigned int f=0; f<frame.size(); f++) {
@@ -236,24 +383,31 @@ void BrfMesh::RemoveBackfacingFaces(){
 
 
 void BrfMesh::ComputeNormals(){
-  for (unsigned int fi=0; fi<frame.size(); fi++) {
-    for (unsigned int vi=0; vi<vert.size(); vi++){
-      frame[fi].norm[vi]=Point3f(0,0,0);
-    }
-    for (unsigned int ff=0; ff<face.size(); ff++){
-      Point3f a=frame[fi].pos[ vert[face[ff].index[0]].index ];
-      Point3f b=frame[fi].pos[ vert[face[ff].index[1]].index ];
-      Point3f c=frame[fi].pos[ vert[face[ff].index[2]].index ];
-      Point3f n=(c-a)^(b-a); // area weighted norm
-      for (int w=0; w<3; w++)
-      frame[fi].norm[ face[ff].index[w] ]+=n;
-    }
-    for (unsigned int vi=0; vi<vert.size(); vi++){
-      frame[fi].norm[vi].Normalize();
-    }
-  }
-  AdjustNormDuplicates();
+  for (unsigned int fi=0; fi<frame.size(); fi++)
+    ComputeNormals(fi);
+
 }
+
+void BrfMesh::ComputeNormals(int fi){
+
+  for (unsigned int vi=0; vi<vert.size(); vi++){
+    frame[fi].norm[vi]=Point3f(0,0,0);
+  }
+  for (unsigned int ff=0; ff<face.size(); ff++){
+    Point3f a=frame[fi].pos[ vert[face[ff].index[0]].index ];
+    Point3f b=frame[fi].pos[ vert[face[ff].index[1]].index ];
+    Point3f c=frame[fi].pos[ vert[face[ff].index[2]].index ];
+    Point3f n=(c-a)^(b-a); // area weighted norm
+    for (int w=0; w<3; w++)
+    frame[fi].norm[ face[ff].index[w] ]+=n;
+  }
+  for (unsigned int vi=0; vi<vert.size(); vi++){
+    frame[fi].norm[vi].Normalize();
+  }
+
+  if (fi==0) AdjustNormDuplicates();
+}
+
 void BrfFrame::Apply(Matrix44f m){
   for (int i=0; i<(int)pos.size(); i++){
     pos[i]=m*pos[i];

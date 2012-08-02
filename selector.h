@@ -8,6 +8,7 @@
 class BrfData;
 class IniData;
 class QListView;
+class QMenu;
 class TableModel;
 
 class Selector : public QTabWidget
@@ -32,6 +33,8 @@ public:
   bool iniDataWaitsSaving;
   int iniFileIndex;
   void selectOne(int kind, int i);
+  QMenu *contextMenu;
+
 
 private slots:
   void onChanged();
@@ -83,6 +86,7 @@ private:
     *meshRecolorAct,
     *meshTuneColorAct,
     *meshComputeAoAct,
+    *meshFemininizeAct,
 
 
     *renameAct,

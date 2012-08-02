@@ -87,6 +87,24 @@ public:
   void MakeSlim(float ratioX, float ratioZ, const BrfSkeleton* s);
 };
 
+class BrfMesh;
+
+// used to morph a rigged mesh frame, e.g. feminine armour from masculine
+class MeshMorpher{
+public:
+  enum{MAX_BONES = 40, POSZ_BONES = 20};
+  void LearnFrom(BrfMesh& a, int framei, int framej); // learn from an example
+  void ResetLearning();
+  void FinishLearning();
+  bool Save(const char* filename) const;
+  bool Load(const char* text);
+  void Emphatize(float k);
+  Point3f s[MAX_BONES], t[MAX_BONES];
+private:
+  // quadric coefficients
+  Point3f css[MAX_BONES],ctt[MAX_BONES],cst[MAX_BONES],cs[MAX_BONES],ct[MAX_BONES],cc[MAX_BONES];
+};
+
 class BrfMesh{
 private:
 
@@ -116,6 +134,8 @@ public:
   void AddToBody(BrfBodyPart &dest);
 
   void TuneColors(int contast, int hue, int sat, int brigh);
+  void MorphFrame(int framei, int framej, const MeshMorpher& m);
+  void AddALittleOfBreast(int framei);
 
 
   BrfMesh(){}
@@ -170,6 +190,7 @@ public:
 
   bool IsAnimable() const;
   void ComputeNormals();
+  void ComputeNormals(int framei);
 
   void UnifyPos();
   void UnifyVert(bool careForNormals, float crease=0);

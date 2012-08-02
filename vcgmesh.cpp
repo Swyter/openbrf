@@ -5,13 +5,28 @@
 #include <vector>
 #include <vcg/simplex/vertex/base.h>
 #include <vcg/simplex/face/base.h>
+#include <vcg/simplex/edge/base.h>
 #include <vcg/complex/trimesh/base.h>
 #include <vcg/complex/trimesh/clean.h>
+
 
 #include "vcgexport.h"
 #include "vcgimport.h"
 //#include <wrap/io_trimesh/import.h>
 //#include <wrap/io_trimesh/export.h>
+
+
+
+
+// simplification
+#include <vcg/math/quadric.h>
+#include <vcg/complex/trimesh/clean.h>
+#include <vcg/complex/trimesh/update/topology.h>
+#include <vcg/complex/local_optimization.h>
+#include <vcg/complex/local_optimization/tri_edge_collapse_quadric.h>
+
+
+
 
 using namespace vcg;
 using namespace std;
@@ -23,17 +38,35 @@ class CFace;
 class CVertex;
 
 struct MyUsedTypes : public UsedTypes<	Use<CVertex>		::AsVertexType,
-                                        Use<CFace>			::AsFaceType>{};
+                                        Use<CFace>			::AsFaceType,
+                                        Use<CEdge>::AsEdgeType  >{};
 
 
-class CVertex : public Vertex< MyUsedTypes, vertex::BitFlags, vertex::Coord3f,
-                                    vertex::Normal3f, vertex::Color4b, vertex::TexCoord2f >{};
-class CFace   : public Face<   MyUsedTypes, face::VertexRef,
-                                    face::BitFlags, //face::WedgeTexCoord2f,
-                                    //face::Normal3f, // just for obj importing
-                                    vcg::face::Normal3f, vcg::face::BitFlags, vcg::face::FFAdj,
-                                    vcg::face::Qualityf,
-                                    face::WedgeTexCoord2f> {};
+class CVertex : public Vertex<
+    MyUsedTypes,
+    vertex::BitFlags,
+    vertex::Coord3f,
+    vertex::VFAdj,
+    vertex::Normal3f,
+    vertex::Color4b,
+    vertex::TexCoord2f,
+    vertex::Mark>
+{
+public:
+  vcg::math::Quadric<double> &Qd() {return q;}
+private:
+  math::Quadric<double> q;
+};
+class CFace   : public Face<
+
+   MyUsedTypes,
+   vcg::face::VFAdj,
+   face::VertexRef,
+   face::BitFlags, //face::WedgeTexCoord2f,
+   //face::Normal3f, // just for obj importing
+   vcg::face::Normal3f, vcg::face::BitFlags, vcg::face::FFAdj,
+   vcg::face::Qualityf,
+   face::WedgeTexCoord2f> {};
 class CMesh   : public vcg::tri::TriMesh< vector<CVertex>, vector<CFace> > {
 public:
   void setFace(int i, int vi,int vj,int vk){
@@ -42,6 +75,17 @@ public:
     face[i].V(2) = &(vert[vk]);
   }
 };
+
+class CEdge : public Edge<MyUsedTypes,edge::VertexRef> {
+public:
+  inline CEdge() {};
+  inline CEdge( CVertex * v0, CVertex * v1){V(0) = v0; V(1) = v1; };
+    static inline CEdge OrderedEdge(CVertex* v0,CVertex* v1){
+   if(v0<v1) return CEdge(v0,v1);
+   else return CEdge(v1,v0);
+  }
+};
+
 
 // MAKE QUAD DOMINANT FOR BrfBodyParts
 #include "brfBody.h"
@@ -140,6 +184,67 @@ void BrfBodyPart::MakeQuadDominant(){
 }
 
 CMesh mesh;
+
+class MyTriEdgeCollapse: public vcg::tri::TriEdgeCollapseQuadric< CMesh, MyTriEdgeCollapse, tri::QInfoStandard<CVertex>  > {
+            public:
+typedef  vcg::tri::TriEdgeCollapseQuadric< CMesh,  MyTriEdgeCollapse, tri::QInfoStandard<CVertex>  > TECQ;
+            typedef  CMesh::VertexType::EdgeType EdgeType;
+            inline MyTriEdgeCollapse(  const EdgeType &p, int i) :TECQ(p,i){}
+};
+
+bool VcgMesh::simplify(int percFaces){
+  tri::TriEdgeCollapseQuadricParameter &qparams = MyTriEdgeCollapse::Params() ;
+  MyTriEdgeCollapse::SetDefaultParams();
+  qparams.QualityThr  =.3;
+  float TargetError=numeric_limits<float>::max();
+  MyTriEdgeCollapse::Params().SafeHeapUpdate=true;
+  qparams.QualityCheck	= true;
+  qparams.NormalCheck	= false;
+  qparams.OptimalPlacement	= false;
+  qparams.ScaleIndependent	= true;
+  qparams.PreserveBoundary	= false;
+  qparams.PreserveTopology	= false;
+  //qparams.QualityThr	= atof(argv[i]+2);
+  //qparams.NormalThrRad = math::ToRad(atof(argv[i]+2));
+  //qparams.BoundaryWeight  = atof(argv[i]+2);
+  //TargetError = float(atof(argv[i]+2));
+  //CleaningFlag=true;
+
+
+  /*
+  if(Cleaning){
+      int dup = tri::Clean<CMesh>::RemoveDuplicateVertex(mesh);
+      int unref =  tri::Clean<CMesh>::RemoveUnreferencedVertex(mesh);
+      //printf("Removed %i duplicate and %i unreferenced vertices from mesh \n",dup,unref);
+  }
+  */
+
+  vcg::tri::UpdateBounding<CMesh>::Box(mesh);
+  vcg::tri::UpdateTopology<CMesh>::VertexFace(mesh);
+
+  vcg::LocalOptimization<CMesh> DeciSession(mesh);
+
+  DeciSession.Init<MyTriEdgeCollapse >();
+  int finalSize = mesh.fn * percFaces / 100;
+
+  DeciSession.SetTargetSimplices(finalSize);
+  DeciSession.SetTimeBudget(0.5f);
+  //if(TargetError< numeric_limits<float>::max() ) DeciSession.SetTargetMetric(TargetError);
+
+  while(
+    DeciSession.DoOptimization() &&
+    mesh.fn>finalSize &&
+    DeciSession.currMetric < TargetError
+  ) qDebug("...");
+//    printf("Current Mesh size %7i heap sz %9i err %9g \r",mesh.fn,DeciSession.h.size(),DeciSession.currMetric);
+
+  tri::Allocator<CMesh>::CompactFaceVector(mesh);
+  tri::Allocator<CMesh>::CompactVertexVector(mesh);
+
+  return true;
+
+
+}
 
 #include "BrfMesh.h"
 #include "BrfSkeleton.h"
@@ -521,19 +626,20 @@ BrfMesh VcgMesh::toBrfMesh(){
   // copy faces
 
   k=0;
-  for (CMesh::FaceIterator f=mesh.face.begin(); f!=mesh.face.end(); f++,k++) if (!f->IsD()) {
+  for (CMesh::FaceIterator f=mesh.face.begin(); f!=mesh.face.end(); f++) if (!f->IsD()) {
     for (int h=0; h<3; h++) {
 
       int vi  = b.face[k].index[h] = f->V(h)-&(mesh.vert[0]);
       if (mustUseWT()) b.vert[ vi ] .ta = b.vert[ vi ] .tb = _flipY(f->WT(h).P()); // text x wedge
     }
+    k++;
   }
 
   if (mustUseWT()) qDebug("Using WT");
   if (mustUseVT()) qDebug("Using VT");
 
   k=0;
-  for (CMesh::VertexIterator v=mesh.vert.begin();v!=mesh.vert.end(); v++,k++) {
+  for (CMesh::VertexIterator v=mesh.vert.begin();v!=mesh.vert.end(); v++) if (!v->IsD()) {
           //int vi = f->V(h)-&mesh.vert[0];
     b.vert[k].col = //0xFFFFFFFF;
     (gotColor())? Col2Int( v->C() )
@@ -545,6 +651,7 @@ BrfMesh VcgMesh::toBrfMesh(){
       //qDebug("%f %f",v->T().P()[0],v->T().P()[1]);
       b.vert[k].ta = b.vert[k].tb  = _flipY(v->T().P()); // text x vert?
     }
+    k++;
   }
 
   b.AdjustNormDuplicates();

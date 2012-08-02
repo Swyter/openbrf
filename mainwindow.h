@@ -23,7 +23,7 @@ public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    bool loadModAndDump(QString modpath, QString file);
+    int loadModAndDump(QString modpath, QString file);
 
     int GetFirstUnusedRefLetter() const;
     bool loadFile(const QString &fileName);
@@ -37,6 +37,7 @@ private:
     BrfData clipboard; // also used for frames...
     BrfData brfdataBackup;
     IniData inidata;
+    MeshMorpher femininizer;
 
     bool editingRef;
     template<class BrfType> bool addNewGeneral(QStringList def);
@@ -149,6 +150,8 @@ private:
     void meshTuneColor();
     void meshComputeAo();
     void meshTuneColorDo(int,int,int,int);
+    void meshFemininize();
+    void learnFemininzation(); // from current selection
 
     void setFlagsMaterial();
 
@@ -190,6 +193,8 @@ private:
     void moduleSelect();
     void exportNames();
 
+    void onActionTriggered(QAction* q);
+    void repeatLastCommand();
 
 public slots:
     void displayInfo(QString st, int howlong);
@@ -209,6 +214,7 @@ private:
     QString modName;
     QString modPath() const;
     QString lastSearchString;
+    bool usingWarband;
 
     int curLanguage; // 0 = use default
     QString nextTranlationFilename; // which file to load next time (post mortem msg)
@@ -335,6 +341,12 @@ private:
     QAction *checkIniAct;
     QAction *searchIniAct;
 
+    QAction *repeatLastCommandAct;
+
+    QAction *repeatableAction;
+    int tokenOfRepeatableAction; // e.g. mesh, texture...
+    bool setNextActionAsRepeatable;
+
     QPair<ObjCoord , QString > navigationStack[3];
 
     int navigationStackPos;
@@ -356,6 +368,7 @@ private:
     QAction *optionInferMaterialOff;
     QAction *optionAoBrightness[5];
     QAction *optionAoFromAbove[2];
+    QAction *optionLearnFeminization;
 
     QAction *tldMenuAction;
 
