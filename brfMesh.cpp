@@ -919,6 +919,8 @@ public:
   Point3f ToGlobal(Point3f p) const;
   void FromSkeleton(const BrfSkeleton &s);
 };
+
+
 void Grid::FromSkeleton(const BrfSkeleton &s){
   vector<Matrix44f> m = s.GetBoneMatrices();
 
@@ -1537,10 +1539,13 @@ void BrfMesh::SelectAbsent(const BrfMesh& brf, int fi){
   printf("Selected %d absent (%d where present)\n",nbad, ngood);
 }
 
-bool BrfMesh::CopyVertColors(const BrfMesh& b){
+bool BrfMesh::CopyVertColors(const BrfMesh& b, bool overwrite){
 	int fi = 0;
 	int fib = 0;
 	hasVertexColor = false;
+	std::vector<uint> destColor;
+	if (!overwrite) destColor.resize(vert.size());
+
 	for (unsigned int i=0; i<face.size(); i++)
 	for (int w=0; w<3; w++){
 		Point3f posA =  frame[fi].pos[ vert[ face[i].index[w] ].index ]*0.75
@@ -1565,8 +1570,16 @@ bool BrfMesh::CopyVertColors(const BrfMesh& b){
 
 		unsigned int c =  b.vert[ b.face[mini].index[minw] ].col;
 		if (c!=0xFFFFFFFF) hasVertexColor = true;
-		vert[ face[i].index[w] ].col = c;
+		int vi = face[i].index[w];
+		if (overwrite) {
+			vert[ vi ].col = c;
+		} else {
+			destColor[ vi ] = c;
+		}
 
+	}
+	if (!overwrite) {
+		for (uint i=0; i<vert.size(); i++) vert[i].col = multCol( vert[i].col, destColor[i]);
 	}
 	return true;
 }
@@ -2521,6 +2534,11 @@ void BrfMesh::InvertPosOrder(){
   for (unsigned int i=0; i<frame[0].pos.size(); i++) frame[0].pos[i]=p[N-i];
 }
 
+unsigned int BrfMesh::GetAverageColor() const {
+	if (!vert.size()) return 0xFFFFFFFF;
+	return vert[0].col; // I'm too lazy to average all colors
+}
+
 void BrfMesh::FixPosOrder(const BrfMesh &b){
   vector<int> best(frame[0].pos.size(),0);
   vector<float> bestscore(frame[0].pos.size(),99999999.0);
@@ -2954,6 +2972,13 @@ void BrfMesh::ColorAll(unsigned int newcol){
   hasVertexColor = (newcol != 0xFFFFFFFF);
 }
 
+void BrfMesh::MultColorAll(unsigned int newcol){
+  for (int i=0; i<(int)vert.size(); i++){
+    vert[i].col = multCol(vert[i].col, newcol);
+  }
+  hasVertexColor = (newcol != 0xFFFFFFFF);
+}
+
 
 void BrfMesh::paintAlphaAsZ(float min, float max){
     for (int i=0; i<(int)vert.size(); i++){
@@ -3057,4 +3082,43 @@ void BrfMesh::CycleFrame(int i){
     frame[j]=tmp;
     frame[2]=frame[j];
   }
+}
+
+static uint rgba2col(int* _rgba){
+	uint rgba[4];
+	for (int i=0; i<4; i++) {
+		if (_rgba[i]>255) _rgba[i]=255;
+		if (_rgba[i]<0) _rgba[i]=0;
+		rgba[i] = _rgba[i];
+	}
+	return rgba[0] | (rgba[1]<<8) | (rgba[2]<<16) | (rgba[3]<<24);
+}
+
+
+static void col2rgba(uint col, int* rgba){
+	rgba[0]= (col&0xFF);
+	rgba[1]= ((col>>8)&0xFF);
+	rgba[2]= ((col>>16)&0xFF);
+	rgba[3]= ((col>>24)&0xFF);
+}
+
+uint BrfMesh::multCol(unsigned int col, float a){
+	int rgba[4];
+	col2rgba(col,rgba);
+	rgba[0]*=a;
+	rgba[1]*=a;
+	rgba[2]*=a;
+	return rgba2col(rgba);
+}
+
+uint BrfMesh::multCol(uint col1, uint col2){
+	int rgba1[4];
+	int rgba2[4];
+	col2rgba(col1,rgba1);
+	col2rgba(col2,rgba2);
+	rgba1[0]=(rgba1[0]*rgba2[0] + 128) / 255;
+	rgba1[1]=(rgba1[1]*rgba2[1] + 128) / 255;
+	rgba1[2]=(rgba1[2]*rgba2[2] + 128) / 255;
+	rgba1[3]=(rgba1[3]*rgba2[3] + 128) / 255;
+	return rgba2col(rgba1);
 }

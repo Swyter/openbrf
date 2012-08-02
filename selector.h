@@ -15,166 +15,171 @@ class TableModel;
 
 class Selector : public QTabWidget
 {
-  Q_OBJECT
+	Q_OBJECT
 
 public:
-  Selector(QWidget *parent=0);
-  void setup(const BrfData &data);
-  void updateData(const BrfData &data);
-  void setIniData(const IniData* data, int fileIndex);
-  int currentTabName() const;
-  int firstSelected() const;
-  int lastSelected() const;
-  int numSelected() const;
-  int onlySelected(int kind) const; // return index of only selected object of given kind or -1
-  QModelIndexList selectedList() const;
-  void moveSel(int d);
-  BrfData* reference;
-  const BrfData* data;
-  const IniData* iniData;
-  bool iniDataWaitsSaving;
-  int iniFileIndex;
-  void selectOne(int kind, int i);  
-  void updateContextMenu();
-  QMenu *contextMenu;
+	Selector(QWidget *parent=0);
+	void setup(const BrfData &data);
+	void updateData(const BrfData &data);
+	void setIniData(const IniData* data, int fileIndex);
+	int currentTabName() const;
+	int firstSelected() const;
+	int lastSelected() const;
+	int numSelected() const;
+	int onlySelected(int kind) const; // return index of only selected object of given kind or -1
+	QModelIndexList selectedList() const;
+	void moveSel(int d);
+	BrfData* reference;
+	const BrfData* data;
+	const IniData* iniData;
+	bool iniDataWaitsSaving;
+	int iniFileIndex;
+	void selectOne(int kind, int i);
+	void updateContextMenu();
+	QMenu *contextMenu;
 
 
 public slots:
-  void selectAll();
-  void invertSelection();
+	void selectAll();
+	void invertSelection();
 
 private slots:
-  void onChanged();
-  void onBreakAni();
-  void onBreakAniWithIni();
-  void addToRefMeshA();
-  void addToRefMeshB();
-  void addToRefMeshC();
-  void addToRefMeshD();
-  void addToRefMeshE();
-  void addToRefMeshF();
-  void addToRefMeshG();
-  void addToRefMeshH();
-  void addToRefMeshI();
-  void addToRefMeshJ();
-  void goNextTab();
-  void goPrevTab();
+	void onChanged();
+	void onBreakAni();
+	void onBreakAniWithIni();
+	void addToRefMeshA();
+	void addToRefMeshB();
+	void addToRefMeshC();
+	void addToRefMeshD();
+	void addToRefMeshE();
+	void addToRefMeshF();
+	void addToRefMeshG();
+	void addToRefMeshH();
+	void addToRefMeshI();
+	void addToRefMeshJ();
+	void goNextTab();
+	void goPrevTab();
 
 signals:
-  void setSelection(const QModelIndexList & newSel, int newToken);
-  void addToRefMesh(int refIndex);
-  void breakAni(int i, bool useIni);
+	void setSelection(const QModelIndexList & newSel, int newToken);
+	void addToRefMesh(int refIndex);
+	void breakAni(int i, bool useIni);
 
 private:
-  void hideEmpty();
-  template<class BrfType> void addBrfTab(const std::vector<BrfType> &x);
-  QListView * tab[N_TOKEN];
-  TableModel * tableModel[N_TOKEN];
-  void contextMenuEvent(QContextMenuEvent *event);
-  enum {MAX_USED_BY = 50};
-  QAction
-    *goNextTabAct,
-    *goPrevTabAct,
+	void hideEmpty();
+	template<class BrfType> void addBrfTab(const std::vector<BrfType> &x);
+	QListView * tab[N_TOKEN];
+	TableModel * tableModel[N_TOKEN];
+	void contextMenuEvent(QContextMenuEvent *event);
+	enum {MAX_USED_BY = 50};
+public:
+	QAction
+	*goNextTabAct,
+	*goPrevTabAct,
 
-     // tools
-    *aniMirrorAct,
-    *aniExtractIntervalAct,
-    *aniRemoveIntervalAct,
-    *aniMergeAct,
-    *aniReskeletonizeAct,
+	// tools
+	*aniMirrorAct,
+	*aniExtractIntervalAct,
+	*aniRemoveIntervalAct,
+	*aniMergeAct,
+	*aniReskeletonizeAct,
 
-    *breakAniAct,
-    *breakAniWithIniAct,
-    *meshRecomputeNormalsAndUnify,
-    *meshUnify,
-    *meshFixRiggingRigidParts,
-    *meshSubdivideIntoComponents,
-    *meshMerge,
-    *meshToBody,
-    *meshMountOnBone,
-    *meshRemoveBackfacing,
-    *meshAddBackfacing,
-    *meshRecolorAct,
-    *meshRecomputeTangentsAct,
-    *meshTuneColorAct,
-    *meshComputeAoAct,
-    *meshColorWithTextureAct,
-    *meshFemininizeAct,
-    *meshComputeLodAct,
-    *meshTellBoundingBoxAct,
-    *meshFreezeFrameAct,
-    *meshUvTransformAct,
+	*breakAniAct,
+	*breakAniWithIniAct,
+	*meshRecomputeNormalsAndUnify,
+	*meshUnify,
+	*meshFixRiggingRigidParts,
+	*meshSubdivideIntoComponents,
+	*meshMerge,
+	*meshToBody,
+	*meshMountOnBone,
+	*meshRemoveBackfacing,
+	*meshAddBackfacing,
+	*meshRecolorAct,
+	*meshRecomputeTangentsAct,
+	*meshTuneColorAct,
+	*meshComputeAoAct,
+	*meshColorWithTextureAct,
+	*meshFemininizeAct,
+	*meshComputeLodAct,
+	*meshTellBoundingBoxAct,
+	*meshFreezeFrameAct,
+	*meshUvTransformAct,
 
-    *meshAniMergeAct,
-    *meshAniSplitAct,
-
-
-    *renameAct,
-    *removeAct,
-    *moveUpAct,
-    *moveDownAct,
-    *duplicateAct,
-    *discardColAct,
-    *discardNorAct,
-    *discardRigAct,
-    *discardTanAct,
-    *discardAniAct,
+	*meshAniMergeAct,
+	*meshAniSplitAct,
 
 
-    // exporter acts
-    *exportImportMeshInfoAct,
-    *exportStaticMeshAct,
-    *exportRiggedMeshAct,
-    *exportMovingMeshFrameAct,
-    *exportMovingMeshAct,
-    *exportMeshGroupAct,
-    *exportMeshGroupManyFilesAct,
-
-    //*hitboxToBodyAct,
-    //*bodyToHitboxAct,
-    //*saveSkeletonHitboxAct,
-    *discardHitboxAct,
-
-    *exportSkeletonModAct,
-    *exportSkeletonAct,
-    *exportSkinAct,
-    *exportSkinForAnimationAct,
-    *exportAnimationAct,
-    *exportBodyAct,
-    *exportBodyGroupManyFilesAct,
-
-    // importer acts
-    *importSkeletonModAct,
+	*renameAct,
+	*removeAct,
+	*moveUpAct,
+	*moveDownAct,
+	*duplicateAct,
+	*discardColAct,
+	*discardNorAct,
+	*discardRigAct,
+	*discardTanAct,
+	*discardAniAct,
 
 
-    *reskeletonizeAct,
-    *transferRiggingAct,
-    *flipAct,
-    *smoothenRiggingAct,
-    *stiffenRiggingAct,
-    *transformAct,
-    *scaleAct,
-    *shiftAniAct,
-    *bodyMakeQuadDominantAct,
-    *bodyMerge,
+	// exporter acts
+	*exportImportMeshInfoAct,
+	*exportStaticMeshAct,
+	*exportRiggedMeshAct,
+	*exportMovingMeshFrameAct,
+	*exportMovingMeshAct,
+	*exportMeshGroupAct,
+	*exportMeshGroupManyFilesAct,
 
-    *sortEntriesAct,
-    *noSelectionDummyAct,
+	*reimportMeshAct,
+	*reimportAniAct,
+	*reimportBodyAct,
+
+	//*hitboxToBodyAct,
+	//*bodyToHitboxAct,
+	//*saveSkeletonHitboxAct,
+	*discardHitboxAct,
+
+	*exportSkeletonModAct,
+	*exportSkeletonAct,
+	*exportSkinAct,
+	*exportSkinForAnimationAct,
+	*exportAnimationAct,
+	*exportBodyAct,
+	*exportBodyGroupManyFilesAct,
+
+	// importer acts
+	*importSkeletonModAct,
+
+
+	*reskeletonizeAct,
+	*transferRiggingAct,
+	*flipAct,
+	*smoothenRiggingAct,
+	*stiffenRiggingAct,
+	*transformAct,
+	*scaleAct,
+	*shiftAniAct,
+	*bodyMakeQuadDominantAct,
+	*bodyMerge,
+
+	*sortEntriesAct,
+	*noSelectionDummyAct,
 
 
 
 
-    *addToRefSkelAct,
-    *addToRefAnimAct,
-    *addToRefMeshAct[10],
-    *usedByAct[MAX_USED_BY],
-    *usedByComputeAct,
-    *usedByNoneAct,
-    *usedInCoreAct[2],
-    *usedInNoTxtAct,
-    *usedInAct[N_TXTFILES*2],
-    *usedIn_NotInModule,
-    *usedIn_SaveFirst;
+	*addToRefSkelAct,
+	*addToRefAnimAct,
+	*addToRefMeshAct[10],
+	*usedByAct[MAX_USED_BY],
+	*usedByComputeAct,
+	*usedByNoneAct,
+	*usedInCoreAct[2],
+	*usedInNoTxtAct,
+	*usedInAct[N_TXTFILES*2],
+	*usedIn_NotInModule,
+	*usedIn_SaveFirst;
 
 };
 

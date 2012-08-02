@@ -547,7 +547,7 @@ QString MainWindow::askImportFilename(QString ext){
     this,
     tr("Import file") ,
     path,
-    ext,
+	  ext+";; any file (*.*)",
     &lastImpExpFormat
    );
    if (fileName.isEmpty()) {
@@ -557,22 +557,36 @@ QString MainWindow::askImportFilename(QString ext){
    return fileName;
 }
 
-QStringList MainWindow::askImportFilenames(QString ext){
-  QString path = settings->value("LastExpImpPath").toString();
-  if (path.isEmpty()) path = QDir::currentPath();
+QStringList MainWindow::askImportFilenames(QString ext, bool atMostOne){
 
-  QStringList fileName = QFileDialog::getOpenFileNames(
-    this,
-    tr("Import files") ,
-    path,
-    ext,
-    &lastImpExpFormat
-   );
-   if (fileName.isEmpty()) {
-     statusBar()->showMessage(tr("Import canceled."), 2000);
-   } else
-   settings->setValue("LastExpImpPath",QFileInfo(fileName[0]).absolutePath());
-   return fileName;
+	QString path = settings->value("LastExpImpPath").toString();
+	if (path.isEmpty()) path = QDir::currentPath();
+
+	QStringList fileNames;
+
+	if (atMostOne) {
+		QString tmp =  QFileDialog::getOpenFileName(
+			this,
+			tr("Import file") ,
+			path,
+			ext+";; any file (*.*)",
+			&lastImpExpFormat
+		);
+		if (!tmp.isEmpty()) fileNames.push_back(tmp);
+	} else {
+		fileNames= QFileDialog::getOpenFileNames(
+			this,
+			tr("Import files") ,
+			path,
+			ext+";; any file (*.*)",
+			&lastImpExpFormat
+		);
+	}
+	if (fileNames.isEmpty()) {
+		statusBar()->showMessage(tr("Import canceled."), 2000);
+	} else
+		settings->setValue("LastExpImpPath",QFileInfo(fileNames[0]).absolutePath());
+	return fileNames;
 }
 
 
@@ -615,6 +629,155 @@ QString MainWindow::askExportFilename(QString filename,QString ext){
 
 
 
+bool MainWindow::importBrf(){
+
+  //QString lastBrfFormat(tr("strange, latest, rare Warband format (*.brf)"));
+
+  QString fn = askImportFilename(tr("Warband or M&B resource (*.brf)"));//+lastBrfFormat);
+  if (fn.isEmpty()) return false;
+  BrfData tmp;
+  //bool useNext=(lastImpExpFormat==lastBrfFormat);
+
+  if (!tmp.Load(fn.toStdWString().c_str(),0)) {
+    QMessageBox::information(this,
+      tr("Open Brf"),
+      tr("Cannot import file %1\n\n")
+    );
+    return false;
+  }
+  brfdata.Merge(tmp);
+  selector->updateData(brfdata);
+  setModified(true);
+  return true;
+}
+
+
+bool MainWindow::_importCollisionBody(bool reimportExisting){
+	QStringList fn = askImportFilenames(
+		tr("mesh file (*.obj)"),
+		reimportExisting
+  );
+
+  if (fn.isEmpty()) return false;
+
+  for (int i=0; i<fn.size(); i++) {
+    BrfBody b;
+
+    if (!b.ImportOBJ(fn[i].toStdWString().c_str())) {
+      QMessageBox::information(this, tr("Open Brf"),
+        tr("Cannot import file %1\n").arg(fn[i])
+      );
+      continue;
+    }
+
+		QString name=QFileInfo(fn[i]).completeBaseName();
+		name.truncate(254);
+		sprintf( b.name, "%s", name.toAscii().data());
+
+		if (reimportExisting) replace( b ); else insert( b );
+
+    setModified(true);
+  }
+
+  return true;
+
+}
+
+bool MainWindow::importCollisionBody(){
+	return _importCollisionBody( false );
+}
+
+bool MainWindow::reimportCollisionBody(){
+	return _importCollisionBody( true );
+}
+
+bool MainWindow::importAnimation(){
+	return _importAnimation(false);
+}
+
+bool MainWindow::reimportAnimation(){
+	return _importAnimation(true);
+}
+
+
+
+bool MainWindow::_importStaticMesh(QString s, std::vector<BrfMesh> &mV, std::vector<bool> &wasMultipleMatV, bool onlyOneFile){
+  QStringList fnList = askImportFilenames(
+    tr("mesh file ("
+      "*.obj "
+      "*.ply "
+      "*.off "
+      "*.stl "
+	     "%1"
+      "*.dae)"
+	  ).arg(onlyOneFile?"*.smd ":""),onlyOneFile
+  );
+  if (fnList.isEmpty()) return false;
+  mV.resize(fnList.size());
+  wasMultipleMatV.resize(fnList.size());
+  bool res=false;
+  for (int j=0; j<fnList.size(); j++) {
+    BrfMesh& m(mV[j]);
+    //bool & wasMultipleMat(wasMultipleMatV[j]);
+    QString& fn(fnList[j]);
+
+    m.name[0]=0;
+
+		if (QFileInfo(fn).suffix().toLower() == "smd") {
+			BrfSkeleton tmp;
+			if (ioSMD::Import(fn.toStdWString().c_str(), m, tmp)!=0) {
+				QMessageBox::information(this,
+          tr("Open Brf"),
+				  tr("Cannot import file %1:\n%2\n").arg(fn).arg(ioSMD::LastErrorString())
+        );
+			}
+    }
+    else if (QFileInfo(fn).suffix().toLower()== "obj") {
+      if (!m.LoadOBJ( fn.toAscii().data() )) {
+        QMessageBox::information(this,
+          tr("Open Brf"),
+				  tr("Cannot import file %1\n").arg(fn)
+        );
+        continue;
+      }
+      wasMultipleMatV[j] = IoOBJ::wasMultpileMat();
+    } else {
+      wasMultipleMatV[j] = false;
+      if (!VcgMesh::load(fn.toAscii().data())) {
+        QMessageBox::information(this,
+          tr("Open Brf"),
+          tr("Cannot import file %1\n\n"
+             "(error: %2)").arg(fn).arg(VcgMesh::lastErrString()
+          )
+        );
+        continue;
+      }
+
+      m = VcgMesh::toBrfMesh();
+    }
+
+		statusBar()->showMessage(tr("Imported mesh \"%1\"--- normals:%2 colors:%3 texture_coord:%4")
+      .arg( m.name )
+      .arg((VcgMesh::gotNormals()?"[ok]":"[recomputed]"))
+      .arg((VcgMesh::gotColor()?"[ok]":"[NO]"))
+      .arg((VcgMesh::gotTexture()?"[ok]":"[NO]")),5000
+    );
+
+    if (m.name[0]==0) {
+      // assign name of the mesh
+      QString meshname=QFileInfo(fn).completeBaseName();
+      meshname.truncate(254);
+      sprintf( m.name, "%s", meshname.toAscii().data());
+    }
+    applyAfterMeshImport(m);
+    res=true;
+  }
+  return res;
+}
+
+
+
+
 bool MainWindow::importMovingMesh(){
   QString fn = askImportFilename(QString("Quake 3 vertex animation (*.MD3)"));
   if (fn.isEmpty()) return false;
@@ -640,120 +803,10 @@ bool MainWindow::importMovingMesh(){
   return true;
 }
 
-
-
-
-bool MainWindow::importBrf(){
-
-  //QString lastBrfFormat(tr("strange, latest, rare Warband format (*.brf)"));
-
-  QString fn = askImportFilename(tr("Warband or M&B resource (*.brf)"));//+lastBrfFormat);
-  if (fn.isEmpty()) return false;
-  BrfData tmp;
-  //bool useNext=(lastImpExpFormat==lastBrfFormat);
-
-  if (!tmp.Load(fn.toStdWString().c_str(),0)) {
-    QMessageBox::information(this,
-      tr("Open Brf"),
-      tr("Cannot import file %1\n\n")
-    );
-    return false;
-  }
-  brfdata.Merge(tmp);
-  selector->updateData(brfdata);
-  setModified(true);
-  return true;
-}
-
-bool MainWindow::importCollisionBody(){
-  QStringList fn = askImportFilenames(
-    tr("mesh file (*.obj)")
-  );
-  if (fn.isEmpty()) return false;
-
-  for (int i=0; i<fn.size(); i++) {
-    BrfBody b;
-
-    if (!b.ImportOBJ(fn[i].toStdWString().c_str())) {
-      QMessageBox::information(this, tr("Open Brf"),
-        tr("Cannot import file %1\n").arg(fn[i])
-      );
-      continue;
-    }
-
-    QString name=QFileInfo(fn[i]).completeBaseName();
-    name.truncate(254);
-
-    sprintf( b.name, "%s", name.toAscii().data());
-
-    insert( b );
-    setModified(true);
-  }
-
-  return true;
-}
-
-bool MainWindow::_importStaticMesh(QString s, std::vector<BrfMesh> &mV, std::vector<bool> &wasMultipleMatV){
-  QStringList fnList = askImportFilenames(
-    tr("mesh file ("
-      "*.obj "
-      "*.ply "
-      "*.off "
-      "*.stl "
-      "*.dae)"
-    )
-  );
-  if (fnList.isEmpty()) return false;
-  mV.resize(fnList.size());
-  wasMultipleMatV.resize(fnList.size());
-  bool res=false;
-  for (int j=0; j<fnList.size(); j++) {
-    BrfMesh& m(mV[j]);
-    //bool & wasMultipleMat(wasMultipleMatV[j]);
-    QString& fn(fnList[j]);
-
-    m.name[0]=0;
-
-    if (QFileInfo(fn).suffix().toLower()== "obj") {
-      if (!m.LoadOBJ( fn.toAscii().data() )) {
-        QMessageBox::information(this,
-          tr("Open Brf"),
-          tr("Cannot import file %1\n")
-        );
-        continue;
-      }
-      wasMultipleMatV[j] = IoOBJ::wasMultpileMat();
-    } else {
-      wasMultipleMatV[j] = false;
-      if (!VcgMesh::load(fn.toAscii().data())) {
-        QMessageBox::information(this,
-          tr("Open Brf"),
-          tr("Cannot import file %1\n\n"
-             "(error: %2)").arg(fn).arg(VcgMesh::lastErrString()
-          )
-        );
-        continue;
-      }
-      m = VcgMesh::toBrfMesh();
-    }
-    if (m.name[0]==0) {
-      // assign name of the mesh
-      QString meshname=QFileInfo(fn).completeBaseName();
-      meshname.truncate(254);
-      sprintf( m.name, "%s", meshname.toAscii().data());
-    }
-    applyAfterMeshImport(m);
-    res=true;
-  }
-  return res;
-}
-
-
-
 bool MainWindow::importStaticMesh(){
   vector<BrfMesh> m;
   vector<bool> mult;
-  if (!_importStaticMesh("Import static mesh", m, mult)) return false;
+  if (!_importStaticMesh("Import static mesh", m, mult,false)) return false;
 
   for (int j=0; j<(int)m.size(); j++) {
 
@@ -774,15 +827,110 @@ bool MainWindow::importStaticMesh(){
     }
     setModified(true);
 
-    statusBar()->showMessage(tr("Imported mesh \"%1\"--- normals:%2 colors:%3 texture_coord:%4")
-      .arg( m[j].name )
-      .arg((VcgMesh::gotNormals()?"[ok]":"[recomputed]"))
-      .arg((VcgMesh::gotColor()?"[ok]":"[NO]"))
-      .arg((VcgMesh::gotTexture()?"[ok]":"[NO]")),5000
-    );
   }
   return true;
 }
+
+bool MainWindow::reimportMesh(){
+	vector<BrfMesh> m;
+  vector<bool> mult;
+  if (!_importStaticMesh("Import static mesh", m, mult,true)) return false;
+	BrfMesh &oldMesh = getUniqueSelected<BrfMesh>();
+	if (!&oldMesh) return false;
+	if (!m.size())	return false;
+	BrfMesh &newMesh = m[0];
+
+	//if (!VcgMesh::gotMaterialName()) // let's do that anyway
+  sprintf(newMesh.material,oldMesh.material);
+
+	if (!VcgMesh::gotColor()) newMesh.CopyVertColors(oldMesh);
+
+	if (!newMesh.IsRigged() && oldMesh.IsRigged()) {
+		std::vector<BrfMesh> tmp; tmp.push_back( oldMesh );
+		newMesh.TransferRigging(tmp,0,0);
+	}
+	newMesh.flags = oldMesh.flags;
+
+	replace( newMesh );
+	return true;
+
+}
+
+bool MainWindow::importRiggedMesh(){
+  QStringList fnList = askImportFilenames(
+      "all known formats  (*.SMD; *.MA);;"
+      "Studiomdl Data  (*.SMD);;"
+	    "Maya ascii file (*.MA)"
+  );
+  if (fnList.isEmpty()) return false;
+
+  int total = 0;
+
+  for (int j=0; j<fnList.size(); j++) {
+    BrfSkeleton s;
+    std::vector<BrfMesh> m;
+    bool ok=false;
+    QString resst = "Unknown extension";
+
+    bool warning = false;
+
+
+    if (fnList[j].endsWith(".smd",Qt::CaseInsensitive)) {
+      m.resize(1);
+      ok = ioSMD::Import(fnList[j].toStdWString().c_str(), m[0], s)==0;
+			if (!(m[0].face.size())) {
+				QMessageBox::information(this,
+					tr("Open Brf"),
+					tr("No mesh found in %1\n").arg(fnList[j])
+				);
+				continue;
+			}
+      resst = ioSMD::LastErrorString();
+      warning = ioSMD::Warning();
+    }
+
+    if (fnList[j].endsWith(".ma",Qt::CaseInsensitive)) {
+      warning = false;
+      ok = IoMB::Import(fnList[j].toStdWString().c_str(), m, s,0);
+      resst = IoMB::LastErrorString();
+    }
+
+    if (!ok) {
+      QMessageBox::information(this,
+        tr("Open Brf"),
+        tr("Cannot import mesh %2:\n%1\n").arg( resst ).arg(fnList[j])
+      );
+      continue;
+    }
+
+    QString name=QFileInfo(fnList[j]).completeBaseName();
+    name.truncate(254);
+    for (unsigned int i=0; i<m.size(); i++) {
+      QString name2 ;
+      if (i>0) name2=QString("%1.%2").arg(name).arg(i); else name2=name;
+      sprintf( m[i].name, "%s", name2.toAscii().data());
+      applyAfterMeshImport(m[i]);
+      insert(m[i]);
+    }
+    total+=m.size();
+    if (warning) {
+      QMessageBox::information(this,
+        tr("Open Brf"),
+        tr("%1\n").arg( ioSMD::LastWarningString() )
+      );
+    }
+
+  }
+
+  statusBar()->showMessage(
+    tr("Imported %1 rigged mesh%2")
+    .arg( total ).arg((total==1)?"":"es"),6000
+  );
+
+  if (total>0) setModified(true);
+  return true;
+}
+
 
 bool MainWindow::importMovingMeshFrame(){
   int i = selector->firstSelected();
@@ -800,7 +948,7 @@ bool MainWindow::importMovingMeshFrame(){
 
   vector<BrfMesh> m;
   vector<bool> tmp;
-  if (!_importStaticMesh("Import one or more meshes and add them as a frame", m, tmp))
+  if (!_importStaticMesh("Import one or more meshes and add them as a frame", m, tmp,false))
   {
     statusBar()->showMessage(tr("Import failed"),5000);
     return false;
@@ -834,41 +982,48 @@ bool MainWindow::importMovingMeshFrame(){
 }
 
 
-bool MainWindow::importAnimation(){
-  QString brfFormat("Old BrfEdit style SMD (*.SMD)");
-  QString fn = askImportFilename(QString("Studiomdl Data (*.SMD);;")+brfFormat);
-  if (fn.isEmpty()) return false;
-  BrfSkeleton s;
-  BrfAnimation a;
+bool MainWindow::_importAnimation(bool reimportExisting){
+	QString brfFormat("Old BrfEdit style SMD (*.SMD)");
+	QStringList list = askImportFilenames(
+		QString("Studiomdl Data (*.SMD);;")+brfFormat,
+		reimportExisting
+	);
+	if (list.isEmpty()) return false;
 
-  bool backComp=(lastImpExpFormat==brfFormat);
-  int res = ioSMD::Import(fn.toStdWString().c_str(), a, s);
-  if (res!=0) {
-     QMessageBox::information(this,
-      tr("Open Brf"),
-      tr("Cannot import animation:\n %1\n").arg( ioSMD::LastErrorString() )
-    );
-    return false;
-  }
+	for (int i=0; i<list.size(); i++) {
+		BrfSkeleton s;
+		BrfAnimation a;
+
+		QString fn = list.at(i);
+		bool backComp=(lastImpExpFormat==brfFormat);
+		int res = ioSMD::Import(fn.toStdWString().c_str(), a, s);
+		if (res!=0) {
+			 QMessageBox::information(this,
+				tr("Open Brf"),
+				tr("Cannot import animation:\n %1\n").arg( ioSMD::LastErrorString() )
+			);
+			return false;
+		}
 
 
-  QString name=QFileInfo(fn).completeBaseName();
-  name.truncate(254);
-  sprintf( a.name, "%s", name.toAscii().data());
+		QString name=QFileInfo(fn).completeBaseName();
+		name.truncate(254);
+		sprintf( a.name, "%s", name.toAscii().data());
+
+		if (backComp) {
+			//int j = gimmeASkeleton( s.bone.size() );
+			//if (j>=0)
+			//  a.Reskeletonize( s, reference.skeleton[j] );
+			if (a.frame.size()) a.frame.pop_back(); // remove last frame
+		}
+		if (a.AutoAssingTimesIfZero()){
+			statusBar()->showMessage(tr("Found no time value in SMD file, so I added them."),5000);
+		}
+		if (reimportExisting) replace(a); else insert(a);
+		setModified(true);
+	}
 
 
-  if (backComp) {
-    //int j = gimmeASkeleton( s.bone.size() );
-    //if (j>=0)
-    //  a.Reskeletonize( s, reference.skeleton[j] );
-    if (a.frame.size()) a.frame.pop_back(); // remove last frame
-  }
-  if (a.AutoAssingTimesIfZero()){
-    statusBar()->showMessage(tr("Found no time value in SMD file, so I added them."),5000);
-  }
-  insert(a);
-
-  setModified(true);
 
   return true;
 
@@ -921,75 +1076,6 @@ bool MainWindow::importSkeleton(){
     .arg( s.name )
     .arg( s.bone.size() ),6000
   );
-  return true;
-}
-
-
-bool MainWindow::importRiggedMesh(){
-  QStringList fnList = askImportFilenames(
-      "all known formats  (*.SMD; *.MA);;"
-      "Studiomdl Data  (*.SMD);;"
-      "Maya ascii file (*.MA)"
-  );
-  if (fnList.isEmpty()) return false;
-
-  int total = 0;
-
-  for (int j=0; j<fnList.size(); j++) {
-    BrfSkeleton s;
-    std::vector<BrfMesh> m;
-    bool ok=false;
-    QString resst = "Unknown extension";
-
-    bool warning = false;
-
-
-    if (fnList[j].endsWith(".smd",Qt::CaseInsensitive)) {
-      m.resize(1);
-      ok = ioSMD::Import(fnList[j].toStdWString().c_str(), m[0], s)==0;
-      resst = ioSMD::LastErrorString();
-      warning = ioSMD::Warning();
-    }
-
-    if (fnList[j].endsWith(".ma",Qt::CaseInsensitive)) {
-      warning = false;
-      ok = IoMB::Import(fnList[j].toStdWString().c_str(), m, s,0);
-      resst = IoMB::LastErrorString();
-    }
-
-    if (!ok) {
-      QMessageBox::information(this,
-        tr("Open Brf"),
-        tr("Cannot import mesh %2:\n%1\n").arg( resst ).arg(fnList[j])
-      );
-      continue;
-    }
-
-    QString name=QFileInfo(fnList[j]).completeBaseName();
-    name.truncate(254);
-    for (unsigned int i=0; i<m.size(); i++) {
-      QString name2 ;
-      if (i>0) name2=QString("%1.%2").arg(name).arg(i); else name2=name;
-      sprintf( m[i].name, "%s", name2.toAscii().data());
-      applyAfterMeshImport(m[i]);
-      insert(m[i]);
-    }
-    total+=m.size();
-    if (warning) {
-      QMessageBox::information(this,
-        tr("Open Brf"),
-        tr("%1\n").arg( ioSMD::LastWarningString() )
-      );
-    }
-
-  }
-
-  statusBar()->showMessage(
-    tr("Imported %1 rigged mesh%2")
-    .arg( total ).arg((total==1)?"":"es"),6000
-  );
-
-  if (total>0) setModified(true);
   return true;
 }
 

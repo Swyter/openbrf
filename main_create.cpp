@@ -145,6 +145,7 @@ void MainWindow::createMenus()
 
 		optionMenu->addAction(aboutCurrentShaderAct);
 
+
 		optionMenu->addAction(aboutCheckboardAct);
 
 		optionMenu->addSeparator();
@@ -312,11 +313,6 @@ void MainWindow::createMenus()
     optionAoInAlpha->setCheckable(true);
     aoBrightMenu->addAction(optionAoInAlpha);
 
-    optionLodSettingsAct = new QAction(tr("On building LOD pyramids..."),this);
-    optionLodSettingsAct->setStatusTip(tr("Set the way OpenBRF build LODs pyramids"));
-    connect(optionLodSettingsAct, SIGNAL(triggered()), this, SLOT(optionLodSettings()));
-    optionMenu->addAction(optionLodSettingsAct);
-
 
     // OPTION TO LEARN NEW FEMININIZTION
     autoFemMenu = optionMenu->addMenu(tr("On armour auto-feminization"));
@@ -343,6 +339,13 @@ void MainWindow::createMenus()
     autoFemMenu->addSeparator();
     autoFemMenu-> addAction(optionLearnFeminization);
 
+		optionLodSettingsAct = new QAction(tr("On building LOD pyramids..."),this);
+    optionLodSettingsAct->setStatusTip(tr("Set the way OpenBRF build LODs pyramids"));
+    connect(optionLodSettingsAct, SIGNAL(triggered()), this, SLOT(optionLodSettings()));
+    optionMenu->addAction(optionLodSettingsAct);
+
+
+		optionMenu->addAction( aboutColorAssignementAct );
 
     optionMenu->addSeparator();
 
@@ -398,6 +401,8 @@ void MainWindow::createMenus()
 
 void MainWindow::createActions()
 {
+	  QString keepShiftInfo("(keep shift pressed to multiply)");
+
     newAct = new QAction(tr("&New"), this);
     newAct->setShortcuts(QKeySequence::New);
     newAct->setStatusTip(tr("Create a new file"));
@@ -462,7 +467,7 @@ void MainWindow::createActions()
     editPasteTextcoordsAct->setEnabled(false);
 
     editPasteVertColorsAct = new QAction(tr("Paste vert colors"), this);
-    editPasteVertColorsAct->setStatusTip(tr("Transfer vert colors from the mesh in the clipboard."));
+		editPasteVertColorsAct->setStatusTip(tr("Transfer vert colors from the mesh in the clipboard %1.").arg(keepShiftInfo));
     editPasteVertColorsAct->setEnabled(false);
 
     editPasteVertAniAct = new QAction(tr("Paste vert animations"), this);
@@ -536,6 +541,10 @@ void MainWindow::createActions()
     aboutCheckboardAct->setVisible(false);
     connect(aboutCheckboardAct, SIGNAL(triggered()), this, SLOT(aboutCheckboard()));
 		connect(aboutCurrentShaderAct, SIGNAL(triggered()), this, SLOT(aboutCurrentShader()));
+
+
+		aboutColorAssignementAct = new QAction(tr("On mesh recoloring (info)..."),this);
+		connect(aboutColorAssignementAct, SIGNAL(triggered()), this, SLOT(aboutColorAssignment()));
 
 
     aboutAct = new QAction(tr("About"), this);

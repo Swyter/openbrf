@@ -1002,6 +1002,7 @@ void GLWidget::setMaterialError(int i){
 }
 
 
+
 void GLWidget::setMaterialName(QString st){
   lastMatErr.matName=QString(st);
 
@@ -2019,11 +2020,11 @@ static Point3f randomUpVector(int, float above){
   return res;
 }
 
-void GLWidget::renderAoOnMeshes(float brightness, float fromAbove, bool perface, bool inAlpha){
+void GLWidget::renderAoOnMeshes(float brightness, float fromAbove, bool perface, bool inAlpha, bool overwrite){
   if (!data) return;
   if (!viewmodeMult) {
     // ao, combined
-    renderAoOnMeshesAllSelected(brightness, fromAbove, perface, inAlpha);
+    renderAoOnMeshesAllSelected(brightness, fromAbove, perface, inAlpha, overwrite);
   } else {
     // ao, separated
 
@@ -2036,29 +2037,79 @@ void GLWidget::renderAoOnMeshes(float brightness, float fromAbove, bool perface,
       assert(i<MAXSEL);
       if (!(selGroupBackup[i])) continue;
       selGroup[i] = true;
-      renderAoOnMeshesAllSelected(brightness, fromAbove, perface, inAlpha);
+      renderAoOnMeshesAllSelected(brightness, fromAbove, perface, inAlpha, overwrite);
       selGroup[i] = false;
     }
     for (int i=0;i<MAXSEL; i++) selGroup[i] = selGroupBackup[i];
   }
 }
 
-void GLWidget::renderTextureColorOnMeshes(){
+QImage getTextureImage(){
+
+  int w, h;
+  glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_WIDTH,&w);
+  glGetTexLevelParameteriv(GL_TEXTURE_2D,0,GL_TEXTURE_HEIGHT,&h);
+
+  if (!w*h) return QImage();
+
+  uchar* pixelData = new uchar[4*w*h];
+  glGetTexImage(GL_TEXTURE_2D, 0, GL_BGRA, GL_UNSIGNED_BYTE, pixelData);
+
+  return QImage(pixelData, w, h, QImage::Format_ARGB32);
+
+}
+
+uint manualTextureFetch(const QImage &src, const float* uv){
+  int x = (int)((uv[0]-floor(uv[0]))*src.width());
+  int y = (int)((uv[1]-floor(uv[1]))*src.height());
+  if (x<0) x=0; if (x>=src.width ()) x=src.width ()-1;
+  if (y<0) y=0; if (y>=src.height()) y=src.height()-1;
+  //return x+y; //0xFF00FFFF;
+
+  //uint pix = src.pixel(x,y);
+  return src.pixel(x,y);
+}
+
+
+void GLWidget::setMaterialNameOnlyDiffuse(QString st){
+  bool backup0 = useTexture, backup1 = inferMaterial;
+  useTexture = true; inferMaterial = false;
+  setMaterialName(st);
+  useTexture = backup0; inferMaterial = backup1;
+}
+
+
+void GLWidget::renderTextureColorOnMeshes(bool overwrite){
   makeCurrent();
   if (!data) return;
   std::vector<BrfMesh>& v(data->mesh);
+  QImage img;
+  int lastBind = -1;
   for (uint i=0; i<v.size(); i++) if (selGroup[i]) {
 
-    for (uint j=0; j<v[i].vert.size(); j++) v[i].vert[j].col = 0x00FF00FF;
-    //v[i].ColorAll(0);
 
-    setMaterialName(v[i].material);
+    glActiveTexture(0);
+
+    setMaterialNameOnlyDiffuse(v[i].material);
+    int currBind; glGetIntegerv(GL_TEXTURE_BINDING_2D,&currBind);
+    if (currBind!=lastBind) {
+      img = getTextureImage();
+      lastBind = currBind;
+    }
+    if (img.isNull()) continue;
+
+
+		for (uint j=0; j<v[i].vert.size(); j++) {
+			unsigned int newCol = manualTextureFetch(img,v[i].vert[j].ta.V());
+      if (overwrite) v[i].vert[j].col = newCol;
+			else v[i].vert[j].col = BrfMesh::multCol( v[i].vert[j].col, newCol );
+		}
 
     v[i].hasVertexColor = true;
   }
 }
 
-void GLWidget::renderAoOnMeshesAllSelected(float brightness, float howMuchFromAbove, bool perFace, bool inAlpha){
+void GLWidget::renderAoOnMeshesAllSelected(float brightness, float howMuchFromAbove, bool perFace, bool inAlpha, bool overwrite){
   makeCurrent();
   if (!data) return;
 
@@ -2177,8 +2228,10 @@ void GLWidget::renderAoOnMeshesAllSelected(float brightness, float howMuchFromAb
       if (k<0) k=0;
       if (inAlpha)
         m.vert[j].col = ( m.vert[j].col & 0x00FFFFFF) | k<<24;
-      else
-        m.vert[j].col = k | k<<8 | k<<16 | (m.vert[j].col & 0xFF000000);
+			else if (overwrite)
+					m.vert[j].col = k | k<<8 | k<<16 | (m.vert[j].col & 0xFF000000);
+			  else
+				  m.vert[j].col = BrfMesh::multCol(m.vert[j].col, ao);
     }
     m.AdjustNormDuplicates();
     m.hasVertexColor = true;

@@ -10,8 +10,8 @@
 #include <vcg/simplex/vertex/base.h>
 #include <vcg/simplex/face/base.h>
 #include <vcg/simplex/edge/base.h>
-#include <vcg/complex/trimesh/base.h>
-#include <vcg/complex/trimesh/clean.h>
+#include <vcg/complex/complex.h>
+//#include <vcg/complex/trimesh/clean.h>
 
 
 #include "vcgexport.h"
@@ -24,10 +24,11 @@
 
 // simplification
 #include <vcg/math/quadric.h>
-#include <vcg/complex/trimesh/clean.h>
-#include <vcg/complex/trimesh/update/topology.h>
-#include <vcg/complex/local_optimization.h>
-#include <vcg/complex/local_optimization/tri_edge_collapse_quadric.h>
+//#include <vcg/complex/trimesh/clean.h>
+#include <vcg/complex/algorithms/update/topology.h>
+#include <vcg/complex/algorithms/local_optimization.h>
+#include <vcg/complex/algorithms/local_optimization/tri_edge_collapse.h>
+#include <vcg/complex/algorithms/local_optimization/tri_edge_collapse_quadric.h>
 
 
 
@@ -93,9 +94,9 @@ public:
 
 // MAKE QUAD DOMINANT FOR BrfBodyParts
 #include "brfBody.h"
-#include <vcg/complex/trimesh/update/normal.h>
-#include <vcg/complex/trimesh/update/topology.h>
-#include <vcg/complex/trimesh/bitquad_creation.h>
+//#include <vcg/complex/trimesh/update/normal.h>
+//#include <vcg/complex/trimesh/update/topology.h>
+#include <vcg/complex/algorithms/bitquad_creation.h>
 
 static bool noDegenerate(const std::vector<int> &v){
   for (unsigned int i=2; i<v.size(); i++){
@@ -188,28 +189,31 @@ void BrfBodyPart::MakeQuadDominant(){
 }
 
 CMesh mesh;
+typedef vcg::tri::BasicVertexPair<CVertex> MyVertexPair;
 
-class MyTriEdgeCollapse: public vcg::tri::TriEdgeCollapseQuadric< CMesh, MyTriEdgeCollapse, tri::QInfoStandard<CVertex>  > {
+
+class MyTriEdgeCollapse: public vcg::tri::TriEdgeCollapseQuadric< CMesh, MyVertexPair, MyTriEdgeCollapse, tri::QInfoStandard<CVertex>  > {
             public:
-typedef  vcg::tri::TriEdgeCollapseQuadric< CMesh,  MyTriEdgeCollapse, tri::QInfoStandard<CVertex>  > TECQ;
+typedef  vcg::tri::TriEdgeCollapseQuadric< CMesh,  MyVertexPair, MyTriEdgeCollapse, tri::QInfoStandard<CVertex>  > TECQ;
             typedef  CMesh::VertexType::EdgeType EdgeType;
-            inline MyTriEdgeCollapse(  const EdgeType &p, int i) :TECQ(p,i){}
+            inline MyTriEdgeCollapse(  const MyVertexPair &p, int i, BaseParameterClass *pp) :TECQ(p,i,pp){}
 };
 
 int VcgMesh::simplify(int percFaces){
   int origFn = mesh.fn;
-  tri::TriEdgeCollapseQuadricParameter &qparams = MyTriEdgeCollapse::Params() ;
-  MyTriEdgeCollapse::SetDefaultParams();
+  tri::TriEdgeCollapseQuadricParameter qparams;// = MyTriEdgeCollapse::QParameter();//Params() ;
+  //MyTriEdgeCollapse::SetDefaultParams();
   qparams.QualityThr  =.3;
   float TargetError=numeric_limits<float>::max();
-  MyTriEdgeCollapse::Params().SafeHeapUpdate=true;
+  //MyTriEdgeCollapse::Params().SafeHeapUpdate=true;
+	qparams.SafeHeapUpdate = true;
   qparams.QualityCheck	= true;
   qparams.NormalCheck	= true;
   qparams.OptimalPlacement	= false;
   qparams.ScaleIndependent	= true;
   qparams.PreserveBoundary	= false;
   qparams.PreserveTopology	= false;
-  qparams.PreserveBoundaryMild	= false ;
+  //qparams.PreserveBoundaryMild	= false ;
   qparams.BoundaryWeight  = 500;
 
 
@@ -231,7 +235,7 @@ int VcgMesh::simplify(int percFaces){
   vcg::tri::UpdateBounding<CMesh>::Box(mesh);
   vcg::tri::UpdateTopology<CMesh>::VertexFace(mesh);
 
-  vcg::LocalOptimization<CMesh> DeciSession(mesh);
+  vcg::LocalOptimization<CMesh> DeciSession(mesh,&qparams);
 
   DeciSession.Init<MyTriEdgeCollapse >();
   int finalSize = mesh.fn * percFaces / 100;

@@ -12,7 +12,7 @@ AskUvTransformDialog::AskUvTransformDialog(QWidget *parent) :
     connect(ui->traU,SIGNAL(valueChanged(double)), this, SIGNAL(changed()));
     connect(ui->traV,SIGNAL(valueChanged(double)), this, SIGNAL(changed()));
     connect(ui->scaleU,SIGNAL(valueChanged(double)), this, SIGNAL(changed()));
-    connect(ui->scaleU,SIGNAL(valueChanged(double)), this, SIGNAL(changed()));
+    connect(ui->scaleV,SIGNAL(valueChanged(double)), this, SIGNAL(changed()));
 }
 
 void AskUvTransformDialog::getData(float &su, float &sv, float &tu, float &tv){
