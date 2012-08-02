@@ -77,6 +77,8 @@ public slots:
    void setColorPerWhite();
    void setFrameNumber(int);
 
+   void renderAoOnMeshes(float brightness);
+
    void browseTexture();
 
    int  getFrameNumber() const;
@@ -136,6 +138,7 @@ protected:
 
     // basic rendering of Brf Items & c:
     void renderMesh(const BrfMesh& p, float frame);
+    void renderMeshSimple(const BrfMesh& p);
     void renderRiggedMesh(const BrfMesh& p,  const BrfSkeleton& s, const BrfAnimation& a, float frame);
     void renderSkeleton(const BrfSkeleton& p);
     void renderAnimation(const BrfAnimation& p, const BrfSkeleton& s, float frame);

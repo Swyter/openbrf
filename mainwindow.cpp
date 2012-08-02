@@ -14,6 +14,7 @@
 #include "askUnrefTextureDialog.h"
 #include "askSelectBrfDialog.h"
 #include "askIntervalDialog.h"
+#include "askHueSatBriDialog.h"
 #include <QtGui>
 #include <QDebug>
 #include <algorithm>
@@ -938,6 +939,18 @@ void MainWindow::objectMergeSelected(vector<BrfType> &v){
   setModified(true);
 }
 
+void MainWindow::meshComputeAo(){
+  glWidget->renderAoOnMeshes(0.33f * currAoBrightnessLevel()/4.0f);
+  setModified(true);
+  updateGui();
+  updateGl();
+
+}
+
+void MainWindow::exportNames(){
+  // TODO!!!
+}
+
 void MainWindow::meshMerge(){
   objectMergeSelected(brfdata.mesh);
 }
@@ -1202,6 +1215,65 @@ void MainWindow::meshRecolor(){
   }
   updateGui();
   updateGl();
+}
+
+unsigned int tuneColor(unsigned int col, int contr, int dh, int ds, int db){
+  QColor c(col&0xFF,(col>>8)&0xFF,(col>>16)&0xFF,(col>>24)&0xFF);
+  c.convertTo(QColor::Hsv);
+  qreal h,s,b,a;
+  c.getHsvF(&h,&s,&b,&a);
+  h+=dh/100.0;
+  b+= 0.5 * contr/50.0 * (0.5*(sin(3.1415*(b-0.5))+1.0)-b) + db/100.0;
+  s+=ds/100.0;
+  if (h<0) h=0;
+  if (s<0) s=0;
+  if (b<0) b=0;
+  if (h>1) h=1;
+  if (s>1) s=1;
+  if (b>1) b=1;
+  c.setHsvF(h,s,b,a);
+  c.convertTo(QColor::Rgb);
+  unsigned int alpha = c.alpha();
+  return (c.red()&0xff) | ((c.green()&0xff)<<8) | ((c.blue()&0xff)<<16) | (alpha<<24);
+}
+
+
+void MainWindow::meshTuneColorUndo(bool storeUndo){
+  static std::vector<unsigned int> stored;
+  if (storeUndo) stored.clear();
+  QModelIndexList list= selector->selectedList();
+  for (int j=0,h=0; j<list.size(); j++){
+    BrfMesh &m(brfdata.mesh[list[j].row()]);
+    for (uint i=0; i<m.vert.size(); i++,h++) {
+      if (storeUndo) stored.push_back(m.vert[i].col);
+      else m.vert[i].col = stored[h];
+    }
+  }
+
+}
+
+void MainWindow::meshTuneColorDo(int c,int h,int s,int b){
+  meshTuneColorUndo(false);
+
+  QModelIndexList list= selector->selectedList();
+  for (int j=0,h=0; j<list.size(); j++){
+    BrfMesh &m(brfdata.mesh[list[j].row()]);
+    m.TuneColors(c,h,s,b);
+  }
+  updateGl();
+}
+
+void MainWindow::meshTuneColor(){
+  meshTuneColorUndo(true);
+  AskHueSatBriDialog *d = new AskHueSatBriDialog(this);
+  connect(d, SIGNAL(anySliderMoved(int,int,int,int)), this, SLOT(meshTuneColorDo(int,int,int,int)));
+  int res = d->exec();
+  if (res!=QDialog::Accepted) meshTuneColorUndo(false); else {
+    setModified(false);
+  }
+  updateGui();
+  updateGl();
+  delete d;
 }
 
 void MainWindow::meshDiscardCol(){
@@ -2083,6 +2155,11 @@ int MainWindow::assembleAniMode() const{
   return 1;
 }
 
+int MainWindow::currAoBrightnessLevel() const{
+  for (int i=0; i<5; i++) if (optionAoBrightness[i]->isChecked()) return i;
+  return 2; // default value?
+}
+
 void MainWindow::optionAutoFixTextureUpdated(){
   if (glWidget->fixTexturesOnSight  = optionAutoFixTextureOn->isChecked())
     updateGl();
@@ -2134,6 +2211,7 @@ void MainWindow::saveOptions() const {
   settings->setValue("inferMaterial",(int)(glWidget->inferMaterial));
   settings->setValue("groupMode",(int)(glWidget->getViewmodeMult() ));
   settings->setValue("curLanguage",(int)curLanguage);
+  settings->setValue("aoBrightness",(int)currAoBrightnessLevel());
 }
 
 QString MainWindow::modPath() const{
@@ -2198,6 +2276,14 @@ void MainWindow::loadOptions(){
   optionInferMaterialOff->setChecked(k==0);
   optionInferMaterialOn->setChecked(k==1);
   glWidget->inferMaterial = k;
+  }
+
+  {
+  int k=2;
+  QVariant s =settings->value("aoBrightness");
+  if (s.isValid()) k = s.toInt();
+  for (int h=0; h<5; h++)
+  optionAoBrightness[h]->setChecked(h==k);
   }
 
   modName = settings->value("modName").toString();

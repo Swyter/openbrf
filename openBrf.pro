@@ -44,7 +44,8 @@ SOURCES += main.cpp \
     askNewUiPictureDialog.cpp \
     askSelectBrfDialog.cpp \
     askUnrefTextureDialog.cpp \
-    askIntervalDialog.cpp
+    askIntervalDialog.cpp \
+    askHueSatBriDialog.cpp
 HEADERS += mainwindow.h \
     glwidgets.h \
     saveLoad.h \
@@ -80,7 +81,8 @@ HEADERS += mainwindow.h \
     askNewUiPictureDialog.h \
     askSelectBrfDialog.h \
     askUnrefTextureDialog.h \
-    askIntervalDialog.h
+    askIntervalDialog.h \
+    askHueSatBriDialog.h
 FORMS += guipanel.ui \
     askBoneDialog.ui \
     askSkelDialog.ui \
@@ -93,7 +95,8 @@ FORMS += guipanel.ui \
     askNewUiPictureDialog.ui \
     askSelectBrfDialog.ui \
     askUnrefTextureDialog.ui \
-    askIntervalDialog.ui
+    askIntervalDialog.ui \
+    askHueSatBriDialog.ui
 INCLUDEPATH += "C:\projects\vcglib"
 INCLUDEPATH += "C:\libs\lib3ds-1.3.0"
 RESOURCES += resource.qrc
@@ -109,6 +112,7 @@ win32 {
 INCLUDEPATH += "C:\projects\libraries\include"
 DEFINES += GLEW_STATIC
 SOURCES += "C:\projects\libraries\sources\glew-1.5.3\src\glew.c"
-#LIBS += -L"C:\projects\libraries\lib" -lglew32
+
+# LIBS += -L"C:\projects\libraries\lib" -lglew32
 MOC_DIR = tmp
 UI_DIR = tmp

@@ -64,6 +64,8 @@ void MainWindow::createMenus()
     moduleMenu->addAction(searchIniAct);
     moduleMenu->addAction(showUnrefTexturesAct);
     //moduleMenu->addAction(searchBrfAct);
+    //moduleMenu->addSeparator();
+    //moduleMenu->addAction(exportNamesAct);
     moduleMenu->addSeparator();
     QMenu* navMenu = moduleMenu->addMenu(tr("Navigate"));
     navMenu->addAction(navigateRightAct);
@@ -188,8 +190,25 @@ void MainWindow::createMenus()
     group2->addAction(optionAssembleAniQuiverMode);
     group2->setExclusive(true);
 
-    onAssemble->addActions(group2->actions());
 
+    QActionGroup* group5=new QActionGroup(this);
+    optionAoBrightness[0] = new QAction(tr("Darkest"),this);
+    optionAoBrightness[1] = new QAction(tr("Dark"),this);
+    optionAoBrightness[2] = new QAction(tr("Medium"),this);
+    optionAoBrightness[3] = new QAction(tr("Light"),this);
+    optionAoBrightness[4] = new QAction(tr("Lightest"),this);
+    for (int i=0; i<5; i++) {
+      optionAoBrightness[i]->setToolTip(tr("When computing AO, use %1 shades").arg(optionAoBrightness[i]->text()) );
+      optionAoBrightness[i]->setCheckable(true);
+      group5->addAction(optionAoBrightness[i]);
+    }
+    group5->setExclusive(true);
+    QMenu* aoBrightMenu = optionMenu->addMenu(tr("AO brightness"));
+    aoBrightMenu->addActions(group5->actions());
+
+
+    
+    onAssemble->addActions(group2->actions());
 
     optionMenu->addSeparator();
     optionMenu->addAction(editRefAct);
@@ -371,6 +390,9 @@ void MainWindow::createActions()
     moduleSelectAct = new QAction(tr("Change current Module"),this);
     moduleSelectAct->setStatusTip(tr("Choose the current module"));
 
+    exportNamesAct = new QAction(tr("Export names"),this);
+    exportNamesAct->setStatusTip(tr("Export al the contnt in a txt file"));
+
     checkIniAct = new QAction(tr("Scan module for errors"),this);
     checkIniAct->setShortcut(tr("ctrl+E"));
     checkIniAct->setStatusTip(tr("Scan module.ini and included brf files for inconsistencies."));
@@ -402,6 +424,7 @@ void MainWindow::createActions()
     connect(showUnrefTexturesAct, SIGNAL(triggered()), this, SLOT(showUnrefTextures()));
     connect(showModuleStatsAct, SIGNAL(triggered()), this, SLOT(showModuleStats()));
     connect(moduleSelectAct,SIGNAL(triggered()), this, SLOT(moduleSelect()));
+    connect(exportNamesAct, SIGNAL(triggered()), this, SLOT(exportNames()));
 
 
     registerMime = new QAction(tr("Register BRF extension"),this);

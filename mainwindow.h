@@ -144,6 +144,9 @@ private:
     void meshDiscardCol();
     void meshDiscardAni();
     void meshRecolor();
+    void meshTuneColor();
+    void meshComputeAo();
+    void meshTuneColorDo(int,int,int,int);
 
     void setFlagsMaterial();
 
@@ -183,6 +186,7 @@ private:
     void showUnrefTextures();
     void showModuleStats();
     void moduleSelect();
+    void exportNames();
 
 
 public slots:
@@ -265,6 +269,7 @@ private:
 
     int afterMeshImport() const; // 0:nothing   1:merge   2:normal recompute and merge
     int assembleAniMode() const; // 0:trust vertex order   1:trust vertex coords
+    int currAoBrightnessLevel() const;
 
     void applyAfterMeshImport(BrfMesh &m);
 
@@ -315,6 +320,7 @@ private:
     QAction *showUnrefTexturesAct;
     QAction *showModuleStatsAct;
     QAction *moduleSelectAct;
+    QAction *exportNamesAct;
 
     QAction *mab2tldHeadAct;
     QAction *tld2mabHeadAct;
@@ -345,6 +351,7 @@ private:
     QAction *optionLanguageCustom;
     QAction *optionInferMaterialOn;
     QAction *optionInferMaterialOff;
+    QAction *optionAoBrightness[5];
 
     QAction *tldMenuAction;
 
@@ -375,6 +382,9 @@ private:
     QString lastImpExpFormat;
 
     QLabel* modStatus; // widget in status bar
+
+    // to tune colors
+    void meshTuneColorUndo(bool storeUndo);
 
     bool easterTLD; // if true, use easteregg
     bool _importStaticMesh(QString s, vector<BrfMesh> &m, vector<bool> &wasMultiple);
