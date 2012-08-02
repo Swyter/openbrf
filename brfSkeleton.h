@@ -22,9 +22,11 @@ public:
 
   // 56 bytes of data.... 3x4 matrix, 12 floats + int + int?
   int attach,b;
+
   bool Load(FILE*f,int verbose=1);
   void Save(FILE*f) const;
   void Export(FILE*f);
+  static bool Skip(FILE*f);
 
   //void Adjust(); // adjust to new axis ordering...
 
@@ -48,6 +50,7 @@ public:
   unsigned int flags;
   bool Load(FILE*f,int verbose=1);
   void Save(FILE*f) const;
+  bool Skip(FILE*f);
 
   std::vector<BrfBone> bone;
   int root;

@@ -68,6 +68,9 @@ using namespace std;
 template <class PointT>
 class TmpCas{
 public:
+  static unsigned int SizeOnDisk(){
+    return sizeof(PointT)+4;
+  }
   void Save(FILE *f)const{
     SaveInt(f,findex);
     SavePoint(f,rot);
@@ -77,6 +80,7 @@ public:
     LoadPoint(f,rot);
     return true;
   }
+
   int findex; // frame index
   PointT rot;
 };
@@ -90,6 +94,10 @@ public:
   }
   bool Load(FILE *f){
     LoadVector(f,cas);
+    return true;
+  }
+  static bool Skip(FILE *f){
+    SkipVectorF<TmpCas4>(f);
     return true;
   }
   void Adjust(){
@@ -419,6 +427,13 @@ int BrfAnimation::Break(vector<BrfAnimation> &vect) const{
     ani.frame[ ani.frame.size()-1 ].index -=start;
   }
   return res;
+}
+
+bool BrfAnimation::Skip(FILE*f){
+  LoadString(f, name);
+  SkipVectorR<TmpBone4>(f);
+  SkipVectorF<TmpCas3>(f);
+  return true;
 }
 
 bool BrfAnimation::Load(FILE*f, int verbose){

@@ -19,12 +19,17 @@ public:
   char spec[255];
   float specular;
   float r,g,b;
+  int renderOrder;
 
   bool Load(FILE*f,int verbose=1);
+  bool Skip(FILE*f);
   void Save(FILE*f) const;
   void SetDefault();
   static bool IsAnimable() { return false; }
   static Box3f bbox;
+
+  typedef enum {UNKNOWN, NOWHERE, COMMON, MODULE} Location; // where the texture dss file is
+  Location location;
 };
 
 #endif // BRFMATERIAL_H

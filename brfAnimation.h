@@ -30,6 +30,7 @@ public:
   std::vector<BrfAnimationFrame> frame;
 
   bool Load(FILE*f,int verbose=1);
+  bool Skip(FILE*f);
   void Save(FILE*f) const;
 
   void Export(char *f);

@@ -17,6 +17,7 @@ public:
   static Box3f bbox;
 
   void SetDefault();
+
 };
 
 #endif // BRFTEXTURE_H

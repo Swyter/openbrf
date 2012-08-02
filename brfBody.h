@@ -1,4 +1,4 @@
-#ifndef BRFBODY_H
+ #ifndef BRFBODY_H
 #define BRFBODY_H
 
 // Body: collision objects...
@@ -8,6 +8,7 @@
 class BrfBodyPart{
 public:
   bool Load(FILE*f,char* firstWord=NULL, int verbose=1);
+  static bool Skip(FILE*f,char* firstWord=NULL);
   void Save(FILE*f) const;
   typedef enum {MANIFOLD, FACE, CAPSULE, SPHERE, N_TYPE } Type;
   Type type;
@@ -40,9 +41,11 @@ public:
 
   void GuessFromManyfold(); // guess sphere, ect parameter from manufold data
 
+  void UpdateBBox();
+  void InferTypeFromString(char* str);
+
 private:
   Point3f Baricenter() const;
-  void UpdateBBox();
 };
 
 class BrfBody
@@ -53,6 +56,7 @@ public:
   static int tokenIndex(){return BODY;}
   char name[255];
   bool Load(FILE*f, int verbose=1);
+  bool Skip(FILE*f);
   void Save(FILE*f) const;
 
   std::vector<BrfBodyPart> part;

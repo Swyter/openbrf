@@ -99,6 +99,10 @@ Selector::Selector(QWidget *parent)
   meshRecomputeNormalsAndUnify = new QAction(tr("Recompute normals"), this);
   meshRecomputeNormalsAndUnify->setStatusTip(tr("Recompute normals for this model, and unify pos and vertices"));
 
+  meshUnify = new QAction(tr("Unify vertices"), this);
+  meshUnify->setStatusTip(tr("Merges together identical vertices and pos."));
+
+
 
   //exportAnyBrfAct = new QAction(tr("in a BRF"), this);
   //exportAnyBrfAct->setStatusTip(tr("Export this object in a BRF file."));
@@ -109,6 +113,7 @@ Selector::Selector(QWidget *parent)
   connect(breakAniAct, SIGNAL(triggered()),this,SLOT(onBreakAni()));
   connect(breakAniWithIniAct, SIGNAL(triggered()),this,SLOT(onBreakAniWithIni()));
   connect(meshRecomputeNormalsAndUnify,  SIGNAL(triggered()),parent,SLOT(meshRecomputeNormalsAndUnify()));
+  connect(meshUnify,  SIGNAL(triggered()),parent,SLOT(meshUnify()));
 
 
   //connect(exportAnyBrfAct, SIGNAL(triggered()),parent,SLOT(exportBrf()));
@@ -148,15 +153,13 @@ Selector::Selector(QWidget *parent)
 
     tab[ti]->setModel(tableModel[ti]);
 
-    if (ti==MESH) tab[ti]->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    if (ti==MESH || ti==MATERIAL ) tab[ti]->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
     connect(tab[ti]->selectionModel(),
           SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
           this, SLOT(onChanged()) );
 
   }
-
-
 }
 
 /*
@@ -182,6 +185,22 @@ int Selector::firstSelected() const{
       ->selectionModel()->selectedIndexes())[0].row();
 }
 
+QModelIndexList Selector::selectedList() const{
+  if (!this->currentWidget()) return QModelIndexList();
+  return
+      ((QListView*)(this->currentWidget()))
+      ->selectionModel()->selectedIndexes();
+}
+
+int Selector::onlySelected(int kind) const{
+  if (!currentWidget()) return -1;
+  if (currentTabName()!=kind) return -1;
+  if (numSelected()!=1) return -1;
+  int i= ((QListView*)(this->currentWidget()))
+      ->selectionModel()->selectedIndexes()[0].row();
+  return i;
+}
+
 int Selector::numSelected() const{
   if (!this->currentWidget()) return 0;
   return
@@ -195,7 +214,6 @@ void Selector::updateData(const BrfData &data){
   QListView* c;
   QModelIndexList li;
 
-  //int i=this->currentIndex();
   c=(QListView*)this->currentWidget();
   if (c) li=c->selectionModel()->selectedIndexes();
 
@@ -205,15 +223,24 @@ void Selector::updateData(const BrfData &data){
 
   if (w==NONE) return;
   if (tab[w]) setCurrentWidget(tab[w]);
-  return;
-  c=(QListView*)this->currentWidget();
-  if (c) {
-    //c->clearSelection();
-    //for (int i=0; i<li.size(); i++)
-    //c->selectionModel()->select(li[i],QItemSelectionModel::Select);
-    c->setFocus();
-  }
 
+}
+
+
+void Selector::selectOne(int kind, int i){
+
+  assert(kind>=0 && kind<N_TOKEN);
+  QListView* c=tab[kind];
+  if (c) {
+    c->clearSelection();
+    QModelIndex li = tableModel[kind]->pleaseCreateIndex(i,0);
+    c->selectionModel()->setCurrentIndex(li,QItemSelectionModel::NoUpdate);
+    c->selectionModel()->select(li,QItemSelectionModel::Select);
+    c->scrollTo(li,QAbstractItemView::PositionAtCenter);
+
+  }
+  this->setCurrentWidget(tab[kind]);
+  onChanged();
 }
 
 void Selector::moveSel(int dx){
@@ -272,8 +299,8 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
        menu.addAction(exportStaticMeshAct);
        if (data->mesh[ seli ].isRigged)
          menu.addAction(exportRiggedMeshAct);
-       if (data->mesh[ seli ].frame.size()>0)
-         menu.addAction(exportMovingMeshAct);
+       //if (data->mesh[ seli ].frame.size()>0)
+       //  menu.addAction(exportMovingMeshAct);
      }
 
      if (t==SKELETON) {
@@ -299,7 +326,9 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
        if (!sep) menu.addSeparator(); sep=true;
        menu.addAction(reskeletonizeAct);
      }
+     if (!sep) menu.addSeparator(); sep=true;
      menu.addAction(meshRecomputeNormalsAndUnify);
+     menu.addAction(meshUnify);
    }
    if (t==ANIMATION) {
      if (onesel) {

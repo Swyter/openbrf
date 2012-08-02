@@ -198,6 +198,15 @@ void BrfSkeleton::SetBoneMatrices(int bi,
   }
 }
 
+bool BrfBone::Skip(FILE *f){
+  ::Skip(f,4);
+  char str[255];
+  if (LoadStringMaybe(f, str, "bone"))
+    ::Skip(f,4*3*4+4);
+  else
+    ::Skip(f,4*3*4);
+  return true;
+}
 
 bool BrfBone::Load(FILE*f, int verbose){
   LoadInt(f, attach);
@@ -299,6 +308,12 @@ void BrfSkeleton::Export(char* fn){
 void BrfSkeleton::Save(FILE*f) const{
   SaveString(f, name);
   SaveVector(f,bone);
+}
+
+bool BrfSkeleton::Skip(FILE*f){
+  LoadString(f, name);
+  SkipVectorR<BrfBone>(f);
+  return true;
 }
 
 bool BrfSkeleton::Load(FILE*f, int verbose){

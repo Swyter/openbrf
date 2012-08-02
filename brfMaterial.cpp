@@ -11,10 +11,12 @@ using namespace vcg;
 BrfMaterial::BrfMaterial()
 {
   bbox.SetNull();
+  location= UNKNOWN;
 }
 
 void BrfMaterial::SetDefault(){
   flags = 0;
+  renderOrder = 0;
   sprintf(shader,"simple_shader");
   sprintf(diffuseA,name);
   sprintf(diffuseB,"none");
@@ -25,10 +27,34 @@ void BrfMaterial::SetDefault(){
   r=g=b=1;
 }
 
+bool BrfMaterial::Skip(FILE*f
+                       ){
+  LoadString(f, name);
+  ::Skip<int>(f);
+
+  LoadString(f, shader);
+  LoadString(f, diffuseA);
+  LoadString(f, diffuseB);
+  LoadString(f, bump);
+  LoadString(f, enviro);
+  LoadStringMaybe(f, spec,"none");
+  ::Skip(f,16);
+
+  return true;
+}
+
+
 bool BrfMaterial::Load(FILE*f, int verbose){
   LoadString(f, name);
   //if (verbose>0) printf("loading \"%s\"...\n",name);
   LoadUint(f , flags);
+
+  // -8..+7 encoded as 4 bits difference encoding...
+  renderOrder = ( flags >>24 ) & 15;
+  if (renderOrder>7) renderOrder -= 16;
+  assert(renderOrder>=-8 && renderOrder<=7);
+  flags &=0xF0FFFFFF;
+
   LoadString(f, shader);
   LoadString(f, diffuseA);
   LoadString(f, diffuseB);
@@ -44,7 +70,13 @@ bool BrfMaterial::Load(FILE*f, int verbose){
 
 void BrfMaterial::Save(FILE*f) const{
   SaveString(f, name);
-  SaveUint(f , flags);
+  unsigned int fl = flags;
+  int ro = renderOrder;
+  assert(ro>=-8 && ro<=7);
+  if (ro<0) ro+=16;
+  fl&= 0xF0FFFFFF;
+  fl+= ro<<24;
+  SaveUint(f , fl);
   SaveString(f, shader);
   SaveString(f, diffuseA);
   SaveString(f, diffuseB);
