@@ -2,8 +2,8 @@
 #include "glwidgets.h"
 #include "selector.h"
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
-#include "ui_guipanel.h"
+#include "tmp/ui_mainwindow.h"
+#include "tmp/ui_guipanel.h"
 #include "askBoneDialog.h"
 #include "askSkelDialog.h"
 #include "askTexturenameDialog.h"
@@ -701,7 +701,6 @@ void _setName(char* st, QString s){
   s.truncate(254);
   sprintf(st, "%s", s.toAscii().data());
 }
-
 
 bool MainWindow::addNewUiPicture(){
   AskNewUiPictureDialog d(this);
@@ -1888,6 +1887,7 @@ void MainWindow::saveOptions() const {
   settings->setValue("lastSearchString",lastSearchString);
   //settings->setValue("autoFixDXT1",(int)(glWidget->fixTexturesOnSight));
   settings->setValue("autoZoom",(int)(glWidget->commonBBox));
+  settings->setValue("inferMaterial",(int)(glWidget->inferMaterial));
   settings->setValue("groupMode",(int)(glWidget->getViewmodeMult() ));
   settings->setValue("curLanguage",(int)curLanguage);
 }
@@ -1945,6 +1945,15 @@ void MainWindow::loadOptions(){
   optionAutoZoomUseSelected->setChecked(k==0);
   optionAutoZoomUseGlobal->setChecked(k==1);
   glWidget->commonBBox = k;
+  }
+
+  {
+  int k=1;
+  QVariant s =settings->value("inferMaterial");
+  if (s.isValid()) k = s.toInt();
+  optionInferMaterialOff->setChecked(k==0);
+  optionInferMaterialOn->setChecked(k==1);
+  glWidget->inferMaterial = k;
   }
 
   modName = settings->value("modName").toString();
@@ -2169,7 +2178,7 @@ void MainWindow::showUnrefTextures(){
 
 
 void MainWindow::showModuleStats(){
-  inidata.loadAll(4);
+  loadIni(4);
   QMessageBox::information(this,"OpenBRF",inidata.stats());
 }
 
@@ -2251,10 +2260,8 @@ void MainWindow::setModified(bool mod){
   updateTitle();
 }
 
-void MainWindow::guessPaths(QString fn){
-  fn = QFileInfo(fn).canonicalPath();
-
-
+bool MainWindow::guessPaths(QString fn){
+  bool res=false;
   QString _modPath;
 
   QDir b(fn);
@@ -2273,6 +2280,7 @@ void MainWindow::guessPaths(QString fn){
     a.cdUp();
     a.cdUp(); // out of "modules"
     mabPath = a.absolutePath();
+    res=true;
   }
 
   {
@@ -2296,12 +2304,14 @@ void MainWindow::guessPaths(QString fn){
       modName = "native";
       _modPath = modPath();
     }
+    res=true;
   }
 
   updatePaths();
   inidata.setPath(mabPath,_modPath);
 
   loadIni(2);
+  return res;
 }
 
 bool MainWindow::loadIni(int lvl){
@@ -2342,7 +2352,7 @@ void MainWindow::setCurrentFile(const QString &fileName)
   }
 
   // try to guess mab path and module...
-  guessPaths(fileName);
+  guessPaths(QFileInfo(fileName).canonicalPath() );
 
   curFileIndex = inidata.findFile(fileName);
   if (curFileIndex>=0) {

@@ -34,6 +34,9 @@ INPUT(
 ./release\brfHitBox.o
 ./release\ioMD3.o
 ./release\askNewUiPictureDialog.o
+./release\askSelectBrfDialog.o
+./release\askUnrefTextureDialog.o
+./release\glew.o
 ./release\moc_mainwindow.o
 ./release\moc_glwidgets.o
 ./release\moc_selector.o
@@ -47,5 +50,7 @@ INPUT(
 ./release\moc_askTransformDialog.o
 ./release\moc_askCreaseDialog.o
 ./release\moc_askNewUiPictureDialog.o
+./release\moc_askSelectBrfDialog.o
+./release\moc_askUnrefTextureDialog.o
 ./release\qrc_resource.o
 );

@@ -88,6 +88,8 @@ public slots:
    void showAlphaNo();
    void setCommonBBoxOn();
    void setCommonBBoxOff();
+   void setInferMaterialOn();
+   void setInferMaterialOff();
 public:
 
 bool useWireframe, useLighting, useTexture , useFloor, useRuler;
@@ -98,6 +100,7 @@ enum{STOP, PAUSE, PLAY} runningState;
 enum{DIFFUSEA, DIFFUSEB, BUMP, ENVIRO, SPECULAR } curMaterialTexture;
 enum{TRANSALPHA, PURPLEALPHA, NOALPHA} showAlpha;
 bool commonBBox;
+bool inferMaterial;
 
 float runningSpeed;
 int relTime; // msec, zeroed at stop.

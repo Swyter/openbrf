@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>OpenBRF</string>
   </property>
   <widget class="QGroupBox" name="meshData">
    <property name="geometry">

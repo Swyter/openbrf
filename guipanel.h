@@ -4,7 +4,7 @@
 #include <QtGui/QWidget>
 #include <QModelIndexList>
 #include <map>
-#include <ddsData.h>
+#include "ddsData.h"
 
 class BrfData;
 class IniData;

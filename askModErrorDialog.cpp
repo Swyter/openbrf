@@ -1,5 +1,5 @@
 #include "askModErrorDialog.h"
-#include "ui_askModErrorDialog.h"
+#include "tmp/ui_askModErrorDialog.h"
 
 #include "brfData.h"
 #include "iniData.h"

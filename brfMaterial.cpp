@@ -29,6 +29,7 @@ void BrfMaterial::SetDefault(){
 
 bool BrfMaterial::Skip(FILE*f
                        ){
+  return Load(f);
   if (!LoadString(f, name)) return false;
   ::Skip<int>(f);
 

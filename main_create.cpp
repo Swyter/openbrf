@@ -53,6 +53,8 @@ void MainWindow::createMenus()
     importMenu->addAction(importBrfAct);
 
     QMenu* moduleMenu=menuBar()->addMenu(tr("Module"));
+    moduleMenu->addAction(moduleSelectAct);
+    moduleMenu->addSeparator();
     moduleMenu->addAction(refreshIniAct);
     moduleMenu->addAction(computeUsedByAct);
     moduleMenu->addAction(selectBrfDataAct);
@@ -166,6 +168,19 @@ void MainWindow::createMenus()
     group3->addAction(optionAutoZoomUseGlobal);
     group3->setExclusive(true);
     autoZoom->addActions(group3->actions());
+
+    QMenu* inferMaterial = optionMenu->addMenu(tr("Mesh rendering"));
+    optionInferMaterialOn = new QAction(tr("infer settings from Material flags"),this);
+    optionInferMaterialOn->setToolTip(tr("E.g. alpha-transparency will depend on Material flags"));
+    optionInferMaterialOn->setCheckable(true);
+    optionInferMaterialOff = new QAction(tr("always use default settings"),this);
+    optionInferMaterialOn->setToolTip(tr("Never use alpha transparency, regardless of Material flags"));
+    optionInferMaterialOff->setCheckable(true);
+    QActionGroup* group4=new QActionGroup(this);
+    group4->addAction(optionInferMaterialOn);
+    group4->addAction(optionInferMaterialOff);
+    group4->setExclusive(true);
+    inferMaterial->addActions(group4->actions());
 
     QActionGroup* group2=new QActionGroup(this);
     group2->addAction(optionAssembleAniMatchTc);
@@ -351,6 +366,8 @@ void MainWindow::createActions()
     computeUsedByAct = new QAction(tr("Scan module for usages"),this);
     computeUsedByAct->setStatusTip(tr("Scans module content and txt files, to compute what uses what"));
     computeUsedByAct->setShortcut(tr("F3"));
+    moduleSelectAct = new QAction(tr("Change current Module"),this);
+    moduleSelectAct->setStatusTip(tr("Choose the current module"));
 
     checkIniAct = new QAction(tr("Scan module for errors"),this);
     checkIniAct->setShortcut(tr("ctrl+E"));
@@ -382,6 +399,7 @@ void MainWindow::createActions()
     connect(selectBrfDataAct, SIGNAL(triggered()), this, SLOT(selectBrfData()));
     connect(showUnrefTexturesAct, SIGNAL(triggered()), this, SLOT(showUnrefTextures()));
     connect(showModuleStatsAct, SIGNAL(triggered()), this, SLOT(showModuleStats()));
+    connect(moduleSelectAct,SIGNAL(triggered()), this, SLOT(moduleSelect()));
 
 
     registerMime = new QAction(tr("Register BRF extension"),this);
@@ -494,6 +512,9 @@ void MainWindow::createConnections(){
   connect(optionAutoFixTextureInfo, SIGNAL(triggered()), this, SLOT(optionAutoFixTextureShowInfo()) );*/
   connect(optionAutoZoomUseGlobal, SIGNAL(triggered()), glWidget, SLOT(setCommonBBoxOn()) );
   connect(optionAutoZoomUseSelected, SIGNAL(triggered()), glWidget, SLOT(setCommonBBoxOff()) );
+
+  connect(optionInferMaterialOff, SIGNAL(triggered()), glWidget, SLOT(setInferMaterialOff()) );
+  connect(optionInferMaterialOn , SIGNAL(triggered()), glWidget, SLOT(setInferMaterialOn()) );
 
   connect(importStaticMeshAct,SIGNAL(triggered()),this,SLOT(importStaticMesh()));
   connect(importRiggedMeshAct,SIGNAL(triggered()),this,SLOT(importRiggedMesh()));

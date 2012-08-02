@@ -169,6 +169,7 @@ private:
     void selectBrfData();
     void showUnrefTextures();
     void showModuleStats();
+    void moduleSelect();
 
 
 public slots:
@@ -182,7 +183,7 @@ private:
     QSettings *settings;
     GuiPanel *guiPanel;
 
-    void guessPaths(QString fn);
+    bool guessPaths(QString fn);
     void updatePaths();
     bool loadIni(int lvl);
     QString mabPath;
@@ -296,6 +297,7 @@ private:
     QAction *selectBrfDataAct;
     QAction *showUnrefTexturesAct;
     QAction *showModuleStatsAct;
+    QAction *moduleSelectAct;
 
     QAction *mab2tldHeadAct;
     QAction *tld2mabHeadAct;
@@ -324,6 +326,8 @@ private:
     QAction *optionAutoZoomUseSelected;
     QAction *optionLanguage[4];
     QAction *optionLanguageCustom;
+    QAction *optionInferMaterialOn;
+    QAction *optionInferMaterialOff;
 
     QAction *tldMenuAction;
 

@@ -102,3 +102,8 @@ win32 {
     DEFINES += NOMINMAX
     DEFINES += _CRT_SECURE_NO_DEPRECATE
 }
+INCLUDEPATH += "C:\projects\libraries\include"
+DEFINES += GLEW_STATIC
+SOURCES += "C:\projects\libraries\sources\glew-1.5.3\src\glew.c"
+MOC_DIR = tmp
+UI_DIR = tmp
