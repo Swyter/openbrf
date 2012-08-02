@@ -2205,6 +2205,20 @@ void BrfMesh::ColorAll(unsigned int newcol){
 }
 
 
+unsigned int tuneColor(unsigned int col, int c, int h, int s, int b);
+
+void BrfMesh::TuneColors(int c, int h, int s, int b){
+  //unsigned int col =(unsigned int)r<<8+(unsigned int)g<<16+(unsigned int)b<<24+(unsigned int)a;
+  hasVertexColor = false;
+  for (int i=0; i<(int)vert.size(); i++){
+    unsigned int newcol = tuneColor(vert[i].col, c,h,s,b);
+    vert[i].col = newcol;
+    hasVertexColor |= (newcol != 0xFFFFFFFF);
+  }
+
+}
+
+
 void BrfMesh::CollapseBetweenFrames(int fi,int fj){
   Point3f point = frame[0].MinPos();
   if (fj>(int)frame.size()-1) fj=(int)frame.size()-1;

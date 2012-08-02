@@ -81,6 +81,8 @@ private:
     *meshRemoveBackfacing,
     *meshAddBackfacing,
     *meshRecolorAct,
+    *meshTuneColorAct,
+    *meshComputeAoAct,
 
 
     *renameAct,

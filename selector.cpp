@@ -217,8 +217,14 @@ Selector::Selector(QWidget *parent)
   meshAddBackfacing = new QAction(tr("add (x2 faces)"), this);
   meshAddBackfacing->setStatusTip(tr("Duplicate all faces: for each current face, add a backfacing face."));
 
+  meshComputeAoAct = new QAction(tr("Color with Ambient Occlusion"), this);
+  meshComputeAoAct->setStatusTip(tr("Set per vertex color as ambient occlusion (globlal lighting)"));
 
   meshRecolorAct = new QAction(tr("Color uniform"), this);
+  meshRecolorAct->setStatusTip(tr("Set per vertex color as a uniform color"));
+
+  meshTuneColorAct = new QAction(tr("Tune colors HSB"), this);
+  meshTuneColorAct->setStatusTip(tr("Then Hue Saturation and Brightness of per-vertex colors"));
 
   discardColAct = new QAction(tr("per-vertex color"), this);
   discardRigAct = new QAction(tr("rigging"), this);
@@ -239,6 +245,9 @@ Selector::Selector(QWidget *parent)
   connect(aniMergeAct, SIGNAL(triggered()),parent,SLOT(aniMerge()));
   connect(breakAniWithIniAct, SIGNAL(triggered()),this,SLOT(onBreakAniWithIni()));
   connect(meshRecolorAct,SIGNAL(triggered()),parent,SLOT(meshRecolor()));
+  connect(meshTuneColorAct,SIGNAL(triggered()),parent,SLOT(meshTuneColor()));
+  connect(meshToBody,SIGNAL(triggered()),parent,SLOT(meshRecolor()));
+  connect(meshComputeAoAct, SIGNAL(triggered()), parent, SLOT(meshComputeAo()));
   connect(meshRecomputeNormalsAndUnify,  SIGNAL(triggered()),parent,SLOT(meshRecomputeNormalsAndUnify()));
   connect(meshUnify,  SIGNAL(triggered()),parent,SLOT(meshUnify()));
   connect(meshMerge,  SIGNAL(triggered()),parent,SLOT(meshMerge()));
@@ -550,19 +559,23 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
      if (!nosel)  menu.addAction(meshToBody);
      if (!onesel && !nosel)  menu.addAction(meshMerge);
      menu.addAction(meshMountOnBone);
-     menu.addAction(meshRecolorAct);
      QMenu *m = menu.addMenu(tr("Backfacing faces"));
      m->addAction(meshRemoveBackfacing);
      m->addAction(meshAddBackfacing);
 
      m = menu.addMenu(tr("Discard"));
-
      m->addAction(discardAniAct);
      discardAniAct->setEnabled(mulsel || (mesh.frame.size()>1));
      m->addAction(discardRigAct);
      discardRigAct->setEnabled(mulsel || mesh.isRigged);
      m->addAction(discardColAct);
      discardColAct->setEnabled(mulsel || mesh.hasVertexColor);
+
+     menu.addSeparator();
+
+     menu.addAction(meshRecolorAct);
+     menu.addAction(meshComputeAoAct);
+     menu.addAction(meshTuneColorAct);
 
    }
 

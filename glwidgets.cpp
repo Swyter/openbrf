@@ -986,6 +986,22 @@ void GLWidget::renderRiggedMesh(const BrfMesh& m,  const BrfSkeleton& s, const B
   enableDefMaterial();
 }
 
+void GLWidget::renderMeshSimple(const BrfMesh &m){
+
+  glDisable(GL_POLYGON_OFFSET_LINE);
+  glPolygonMode(GL_FRONT,GL_FILL);
+  glDisable(GL_LIGHTING);
+  glBegin(GL_TRIANGLES);
+  for (unsigned int i=0; i<m.face.size(); i++) {
+    for (int j=0; j<3; j++) {
+      glVertex(m.frame[0].pos [ m.vert[m.face[i].index[j]].index ]);
+    }
+  }
+  glEnd();
+  glEnable(GL_LIGHTING);
+
+}
+
 void GLWidget::renderMesh(const BrfMesh &m, float frame){
 
   int framei = (int) frame;
@@ -1298,6 +1314,103 @@ void _subdivideScreen(int nsel,int w,int h, int *ncol, int *nrow){
   }
 }
 
+float myrand(float min, float max){
+  return min+(max-min)*(rand()%1001)/1000;
+}
+
+static Point3f randomUpVector(int){
+  Point3f res;
+  do {
+    res = Point3f( myrand(-1,1),myrand(-1,0),myrand(-1,1));
+  } while (res.SquaredNorm()>1);
+  return res;
+}
+
+void GLWidget::renderAoOnMeshes(float brightness){
+  makeCurrent();
+  if (!data) return;
+  const int RES = 255;
+  const int NPASS = 128;
+  std::vector<BrfMesh>& v(data->mesh);
+
+  Box3f bbox;bbox.SetNull();
+  for (uint i=0; i<v.size(); i++) if (selGroup[i]) {
+    bbox.Add( v[i].bbox );
+  }
+  glMatrixMode(GL_PROJECTION);
+  glPushMatrix(); glLoadIdentity();
+  glMatrixMode(GL_MODELVIEW);
+  glPushMatrix();
+
+
+  for (uint i=0; i<v.size(); i++) if (selGroup[i]) v[i].ColorAll(0);
+
+  for (int n=0; n<NPASS; n++)  {
+
+    glClear(GL_DEPTH_BUFFER_BIT);
+
+    // set a view direction for shadows
+    // ld = light dir
+    Point3f ld = randomUpVector(n),
+    dx(0,0,1), dy;
+    ld.Normalize();
+    dy = (ld^dx).normalized();
+    dx = (dy^ld).normalized();
+    //double mat[16]={ dx[0],dx[1],dx[2],0,  dy[0],dy[1],dy[2],0,  ld[0],ld[1],ld[2],0, 0,0,0,1};
+    double mat[16]={ dx[0],dy[0],ld[0],0,  dx[1],dy[1],ld[1],0,  dx[2],dy[2],ld[2],0, 0,0,0,1};
+    glLoadIdentity();
+    glMultMatrixd(mat);
+    glScale(2.0/bbox.Diag());
+    glTranslate(-bbox.Center());
+    double matMV[16],matPR[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1};
+    int VP[4]={0,0,RES,RES};
+    glGetDoublev(GL_MODELVIEW_MATRIX,matMV);
+    glViewport(0,0,RES,RES);
+    //glWriteMask(GL_FALSE);
+
+    for (uint i=0; i<v.size(); i++) if (selGroup[i]) renderMeshSimple(v[i]);
+    float depthbuf[RES*RES];
+    glReadPixels(0, 0, RES,RES,GL_DEPTH_COMPONENT, GL_FLOAT, depthbuf);
+
+    for (uint i=0; i<v.size(); i++) if (selGroup[i]) {
+      BrfMesh &m(v[i]);
+      for (uint j=0; j<m.vert.size(); j++) {
+        Point3f p = m.frame[0].pos[ m.vert[j].index ];
+        double rx,ry,rz;
+        gluProject(p.X(),p.Y(),p.Z(),matMV, matPR, VP, &rx,&ry,&rz);
+        float depth = depthbuf[RES*int(ry)+int(rx)];
+
+        if (depth+0.01>rz) {
+          float diff = -ld*m.frame[0].norm[ j ];
+          if (diff<0) diff = 0;
+          m.vert[j].col += uint(diff*255.0);
+
+        }
+      }
+
+    }
+
+  }
+  // find final color
+  for (uint i=0; i<v.size(); i++) if (selGroup[i]) {
+    BrfMesh &m(v[i]);
+    for (uint j=0; j<m.vert.size(); j++) {
+      
+      float ao = m.vert[j].col*3/(NPASS*255.0);
+      ao = brightness + ao*(1-brightness);
+      uint k = (uint)floor(ao*255+0.5);
+      if (k>255) k=255;
+      m.vert[j].col = k | k<<8 | k<<16 | 0xFF<<24;
+    }
+  }
+
+
+  glMatrixMode(GL_PROJECTION);
+  glPopMatrix();
+  glMatrixMode(GL_MODELVIEW);
+  glPopMatrix();
+  //swapBuffers();
+}
 
 template<class BrfType>
 void GLWidget::renderSelected(const std::vector<BrfType>& v){

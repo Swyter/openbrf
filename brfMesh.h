@@ -115,6 +115,8 @@ public:
   void MakeSingleQuad(float x, float y, float dx, float dy);
   void AddToBody(BrfBodyPart &dest);
 
+  void TuneColors(int contast, int hue, int sat, int brigh);
+
 
   BrfMesh(){}
   BrfMesh(FILE *f){ Load(f);}
