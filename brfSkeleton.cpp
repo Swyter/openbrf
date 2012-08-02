@@ -12,6 +12,7 @@ using namespace vcg;
 #include "brfAnimation.h"
 using namespace std;
 #include "brfMesh.h"
+#include "brfBody.h"
 
 #include "saveLoad.h"
 
@@ -189,6 +190,9 @@ std::vector<Matrix44f>  BrfSkeleton::GetBoneMatrices(const BrfAnimationFrame &fr
   return res;
 }
 
+
+
+
 void BrfSkeleton::SetBoneMatrices(const BrfAnimationFrame &fr, int bi,
                                   std::vector<Matrix44f> &output, const Matrix44f &curr) const
 {
@@ -199,6 +203,7 @@ void BrfSkeleton::SetBoneMatrices(const BrfAnimationFrame &fr, int bi,
     SetBoneMatrices(fr, bone[bi].next[k] , output, output[bi] );
   }
 }
+
 std::vector<Matrix44f>  BrfSkeleton::GetBoneMatrices() const
 {
   std::vector<Matrix44f> res;
@@ -209,6 +214,32 @@ std::vector<Matrix44f>  BrfSkeleton::GetBoneMatrices() const
   return res;
 }
 
+std::vector<Matrix44f>  BrfSkeleton::GetBoneMatricesInverse() const
+{
+  std::vector<Matrix44f> res;
+  res.resize(bone.size());
+  Matrix44f first;
+  first.SetIdentity( );
+  SetBoneMatricesInverse( root, res, first);
+  return res;
+}
+
+bool BrfSkeleton::DisposeHitboxes(const BrfBody &in, BrfBody &out, bool inverse) const{
+  if (bone.size()!=in.part.size())  return false;
+  std::vector<Matrix44f> p = (!inverse)?GetBoneMatrices():GetBoneMatricesInverse();
+
+  out = in;
+  //Matrix44f m; m.V()
+  for (unsigned int i=0; i<bone.size(); i++) {
+
+      p[i].transposeInPlace();
+      out.part[i].Transform(p[i].V());
+  }
+  out.UpdateBBox();
+
+  return true;
+}
+
 void BrfSkeleton::SetBoneMatrices(int bi,
                                   std::vector<Matrix44f> &output, const Matrix44f &curr) const
 {
@@ -217,6 +248,17 @@ void BrfSkeleton::SetBoneMatrices(int bi,
 
   for (unsigned int k=0; k<bone[bi].next.size(); k++) {
     SetBoneMatrices( bone[bi].next[k] , output, output[bi] );
+  }
+}
+
+void BrfSkeleton::SetBoneMatricesInverse(int bi,
+                                  std::vector<Matrix44f> &output, const Matrix44f &curr) const
+{
+  Matrix44f tr; tr.SetTranslate( -bone[bi].t );
+  output[ bi ] = Matrix44f( bone[bi].getRotationMatrix()) * tr * curr;
+
+  for (unsigned int k=0; k<bone[bi].next.size(); k++) {
+    SetBoneMatricesInverse( bone[bi].next[k] , output, output[bi] );
   }
 }
 

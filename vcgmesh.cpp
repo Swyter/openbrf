@@ -622,7 +622,7 @@ BrfMesh VcgMesh::toBrfMesh(){
   b.name[0]=0;
   b.material[0]=0;
 
-  if (lastMeterial=(mesh.textures.size()>0))
+  if ((lastMeterial=(mesh.textures.size()>0)))
 
     sprintf(b.material,"%s",mesh.textures[0].c_str());
   else

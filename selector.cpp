@@ -66,7 +66,7 @@ Selector::Selector(QWidget *parent)
   aniMergeAct = new QAction(tr("Merge animations"), this);
   aniMergeAct->setStatusTip(tr("Merge two animations into one -- intervals must be right!"));
 
-  renameAct = new QAction(tr("Rename"), this);
+  renameAct = new QAction(tr("Rename..."), this);
   renameAct->setShortcut(QString("F2"));
   addAction(renameAct);
 
@@ -158,34 +158,34 @@ Selector::Selector(QWidget *parent)
 
   exportImportMeshInfoAct = new QAction(tr("Info on mesh import/export"), this);
 
-  exportStaticMeshAct = new QAction(tr("Export static mesh"), this);
+  exportStaticMeshAct = new QAction(tr("Export static mesh..."), this);
   exportStaticMeshAct->setStatusTip(tr("Export this model (or this frame) as a 3D static mesh."));
 
-  exportMovingMeshAct = new QAction(tr("Export vertex ani"), this);
+  exportMovingMeshAct = new QAction(tr("Export vertex ani..."), this);
   exportMovingMeshAct->setStatusTip(tr("Export this model as a mesh with vertex animation."));
 
-  exportMeshGroupAct = new QAction(tr("Export combined mesh"), this);
+  exportMeshGroupAct = new QAction(tr("Export combined mesh..."), this);
   exportMeshGroupAct->setStatusTip(tr("Export this group of models in a single OBJ."));
   exportMeshGroupManyFilesAct = new QAction(tr("Export all meshes"), this);
   exportMeshGroupManyFilesAct->setStatusTip(tr("Export each of these models as separate OBJs."));
 
-  exportBodyGroupManyFilesAct = new QAction(tr("Export all"), this);
+  exportBodyGroupManyFilesAct = new QAction(tr("Export all..."), this);
   exportBodyGroupManyFilesAct->setStatusTip(tr("Export each of these collison bodies as separate files."));
 
-  exportRiggedMeshAct = new QAction(tr("Export rigged mesh"), this);
+  exportRiggedMeshAct = new QAction(tr("Export rigged mesh..."), this);
   exportRiggedMeshAct->setStatusTip(tr("Export this model (or this frame) as a rigged mesh."));
 
-  exportSkeletonAct = new QAction(tr("Export (nude) skeleton"), this);
+  exportSkeletonAct = new QAction(tr("Export (nude) skeleton..."), this);
   exportSkeletonAct ->setStatusTip(tr("Export this skeleton (as a set of nude bones)."));
-  exportSkinAct = new QAction(tr("Export skeleton with skin"), this);
+  exportSkinAct = new QAction(tr("Export skeleton with skin..."), this);
   exportSkinAct->setStatusTip(tr("Export this skeleton (as a rigged skin)."));
   exportSkinForAnimationAct     = new QAction(tr("Export a skin for this ani"), this);
   exportSkinForAnimationAct->setStatusTip(tr("Export a rigged skin which can be used for this animation."));
 
-  exportAnimationAct = new QAction(tr("Export animation"), this);
+  exportAnimationAct = new QAction(tr("Export animation..."), this);
   exportAnimationAct->setStatusTip(tr("Export this animation."));
 
-  reskeletonizeAct = new QAction(tr("Reskeletonize"), this);
+  reskeletonizeAct = new QAction(tr("Reskeletonize..."), this);
   reskeletonizeAct->setStatusTip(tr("Adapt this rigged mesh to a new skeleton"));
 
   transferRiggingAct = new QAction(tr("Transfer rigging"), this);
@@ -200,13 +200,17 @@ Selector::Selector(QWidget *parent)
   flipAct = new QAction(tr("Mirror"), this);
   flipAct->setStatusTip(tr("Mirror this object on the X axis."));
 
-  transformAct = new QAction(tr("Roto-translate-rescale"),this);
+  transformAct = new QAction(tr("Roto-translate-rescale..."),this);
   transformAct->setStatusTip(tr("Apply a geometric transform."));
 
-  scaleAct = new QAction(tr("Rescale"), this);
+  scaleAct = new QAction(tr("Rescale..."), this);
   scaleAct->setStatusTip(tr("Rescale this object."));
 
-  shiftAniAct = new QAction(tr("Shift time interval"), this);
+  noSelectionDummyAct = new QAction(tr("(no object selected)"), this);
+  QFont f = noSelectionDummyAct->font(); f.setItalic(true); noSelectionDummyAct->setFont( f );
+  noSelectionDummyAct->setEnabled(false);
+
+  shiftAniAct = new QAction(tr("Shift time interval..."), this);
   shiftAniAct->setStatusTip(tr("Shift a time interval for this animation"));
 
   bodyMakeQuadDominantAct = new QAction(tr("Make quad-dominant"), this);
@@ -214,7 +218,7 @@ Selector::Selector(QWidget *parent)
   bodyMerge = new QAction(tr("Combine collision objects"), this);
   bodyMerge->setStatusTip(tr("Make a combined collision obj. unifying these objs."));
 
-  meshRecomputeNormalsAndUnify = new QAction(tr("Recompute normals"), this);
+  meshRecomputeNormalsAndUnify = new QAction(tr("Recompute normals..."), this);
   meshRecomputeNormalsAndUnify->setStatusTip(tr("Recompute normals for this model, and unify pos and vertices"));
 
   meshUnify = new QAction(tr("Clean redundant vert/pos"), this);
@@ -232,13 +236,15 @@ Selector::Selector(QWidget *parent)
   meshToBody = new QAction(tr("Make a collision object"), this);
   meshToBody->setStatusTip(tr("Turn this mesh(es) into a combined Collision object."));
 
-  meshMountOnBone = new QAction(tr("Mount on one bone"), this);
+  meshMountOnBone = new QAction(tr("Mount on one bone..."), this);
   meshMountOnBone->setStatusTip(tr("Put this mesh on top of a single skeleton bone."));
 
   meshRemoveBackfacing = new QAction(tr("remove all"), this);
   meshRemoveBackfacing->setStatusTip(tr("Remove all faces that are backfacing (e.g. in beard meshes)."));
+  meshRemoveBackfacing->setData(tr("Back-faces: "));
   meshAddBackfacing = new QAction(tr("add (x2 faces)"), this);
   meshAddBackfacing->setStatusTip(tr("Duplicate all faces: for each current face, add a backfacing face."));
+  meshAddBackfacing->setData(tr("Back-faces: "));
 
   meshComputeAoAct = new QAction(tr("Color with Ambient Occlusion"), this);
   meshComputeAoAct->setStatusTip(tr("Set per vertex color as ambient occlusion (globlal lighting)"));
@@ -249,7 +255,7 @@ Selector::Selector(QWidget *parent)
   meshComputeLodAct = new QAction(tr("Compute LODs"), this);
   meshComputeLodAct->setStatusTip(tr("Tries to compute a LOD pyramid"));
 
-  meshTellBoundingBoxAct = new QAction(tr("Get dimensions"), this);
+  meshTellBoundingBoxAct = new QAction(tr("Get dimensions..."), this);
   meshTellBoundingBoxAct->setStatusTip(tr("Tell me the dimension of selected object(s)"));
 
   meshFreezeFrameAct = new QAction(tr("rigging (keep current pose)"), this);
@@ -261,30 +267,42 @@ Selector::Selector(QWidget *parent)
 	meshAniSplitAct = new QAction(tr("Separate all frames"), this);
 	meshAniSplitAct->setStatusTip(tr("Split all frames, making 1 mesh per frame"));
 
-  meshRecolorAct = new QAction(tr("Color uniform"), this);
+  meshRecolorAct = new QAction(tr("Color uniform..."), this);
   meshRecolorAct->setStatusTip(tr("Set per vertex color as a uniform color"));
 
 	meshRecomputeTangentsAct = new QAction(tr("Recompute tangent dirs"), this);
   meshRecomputeTangentsAct->setStatusTip(tr("(Tangent dirs are needed for bump-mapping)"));
 
-  meshTuneColorAct = new QAction(tr("Tune colors HSB"), this);
+  meshTuneColorAct = new QAction(tr("Tune colors HSB..."), this);
   meshTuneColorAct->setStatusTip(tr("Then Hue Saturation and Brightness of per-vertex colors"));
+
+  discardHitboxAct = new QAction(tr("Discard hit-boxes"), this);
+  discardHitboxAct->setStatusTip(tr("Discard hit-box set associated to skeletons with this name"));
 
   discardColAct = new QAction(tr("per-vertex color"), this);
   discardColAct->setStatusTip(tr("Reset per-vertex coloring (i.e. turn all full-white)"));
+  discardColAct->setData(QString(tr("discard: ")));
   discardRigAct = new QAction(tr("rigging"), this);
   discardRigAct->setStatusTip(tr("Remove rigging (per-verex bone attachments)"));
+  discardRigAct->setData(QString(tr("discard: ")));
   discardTanAct = new QAction(tr("tangent directions"), this);
   discardTanAct->setStatusTip(tr("Remove tangent directions (saves space, they are needed mainly for bumbmapping)"));
+  discardTanAct->setData(QString(tr("discard: ")));
   discardNorAct = new QAction(tr("normals"), this);
   discardNorAct->setStatusTip(tr("Disregard normals, so to merge more vertices (and use less of them)"));
+  discardNorAct->setData(QString(tr("discard: ")));
   discardAniAct = new QAction(tr("vertex animation"), this);
   discardAniAct->setStatusTip(tr("Discard vertex animation (keep only current frame)"));
+  discardAniAct->setData(QString(tr("discard: ")));
   //exportAnyBrfAct = new QAction(tr("in a BRF"), this);
   //exportAnyBrfAct->setStatusTip(tr("Export this object in a BRF file."));
 
-  exportSkeletonModAct = new QAction(tr("Make a skeleton-modification mesh"), this);
-  importSkeletonModAct = new QAction(tr("Modify from a skeleton-modification mesh"), this);
+  exportSkeletonModAct = new QAction(tr("Make a skeleton-modification mesh..."), this);
+  importSkeletonModAct = new QAction(tr("Modify from a skeleton-modification mesh..."), this);
+
+  //hitboxToBodyAct = new QAction(tr("Turn hitboxes to collision-body"), this);
+  //bodyToHitboxAct = new QAction(tr("Use this collision for hitboxes of same-named skel"), this);
+  //saveSkeletonHitboxAct = new QAction(tr("Save hit-boxes in XML..."), this);
 
   connect(goNextTabAct, SIGNAL(triggered()),this,SLOT(goNextTab()));
   connect(goPrevTabAct, SIGNAL(triggered()),this,SLOT(goPrevTab()));
@@ -327,6 +345,10 @@ Selector::Selector(QWidget *parent)
   connect(reskeletonizeAct, SIGNAL(triggered()),parent,SLOT(reskeletonize()));
   connect(transferRiggingAct, SIGNAL(triggered()),parent,SLOT(transferRigging()));
 
+  //connect(hitboxToBodyAct, SIGNAL(triggered()),parent,SLOT(hitboxToBody()));
+  //connect(bodyToHitboxAct, SIGNAL(triggered()),parent,SLOT(bodyToHitbox()));
+  //connect(saveSkeletonHitboxAct, SIGNAL(triggered()),parent,SLOT(saveSkeletonHitbox()));
+
   connect(flipAct, SIGNAL(triggered()),parent,SLOT(flip()));
 	connect(smoothenRiggingAct, SIGNAL(triggered()),parent,SLOT(smoothenRigging()));
 	connect(stiffenRiggingAct, SIGNAL(triggered()),parent,SLOT(stiffenRigging()));
@@ -345,6 +367,8 @@ Selector::Selector(QWidget *parent)
   connect(discardRigAct,SIGNAL(triggered()),parent,SLOT(meshDiscardRig()));
   connect(discardTanAct,SIGNAL(triggered()),parent,SLOT(meshDiscardTan()));
   connect(meshFreezeFrameAct,SIGNAL(triggered()),parent,SLOT(meshFreezeFrame()));
+
+  connect(discardHitboxAct, SIGNAL(triggered()), parent, SLOT(skeletonDiscardHitbox()));
 
   connect(exportSkinAct, SIGNAL(triggered()), parent, SLOT(exportSkeletonAndSkin()));
   connect(exportSkinForAnimationAct, SIGNAL(triggered()), parent, SLOT(exportSkeletonAndSkin()));
@@ -531,230 +555,245 @@ int Selector::currentTabName() const{
   return NONE;
 }
 
-void Selector::contextMenuEvent(QContextMenuEvent *event)
-{
-   contextMenu->clear();
+void Selector::updateContextMenu(){
+    contextMenu->clear();
 
-   if (!this->currentWidget()) { event->ignore(); return; }
+    if (!this->currentWidget()) {
+        //contextMenu->setTitle("Selected objects");
+        contextMenu->addAction(noSelectionDummyAct);
+        return;
+    }
 
-   QModelIndexList sel=
-       ((QListView*)(this->currentWidget()))->selectionModel()->selectedIndexes() ;
-
-   bool onesel = sel.size()==1;
-   bool mulsel = sel.size()>1;
-   bool nosel = sel.size()==0;
-   int seli = 0;
-   if (!nosel) seli = sel[0].row();
-   int t = currentTabName();
+    QModelIndexList sel=
+        ((QListView*)(this->currentWidget()))->selectionModel()->selectedIndexes() ;
 
 
-   QString title ("title");
-   contextMenu->setTitle(title);
 
-   contextMenu->addAction(removeAct);
-   if (onesel) renameAct->setText(tr("Rename")); else renameAct->setText(tr("Group rename"));
-   contextMenu->addAction(renameAct);
-   if (onesel) {
-     contextMenu->addAction(duplicateAct);
-     //contextMenu->addSeparator();
-     contextMenu->addAction(moveUpAct);
-     contextMenu->addAction(moveDownAct);
-   }
+    bool onesel = sel.size()==1;
+    bool mulsel = sel.size()>1;
+    bool nosel = sel.size()==0;
+    int seli = 0; if (sel.size()>0) seli = sel[0].row();
+    int t = currentTabName();
 
-   if (onesel){
 
+    //contextMenu->setTitle(tr("Selected %1").arg(IniData::tokenPlurName(t)));
+    if (nosel) {
+        contextMenu->addAction(noSelectionDummyAct);
+        return;
+    }
+
+    contextMenu->addAction(removeAct);
+    if (onesel) renameAct->setText(tr("Rename...")); else renameAct->setText(tr("Group rename..."));
+    contextMenu->addAction(renameAct);
+    if (onesel) {
+      contextMenu->addAction(duplicateAct);
       //contextMenu->addSeparator();
-      QMenu *m = contextMenu->addMenu(tr("Used by..."));
-      if (iniDataWaitsSaving)
-        m->addAction(usedIn_SaveFirst);
-      else
-      if (!iniData) {
-          m->addAction(usedIn_NotInModule);
+      contextMenu->addAction(moveUpAct);
+      contextMenu->addAction(moveDownAct);
+    }
 
-      } else {
-        if (iniData->updated<4) {
-          m->addAction( usedByComputeAct );
-        } else {
-          ObjCoord c(iniFileIndex,seli,t);
-          const std::vector< ObjCoord > &s ( iniData->usedBy(c) );
-          IniData::UsedInType ui = iniData->usedIn(c);
-          for (int i=0; i<(int)N_TXTFILES; i++){
-            if (ui.direct & bitMask(i)) m->addAction(usedInAct[i]); else
-            if (ui.indirect & bitMask(i)) m->addAction(usedInAct[i+N_TXTFILES]);
-          }
-          if (ui.direct & bitMask(TXTFILE_CORE)) m->addAction(usedInCoreAct[0]); else
-          if (ui.indirect & bitMask(TXTFILE_CORE)) m->addAction(usedInCoreAct[1]);
-          if ((m->actions().size()==0) && (s.size()!=0)){
-            m->addAction( usedInNoTxtAct );
-          }
-          for (unsigned int i=0; i<s.size(); i++) if (i<MAX_USED_BY){
-            usedByAct[i]->setText(iniData->nameFull( s[i] ));
-            m->addAction( usedByAct[i] );
-          }
-          if (m->actions().size()==0){
-            m->addAction( usedByNoneAct );
-          }
-        }
+    if (onesel){
+
+       //contextMenu->addSeparator();
+       QMenu *m = contextMenu->addMenu(tr("Used by:"));
+       if (iniDataWaitsSaving)
+         m->addAction(usedIn_SaveFirst);
+       else
+       if (!iniData) {
+           m->addAction(usedIn_NotInModule);
+
+       } else {
+         if (iniData->updated<4) {
+           m->addAction( usedByComputeAct );
+         } else {
+           ObjCoord c(iniFileIndex,seli,t);
+           const std::vector< ObjCoord > &s ( iniData->usedBy(c) );
+           IniData::UsedInType ui = iniData->usedIn(c);
+
+           qDebug("TEST: C=(%d %d %d), size=%d",iniFileIndex,seli,t,s.size());
+
+           for (int i=0; i<(int)N_TXTFILES; i++){
+             if (ui.direct & bitMask(i)) m->addAction(usedInAct[i]); else
+             if (ui.indirect & bitMask(i)) m->addAction(usedInAct[i+N_TXTFILES]);
+           }
+           if (ui.direct & bitMask(TXTFILE_CORE)) m->addAction(usedInCoreAct[0]); else
+           if (ui.indirect & bitMask(TXTFILE_CORE)) m->addAction(usedInCoreAct[1]);
+           if ((m->actions().size()==0) && (s.size()!=0)){
+             m->addAction( usedInNoTxtAct );
+           }
+           for (unsigned int i=0; i<s.size(); i++) if (i<MAX_USED_BY){
+             usedByAct[i]->setText(iniData->nameFull( s[i] ));
+             m->addAction( usedByAct[i] );
+           }
+           if (m->actions().size()==0){
+             m->addAction( usedByNoneAct );
+           }
+         }
+       }
+
+    }
+
+    if (onesel) {
+
+      contextMenu->addSeparator();
+
+      if (t==MESH) {
+        contextMenu->addAction(exportStaticMeshAct);
+        if (data->mesh[ seli ].isRigged)
+          contextMenu->addAction(exportRiggedMeshAct);
+        if (data->mesh[ seli ].frame.size()>1)
+           contextMenu->addAction(exportMovingMeshAct);
       }
 
-   }
+      if (t==SKELETON) {
+        contextMenu->addAction(exportSkeletonAct);
+        contextMenu->addAction(exportSkinAct);
+        contextMenu->addSeparator();
+        //contextMenu->addAction(exportSkeletonModAct);
+        //contextMenu->addAction(importSkeletonModAct);
+        //contextMenu->addAction(saveSkeletonHitboxAct);
+        //contextMenu->addAction(hitboxToBodyAct);
+        //contextMenu->addAction(importSkeletonHitboxAct);
+        contextMenu->addAction(discardHitboxAct);
+      }
+      if (t==ANIMATION){
+        contextMenu->addAction(exportAnimationAct);
+        contextMenu->addAction(exportSkinForAnimationAct);
+      }
+      if (t==BODY) {
+        contextMenu->addAction(exportBodyAct);
+        //if (data->Find( data->body[seli].name, SKELETON) ) // there is a skeleton with same name!
+        //  contextMenu->addAction(bodyToHitboxAct);
+      }
+    } else {
+      if (t==MESH) {
+        contextMenu->addSeparator();
+        contextMenu->addAction(exportMeshGroupAct);
+        contextMenu->addAction(exportMeshGroupManyFilesAct);
+      }
+      if (t==BODY) {
+        contextMenu->addAction(exportBodyGroupManyFilesAct);
+      }
+    }
 
-   if (onesel) {
+    // tool section
+    bool sep = false;
+    if (!nosel) {
+    if (t==MESH) {
+      const BrfMesh &mesh(data->mesh[ seli ]);
+          if (!sep) contextMenu->addSeparator();
+          if (mesh.isRigged) {
+        contextMenu->addAction(reskeletonizeAct);
+        contextMenu->addAction(meshFemininizeAct);
+              contextMenu->addAction(meshFixRiggingRigidParts);
+              contextMenu->addAction(smoothenRiggingAct);
+              contextMenu->addAction(stiffenRiggingAct);
+      }
+          contextMenu->addAction(meshMountOnBone);
+          //contextMenu->addAction(transferRiggingAct);
 
-     contextMenu->addSeparator();
+          contextMenu->addSeparator(); sep=true;
 
-     if (t==MESH) {
-       contextMenu->addAction(exportStaticMeshAct);
-       if (data->mesh[ seli ].isRigged)
-         contextMenu->addAction(exportRiggedMeshAct);
-       if (data->mesh[ seli ].frame.size()>1)
-          contextMenu->addAction(exportMovingMeshAct);
-     }
+      contextMenu->addAction(transformAct);
+      contextMenu->addAction(flipAct);
+      //contextMenu->addAction(scaleAct);
+      contextMenu->addAction(meshRecomputeNormalsAndUnify);
+      contextMenu->addAction(meshRecomputeTangentsAct);
+      contextMenu->addAction(meshUnify);
+      if (onesel)  {
+          contextMenu->addAction(meshSubdivideIntoComponents);
+          contextMenu->addAction(meshAniSplitAct);
+      }
+      if (!onesel) {
+          contextMenu->addAction(meshMerge);
+          contextMenu->addAction(meshAniMergeAct);
+      }
+      contextMenu->addAction(meshComputeLodAct);
+      contextMenu->addAction(meshToBody);
+      contextMenu->addAction(meshTellBoundingBoxAct);
 
-     if (t==SKELETON) {
-       contextMenu->addAction(exportSkeletonAct);
-       contextMenu->addAction(exportSkinAct);
-       contextMenu->addSeparator();
-       contextMenu->addAction(exportSkeletonModAct);
-       contextMenu->addAction(importSkeletonModAct);
-     }
-     if (t==ANIMATION){
-       contextMenu->addAction(exportAnimationAct);
-       contextMenu->addAction(exportSkinForAnimationAct);
-     }
-     if (t==BODY) {
-       contextMenu->addAction(exportBodyAct);
-     }
-   } else {
-     if (t==MESH) {
-       contextMenu->addSeparator();
-       contextMenu->addAction(exportMeshGroupAct);
-       contextMenu->addAction(exportMeshGroupManyFilesAct);
-     }
-     if (t==BODY) {
-       contextMenu->addAction(exportBodyGroupManyFilesAct);
-     }
-   }
-
-   // tool section
-   bool sep = false;
-   if (!nosel) {
-   if (t==MESH) {
-     const BrfMesh &mesh(data->mesh[ seli ]);
-		 if (!sep) contextMenu->addSeparator();
-		 if (mesh.isRigged) {
-       contextMenu->addAction(reskeletonizeAct);
-       contextMenu->addAction(meshFemininizeAct);
-			 contextMenu->addAction(meshFixRiggingRigidParts);
-			 contextMenu->addAction(smoothenRiggingAct);
-			 contextMenu->addAction(stiffenRiggingAct);
-     }
-		 contextMenu->addAction(meshMountOnBone);
-		 //contextMenu->addAction(transferRiggingAct);
-
-		 contextMenu->addSeparator(); sep=true;
-
-     contextMenu->addAction(transformAct);
-     contextMenu->addAction(flipAct);
-     //contextMenu->addAction(scaleAct);
-     contextMenu->addAction(meshRecomputeNormalsAndUnify);
-     contextMenu->addAction(meshRecomputeTangentsAct);
-     contextMenu->addAction(meshUnify);
-     if (onesel)  {
-         contextMenu->addAction(meshSubdivideIntoComponents);
-         contextMenu->addAction(meshAniSplitAct);
-     }
-     if (!onesel) {
-         contextMenu->addAction(meshMerge);
-         contextMenu->addAction(meshAniMergeAct);
-     }
-     contextMenu->addAction(meshComputeLodAct);
-     contextMenu->addAction(meshToBody);
-     contextMenu->addAction(meshTellBoundingBoxAct);
-
-     QMenu *m = contextMenu->addMenu(tr("Backfacing faces"));
-     m->addAction(meshRemoveBackfacing);
-     m->addAction(meshAddBackfacing);
+      QMenu *m = contextMenu->addMenu(tr("Backfacing faces"));
+      m->addAction(meshRemoveBackfacing);
+      m->addAction(meshAddBackfacing);
 
 
-     m = contextMenu->addMenu(tr("Discard"));
-     m->addAction(discardColAct);
-     m->addAction(discardTanAct);
-     m->addAction(discardAniAct);
-     m->addAction(discardNorAct);
-     m->addAction(discardRigAct);
-     m->addAction(meshFreezeFrameAct);
-     discardRigAct->setEnabled(mulsel || mesh.isRigged);
-     discardAniAct->setEnabled(mulsel || mesh.HasVertexAni());
-     meshFreezeFrameAct->setEnabled(mulsel || mesh.isRigged);
-     discardColAct->setEnabled(mulsel || mesh.hasVertexColor);
-     discardNorAct->setEnabled( true );
-     discardTanAct->setEnabled(mulsel || mesh.HasTangentField());
+      m = contextMenu->addMenu(tr("Discard"));
+      m->addAction(discardColAct);
+      m->addAction(discardTanAct);
+      m->addAction(discardAniAct);
+      m->addAction(discardNorAct);
+      m->addAction(discardRigAct);
+      m->addAction(meshFreezeFrameAct);
+      discardRigAct->setEnabled(mulsel || mesh.isRigged);
+      discardAniAct->setEnabled(mulsel || mesh.HasVertexAni());
+      meshFreezeFrameAct->setEnabled(mulsel || mesh.isRigged);
+      discardColAct->setEnabled(mulsel || mesh.hasVertexColor);
+      discardNorAct->setEnabled( true );
+      discardTanAct->setEnabled(mulsel || mesh.HasTangentField());
 
-     contextMenu->addSeparator();
+      contextMenu->addSeparator();
 
-     contextMenu->addAction(meshRecolorAct);
-     contextMenu->addAction(meshComputeAoAct);
-     contextMenu->addAction(meshTuneColorAct);
+      contextMenu->addAction(meshRecolorAct);
+      contextMenu->addAction(meshComputeAoAct);
+      contextMenu->addAction(meshTuneColorAct);
 
-   }
+    }
 
-   if (t==BODY) {
-     if (!sep) contextMenu->addSeparator(); sep=true;
-     contextMenu->addAction(flipAct);
-     contextMenu->addAction(transformAct);
-     if (!onesel && !nosel) { contextMenu->addAction(bodyMerge); }
-     contextMenu->addAction(bodyMakeQuadDominantAct);
-   }
-   if (t==ANIMATION) {
-		 contextMenu->addAction(aniMirrorAct);
-		 if (onesel) {
-       if (!sep) contextMenu->addSeparator(); sep=true;
-			 contextMenu->addAction(breakAniAct);
-       contextMenu->addAction(breakAniWithIniAct);
-       contextMenu->addAction(shiftAniAct);
-       contextMenu->addAction(aniExtractIntervalAct);
-       contextMenu->addAction(aniRemoveIntervalAct);
-     }
-     if (mulsel) contextMenu->addAction(aniMergeAct);
-   }
-   }
-
-
-   // add to reference
-   if (onesel && t==MESH) {
-     contextMenu->addSeparator();
-     QMenu* refMenu=contextMenu->addMenu(tr("Add to reference skins"));
-     int N=reference->GetFirstUnusedLetter();
-     for (int i=0; i<N; i++) {
-       addToRefMeshAct[i]->setText(tr("to Skin Set %1").arg(char('A'+i)) );
-       refMenu->addAction(addToRefMeshAct[i]);
-     }
-     if (N<10) {
-       addToRefMeshAct[N]->setText(tr("to Skin Set %1 [new set]").arg(char('A'+N)) );
-       refMenu->addAction(addToRefMeshAct[N]);
-     }
-   }
-   if (onesel && t==ANIMATION) {
-     contextMenu->addSeparator();
-     contextMenu->addAction(addToRefAnimAct);
-   }
-   if (onesel && t==SKELETON) {
-     contextMenu->addSeparator();
-     contextMenu->addAction(addToRefSkelAct);
-   }
+    if (t==BODY) {
+      if (!sep) contextMenu->addSeparator(); sep=true;
+      contextMenu->addAction(flipAct);
+      contextMenu->addAction(transformAct);
+      if (!onesel && !nosel) { contextMenu->addAction(bodyMerge); }
+      contextMenu->addAction(bodyMakeQuadDominantAct);
+    }
+    if (t==ANIMATION) {
+          contextMenu->addAction(aniMirrorAct);
+          if (onesel) {
+        if (!sep) contextMenu->addSeparator(); sep=true;
+              contextMenu->addAction(breakAniAct);
+        contextMenu->addAction(breakAniWithIniAct);
+        contextMenu->addAction(shiftAniAct);
+        contextMenu->addAction(aniExtractIntervalAct);
+        contextMenu->addAction(aniRemoveIntervalAct);
+      }
+      if (mulsel) contextMenu->addAction(aniMergeAct);
+    }
+    }
 
 
+    // add to reference
+    if (onesel && t==MESH) {
+      contextMenu->addSeparator();
+      QMenu* refMenu=contextMenu->addMenu(tr("Add to reference skins"));
+      int N=reference->GetFirstUnusedLetter();
+      for (int i=0; i<N; i++) {
+        addToRefMeshAct[i]->setText(tr("to Skin Set %1").arg(char('A'+i)) );
+        refMenu->addAction(addToRefMeshAct[i]);
+      }
+      if (N<10) {
+        addToRefMeshAct[N]->setText(tr("to Skin Set %1 [new set]").arg(char('A'+N)) );
+        refMenu->addAction(addToRefMeshAct[N]);
+      }
+    }
+    if (onesel && t==ANIMATION) {
+      contextMenu->addSeparator();
+      contextMenu->addAction(addToRefAnimAct);
+    }
+    if (onesel && t==SKELETON) {
+      contextMenu->addSeparator();
+      contextMenu->addAction(addToRefSkelAct);
+    }
 
+}
 
-   //contextMenu->addAction(moveUp);
-   //contextMenu->addAction(moveDown);
+void Selector::contextMenuEvent(QContextMenuEvent *event)
+{
+   if (!this->currentWidget()) { event->ignore(); return; }
+   updateContextMenu();
 
    contextMenu->exec(event->globalPos());
    event->accept();
-
-
- }
+}
 
 
 void Selector::setIniData(const IniData *data, int fi){

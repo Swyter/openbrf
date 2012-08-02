@@ -17,7 +17,7 @@ namespace Ui {
 class AskFlagsDialog : public QDialog {
     Q_OBJECT
 public:
-    AskFlagsDialog(QWidget *parent, unsigned int ones, unsigned int zeros, QStringList l, QStringList tips);
+    AskFlagsDialog(QWidget *parent, QString title, unsigned int ones, unsigned int zeros, QString* names);
     ~AskFlagsDialog();
     unsigned int toOne() const;  // result: flags that must be set to 1
     unsigned int toZero() const;

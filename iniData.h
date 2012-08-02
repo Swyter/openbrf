@@ -112,7 +112,7 @@ private:
   template<class T> bool checkDuplicated(std::vector<T> &v, int fi, int maxErr);
   void checkUses(int i, int j, int kind, char* usedName, int usedKind);
   void addUsedBy(int i, int j, int kind, char* usedName, int usedKind);
-  void checkFile(int i, int j, int kind, char* fileName, QDir* d0, QDir* d1);
+  void checkFile(int i, int j, int kind, char* fileName, QDir* d0, QDir* d1, bool forFrame );
   std::map<QString, ObjCoord> indexing[N_TOKEN+1];
   void prepareIndex(int kind);
 

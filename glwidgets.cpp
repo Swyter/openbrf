@@ -76,7 +76,6 @@ int GLWidget::getRefSkeleton() const{
       BrfAnimation &a( data->animation[selected]);
       return reference->getOneSkeleton( int(a.nbones ), selRefSkel );
     }
-
   }
   return selRefSkel;
 }
@@ -309,7 +308,10 @@ void GLWidget::renderBrfItem (const BrfMaterial& t){
   renderTexture(st);
 }
 void GLWidget::renderBrfItem (const BrfTexture& t){
-  renderTexture(t.name,false);
+  if (t.NFrames()>0) {
+    renderTexture(t.FrameName( (int(relTime*runningSpeed))%t.NFrames() ) ,false);
+  } else
+    renderTexture(t.name,false);
 }
 
 void GLWidget::renderBrfItem (const BrfMesh& p){
@@ -330,11 +332,18 @@ void GLWidget::renderBrfItem (const BrfMesh& p){
   }
   BrfAnimation* a=NULL;
   BrfSkeleton* s=NULL;
+  BrfBody* b=NULL;
   if (p.isRigged) {
     if (selRefAnimation>=0) {
       a = &(reference->animation[selRefAnimation]);
       int si = getRefSkeleton();
-      if (si>=0) s=&(reference->skeleton[si]);
+      if (si>=0) {
+          s=&(reference->skeleton[si]);
+          if (useHitboxes) {
+            int bi = hitBoxes->Find(s->name,BODY);
+            if (bi>=0) b = &hitBoxes->body[bi];
+          }
+      }
       //selRefSkel = si;
     }
   }
@@ -344,6 +353,11 @@ void GLWidget::renderBrfItem (const BrfMesh& p){
     renderRiggedMesh(p,*s,*a,fi);
   } else {
     renderMesh(p,fi);
+  }
+  if (b && s) {
+    fi = floatMod( relTime*runningSpeed , a->frame.size() );
+    if (a) renderBody(*b,*s,*a,fi, true);
+    else renderBody(*b,*s, true);
   }
 }
 
@@ -552,9 +566,31 @@ void GLWidget::enableMaterial(const BrfMaterial &m){
 
 }
 
-void GLWidget::renderBrfItem (const BrfBody& p){
-  renderBody(p);
+void GLWidget::renderBrfItem (const BrfBody& b){
+  if (useComparisonMesh) {
+     std::vector<BrfMesh> &v(data->mesh);
+     for (unsigned int i=0; i<v.size(); i++) {
+       BrfMesh &m( v[i] );
+       if ( m.IsNamedAsBody(b.name) && !m.IsNamedAsLOD() ) renderMesh(m,0);
+     }
+
+     int si = data->Find(b.name,SKELETON);
+
+     if (si>=0) {
+        if (selRefSkin>=0) {
+           for (unsigned int i=0; i<reference->mesh.size(); i++)
+             if (reference->mesh[i].name[4]==char('A'+selRefSkin))
+                renderMesh(reference->mesh[i],0);  // skin!
+        } else {
+          renderSkeleton(data->skeleton[si]); // naked bones
+        }
+     }
+
+  }
+
+  renderBody(b);
 }
+
 void GLWidget::renderBrfItem (const BrfAnimation& a){
   float fi = floatMod( relTime*runningSpeed , a.frame.size() );
   int fii = int(fi);
@@ -571,31 +607,55 @@ void GLWidget::renderBrfItem (const BrfAnimation& a){
   const BrfSkeleton &s(reference->skeleton[si]);
 
 
+  BrfBody *b = NULL;
+
+  if (useHitboxes ) {
+      int bi = hitBoxes->Find(s.name,BODY);
+      if (bi>=0) b = &(hitBoxes->body[bi]);
+  }
+
   if (selRefSkin>=0) {
     for (unsigned int i=0; i<reference->mesh.size(); i++){
       if (reference->mesh[i].name[4]==char('A'+selRefSkin))
         renderRiggedMesh(reference->mesh[i],s,a,fi);
     }
+
     //BrfMesh tmp = reference->GetCompleteSkin(selRefSkin);
     //renderRiggedMesh(tmp,s,a,fi);
   } else {
-    // naked bones
-    renderAnimation(a,s,fi);
+    if (!b) renderAnimation(a,s,fi); // naked bones
   }
+
+  if (b)  renderBody( *b, s, a, fi , selRefSkin>=0);
+
+
 }
+
 void GLWidget::renderBrfItem (const BrfSkeleton& p){
   renderFloor();
+  BrfBody *b = NULL;
+  if (useHitboxes ) {
+    int bi = hitBoxes->Find(p.name,BODY);
+    if (bi>=0) b = &(hitBoxes->body[bi]);
+  }
   if (selRefSkin>=0) {
-    ghostMode=true;
+    if (!b) ghostMode=true;
     for (unsigned int i=0; i<reference->mesh.size(); i++){
       if (reference->mesh[i].name[4]==char('A'+selRefSkin))
         renderMesh(reference->mesh[i],0);
     }
     ghostMode=false;
-    glClear(GL_DEPTH_BUFFER_BIT);
+    if (!b) glClear(GL_DEPTH_BUFFER_BIT);
+
   }
   renderSkeleton(p);
+
+  if (b) renderBody( *b, p , selRefSkin>=0 );
+
+
 }
+
+
 void GLWidget::setShadowMode(bool on) const{
   if (on) {
     glPushMatrix();
@@ -850,6 +910,9 @@ void GLWidget::setWireframe(int i){
 void GLWidget::setRuler(int i){
   useRuler = i; update();
 }
+void GLWidget::setHitboxes(int i){
+  useHitboxes = i; update();
+}
 void GLWidget::setRulerLenght(int i){
   rulerLenght = i; update();
 }
@@ -864,6 +927,9 @@ void GLWidget::setNormalmap(int i){
 }
 void GLWidget::setSpecularmap(int i){
   useSpecularmap = i; update();
+}
+void GLWidget::setComparisonMesh(int i){
+  useComparisonMesh = i; update();
 }
 void GLWidget::setFloor(int i){
   useFloor = i; update();
@@ -913,6 +979,10 @@ void GLWidget::setColorPerWhite(){
   colorMode=0; update();
 }
 
+void GLWidget::setSubSelected(int k){
+  subsel = k;
+  update();
+}
 
 void GLWidget::setSelection(const QModelIndexList &newsel, int k){
   if (k>=0) displaying=TokenEnum(k);
@@ -982,13 +1052,13 @@ GLWidget::GLWidget(QWidget *parent, IniData &_inidata)
   lastCenter.SetZero();
   lastScale = 1;
   closingUp = 0;
+  subsel = -1;
 
-	lastUsedShader = SHADER_FIXEDFUNC;
-	lastUsedShaderBumpgreen = 0;
+  lastUsedShader = SHADER_FIXEDFUNC;
+  lastUsedShaderBumpgreen = 0;
 
-
-	applyExtraMatrixToAll = true;
-	lastSelected = -1;
+  applyExtraMatrixToAll = true;
+  lastSelected = -1;
 
   keys[0]=keys[1]=keys[2]=keys[3]=keys[4]=false;
 
@@ -1002,7 +1072,8 @@ GLWidget::GLWidget(QWidget *parent, IniData &_inidata)
   useNormalmap = true;
   useSpecularmap = true;
 
-  useTexture=true; useWireframe=false; useLighting=useFloor=true; useRuler=false;
+  useTexture=true; useWireframe=false; useLighting=useFloor=true; useRuler=false; useHitboxes=false;
+  useComparisonMesh = false;
   openGL2ready=false;
 
   bumpmapActivated = false;
@@ -1451,34 +1522,58 @@ void GLWidget::renderMesh(const BrfMesh &m, float frame){
   enableDefMaterial();
 }
 
-void GLWidget::renderCylWire() const{
-  glEnable(GL_LIGHTING);
+void GLWidget::renderCylWire(float rad, float h) const{
   const int N = 10;
+  h/=2;
+  const float S = (float)(1/sqrt(2.0));
   for (int i=0; i<N; i++) {
     float ci = (float)cos(2.0*i/N*3.1415);
     float si = (float)sin(2.0*i/N*3.1415);
+
     glBegin(GL_LINE_LOOP);
-      glNormal3f( 1, si, ci );
-      glVertex3f( 1, si, ci );
-      glNormal3f( 1, -si, -ci );
-      glVertex3f( 1, -si, -ci );
-      glNormal3f(-1, -si, -ci );
-      glVertex3f(-1, -si, -ci );
-      glNormal3f(-1, si, ci );
-      glVertex3f(-1, si, ci );
+      glNormal3f( 0, si, ci );
+      glVertex3f( h, rad*si, rad*ci );
+
+      glNormal3f( S, S*si, S*ci );
+      glVertex3f( h+rad*S, S*rad*si, S*rad*ci );
+
+      glNormal3f( 1, 0, 0 );
+      glVertex3f( h+rad, 0, 0 );
+
+      glNormal3f( S, -S*si, -S*ci );
+      glVertex3f( h+rad*S, -S*rad*si, -S*rad*ci );
+
+      glNormal3f( 0, -si, -ci );
+      glVertex3f( h, -rad*si, -rad*ci );
+      glNormal3f( 0, -si, -ci );
+      glVertex3f(-h, -rad*si, -rad*ci );
+
+      glNormal3f( -S, -S*si, -S*ci );
+      glVertex3f( -h-rad*S, -S*rad*si, -S*rad*ci );
+
+      glNormal3f(-1, 0, 0 );
+      glVertex3f(-h-rad, 0, 0 );
+
+      glNormal3f( -S, S*si, S*ci );
+      glVertex3f(-h-rad*S, S*rad*si, S*rad*ci );
+
+      glNormal3f( 0, si, ci );
+      glVertex3f(-h, rad*si, rad*ci );
     glEnd();
   }
-  for (int j=-3; j<=+3; j++) {
+  int K = int(h / rad * 3);
+  if (K>5) K = 5;if (K<1) K = 1;
+  int K0 = (!K)?1:K;
+  for (int j=-K; j<=+K; j++) {
     glBegin(GL_LINE_LOOP);
     for (int i=0; i<N; i++) {
       float ci = (float)cos(2.0*i/N*3.1415);
       float si = (float)sin(2.0*i/N*3.1415);
-      glNormal3f(0,ci,si);
-      glVertex3f( j/3.0f, si, ci );
+      glNormal3f(0,si,ci);
+      glVertex3f( h*j/K0, rad*si, rad*ci );
     }
     glEnd();
   }
-  glDisable(GL_LIGHTING);
 }
 
 void GLWidget::renderSphereWire() const{
@@ -1538,6 +1633,35 @@ void GLWidget::renderOcta() const{
 
 }
 
+void GLWidget::renderBodyPart(const BrfBody &p, const BrfSkeleton &s, int i, int lvl) const{
+  glPushMatrix();
+  glTranslate(s.bone[i].t);
+  Matrix44f mat = s.bone[i].getRotationMatrix();
+  glMultMatrixf((const GLfloat *) mat.V());
+  //glMultMatrixf(bone[i].mat);
+  if (i==subsel) glLineWidth(2);
+  renderBodyPart(p.part[i]);
+  if (i==subsel) glLineWidth(1);
+  for (unsigned int k=0; k<s.bone[i].next.size(); k++){
+    renderBodyPart(p,s,s.bone[i].next[k],lvl+1);
+  }
+  glPopMatrix();
+}
+
+void GLWidget::renderBodyPart(const BrfBody &p, const BrfSkeleton &s, const BrfAnimation &a, float frame, int i, int lvl) const{
+  glPushMatrix();
+  glTranslate(s.bone[i].t);
+  Matrix44f mat = a.frame[(int) frame].getRotationMatrix(i);
+  glMultMatrixf((const GLfloat *) mat.V());
+  //glMultMatrixf(bone[i].mat);
+  renderBodyPart(p.part[i]);
+  for (unsigned int k=0; k<s.bone[i].next.size(); k++){
+    renderBodyPart(p,s,a,frame,s.bone[i].next[k],lvl+1);
+  }
+  glPopMatrix();
+}
+
+
 void GLWidget::renderBone(const BrfSkeleton &s, int i, int lvl) const{
   glPushMatrix();
   glTranslate(s.bone[i].t);
@@ -1594,6 +1718,57 @@ void GLWidget::renderSkeleton(const BrfSkeleton &s){
 }
 
 
+void GLWidget::renderBody(const BrfBody& b,const BrfSkeleton& s, bool useGhost){
+
+  if (b.part.size()!=s.bone.size()) return;
+  glEnable(GL_COLOR_MATERIAL);
+
+  if (useGhost) {
+    glEnable(GL_BLEND);
+    glDisable(GL_DEPTH_TEST);
+    setWireframeLightingMode(false,false,false);
+    renderBodyPart(b,s,s.root,0);
+    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_BLEND);
+  }
+  setWireframeLightingMode(false,true,false);
+  renderBodyPart(b,s,s.root,0);
+}
+
+void GLWidget::renderBody(const BrfBody& b,const BrfSkeleton& s,const BrfAnimation& a,float frame, bool useGhost){
+  if (b.part.size()!=s.bone.size()) return;
+  glEnable(GL_COLOR_MATERIAL);
+  setWireframeLightingMode(false,true,false);
+  glTranslate(a.frame[(int)frame].tra);
+  if (useGhost) {
+    glEnable(GL_BLEND);
+    glDisable(GL_DEPTH_TEST);
+    renderBodyPart(b,s,a,frame,s.root,0);
+    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_BLEND);
+  }
+  renderBodyPart(b,s,a,frame,s.root,0);
+}
+
+void GLWidget::renderBody(const BrfBody& b){
+  for (int pass=0; pass<2; pass++) {
+    setWireframeLightingMode(false,true,false);
+    if (pass==0) {
+        glEnable(GL_BLEND);
+        glDisable(GL_DEPTH_TEST);
+    } else {
+        glDisable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
+    }
+    for (int i=0; i<(int)b.part.size(); i++) {
+        if (i==subsel && b.part.size()>1) glLineWidth(2); // thick lines as empahsis on selected subpart (if >1 subpart)
+        renderBodyPart(b.part[i]);
+        glLineWidth(1);
+    }
+  }
+}
+
+
 
 void GLWidget::renderAnimation(const BrfAnimation &a, const BrfSkeleton &s, float frame){
   setWireframeLightingMode(false,true,false);
@@ -1627,29 +1802,41 @@ void GLWidget::renderAnimation(const BrfAnimation &a, const BrfSkeleton &s, floa
 }
 
 void GLWidget::renderBodyPart(const BrfBodyPart &b) const{
-  setWireframeLightingMode(true,false,false);
-  glLineWidth(1);
+  //setWireframeLightingMode(true,false,false);
+
+  if (b.IsEmpty()) return;
   glEnable(GL_FOG);
-  glDisable(GL_LIGHTING);
+
+
+  //if (b.type)
+  glEnable(GL_COLOR_MATERIAL);
+  glEnable(GL_LIGHTING);
+  float alpha = (useTexture)?0.15f:0.075f;
   switch(b.type){
-    case BrfBodyPart::MANIFOLD: glColor3f(1,1,1); break;
-    case BrfBodyPart::FACE: glColor3f(0.75f,1,0.75f); break;
-    case BrfBodyPart::SPHERE: glColor3f(1,0.75f,0.75f); break;
-    case BrfBodyPart::CAPSULE: glColor3f(0.75,0.75f,1); break;
+    //case BrfBodyPart::MANIFOLD: glColor3f(1,1,1); break;
+    //case BrfBodyPart::FACE: glColor3f(0.75f,1,0.75f); break;
+    case BrfBodyPart::SPHERE: glColor4f(1,0.75f,0.75f,alpha); break;
+    case BrfBodyPart::CAPSULE: glColor4f(0.75,0.75f,1,alpha); break;
     default: break;
   }
 
   if (b.type==BrfBodyPart::MANIFOLD || b.type==BrfBodyPart::FACE) {
+    glPushAttrib(GL_ENABLE_BIT|GL_LIGHTING_BIT);
+    glDisable(GL_LIGHTING);
+
+    switch(b.type){
+      case BrfBodyPart::MANIFOLD: glColor3f(0.75,0.75,0.75); break;
+      case BrfBodyPart::FACE: glColor3f(0.75f,1,0.75f); break;
+    }
     for (unsigned int i=0; i<b.face.size(); i++) {
       glBegin(GL_LINE_LOOP);
       for (unsigned int j=0; j<b.face[i].size(); j++)
         glVertex(b.pos[b.face[i][j]]);
       glEnd();
     }
-    glPushAttrib(GL_ENABLE_BIT|GL_LIGHTING_BIT);
+
     glEnable(GL_BLEND);
     glDisable(GL_DEPTH_TEST);
-    glDisable(GL_LIGHTING);
     glBlendFunc(GL_ONE,GL_ONE);
     glEnable(GL_CULL_FACE);
     glPolygonMode(GL_FRONT,GL_FILL);
@@ -1679,12 +1866,11 @@ void GLWidget::renderBodyPart(const BrfBodyPart &b) const{
     glPushMatrix();
     glTranslate((b.center+b.dir)/2);
     glMultMatrixf((GLfloat*)b.GetRotMatrix());
-    glScalef(1,b.radius,b.radius);
-    renderCylWire();
+    //glScalef(1,b.radius,b.radius);
+    renderCylWire(b.radius,((b.dir-b.center).Norm()));
     glPopMatrix();
   }
   glDisable(GL_FOG);
-  glLineWidth(1.0);
 
 }
 
@@ -1703,10 +1889,6 @@ void GLWidget::setInferMaterialOn(){
 void GLWidget::setInferMaterialOff(){
   inferMaterial = false;
   update();
-}
-
-void GLWidget::renderBody(const BrfBody& b){
-  for (unsigned int i=0; i<b.part.size(); i++) renderBodyPart(b.part[i]);
 }
 
 

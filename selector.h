@@ -35,6 +35,7 @@ public:
   bool iniDataWaitsSaving;
   int iniFileIndex;
   void selectOne(int kind, int i);  
+  void updateContextMenu();
   QMenu *contextMenu;
 
 
@@ -76,8 +77,8 @@ private:
     *goPrevTabAct,
 
      // tools
-		*aniMirrorAct,
-		*aniExtractIntervalAct,
+    *aniMirrorAct,
+    *aniExtractIntervalAct,
     *aniRemoveIntervalAct,
     *aniMergeAct,
 
@@ -85,9 +86,9 @@ private:
     *breakAniWithIniAct,
     *meshRecomputeNormalsAndUnify,
     *meshUnify,
-		*meshFixRiggingRigidParts,
-		*meshSubdivideIntoComponents,
-		*meshMerge,
+    *meshFixRiggingRigidParts,
+    *meshSubdivideIntoComponents,
+    *meshMerge,
     *meshToBody,
     *meshMountOnBone,
     *meshRemoveBackfacing,
@@ -125,6 +126,11 @@ private:
     *exportMeshGroupAct,
     *exportMeshGroupManyFilesAct,
 
+    //*hitboxToBodyAct,
+    //*bodyToHitboxAct,
+    //*saveSkeletonHitboxAct,
+    *discardHitboxAct,
+
     *exportSkeletonModAct,
     *exportSkeletonAct,
     *exportSkinAct,
@@ -133,24 +139,26 @@ private:
     *exportBodyAct,
     *exportBodyGroupManyFilesAct,
 
+    // importer acts
+    *importSkeletonModAct,
+
 
     *reskeletonizeAct,
     *transferRiggingAct,
     *flipAct,
-		*smoothenRiggingAct,
-		*stiffenRiggingAct,
+    *smoothenRiggingAct,
+    *stiffenRiggingAct,
     *transformAct,
     *scaleAct,
     *shiftAniAct,
     *bodyMakeQuadDominantAct,
     *bodyMerge,
 
-
     *sortEntriesAct,
+    *noSelectionDummyAct,
 
 
-    // importer acts
-    *importSkeletonModAct,
+
 
     *addToRefSkelAct,
     *addToRefAnimAct,

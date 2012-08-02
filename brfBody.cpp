@@ -11,6 +11,28 @@ using namespace vcg;
 #include "saveLoad.h"
 
 
+char* BrfBody::GetOriginalSkeletonName() const{
+  static char res[255];
+  for (int i=0; i<(int)part.size(); i++ ) {
+    const BrfBodyPart &p(part[i]);
+    res[i] = p.flags;
+  }
+  res[(int)part.size()]=0;
+  return res;
+}
+
+// HACK: store name into flags of all parts
+void BrfBody::SetOriginalSkeletonName(const char* n){
+  const char* c = n;
+  for (int i=0; i<(int)part.size(); i++ ) {
+    BrfBodyPart &p(part[i]);
+    p.flags = *c;
+    if (*c!=0) c++; //
+  }
+}
+
+
+
 BrfBody::BrfBody()
 {
 }
@@ -65,6 +87,7 @@ float* BrfBodyPart::GetRotMatrix() const{
   dx = (dir-center)/2.0;
   dy = dz ^ dx;
   dz = dx ^ dy;
+  dx.Normalize();
   dy.Normalize();
   dz.Normalize();
   static float res[16];
@@ -78,6 +101,7 @@ float* BrfBodyPart::GetRotMatrix() const{
 }
 
 const char* BrfBodyPart::name() const{
+  if (IsEmpty()) return "empty";
   switch(type) {
   case MANIFOLD: return "manifold";
   case CAPSULE: return "cylinder";
@@ -307,6 +331,97 @@ void BrfBody::UpdateBBox(){
 }
 
 
+//typedef enum {RADIUS, LEN_TOP, LEN_BOT, POSX, POSY, POSZ, ROTX, ROTY} Attribute;
+void BrfBodyPart::ChangeAttribute(int which, float howMuch){
+  vcg::Point3f &a(center);
+  vcg::Point3f &b(dir);
+  vcg::Point3f d = b-a;
+  vcg::Point3f dx,dy,mid;
+  float l = d.Norm();
+  float k;
+  switch (which) {
+  case RADIUS:
+      radius+=howMuch;
+      ChangeAttribute(LEN_TOP,-howMuch/2);
+      ChangeAttribute(LEN_BOT,-howMuch/2);
+      break;
+  case LEN_TOP:
+      k = (l+howMuch);
+      if (k<0.001) k=0.001;
+      b = a - (a-b)*k/l;
+      break;
+  case LEN_BOT:
+      k = (l+howMuch);
+      if (k<0.001) k=0.001;
+      a = b - (b-a)*k/l;
+      break;
+  case POSX:
+      a += (d)*(howMuch/l);
+      b += (d)*(howMuch/l);
+      break;
+  case POSY:
+  case POSZ:
+  case ROTX:
+  case ROTY:
+      dx = d ^ vcg::Point3f(1,0,0);
+      k = dx.Norm();
+      if (!k) dx = (d ^ vcg::Point3f(1,0.2,0)).normalized();
+      else dx/=k;
+      if (which==POSZ || which==ROTX) {
+        dx = (dx^d).normalized();
+      }
+      if (which==POSX || which==POSY || which==POSZ) {
+        a += (dx)*(howMuch);
+        b += (dx)*(howMuch);
+        break;
+      }
+      // rotations...
+      mid = (a+b)*0.5;
+      a -= mid;
+      a = a+dx*(howMuch*2);
+      a = (a.Normalize())*(l/2);
+      b=mid-a;
+      a=mid+a;
+      break;
+
+  }
+}
+
+
+bool BrfBodyPart::IsEmpty() const{
+  //return ( (type==CAPSULE) && !radius);
+  return ( (type==MANIFOLD) && !pos.size());
+}
+
+void BrfBodyPart::SetEmpty(){
+  //radius = 0;type = CAPSULE;
+  type = MANIFOLD; pos.clear(); face.clear();
+}
+
+
+void BrfBodyPart::SetAsDefaultHitbox(){
+  type = CAPSULE;
+  dir = vcg::Point3f( 0.125,0,0); // default axis values
+  center    = vcg::Point3f(-0.03125,0,0);
+  radius = 0.125;
+}
+
+void BrfBodyPart::SymmetrizeCapsule(){
+  if (type!=CAPSULE) return;
+  Point3f &a(center), &b(dir);
+  Point3f m = (a+b)/2.0;
+  a[2]-=m[2]; b[2]-=m[2];
+  float err1 = 2*((a-m)[2])*((a-m)[2]);
+  float err2 = ((a-m)[0])*((a-m)[0]) + ((a-m)[1])*((a-m)[1]);
+
+  if (err1<err2) a[2]=b[2]=0;
+  else {
+      a[0]=b[0]=m[0];
+      a[1]=b[1]=m[1];
+  }
+
+}
+
 
 bool BrfBodyPart::Load(FILE*f, char* _firstWord, int verbose ){
   char firstWord[255];
@@ -520,6 +635,7 @@ bool BrfBody::Merge(const BrfBody &b){
 
 bool BrfBodyPart::ExportOBJ(FILE* f, int i, int &vc) const{
   fprintf(f,"o %s_%d\n",name(),i);
+  bool asHitbox = false; //true;
   switch (type) {
   default:
     break;
@@ -544,6 +660,7 @@ bool BrfBodyPart::ExportOBJ(FILE* f, int i, int &vc) const{
     dx = (a-b)/2.0;
     dy = dz ^ dx;
     dz = dx ^ dy;
+    dx.Normalize();
     dy.Normalize();
     dz.Normalize();
     int N=10;
@@ -553,18 +670,36 @@ bool BrfBodyPart::ExportOBJ(FILE* f, int i, int &vc) const{
       vcg::Point3f p;
       p = a+dy*sa+dz*ca;
       fprintf(f,"v %f %f %f\n",-p.X(), p.Y(), p.Z());
+      if (asHitbox) fprintf(f,"vt 0.66 %f\n",i/(float(N)));
       p = b+dy*sa+dz*ca;
       fprintf(f,"v %f %f %f\n",-p.X(), p.Y(), p.Z());
+      if (asHitbox) fprintf(f,"vt 0.33 %f\n",i/(float(N)));
+    }
+    if (asHitbox) {
+      // caps!!!
+      a+=dx*radius;
+      b-=dx*radius;
     }
     fprintf(f,"v %f %f %f\n",-a.X(), a.Y(), a.Z());
+    if (asHitbox) fprintf(f,"vt 1 0.5\n");
+
     fprintf(f,"v %f %f %f\n",-b.X(), b.Y(), b.Z());
+    if (asHitbox) fprintf(f,"vt 0 0.5\n");
 
     for (int h=0; h<N; h++) {
       int i = h*2;
       int j = ((h+1)%N)*2;
-      fprintf(f,"f %d// %d// %d//\n",       vc+N*2, vc+i, vc+j );
-      fprintf(f,"f %d// %d// %d// %d//\n",  vc+i, vc+i+1, vc+j+1, vc+j );
-      fprintf(f,"f %d// %d// %d//\n",       vc+N*2+1, vc+j+1, vc+i+1 );
+
+      /*if (asHitbox) {
+        int a = 0;
+        fprintf(f,"f %d//%d %d//%d %d//%d\n",       a=vc+N*2,  a, a=vc+i,  a, a=vc+j,a   );
+        fprintf(f,"f %d//%d %d//%d %d//%d %d//%d\n",a=vc+i,    a, a=vc+i+1,a, a=vc+j+1,a, a=vc+j,a );
+        fprintf(f,"f %d//%d %d//%d %d//%d\n",       a=vc+N*2+1,a, a=vc+j+1,a, a=vc+i+1,a );
+      } else*/ {
+        fprintf(f,"f %d// %d// %d//\n",       vc+N*2, vc+i, vc+j );
+        fprintf(f,"f %d// %d// %d// %d//\n",  vc+i, vc+i+1, vc+j+1, vc+j );
+        fprintf(f,"f %d// %d// %d//\n",       vc+N*2+1, vc+j+1, vc+i+1 );
+      }
     }
     vc+=2*N+2;
     break;

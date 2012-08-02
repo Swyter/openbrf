@@ -12,6 +12,7 @@ class BrfData;
 class IniData;
 class BrfAnimation;
 class QLineEdit;
+class BrfSkeleton;
 
 namespace Ui {
     class GuiPanel;
@@ -26,6 +27,7 @@ public:
     ~GuiPanel();
     BrfData* data;
     BrfData* reference;
+    BrfData* hitBoxes;
     IniData &inidata;
     void setReference(BrfData*);
     void setAnimation(const BrfAnimation* a);
@@ -41,6 +43,9 @@ protected:
     void changeEvent(QEvent *e);
     //enum{MAXSEL=500};
     int _selectedIndex;
+    // bool collisionBodyHasMesh;
+    bool collisionBodyHasSkel;
+    BrfSkeleton *skel; // for the names
 
 public:
     Ui::GuiPanel *ui;
@@ -55,10 +60,14 @@ public:
     QAction *bodyPartDel;
     QAction *bodyPartAdd;
 
+    QAction *quickToggleHideSkinAct;
+
 
 signals:
     void followLink();
+    void selectedSubPiece(int);
     //void dataMaterialChanged();
+    void editHitbox(int whichAttr, int dir);
 
 private slots:
     void on_listView_customContextMenuRequested(QPoint pos);
@@ -66,18 +75,24 @@ private slots:
     void updateVisibility();
     void setRulerLenght(int l);
     void setTextureData(DdsData d);
+    void onEditHitbox(int);
 
 public slots:
+    void quickToggleHideSkin();
+
     void updateHighlight();
     void updateShaderTextaccSize();
     void updateBodyPartSize();
     void updateShaderTextaccData();
     void updateBodyPartData();
+    void updateSelectedBone();
     void setSelection(const QModelIndexList &, int k);
     void updateFrameNumber(int i);
     void updateMaterial(QString st);
     void updateRefAnimation();
     void setRefAnimation(int i);
+
+    void setHbEditVisible(int);
 
     void showMaterialDiffuseA();
     void showMaterialDiffuseB();

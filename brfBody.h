@@ -23,6 +23,10 @@ public:
   std::vector< std::vector<int> > face;
   int ori ; // +1 or -1
 
+  bool IsEmpty() const;
+  void SetEmpty();
+  void SetAsDefaultHitbox();
+  void SymmetrizeCapsule(); // makes capsule simmetric w.r.t. Z
 
   // for capsule / spheres
   Point3f center;
@@ -37,6 +41,9 @@ public:
 
   Box3f bbox;
 
+  // list of abstract attributes to be changed for CAPSULES...
+  typedef enum {RADIUS, LEN_TOP, LEN_BOT, POSX, POSY, POSZ, ROTX, ROTY} Attribute;
+  void ChangeAttribute(int which, float howMuch);
 
   const char* name() const;
 
@@ -85,6 +92,12 @@ public:
   void MakeQuadDominant();
 
   void UpdateBBox();
+
+  // for hitbox support: set and restore the skeleton name
+  char* GetOriginalSkeletonName() const;
+  void SetOriginalSkeletonName(const char*);
+
+
 private:
 };
 

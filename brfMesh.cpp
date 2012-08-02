@@ -1886,6 +1886,51 @@ bool BrfMesh::HasTangentField() const{
   return flags & (1<<16);
 }
 
+
+// quick hack: true if name ends with ".LOD<n>[.<m>]", <n> and <m> being 1 or 2 digits
+bool BrfMesh::IsNamedAsLOD() const{
+  int x = strlen(name);
+
+  if (--x<0) return false;
+  if (!isdigit(name[x])) return false; // last digit
+  if (--x<0) return false;
+  if (isdigit(name[x])) if (--x<0) return false; // possible 2nd digit
+
+  if (name[x]=='.') {
+      if (--x<0) return false;
+      if (!isdigit(name[x])) return false;
+      if (--x<0) return false;
+      if (isdigit(name[x])) if (--x<0) return false; // possible 2nd digit
+  }
+  if (name[x]!='D' && name[x]!='d') return false;
+  if (--x<0) return false;
+  if (name[x]!='O' && name[x]!='o') return false;
+  if (--x<0) return false;
+  if (name[x]!='L' && name[x]!='l') return false;
+  if (--x<0) return false;
+  if (name[x]!='.') return false;
+  return true;
+}
+
+bool BrfMesh::IsNamedAsBody(const char * bodyname) const{
+  const char* b = bodyname;
+  const char* n = name;
+
+  // skip initial "bo_" of b if present
+  if ( (tolower(b[0])=='b') && (tolower(b[1])=='o') && (b[2]=='_') ) {
+    b+=3;
+  }
+
+  // the rest must match, to the end of b
+  while (*b) {
+    if (tolower(*n)!=tolower(*b)) return false;
+    n++; b++;
+  }
+  // n must be over now too, or be a dot
+  if ( (*n!=0) && (*n!='.') ) return false;
+  return true;
+}
+
 void BrfMesh::DiscardTangentField(){
   flags &= ~(1<<16);
   for (uint i=0; i<vert.size(); i++) vert[i].tang.SetZero();
@@ -2408,6 +2453,8 @@ void BrfFace::Save(FILE*f) const{
   SaveInt(f, index[2] );
 }
 
+
+
 bool BrfFrame::Load(FILE*f)
 {
   LoadInt(f , time);
@@ -2885,12 +2932,11 @@ void BrfMesh::paintAlphaAsZ(float min, float max){
 unsigned int tuneColor(unsigned int col, int c, int h, int s, int b);
 
 void BrfMesh::SmoothRigging(){
-
-        std::vector<int> map; DivideIntoSeparateChunks(map);
-        int npos = frame[0].pos.size();
-        std::vector<bool> glued(npos,false);
-        const float glueDist = 0.07;
-	for (int i=0; i<npos; i++) {
+    std::vector<int> map; DivideIntoSeparateChunks(map);
+    int npos = frame[0].pos.size();
+    std::vector<bool> glued(npos,false);
+    /*const float glueDist = 0.07;
+    for (int i=0; i<npos; i++) {
 		for (int j=0; j<npos; j++) {
 			if ( (map[i]!=map[j]) && (vcg::SquaredDistance(frame[0].pos[i],frame[0].pos[j])<glueDist*glueDist)){
 				glued[i]=true;
@@ -2898,7 +2944,7 @@ void BrfMesh::SmoothRigging(){
 			}
 
 		}
-	}
+    }*/
 
 	std::vector<BrfRigging> rb = rigging;
 	for (int i=0; i<(int)face.size(); i++) {
@@ -2911,7 +2957,7 @@ void BrfMesh::SmoothRigging(){
 	}
 	for (int i=0; i<(int)rigging.size(); i++)
 		if (!glued[i]) rigging[i].Normalize();
-        for (int i=0; i<(int)vert.size(); i++) if (glued[vert[i].index]) vert[i].col=0;
+        //for (int i=0; i<(int)vert.size(); i++) if (glued[vert[i].index]) vert[i].col=0;
 }
 
 void BrfMesh::StiffenRigging(float howMuch){

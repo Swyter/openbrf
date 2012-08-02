@@ -16,6 +16,13 @@ static void alignY(QWidget *a, const QWidget *b){
   a->setGeometry(ar);
 }
 
+static void alignYAfter(QWidget *a, const QWidget *b){
+  QRect ar = a->geometry();
+  int h = ar.height();
+  ar.setTop(b->geometry().bottom()+10);
+  ar.setHeight(h);
+  a->setGeometry(ar);
+}
 
 class BodyPartModel : public QAbstractListModel{
 public:
@@ -32,13 +39,35 @@ public:
   }
   void setBody(const BrfBody &b){
     int size = (int)b.part.size();
-    if (size!=vec.size()) {
-      emit(layoutAboutToBeChanged());
-      vec.clear();
-      emit(layoutChanged());
-    }
-
+    emit(layoutAboutToBeChanged());
+    vec.clear();
     for (int i=0; i<size; i++) vec.push_back(b.part[i].name());
+    emit(layoutChanged());
+    emit(this->dataChanged(createIndex(0,0),createIndex(1,100)));
+  }
+  void setSkel(const BrfSkeleton &s){
+    int size = (int)s.bone.size();
+    emit(layoutAboutToBeChanged());
+    vec.clear();
+    for (int i=0; i<size; i++) vec.push_back(QString("%1 %2").arg(i).arg(s.bone[i].name));
+    emit(layoutChanged());
+    emit(this->dataChanged(createIndex(0,0),createIndex(1,100)));
+  }
+  void setBodyWithSkel(const BrfBody &b, const BrfSkeleton &s){
+    int size = (int)b.part.size();
+    if ((int)s.bone.size()!=size) {
+        setBody(b); return;
+    }
+    emit(layoutAboutToBeChanged());
+    vec.clear();
+    for (int i=0; i<size; i++) {
+        if (b.part[i].IsEmpty()) {
+            vec.push_back(QString("(%1)").arg(s.bone[i].name));
+        } else {
+            vec.push_back(s.bone[i].name);
+        }
+    }
+    emit(layoutChanged());
     emit(this->dataChanged(createIndex(0,0),createIndex(1,100)));
   }
   int rowCount(const QModelIndex &parent) const {return getSize();}
@@ -154,6 +183,18 @@ void GuiPanel::setTextureData(DdsData d){
   }
 }
 
+void GuiPanel::quickToggleHideSkin(){
+  //qDebug("CAZZZZO");
+  static int indexBackup = 1;
+  //on=!on;
+  int cur = ui->cbSkin->currentIndex();
+
+  if (cur==0) ui->cbSkin->setCurrentIndex(indexBackup); else{
+    indexBackup = cur;
+    ui->cbSkin->setCurrentIndex(0);
+  }
+}
+
 void GuiPanel::updateHighlight(){
 }
 
@@ -185,11 +226,16 @@ GuiPanel::GuiPanel(QWidget *parent, IniData &id) :
   ui->materialData->setVisible(false);
   ui->skeletonData->setVisible(false);
   ui->shaderData->setVisible(false);
+  ui->hitboxEdit->setVisible(false);
 
   ui->lvTextAcc->setModel( new TextureAccessModel(this) );
   ui->lvBodyPart->setModel( new BodyPartModel(this) );
+  ui->lvBones->setModel( new BodyPartModel(this) );
 
   ui->generalView->setVisible(false);
+
+  //ui->frameNumber->setBackgroundRole(QPalette::Foreground);
+  //ui->frameNumberAni->setBackgroundRole(QPalette::Foreground);
 
   alignY(ui->textureData  ,ui->meshData);
   alignY(ui->materialData  ,ui->meshData);
@@ -197,6 +243,8 @@ GuiPanel::GuiPanel(QWidget *parent, IniData &id) :
   alignY(ui->skeletonData,ui->meshData);
   alignY(ui->shaderData,  ui->meshData);
   alignY(ui->bodyData,  ui->meshData);
+  alignY(ui->bodyData,  ui->meshData);
+  alignYAfter(ui->hitboxEdit, ui->skeletonData);
 
   QString flagMask(">Hhhhhhhh");
   ui->boxFlags->setInputMask(flagMask);
@@ -205,8 +253,9 @@ GuiPanel::GuiPanel(QWidget *parent, IniData &id) :
   ui->leShaderFlags->setInputMask(flagMask);
   ui->leShaderTaFlags->setInputMask(flagMask);
   ui->leBodyFlags->setInputMask(flagMask);
-	ui->leShaderRequires->setInputMask(flagMask);
+  ui->leShaderRequires->setInputMask(flagMask);
 
+  skel = NULL;
 
   //ui->leMatR->setInputMask("0.0000");
   //ui->leMatG->setInputMask("0.0000");
@@ -234,15 +283,70 @@ GuiPanel::GuiPanel(QWidget *parent, IniData &id) :
           this, SLOT(updateShaderTextaccData()));
   connect(ui->lvBodyPart->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
           this, SLOT(updateBodyPartData()));
+  connect(ui->lvBones->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+          this, SLOT(updateSelectedBone()));
+
+
+  // skeleton direct editing
+  connect(ui->editHbRange, SIGNAL(actionTriggered(int)),this,SLOT(onEditHitbox(int)));
+  connect(ui->editHbLenTop, SIGNAL(actionTriggered(int)),this,SLOT(onEditHitbox(int)));
+  connect(ui->editHbLenBot, SIGNAL(actionTriggered(int)),this,SLOT(onEditHitbox(int)));
+  connect(ui->editHbPosX, SIGNAL(actionTriggered(int)),this,SLOT(onEditHitbox(int)));
+  connect(ui->editHbPosY, SIGNAL(actionTriggered(int)),this,SLOT(onEditHitbox(int)));
+  connect(ui->editHbPosZ, SIGNAL(actionTriggered(int)),this,SLOT(onEditHitbox(int)));
+  connect(ui->editHbRotAlpha, SIGNAL(actionTriggered(int)),this,SLOT(onEditHitbox(int)));
+  connect(ui->editHbRotBeta, SIGNAL(actionTriggered(int)),this,SLOT(onEditHitbox(int)));
+
+  connect(ui->editHbActive, SIGNAL(stateChanged(int)),this,SLOT(setHbEditVisible(int)));
+
+  // add a shortcut to hide/show skin
+  quickToggleHideSkinAct = new QAction(this);
+  quickToggleHideSkinAct->setShortcut(QKeySequence("space"));
+  //quickToggleHideSkinAct->setShortcutContext(Qt::ApplicationShortcut);
+  connect(quickToggleHideSkinAct, SIGNAL(triggered()),this,SLOT(quickToggleHideSkin()));
+  ui->cbSkin->addAction(quickToggleHideSkinAct);
 
 }
 
+void GuiPanel::onEditHitbox(int k){
+  int dir = 0;
+  if (k==QAbstractSlider::SliderSingleStepSub) dir = +1;
+  if (k==QAbstractSlider::SliderSingleStepAdd) dir = -1;
+  if (dir==0) return;
+  QObject *sender = this->sender();
+  if (sender==ui->editHbRange)    { emit editHitbox( BrfBodyPart::RADIUS,  dir ); } else
+  if (sender==ui->editHbPosX)     { emit editHitbox( BrfBodyPart::POSX,    dir ); } else
+  if (sender==ui->editHbPosY)     { emit editHitbox( BrfBodyPart::POSY,    dir ); } else
+  if (sender==ui->editHbPosZ)     { emit editHitbox( BrfBodyPart::POSZ,    dir ); } else
+  if (sender==ui->editHbRotAlpha) { emit editHitbox( BrfBodyPart::ROTX,    dir ); } else
+  if (sender==ui->editHbRotBeta)  { emit editHitbox( BrfBodyPart::ROTY,    dir ); } else
+  if (sender==ui->editHbLenBot)   { emit editHitbox( BrfBodyPart::LEN_BOT, dir ); } else
+  if (sender==ui->editHbLenTop)   { emit editHitbox( BrfBodyPart::LEN_TOP, dir ); }
+}
+
+void GuiPanel::setHbEditVisible(int vis){
+  QObjectList ol = ui->hitboxEdit->children();
+  for (int i=0; i<ol.size(); i++) {
+      //QObject &o (ol[i]);
+      if (ol[i]->isWidgetType()) {
+        QWidget* w = dynamic_cast<QWidget*>(ol[i]);
+        if (w!=ui->editHbActive) w->setVisible(vis);
+      }
+  }
+  /*
+  ui->editHbRange->setVisible(vis);
+  ui->editHbLenTop->setVisible(vis);
+  ui->editHbLen->setVisible(vis);
+  ui->editHbRange->setVisible(vis);
+  ui->editHbRange->setVisible(vis);
+  ui->editHbRange->setVisible(vis);*/
+}
 
 static QString String(int i){
   return QString("%1").arg(i);
 }
 static QString StringF(float i){
-  return QString("%1").arg(i);
+  return QString("%1").arg(i,0,'f',4);
 }
 static QString StringH(unsigned int i){
   return QString("%1").arg(i,0,16).toUpper();
@@ -313,6 +417,16 @@ int GuiPanel::getCurrentSubpieceIndex(int type) const{
     }
   }
 
+  if (type==SKELETON) {
+    if (!ui->lvBones->selectionModel()) return -1;
+    QModelIndexList il = ui->lvBones->selectionModel()->selectedIndexes();
+    if (il.size()>0) {
+      int i = il.first().row();
+      if (i<ui->lvBones->model()->rowCount())
+      return  i;
+    }
+  }
+
   if (type==MESH) {
     if (! (ui->meshDataAni->isVisible())) return 0;
     return (ui->frameNumber->value());
@@ -326,6 +440,34 @@ int GuiPanel::getCurrentSubpieceIndex(int type) const{
 void GuiPanel::updateBodyPartSize(){
   updateBodyPartData();
 }
+
+void GuiPanel::updateSelectedBone(){
+  int subSel = getCurrentSubpieceIndex(SKELETON);
+
+  bool enable = false;
+  bool active = false;
+  if (hitBoxes && data && ((int)data->skeleton.size()>_selectedIndex) && (_selectedIndex>=0) ) {
+    int sel = hitBoxes->Find(data->skeleton[_selectedIndex].name,BODY);
+    if  ( (sel>=0) && (subSel>=0) && ((int)hitBoxes->body[sel].part.size()>subSel) ){
+       enable = true;
+       active = !hitBoxes->body[sel].part[subSel].IsEmpty();
+    }
+  }
+  ui->editHbActive->setEnabled(enable);
+  ui->editHbActive->setChecked(active);
+
+
+  // activate hitbox visualization
+  if (!ui->cbHitboxes->isChecked() && ui->cbSkelHasHitbox->isChecked()) ui->cbHitboxes->click();
+
+  setHbEditVisible(active);
+  emit selectedSubPiece(subSel);
+
+  // a new bone has been selected...
+  ui->hitboxEdit->setVisible(true);
+
+}
+
 void GuiPanel::updateBodyPartData(){
  int sel=_selectedIndex;
 
@@ -334,7 +476,9 @@ void GuiPanel::updateBodyPartData(){
 
  BrfBody &b(data->body[sel]);
 
- ((BodyPartModel*)(ui->lvBodyPart->model()))->setBody( b );
+ BodyPartModel* bmp = ((BodyPartModel*)(ui->lvBodyPart->model()));
+ if (skel) bmp->setBodyWithSkel(b, *skel);
+ else bmp->setBody(b);
 
  int ta=getCurrentSubpieceIndex(BODY) ;
  if (ta>=(int)b.part.size()) return;
@@ -349,7 +493,7 @@ void GuiPanel::updateBodyPartData(){
  switch (p.type)
  {
    case BrfBodyPart::SPHERE:
-     ui->labelAxisRadius->setText("center:");
+     //ui->labelAxisRadius->setText("center:");
      ui->leBodyAX->setText( StringF( p.center.X() ));
      ui->leBodyAY->setText( StringF( p.center.Y() ));
      ui->leBodyAZ->setText( StringF( p.center.Z() ));
@@ -357,15 +501,25 @@ void GuiPanel::updateBodyPartData(){
      vis[0]=true; vis[2]=true; vis[5]=true;
      break;
    case BrfBodyPart::CAPSULE:
-     ui->labelAxisRadius->setText("axisA:");
+     //ui->labelAxisRadius->setText("axisA:");
      ui->leBodyAX->setText( StringF( p.center.X() ));
      ui->leBodyAY->setText( StringF( p.center.Y() ));
      ui->leBodyAZ->setText( StringF( p.center.Z() ));
      ui->leBodyBX->setText( StringF( p.dir.X() ));
      ui->leBodyBY->setText( StringF( p.dir.Y() ));
      ui->leBodyBZ->setText( StringF( p.dir.Z() ));
+     {
+     bool ok; float cur=ui->leBodyRad->text().toFloat(&ok);
+     if ( (p.radius != cur) || !ok) // don't overwrite radius if it says the right number already
      ui->leBodyRad->setText( StringF( p.radius ));
-     vis[0]=true; vis[1]=true; vis[2]=true;vis[5]=true;
+     }
+     vis[2]=true; // show radius
+     if (!p.IsEmpty()) {
+       vis[0]=true; vis[1]=true; // don't show any more data if empty
+
+       if (!collisionBodyHasSkel) // hack: don't show flags when editing hitboxes
+         vis[5]=true;
+     }
      break;
    case BrfBodyPart::FACE:
      ui->leBodyNVert->display( (int)p.pos.size() );
@@ -385,6 +539,7 @@ void GuiPanel::updateBodyPartData(){
  ui->wiBodyNVerts->setVisible(vis[4]);
  ui->wiBodyFlags->setVisible(vis[5]);
  ui->wiBodySigns->setVisible(vis[6]);
+ emit selectedSubPiece(ta);
 }
 
 void GuiPanel::updateShaderTextaccSize(){
@@ -443,7 +598,8 @@ void myClear(QLineEdit *l){
 }
 
 void myClear(QLCDNumber *qlc){
-  qlc->display(0);
+  qlc->display(QString());
+  qlc->setFrameStyle(0x21);
 }
 
 void myClear(QSpinBox *qsb){
@@ -492,6 +648,16 @@ void mySetValueAdd(QLCDNumber *qlc, int n){
 void mySetValueMax(QLCDNumber *qlc, int n){
   if (n>qlc->value())
   qlc->display(n);
+}
+
+void mySetValue(QLCDNumber *l, int n){
+
+  if (l->frameStyle()==0x21 && l->value()==0)
+    l->display(n);
+  if (l->frameStyle()==0x21 && l->value()!=0 && l->value()!=n) {
+    l->display(QString());
+    l->setFrameStyle(0x31);
+  }
 }
 
 static void mySetCompositeVal(int &a, bool b){
@@ -623,7 +789,7 @@ switch (TokenEnum(k)){
     int hasAni=-1,hasCol=-1,hasTan=-1,hasRig=-1;
     for (QModelIndexList::ConstIterator i=newsel.constBegin(); i!=newsel.constEnd(); i++){
       int sel = i->row();
-      if (sel<0 || sel>=(int)data->mesh.size())  break;
+      if (sel<0 || sel>=(int)data->mesh.size()) continue;
       BrfMesh *m=&(data->mesh[sel]);
 
       mySetText(ui->boxFlags, StringH(m->flags & ~(3<<16) ));
@@ -673,14 +839,44 @@ switch (TokenEnum(k)){
       int j=i->row();
       if (j>=0 && j<(int)data->texture.size())
         mySetText(ui->boxTextureFlags,StringH(data->texture[j].flags));
+      int nf = data->texture[j].NFrames();
+      if (nf==0)
+        ui->labNFrames->setHidden(true);
+      else {
+        ui->labNFrames->setHidden(false);
+        ui->labNFrames->setText(QString("x %1").arg(nf));
+      }
+
     }
     break;
-  case SKELETON:
+  case SKELETON: {
+    {
+        int hasHb=-1;
+        myClear(ui->boxSkelNBones);
+        for (QModelIndexList::ConstIterator i=newsel.constBegin(); i!=newsel.constEnd(); i++){
+          int sel = i->row();
+          if (sel<0 || sel>=(int)data->skeleton.size()) continue;
+          BrfSkeleton *s=&(data->skeleton[sel]);
+          int bi=-1;
+          if (hitBoxes) bi = hitBoxes->Find(s->name,BODY);
+          mySetCompositeVal(hasHb,bi>=0);
+          mySetValue(ui->boxSkelNBones,(int)s->bone.size());
+        }
+        ui->cbSkelHasHitbox->setCheckState(myCheckState(hasHb));
+
+    }
+
+    BodyPartModel* bmp = ((BodyPartModel*)(ui->lvBones->model()));
     if (sel>=0 && nsel==1 && sel<(int)data->skeleton.size()) {
       BrfSkeleton &s(data->skeleton[sel]);
-      ui->boxSkelNBones->display( (int)s.bone.size() );
-    }
-    break;
+      bmp->setSkel(s);      
+    } else  bmp->clear();
+
+    emit selectedSubPiece(-1); // unselect all
+    ui->lvBones->selectionModel()->clearSelection();
+    ui->hitboxEdit->setVisible(false); // until a piece is not selected
+
+    break; }
   case ANIMATION:
     {
     BrfAnimation *ani =NULL;
@@ -712,11 +908,28 @@ switch (TokenEnum(k)){
       ui->leShaderTechnique->setText( s.technique );
       ui->leShaderFallback->setText( s.fallback );
       ui->leShaderFlags->setText( StringH(s.flags) );
-			ui->leShaderRequires->setText( StringH(s.requires) );
+      ui->leShaderRequires->setText( StringH(s.requires) );
       updateShaderTextaccSize();
       }
       break;
     case BODY:
+
+      bool collisionBodyHasMesh;
+      if (nsel==1) {
+          char* bodyname = data->body[sel].name;
+          int si = data->Find(bodyname,SKELETON);
+
+          collisionBodyHasSkel= (si>=0);
+          if (si>=0) skel = &(data->skeleton[si]); else skel = NULL;
+          collisionBodyHasMesh = false;
+          for (int i=0; i<(int)data->mesh.size(); i++) {
+              if (data->mesh[i].IsNamedAsBody(bodyname)) collisionBodyHasMesh = true;
+          }
+      } else {
+          collisionBodyHasMesh = true;
+          collisionBodyHasSkel = false;
+      }
+      ui->cbComparisonMesh->setEnabled( collisionBodyHasMesh || collisionBodyHasSkel );
       updateBodyPartData();
       break;
     default:
@@ -810,6 +1023,7 @@ void GuiPanel::updateVisibility(){
   int k=displaying;
 
   ui->viewRuler->setVisible(k==MESH);
+  ui->viewComparisonMesh->setVisible(k==BODY) ;
 
   // set visibility
   if (k==MESH) {
@@ -822,6 +1036,8 @@ void GuiPanel::updateVisibility(){
     ui->viewRefSkel->setVisible( ui->viewRefAni->isVisible() && ui->cbRefani->currentIndex() );
     ui->rulerSlid->setVisible(ui->cbRuler->isChecked());
     ui->rulerSpin->setVisible(ui->cbRuler->isChecked());
+    ui->viewHitboxes->setVisible(ui->viewRefSkel->isVisible() );
+
   } else if (k==ANIMATION) {
     ui->viewFloor->setVisible(false);
     ui->viewRefSkin->setVisible(true);
@@ -829,27 +1045,31 @@ void GuiPanel::updateVisibility(){
     ui->viewMeshRendering->setVisible( ui->cbSkin->currentIndex() );
     ui->viewAni->setVisible(true);
     ui->viewRefSkel->setVisible(true);
+    ui->viewHitboxes->setVisible( true );
   } else if (k==BODY) {
     ui->viewFloor->setVisible(true);
-    ui->viewRefSkin->setVisible(false);
+    ui->viewRefSkin->setVisible( ui->cbComparisonMesh->isChecked() && collisionBodyHasSkel);
     ui->viewRefSkel->setVisible(false);
     ui->viewRefAni->setVisible(false);
-    ui->viewMeshRendering->setVisible(false);
+    ui->viewMeshRendering->setVisible( ui->cbComparisonMesh->isChecked() && ui->cbComparisonMesh->isEnabled() );
     ui->viewAni->setVisible(false);
-  } else if (k==MATERIAL || k==TEXTURE) {
-    ui->viewRefSkin->setVisible(false);
-    ui->viewRefSkel->setVisible(false);
-    ui->viewRefAni->setVisible(false);
-    ui->viewMeshRendering->setVisible(false);
+    ui->viewHitboxes->setVisible(false);
+  } else if (k==TEXTURE) {
     ui->viewFloor->setVisible(false);
-    ui->viewAni->setVisible(false);
+    ui->viewRefSkin->setVisible(false);
+    ui->viewRefSkel->setVisible(false);
+    ui->viewRefAni->setVisible(false);
+    ui->viewMeshRendering->setVisible(false);
+    ui->viewAni->setVisible(ui->labNFrames->isVisible());
+    ui->viewHitboxes->setVisible(false);
   } else if (k==SKELETON) {
     ui->viewFloor->setVisible(false);
     ui->viewRefSkin->setVisible(true);
     ui->viewRefSkel->setVisible(false);
     ui->viewRefAni->setVisible(false);
-    ui->viewMeshRendering->setVisible(false);
+    ui->viewMeshRendering->setVisible(ui->cbSkin->currentIndex());
     ui->viewAni->setVisible(false);
+    ui->viewHitboxes->setVisible( true );
   }
   else {
     ui->viewFloor->setVisible(false);
@@ -858,6 +1078,7 @@ void GuiPanel::updateVisibility(){
     ui->viewRefAni->setVisible(false);
     ui->viewMeshRendering->setVisible(false);
     ui->viewAni->setVisible(false);
+    ui->viewHitboxes->setVisible(false);
   }
 
   ui->viewShowAlpha->setVisible(k==MATERIAL || k==TEXTURE);

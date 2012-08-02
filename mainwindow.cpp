@@ -45,7 +45,7 @@ void MainWindow::onActionTriggered(QAction *q){
     qDebug("Command to be repeatable: \"%s\"\n",q->text().toAscii().data());
     repeatableAction = q;
     tokenOfRepeatableAction = selector->currentTabName();
-    repeatLastCommandAct->setText(QString("&Repeat %1").arg(q->text()));
+    repeatLastCommandAct->setText(QString("&Repeat %2%1").arg(q->text()).arg(q->data().toString()));
     repeatLastCommandAct->setEnabled(true);
 
   }
@@ -56,11 +56,6 @@ void MainWindow::onActionTriggered(QAction *q){
 void MainWindow::repeatLastCommand(){
   if ((repeatableAction) && (tokenOfRepeatableAction == selector->currentTabName()))
     repeatableAction->trigger();
-}
-
-
-void MainWindow::notifyDataChanged(){
-  setModified(false);
 }
 
 void MainWindow::notifyCheckboardChanged(){
@@ -91,9 +86,87 @@ bool MainWindow::maybeSave()
         return false;
     }
     setModified(false);
+
+    return maybeSaveHitboxes();
+}
+
+bool MainWindow::maybeSaveHitboxes()
+{
+    if (isModifiedHitboxes) {
+
+      QMessageBox::StandardButton ret;
+      ret = QMessageBox::warning(this, "OpenBrf",
+                     tr("Skeleton hitboxes have been modified.<br/>"
+                        "Save changes in /Data/skeleton_bodies.xml?")+hitboxExplaination(),
+                     QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+      if (ret == QMessageBox::Save) {
+        return saveHitboxes();
+      }
+      if (ret == QMessageBox::Discard) {
+        refreshSkeletonBodiesXml();
+      }
+      else if (ret == QMessageBox::Cancel)
+        return false;
+    }
+    //setModifiedHitboxes(false);
     return true;
 }
 
+bool MainWindow::saveHitboxes(){
+    QString allnames;
+    int nb = (int)hitboxSet.body.size();
+    //if (nb==0) QMessageBox::war(this, "OpenBrf", tr("There are no hitboxes to save..."));
+    for (int i=0; i<nb; i++) {
+        allnames= allnames +"<br>   <b>"+hitboxSet.body[i].name+"</b>";
+    }
+
+    if (!QFile(modPath()+"/Data").exists()) {
+        QDir q(modPath());
+        if (!q.mkdir("/Data")) {
+            QMessageBox::warning(this,"OpenBrf",tr("Error: could not make missing folder 'Data' in module folder:\n %1").arg(modPath()));
+            return false;
+        }
+    }
+    QString fn = modPath()+"/Data/skeleton_bodies.xml";
+    QString backupFn;
+
+    int backupN = 0;
+    if (QFile(fn).exists()) do {
+        backupN++;
+        backupFn = QString(modPath()+"/Data/backup%1_skeleton_bodies_.xml").arg(backupN);
+    } while (QFile(backupFn).exists());
+    QMessageBox::StandardButton ret;
+    ret = QMessageBox::question(this, "OpenBrf",
+      tr("There are %1 hitboxes set, for skeletons:").arg(nb)
+      +allnames
+      +tr("<br />Save them inside %2?").arg(fn)
+      +((backupN)?tr("<br /><br />A backup will be saved in %2").arg(backupFn):QString(""))
+      +hitboxExplaination(),QMessageBox::Ok|QMessageBox::Cancel
+
+    );
+
+    if (ret!=QMessageBox::Ok) return false;
+    if (backupN) {
+        QFile(fn).copy(backupFn);
+    }
+
+    int res = hitboxSet.SaveHitBoxesToXml(lastSkeletonBodiesXmlPath.toStdWString().c_str(), fn.toStdWString().c_str());
+
+    if (res!=1) {
+        QMessageBox::warning(this,"OpenBrf",
+          tr("Error saving hitbox data:\n\n%1\n\n").arg(BrfData::LastHitBoxesLoadSaveError())
+        );
+        return false;
+    }
+    lastSkeletonBodiesXmlPath = fn;
+    setModifiedHitboxes(false);
+
+    QMessageBox::information(this,"OpenBrf",
+      tr("Saved hitboxes (with the other metadata) for %1 skeletons inside\nfile %2\n\n").arg(nb).arg(fn)
+    );
+
+    return false;
+}
 
 static void setFlags(unsigned int &f, const QString q){
   bool ok;
@@ -273,22 +346,27 @@ void MainWindow::updateDataBody(){
   int ta =guiPanel->getCurrentSubpieceIndex(BODY);
   if (ta>=0 && ta<(int)b.part.size()) {
     BrfBodyPart &p(b.part[ta]);
+    bool wasEmptyThen = p.IsEmpty();
     setFlags(p.flags, ui->leBodyFlags);
     setSign(p.ori, ui->leBodySign);
     switch (p.type)
     {
     case BrfBodyPart::CAPSULE:
-      // fallthrough
       setFloat(p.dir.X(),ui->leBodyBX);
       setFloat(p.dir.Y(),ui->leBodyBY);
       setFloat(p.dir.Z(),ui->leBodyBZ);
     case BrfBodyPart::SPHERE:
+      // fallthrough
       setFloat(p.center.X(),ui->leBodyAX);
       setFloat(p.center.Y(),ui->leBodyAY);
       setFloat(p.center.Z(),ui->leBodyAZ);
       setFloat(p.radius,ui->leBodyRad);
       break;
     default: break;
+    }
+    bool isEmptyNow = p.IsEmpty();
+    if (wasEmptyThen!=isEmptyNow) {
+      guiPanel->updateBodyPartData();
     }
     setModified(true);
     updateGl();
@@ -378,7 +456,7 @@ void MainWindow::tldMakeDwarfBoots(){
   int shi=reference.Find("skel_human",SKELETON);
   if (sdi==-1 || shi==-1) {
     QMessageBox::information(this,
-      "OpenBRF",tr("CAnnot find skel_human, skel_dwarf and skel_orc in reference data.\n")
+      "OpenBRF","Cannot find skel_human, skel_dwarf and skel_orc in reference data.\n"
     );
     return;
   }
@@ -652,24 +730,11 @@ void MainWindow::openModuleIniFile(){
 
 MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),inidata(brfdata)
 {
-  usingWarband = true; // until proven otherwise
-  useAlphaCommands = false;
 
   setWindowIcon(QIcon(":/openBrf.ico"));
-  QFile f(":/femininizer.morpher");
 
-  QByteArray r;
-  bool ok = false;
-
-  if (f.open(QIODevice::ReadOnly)){
-   r = f.readAll();
-   if (femininizer.Load(r.data())) ok = true;
-  }
-
-  if (!ok){
-    QMessageBox::warning(this, tr("OpenBrf"),
-                         QString("Internal error on loading femininizer"));
-  }
+  usingWarband = true; // until proven otherwise
+  useAlphaCommands = false;
 
   settings = new QSettings("mtarini", "OpenBRF");
 
@@ -683,6 +748,7 @@ MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),inidata(brfdata)
 
 
   isModified=false;
+  isModifiedHitboxes=false;
 
   createMiniViewOptions();
   createActions();
@@ -708,14 +774,19 @@ MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),inidata(brfdata)
   glWidget->selected=1;
   glWidget->data = guiPanel->data = &brfdata;
   glWidget->reference = &reference;
+  glWidget->hitBoxes = &hitboxSet;
 
   guiPanel->setReference(&reference);
+  guiPanel->hitBoxes = &hitboxSet;
 
   //tryLoadMaterials();
 
   this->setAcceptDrops(true);
 
   loadOptions();
+
+  if (optionFeminizerUseDefault->isChecked()) optionFemininzationUseDefault();
+  else optionFemininzationUseCustom();
 
   updatePaths();
   setLocale(QLocale::system());
@@ -725,6 +796,12 @@ MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),inidata(brfdata)
   glWidget->setDefaultBgColor(background,true);
 
   connect(this->menuBar(), SIGNAL(triggered(QAction*)),this, SLOT(onActionTriggered(QAction *)));
+
+  // create askTransofrDialog windows
+  askTransformDialog = new AskTransformDialog(this );
+  askTransformDialog->matrix = glWidget->extraMatrix;
+  askTransformDialog->setApplyToAllLoc( &( glWidget->applyExtraMatrixToAll ) );
+  connect(askTransformDialog,SIGNAL(changed()),glWidget,SLOT(update()));
 
 
 }
@@ -898,7 +975,7 @@ bool MainWindow::addNewGeneral(QStringList defaultst ){
         }
       }
       //selector->updateData(brfdata);
-    setModified(true);
+      setModified(true);
     }
     return true;
 
@@ -1172,12 +1249,174 @@ void MainWindow::objectMergeSelected(vector<BrfType> &v){
     }
     first=false;
   }
-	if (commonPrefix.endsWith(".")) commonPrefix.chop(1);
-	else commonPrefix+="_combined";
+  if (commonPrefix.endsWith(".")) commonPrefix.chop(1);
+  else commonPrefix+="_combined";
   sprintf(res.name,"%s",commonPrefix.toAscii().data());
   insert(res);
   setModified(true);
 }
+
+/*template<> BrfMesh& MainWindow::getSelected<BrfMesh>(int n){
+    return *((BrfMesh*)NULL); //brfdata.mesh[n];
+}*/
+
+template<class BrfType> BrfType& MainWindow::getSelected(int n){
+
+    if (BrfType::tokenIndex()!=selector->currentTabName()) return *((BrfType*)NULL);
+
+    std::vector<BrfType> &v ( VectorOf<BrfType>(brfdata) );
+    int i= selector->selectedList()[n].row();
+    if (i<0) return *((BrfType*)NULL);
+    if (i>=(int)v.size()) return *((BrfType*)NULL);
+    return v[i];
+}
+
+template<class BrfType> BrfType& MainWindow::getUniqueSelected(){
+    if (BrfType::tokenIndex()!=selector->currentTabName()) return *((BrfType*)NULL);
+
+    std::vector<BrfType> &v ( VectorOf<BrfType>(brfdata) );
+    if (selector->selectedList().size()!=1) return *((BrfType*)NULL);
+    int i= selector->selectedList()[0].row();
+    if (i<0) return *((BrfType*)NULL);
+    if (i>(int)v.size()) return *((BrfType*)NULL);
+    return v[i];
+}
+
+/*
+bool MainWindow::hitboxToBody(){
+  BrfSkeleton &s = getSelected<BrfSkeleton>();
+  if (!&s) return false;
+  int bi = hitboxSet.Find(s.name,BODY);
+
+  if (bi<0) {
+    QMessageBox::warning(this,"OpenBRF",
+      tr("Unfortunately, no hit-box is known for skeleton '%1', from 'data/skeleton_bodies.xml'. Operation canceled.").arg(s.name)
+    );
+    return false;
+  }
+  BrfBody &b ( hitboxSet.body[bi] );
+  BrfBody res;
+
+  if (!s.DisposeHitboxes(b,res,false)) {
+      QMessageBox::warning(this,"OpenBRF",
+        tr("Num of bones and num of body-parts mismatch!")
+      );
+      return false;
+  }
+  insert(res);
+
+  return true;
+}
+
+bool MainWindow::bodyToHitbox(){
+  BrfBody &b = getSelected<BrfBody>();
+  if (!&b) return false;
+  int si = brfdata.Find(b.name,SKELETON);
+  if (si<0) {
+    QMessageBox::warning(this,"OpenBRF",
+      tr("Cannot find a skeleton named '%1' in current file. Operation canceled.").arg(b.name)
+    );
+    return false;
+  }
+  BrfSkeleton &s ( brfdata.skeleton[si] );
+
+  BrfBody res;
+  if (!s.DisposeHitboxes(b,res,true)) {
+      QMessageBox::warning(this,"OpenBRF",
+        tr("Num of bones and num of body-parts mismatch!")
+      );
+      return false;
+  }
+
+  int bi = hitboxSet.Find(b.name, BODY);
+  if (bi>=0) hitboxSet.body[bi] = res; // substitute hitboxes in set
+  else hitboxSet.body.push_back(res); // add hitbox to set
+  return true;
+}
+
+bool MainWindow::saveSkeletonHitbox(){
+  return true;
+}
+*/
+
+void MainWindow::hitboxEdit(int whichAttrib, int dir){
+
+  BrfSkeleton &s = getSelected<BrfSkeleton>();
+  if (!&s) return;
+  int b = guiPanel->getCurrentSubpieceIndex(SKELETON);
+  BrfBody *hit = hitboxSet.FindBody(s.name);
+  if (b<0) return;
+  if (!hit) return;
+  if (b>=(int)hit->part.size()) return;
+
+  //qDebug("Skel = %s, piece = %d, attr = %d, dir = %d!",s.name,b,whichAttrib,dir);
+
+  float delta = 0.01;
+  if (QApplication::keyboardModifiers()!=Qt::NoModifier) delta*=0.1;
+  hit->part[b].ChangeAttribute(whichAttrib,delta*dir);
+
+  setModifiedHitboxes(true);
+
+  updateGl();
+}
+
+void MainWindow::hitboxSymmetrize(){
+  BrfSkeleton &s = getSelected<BrfSkeleton>();
+  if (!&s) return;
+  int b = guiPanel->getCurrentSubpieceIndex(SKELETON);
+  BrfBody *hit = hitboxSet.FindBody(s.name);
+  if (b<0) return;
+  if (!hit) return;
+  if (b>=(int)hit->part.size()) return;
+
+  int b1 = s.FindSpecularBoneOf(b);
+  if (b1!=b) {
+    // make other capsule the simmetric of this one
+    hit->part[b1] = hit->part[b];
+    hit->part[b1].center[2]*=-1;
+    hit->part[b1].dir[2]*=-1;
+  } else {
+      hit->part[b].SymmetrizeCapsule();
+  }
+
+  setModifiedHitboxes(true);
+  updateGl();
+}
+
+void MainWindow::hitboxActivate(bool a){
+    BrfSkeleton &s = getSelected<BrfSkeleton>();
+    if (!&s) return;
+    int b = guiPanel->getCurrentSubpieceIndex(SKELETON);
+    BrfBody *hit = hitboxSet.FindBody(s.name);
+    if (b<0) return;
+    if (!hit) return;
+    if (b>=(int)hit->part.size()) return;
+
+    if (!a) hit->part[b].SetEmpty();
+    else hit->part[b].type = BrfBodyPart::CAPSULE;
+
+    setModifiedHitboxes(true);
+    updateGl();
+
+}
+
+void MainWindow::hitboxReset(){
+
+    BrfSkeleton &s = getSelected<BrfSkeleton>();
+    if (!&s) return;
+    int b = guiPanel->getCurrentSubpieceIndex(SKELETON);
+    BrfBody *hit = hitboxSet.FindBody(s.name);
+    if (b<0) return;
+    if (!hit) return;
+    if (b>=(int)hit->part.size()) return;
+
+    hit->part[b].SetAsDefaultHitbox();
+
+    setModifiedHitboxes(true);
+    updateGl();
+
+}
+
 
 void MainWindow::meshComputeAo(){
   bool inAlpha = optionAoInAlpha->isChecked() && useAlphaCommands;
@@ -1197,27 +1436,95 @@ void MainWindow::meshComputeAo(){
 
 }
 
+void MainWindow::optionFemininzationUseCustom(){
+    QFile f("customFemininizer.morpher");
+    QByteArray r;
+    bool ok = false;
+    if (f.open(QIODevice::ReadOnly)){
+     r = f.readAll();
+     if (femininizer.Load(r.data())) ok = true;
+    }
+    if (!ok){
+      QMessageBox::warning(this, tr("OpenBrf"),
+        QString(
+          "Failed to load a custom feminizer mesh-morpher!\n"
+          "using built-in feminizer morpher instead\n\n"
+          "INFO: in order to build your user-defined feminizer mesh-morpher,"
+          "you must first select examples of feminized armours, and then use:"
+          "\n  [%1] -->\n  [%2] -->\n  [%3]"
+        ).arg(optionMenu->title().replace("&",""))
+         .arg(autoFemMenu->title())
+         .arg(optionLearnFeminization->text())
+      );
+      optionFeminizerUseDefault->trigger();
+    }
+}
+
+void MainWindow::optionFemininzationUseDefault(){
+    QFile f(":/femininizer.morpher");
+    QByteArray r;
+    bool ok = false;
+    if (f.open(QIODevice::ReadOnly)){
+     r = f.readAll();
+     if (femininizer.Load(r.data())) ok = true;
+    }
+    if (!ok){
+      QMessageBox::warning(this, tr("OpenBrf"),
+        QString("Internal mysterious error on loading built-in femininizer morpher")
+      );
+    }
+}
+
+
 void MainWindow::learnFemininzation(){
-  if (selector->currentTabName()!=MESH) return;
   int ndone = 0;
 
-  for (int k=0; k<selector->selectedList().size(); k++) {
-    int i= selector->selectedList()[k].row();
-    if (i<0) continue;
-    if (i>(int)brfdata.mesh.size()) continue;
-    BrfMesh& m (brfdata.mesh[i]);
-    if (m.frame.size()!=3) continue;
-    if (!ndone) femininizer.ResetLearning();
-    femininizer.LearnFrom(m,1,2);
-    ndone++;
+  int feminineFrame = (usingWarband)?2:1;
+  int masculineFrame = (usingWarband)?1:2;
+
+  if (selector->currentTabName()==MESH) {
+    for (int k=0; k<selector->selectedList().size(); k++) {
+      int i= selector->selectedList()[k].row();
+      if (i<0) continue;
+      if (i>(int)brfdata.mesh.size()) continue;
+      BrfMesh& m (brfdata.mesh[i]);
+      if (m.frame.size()!=3) continue;
+      if (!ndone) femininizer.ResetLearning();
+      femininizer.LearnFrom(m,feminineFrame,masculineFrame);
+      ndone++;
+    }
   }
-  if (ndone) {
+
+  if (!ndone) {
+    QMessageBox::warning(this,tr("OpenBRF"),tr("No mesh found to learn how to femininize an armour.\n\nYou must select meshes with feminine frame, and I'll try to learn the way to build a femenine frame from a given armour"));
+    return;
+  }
+
+  bool accept = false;
+
+  int breast=0, emp=0; bool ok=true;
+
+  emp = QInputDialog::getInteger(this,"OpenBRF",tr(
+    "Select a emphasis factor between -100% and +100%\n\n"
+    "zero => normal.\n""positive => stronger effect.\n""negative => milder effect \n\n"
+    "(default: +15%)"),15,-300,+300,5,&ok);
+  if (ok) {
+    breast = QInputDialog::getInteger(this,"OpenBRF",tr("Select amount of extra breastification in mm\n(default: 13mm)"),13,0,100,1,&ok);
+    if (ok)  accept = true;
+  }
+
+  if (accept) {
     femininizer.FinishLearning();
-    femininizer.Emphatize(0.2);
+    femininizer.Emphatize(emp/100.0);
+    femininizer.extraBreast = breast / 1000.0;
+
+    femininizer.Save("customFemininizer.morpher");
+    QMessageBox::information(this,tr("OpenBRF"),tr("Learnt a custom way to femininize an armour\nfrom %1 examples!").arg(ndone));
+    optionFeminizerUseCustom->trigger();
+  } else {
+    QMessageBox::information(this,tr("OpenBRF"),tr("Canceled"));
   }
-  femininizer.Save("femininizer.morpher");
-  if (ndone) QMessageBox::information(this,tr("OpenBRF"),tr("Learnt how to femininize an armour\nfrom %1 examples!").arg(ndone));
-  else QMessageBox::warning(this,tr("OpenBRF"),tr("No mesh found to learn how to femininize an armour!"));
+
 }
 
 
@@ -1235,7 +1542,7 @@ void MainWindow::meshFemininize(){
 
     if (!yesToAll) {
       if (m.frame.size()>1) {
-        int res = QMessageBox::warning(this,"OpenBRF",tr("Warning: mesh %1 has already a feminine frame.\n\nOverwrite it?").arg(m.name),
+          int res = QMessageBox::warning(this,"OpenBRF",tr("Warning: mesh %1 has already a feminine frame %2.\n\nOverwrite it?").arg(m.name).arg(usingWarband),
           QMessageBox::Yes|QMessageBox::YesToAll|QMessageBox::No
         );
         if (res==QMessageBox::No) continue;
@@ -1344,9 +1651,10 @@ void MainWindow::meshRecomputeNormalsAndUnify(){
           this,SLOT(meshRecomputeNormalsAndUnify_onCheckbox(bool)));
 
   //d.exec();
+  std::vector<BrfMesh> backup = brfdata.mesh;
   meshRecomputeNormalsAndUnifyDoIt();
 
-  d.exec();
+  int res = d.exec();
   //d.setModal();
   disconnect(d.checkbox(),SIGNAL(clicked(bool)),
              this,SLOT(meshRecomputeNormalsAndUnify_onCheckbox(bool)));
@@ -1354,7 +1662,12 @@ void MainWindow::meshRecomputeNormalsAndUnify(){
              this,SLOT(meshRecomputeNormalsAndUnify_onSlider(int)));
 
 
-  setModified(true);
+  if (res==QDialog::Accepted) {
+    setModified(true);
+  } else {
+    brfdata.mesh = backup;
+    updateGl();
+  }
 }
 
 void MainWindow::smoothenRigging(){
@@ -1622,6 +1935,30 @@ void MainWindow::meshFreezeFrame(){
 
 }
 
+void MainWindow::skeletonDiscardHitbox(){
+  BrfSkeleton &s = getSelected<BrfSkeleton>();
+  if (&s == NULL) return;
+  int i = hitboxSet.Find(s.name,BODY);
+  if (i<0) {
+      QMessageBox::warning(this,"OpenBRF",tr("Skeleton %1 has no associated hit-box set. Canceled").arg(s.name));
+      return;
+  }
+
+
+  if (QMessageBox::question(this,"OpenBRF",
+     tr("Remove the hit-box associated to skeleton name %1?<br /><br />"
+        "(this means that no skeleton named '%1' will have a hitbox, in this Module)").arg(s.name)
+     + hitboxExplaination(),QMessageBox::Ok|QMessageBox::Cancel
+  ) == QMessageBox::Ok) {
+      hitboxSet.body.erase( hitboxSet.body.begin()+ i);
+      setModifiedHitboxes(true);
+
+      updateGui();
+      updateGl();
+  }
+
+}
+
 void MainWindow::meshDiscardRig(){
   QModelIndexList list= selector->selectedList();
   for (int j=0; j<list.size(); j++){
@@ -1792,44 +2129,44 @@ double myRound(double d){
 void MainWindow::transform(){
   QModelIndexList list= selector->selectedList();
   if (list.size()>0) {
+    glWidget->lastSelected = list[ list.size()-1 ].row();
 
-		glWidget->lastSelected = list[ list.size()-1 ].row();
+    // find bbox
+    Box3f bboxAll, bboxOne; bboxAll.SetNull();
+    if (selector->currentTabName()==MESH)
+    for (int j=0; j<list.size(); j++){
+        bboxOne = brfdata.mesh[list[j].row()].bbox;
+        bboxAll.Add( bboxOne );
+    } else
+    if (selector->currentTabName()==BODY)
+    for (int j=0; j<list.size(); j++){
+        bboxOne = brfdata.body[list[j].row()].bbox;
+        bboxAll.Add( bboxOne );
+    }
 
-		// find bbox
-		Box3f bboxAll, bboxOne; bboxAll.SetNull();
-		if (selector->currentTabName()==MESH)
-		for (int j=0; j<list.size(); j++){
-			bboxOne = brfdata.mesh[list[j].row()].bbox;
-			bboxAll.Add( bboxOne );
-		} else
-		if (selector->currentTabName()==BODY)
-		for (int j=0; j<list.size(); j++){
-			bboxOne = brfdata.body[list[j].row()].bbox;
-			bboxAll.Add( bboxOne );
-		}
+    AskTransformDialog *d = askTransformDialog;
+    d->setMultiObj(list.size()>1);
+    d->setSensitivityOne( 0.01 ) ; //myRound( bboxOne.Diag() / 20 ) );
+    d->setSensitivityAll( 0.05 ) ; // myRound( bboxAll.Diag() / 20 ) );
 
-		AskTransformDialog *d = new AskTransformDialog(this, list.size()>1 );
-		d->setSensitivityOne( 0.01 ) ; //myRound( bboxOne.Diag() / 20 ) );
-		d->setSensitivityAll( 0.05 ) ; // myRound( bboxAll.Diag() / 20 ) );
-		d->matrix = glWidget->extraMatrix;
-		d->setApplyToAllLoc( &( glWidget->applyExtraMatrixToAll ) );
-
-    connect(d,SIGNAL(changed()),glWidget,SLOT(update()));
+    d->setBoundingBox(bboxAll.min.V(), bboxAll.max.V());
     bool ok = d->exec() == QDialog::Accepted;
 
-		int start = (glWidget->applyExtraMatrixToAll)?0:list.size()-1;
+    int start = (glWidget->applyExtraMatrixToAll)?0:list.size()-1;
 
     if (ok) {
-      if (selector->currentTabName()==MESH)
-			for (int j=start; j<list.size(); j++){
-        brfdata.mesh[list[j].row()].Transform(d->matrix);
-      }
-      if (selector->currentTabName()==BODY)
-			for (int j=start; j<list.size(); j++){
-        brfdata.body[list[j].row()].Transform(d->matrix);
-      }
-      setModified(true);
+
+        if (selector->currentTabName()==MESH)
+          for (int j=start; j<list.size(); j++)
+             brfdata.mesh[list[j].row()].Transform(d->matrix);
+
+        if (selector->currentTabName()==BODY)
+           for (int j=start; j<list.size(); j++)
+          brfdata.body[list[j].row()].Transform(d->matrix);
+
+        setModified(true);
     }
+
   }
   glWidget->clearExtraMatrix();
   updateGl();
@@ -1929,7 +2266,7 @@ void MainWindow::moveUpSel(){
   selector->updateData(brfdata);
   selector->moveSel(-1);
   inidataChanged();
-	setModified(true,false);
+  setModified(true,false);
 }
 void MainWindow::moveDownSel(){
   int i = selector->firstSelected();
@@ -1949,7 +2286,7 @@ void MainWindow::moveDownSel(){
     selector->updateData(brfdata);
     selector->moveSel(+1);
     inidataChanged();
-		setModified(true,false);
+    setModified(true,false);
   }
 }
 static void _findCommonPrefix(QString& a, QString b){
@@ -2058,7 +2395,7 @@ void MainWindow::deleteSel(){
   }
   inidataChanged();
   updateSel();
-	setModified(true,false);
+  setModified(true,false);
 }
 
 
@@ -2079,6 +2416,85 @@ void MainWindow::editCutFrame(){
     setModified(true);
     //guiPanel->ui->frameNumber->setMaximum(m.frame.size()-1);
   }
+}
+
+QString MainWindow::senderText()const{
+  QObject *o = sender();
+  if (!o) return QString();
+  return o->objectName();
+}
+
+void MainWindow::editCopyHitbox(){
+  BrfSkeleton &s(getUniqueSelected<BrfSkeleton>());
+  if (!&s) {
+      QMessageBox::information(this,"OpenBrf",tr("%1: Select one skeleton with a hitbox first").arg(senderText()));
+    return;
+  }
+
+  BrfBody *b= hitboxSet.FindBody(s.name);
+  if (!b){
+    QMessageBox::information(this,"OpenBrf",tr("%1: skeleton %2 has no kwown hitbox to copy").arg(senderText()).arg(s.name));
+    return;
+  }
+
+  clipboard.Clear();
+  clipboard.skeleton.push_back(s);
+  clipboard.body.push_back(*b);
+  sprintf(clipboard.body[0].name,"%s",s.name);
+  saveSystemClipboard();
+
+}
+
+void MainWindow::editPasteHitbox(){
+  BrfSkeleton &s2(getUniqueSelected<BrfSkeleton>());
+  if (!&s2) {
+     QMessageBox::information(this,"OpenBrf",tr("%1: Select one skeleton with a hitbox first").arg(senderText()));
+     return;
+  }
+
+  BrfBody res;
+
+  if (clipboard.IsOneSkelOneHitbox()){
+      // copy hitbox verbatim!
+      res = clipboard.body[0];
+      BrfSkeleton &s1 ( clipboard.skeleton[0] );
+
+      if (s1.bone.size() != s2.bone.size() ){
+          QMessageBox::warning(this,"OpenBRF",
+            tr("Wrong number of bones! (%1 in %2 VS %3 in %4). Cannot perform action")
+            .arg(s1.bone.size()).arg(s1.name).arg(s2.bone.size()).arg(s2.name)
+          );
+          return;
+      }
+
+  } else if (clipboard.totSize()==1 && clipboard.body.size()==1){
+      const BrfBody &b (clipboard.body[0]);
+
+      if (!s2.DisposeHitboxes(b,res,true)) {
+          QMessageBox::warning(this,"OpenBRF",
+            tr("Wrong number of bones! (%1 in %2 VS %3 in %4). Cannot perform action")
+            .arg(b.part.size()).arg(b.name).arg(s2.bone.size()).arg(s2.name)
+          );
+          return;
+      }
+
+  } else {
+      QMessageBox::information(this,"OpenBrf",
+        tr("Cannot paste hitboxes: I don't have a hitboxes plus skeleton in clipboard")
+      );
+      return;
+  }
+
+  sprintf(res.name,"%s",s2.name); // copy name of new skeleton
+  int bi = hitboxSet.Find(res.name, BODY);
+  if (bi>=0) hitboxSet.body[bi] = res; // substitute hitboxes in set
+  else hitboxSet.body.push_back(res); // add hitbox to set
+  setModifiedHitboxes(true);
+  updateGui();
+  updateGl();
+
+
+
 }
 
 void MainWindow::editCopyFrame(){
@@ -2113,6 +2529,9 @@ void MainWindow::onClipboardChange(){
     :"Unusable data in clipboard");
 
   editPasteAct->setEnabled( clipboard.totSize() );
+
+  editPasteHitboxAct->setEnabled( clipboard.IsOneSkelOneHitbox() ||
+                                  (clipboard.totSize()==1 && clipboard.body.size()==0) );
 
   if (clipboard.mesh.size()!=0){
     // maybe it was just rigged meshes?
@@ -2164,6 +2583,7 @@ void MainWindow::saveSystemClipboard(){
   QTemporaryFile file;
   file.open();
 	FILE* pFile = fdopen(file.handle(), "wb");
+  clipboard.version = usingWarband;
   clipboard.Save(pFile);
   fflush(pFile);
 
@@ -2464,7 +2884,7 @@ void MainWindow::editPasteTimings(){
     statusBar()->showMessage(tr("Pasted timings over %1 skeletal animations").arg(max),8000);
   } else {
     max =0;
-    statusBar()->showMessage(tr("Cannot paste times over that").arg(max),8000);
+    statusBar()->showMessage(tr("Cannot paste times over that"),8000);
   }
 
   if (max>0) {  updateGui();  setModified(true);  }
@@ -2494,6 +2914,17 @@ void MainWindow::editPasteMod(){
 
 void MainWindow::editPaste(){
   //deleteSel();
+
+  if (clipboard.IsOneSkelOneHitbox()) {
+     // special paste: produce a hitbox as a body part
+     BrfBody res;
+     if (clipboard.skeleton[0].DisposeHitboxes(clipboard.body[0],res,false)) {
+       insert(res);
+       setModified(true,false);
+       return;
+     }
+  }
+
   for (int i=0; i<(int)clipboard.body.size(); i++) insert(clipboard.body[i]);
   for (int i=0; i<(int)clipboard.texture.size(); i++) insert(clipboard.texture[i]);
   for (int i=0; i<(int)clipboard.shader.size(); i++) insert(clipboard.shader[i]);
@@ -2501,9 +2932,8 @@ void MainWindow::editPaste(){
   for (int i=0; i<(int)clipboard.mesh.size(); i++) insert(clipboard.mesh[i]);
   for (int i=0; i<(int)clipboard.skeleton.size(); i++) insert(clipboard.skeleton[i]);
   for (int i=0; i<(int)clipboard.animation.size(); i++) insert(clipboard.animation[i]);
-  //brfdata.Merge(clipboard);
-  //selector->updateData(brfdata);
-	setModified(true,false);
+
+  setModified(true,false);
 }
 
 void MainWindow::duplicateSel(){
@@ -2875,6 +3305,7 @@ void MainWindow::saveOptions() const {
 
   settings->setValue("useOpenGl2",(int)optionUseOpenGL2->isChecked());
 
+  settings->setValue("useCustomFeminizer", (int)optionFeminizerUseCustom->isChecked());
 
 }
 
@@ -3046,6 +3477,14 @@ void MainWindow::loadOptions(){
 
   {
   int k=0;
+  QVariant s =settings->value("useCustomFeminizer");
+  if (s.isValid()) k = s.toInt();
+  optionFeminizerUseDefault->setChecked(k==0);
+  optionFeminizerUseCustom->setChecked(k!=0);
+  }
+
+  {
+  int k=0;
   QVariant s =settings->value("aoInAlpha");
   if (s.isValid()) k = s.toInt();
   optionAoInAlpha->setChecked(k);
@@ -3117,17 +3556,17 @@ int MainWindow::GetFirstUnusedRefLetter() const{
 
 bool MainWindow::editRef()
 {
+  //if (editingRef) reference = brfdata;
+
+  if (!maybeSave()) return false;
+
   if (editingRef) {
     // stop editing refernce file
-    reference = brfdata;
-    if (!maybeSave()) return false;
     curFile = curFileBackup;
     brfdata = brfdataBackup;
     setEditingRef(false);
     findCurFileInIni();
-
     updateSel();
-
     return true;
   } else {
     if (!maybeSave()) return false;
@@ -3169,6 +3608,8 @@ bool MainWindow::loadFile(const QString &_fileName)
 
   } else  {
     //tryLoadMaterials();
+    //brfdata.Merge(hitboxSet);
+
     setCurrentFile(fileName);
     updateSel();
 
@@ -3254,7 +3695,9 @@ void MainWindow::selectBrfData(){
     for (unsigned int k = 0; k<inidata.file.size(); k++){
       int h = inidata.origin[k]==IniData::MODULE_RES?0:2;
       QString shortName = inidata.filename[k];
-      shortName = QString("%1. %2").arg(inidata.iniLine[k]).arg(QFileInfo(shortName).baseName());
+      shortName = QString("%1. %2")
+         .arg(inidata.iniLine[k])
+         .arg(QFileInfo(shortName).completeBaseName());
       if (inidata.updated>2) {
         int s = inidata.totSize(k);
         if (inidata.updated<4) {
@@ -3313,9 +3756,16 @@ void MainWindow::showUnrefTextures(){
     d.addFile(name);
   }
 
+  d.texturePath = dir.canonicalPath();
+
   if (d.exec()!=QDialog::Accepted) break;
   }
 
+}
+
+
+void MainWindow::moduleOpenFolder(){
+  QDesktopServices::openUrl(modPath());
 }
 
 
@@ -3385,7 +3835,13 @@ bool MainWindow::saveAs()
 }
 
 void MainWindow::updateTitle(){
-  QString maybestar = (isModified)?QString("(*)"):QString("");
+  QString maybestar;
+
+  // signal modified status
+  if (isModified&&isModifiedHitboxes) maybestar=QString("(*)(**)");
+  else if (isModified) maybestar=QString("(*)");
+  else if (isModifiedHitboxes) maybestar=QString("(**)");
+
   QString notInIni = (curFileIndex==-1)?tr(" [not in module.ini]"):tr("");
   QString tit("OpenBrf");
   if (!editingRef) {
@@ -3402,6 +3858,16 @@ void MainWindow::setModified(bool mod, bool repeatable){
 	if (mod && repeatable) setNextActionAsRepeatable = true; // action becomes repetable
   updateTitle();
 }
+
+void MainWindow::setModifiedHitboxes(bool mod){
+  if (mod!=isModifiedHitboxes) {
+      if (mod) saveHitboxAct->setText( saveHitboxAct->text().replace("...","(**)...") );
+      else saveHitboxAct->setText( saveHitboxAct->text().replace("(**)...","...") );
+  }
+  isModifiedHitboxes = mod;
+  updateTitle();
+}
+
 
 bool MainWindow::guessPaths(QString fn){
   bool res=false;
@@ -3442,7 +3908,7 @@ bool MainWindow::guessPaths(QString fn){
   if  (QString::compare(a.dirName(),"commonres",Qt::CaseInsensitive)==0)
   if (a.cdUp()) {
     mabPath = a.absolutePath();
-    if (a.cd("modules") && (a.cd(modName)) ) {
+    if (a.cd("Modules") && (a.cd(modName)) ) {
       _modPath = a.absolutePath();
     } else {
       modName = "native";
@@ -3455,7 +3921,31 @@ bool MainWindow::guessPaths(QString fn){
   inidata.setPath(mabPath,_modPath);
 
   loadIni(2);
+
+  if (res) {
+      /* store in recent mods */
+      QStringList files = settings->value("recentModList").toStringList();
+      files.removeAll(_modPath);
+      files.prepend(_modPath);
+      while (files.size() > MaxRecentFiles)
+          files.removeLast();
+      settings->setValue("recentModList", files);
+      foreach (QWidget *widget, QApplication::topLevelWidgets()) {
+        MainWindow *mainWin = qobject_cast<MainWindow *>(widget);
+        if (mainWin) mainWin->updateRecentModActions();
+      }
+
+      updateGui();
+      updateGl();
+
+  }
   return res;
+}
+
+void MainWindow::updateSelectedMenu(){
+    selectedMenu->clear();
+    selector->updateContextMenu();
+    selectedMenu->addActions(selector->contextMenu->actions());
 }
 
 bool MainWindow::loadIni(int lvl){
@@ -3463,9 +3953,11 @@ bool MainWindow::loadIni(int lvl){
   QTime qtime;
   qtime.start();
 
-  bool res = inidata.loadAll(lvl); // if lvl == 2 only tex mat etc
+  if (inidata.updated==0) {
+      refreshSkeletonBodiesXml(); // reload skeletons from xml
+  }
 
-  //cancelNavStack();
+  bool res = inidata.loadAll(lvl); // if lvl == 2 only tex mat etc
 
   statusBar()->showMessage( tr("%5 %1 brf files from module.ini of \"%3\"-- %2 msec total [%4 text/mat/shad]").
       arg(inidata.file.size()).arg(qtime.elapsed()).arg(modName).arg(inidata.nRefObjects())
@@ -3486,6 +3978,8 @@ bool MainWindow::loadIni(int lvl){
 void MainWindow::setCurrentFile(const QString &fileName)
 {
   curFile = fileName;
+
+  /* store in recent files */
   QStringList files = settings->value("recentFileList").toStringList();
   files.removeAll(fileName);
   files.prepend(fileName);
@@ -3493,7 +3987,6 @@ void MainWindow::setCurrentFile(const QString &fileName)
       files.removeLast();
   settings->setValue("recentFileList", files);
   settings->setValue("lastOpenPath",QFileInfo(fileName).absolutePath());
-
   foreach (QWidget *widget, QApplication::topLevelWidgets()) {
     MainWindow *mainWin = qobject_cast<MainWindow *>(widget);
     if (mainWin) mainWin->updateRecentFileActions();
@@ -3654,18 +4147,44 @@ bool MainWindow::navigateDown(){
 bool MainWindow::searchBrf(){
   return false;
 }
-bool MainWindow::refreshIni(){  
+bool MainWindow::refreshIni(){
+  if (!maybeSaveHitboxes()) return false;
   int tmp = inidata.updated;
   inidata.updated=0; // force reload all
   brfdata.ForgetTextureLocations();
   glWidget->forgetChachedTextures();
   glWidget->readCustomShaders();
+  //refreshSkeletonBodiesXml();
 
   bool res = loadIni(tmp);
   updateGl();
   updateGui();
   return res;
 
+}
+bool MainWindow::openNextInMod(){
+  if (!inidata.file.size()) return false;
+  if (!maybeSave()) return false;
+
+  if (curFileIndex == -1) curFileIndex=0;
+  else {
+    curFileIndex++;
+    if (curFileIndex>=(int)inidata.file.size()-1) return false;
+  }
+  return loadFile(inidata.filename[curFileIndex]);
+}
+
+bool MainWindow::openPrevInMod(){
+  if (!inidata.file.size()) return false;
+  if (!maybeSave()) return false;
+
+  if (curFileIndex == -1) curFileIndex=0;
+  else {
+    if (curFileIndex ==0) return false;
+    curFileIndex--;
+  }
+
+  return loadFile(inidata.filename[curFileIndex]);
 }
 
 bool MainWindow::checkIni(){
@@ -3681,6 +4200,33 @@ bool MainWindow::checkIni(){
   }
   delete d;
   return true;
+}
+
+bool MainWindow::refreshSkeletonBodiesXml(){
+  // try read mod speicfic file
+
+  QString fn = modPath()+"/Data/skeleton_bodies.xml";
+  int res = hitboxSet.LoadHitBoxesFromXml(fn.toStdWString().c_str());
+
+  // if file not found: try reading default path
+  if (res==-1) {
+      fn = mabPath+"/Data/skeleton_bodies.xml";
+      res = hitboxSet.LoadHitBoxesFromXml(fn.toStdWString().c_str());
+  }
+
+  if (res==1) {
+      lastSkeletonBodiesXmlPath =  fn;
+      setModifiedHitboxes(false);
+      return true; // read correctly
+  }
+
+  if (res==-1) return false; // file not found: fail silently
+
+  // problem with file: give a warning
+  QMessageBox::warning(this, tr("OpenBrf"), QString("Error loading skeleton hitbox: ")
+         +BrfData::LastHitBoxesLoadSaveError() );
+
+  return false;
 }
 
 bool MainWindow::searchIni(){
@@ -3799,6 +4345,16 @@ bool MainWindow::openRecentFile()
   return false;
 }
 
+bool MainWindow::openRecentMod()
+{
+  if (!maybeSaveHitboxes()) return false;
+  QAction *action = qobject_cast<QAction *>(sender());
+  if (action)
+      return guessPaths(action->data().toString()+"/Resource");
+  return false;
+}
+
+
 void MainWindow::updateRecentFileActions()
 {
     QStringList files = settings->value("recentFileList").toStringList();
@@ -3816,6 +4372,24 @@ void MainWindow::updateRecentFileActions()
 
     separatorAct->setVisible(numRecentFiles > 0);
 }
+
+
+void MainWindow::updateRecentModActions()
+{
+    QStringList files = settings->value("recentModList").toStringList();
+
+    int numRecentFiles = qMin(files.size(), (int)MaxRecentFiles);
+
+    for (int i = 0; i < numRecentFiles; ++i) {
+        recentModActs[i]->setText(files[i]);
+        recentModActs[i]->setData(files[i]);
+        recentModActs[i]->setVisible(true);
+    }
+    for (int j = numRecentFiles; j < MaxRecentFiles; ++j)
+        recentModActs[j]->setVisible(false);
+
+}
+
 
 QString MainWindow::strippedName(const QString &fullFileName)
 {
@@ -3842,13 +4416,69 @@ void MainWindow::optionSetBgColor(){
 
 }
 
-    
+
 #include "askFlagsDialog.h"
+
+template<class BrfType> void MainWindow::getAllFlags(const vector<BrfType> &v, unsigned int &curfOR, unsigned int &curfAND){
+    QModelIndexList list=selector->selectedList();
+    curfOR=0;
+    curfAND = 0xFFFFFFFF;
+    for (int i=0; i<(int)list.size(); i++) {
+      int sel = list[i].row();
+      if (sel<0 || sel>=(int)v.size()) continue;
+      curfOR |= v[sel].flags;
+      curfAND &= v[sel].flags;
+    }
+}
+
+void MainWindow::getAllRequires(const vector<BrfShader> &v, unsigned int &curfOR, unsigned int &curfAND){
+    QModelIndexList list=selector->selectedList();
+    curfOR=0;
+    curfAND = 0xFFFFFFFF;
+    for (int i=0; i<(int)list.size(); i++) {
+      int sel = list[i].row();
+      if (sel<0 || sel>=(int)v.size()) continue;
+      curfOR |= v[sel].requires;
+      curfAND &= v[sel].requires;
+    }
+}
+
+template<class BrfType> bool MainWindow::setAllFlags(vector<BrfType> &v, unsigned int toZero, unsigned int toOne){
+  bool mod = false;
+  QModelIndexList list=selector->selectedList();
+  for (int i=0; i<(int)list.size(); i++) {
+    int sel = list[i].row();
+    if (sel<0 || sel>=(int)v.size()) continue;
+    unsigned int oldflags = v[sel].flags;
+    v[sel].flags |= toOne;
+    v[sel].flags &= toZero;
+    if (oldflags!=v[sel].flags) mod = true;
+  }
+  updateGui();
+  if (mod) setModified(true);
+  return mod;
+}
+
+bool MainWindow::setAllRequires(vector<BrfShader> &v, unsigned int toZero, unsigned int toOne){
+  bool mod = false;
+  QModelIndexList list=selector->selectedList();
+  for (int i=0; i<(int)list.size(); i++) {
+    int sel = list[i].row();
+    if (sel<0 || sel>=(int)v.size()) continue;
+    unsigned int oldreqs = v[sel].requires;
+    v[sel].requires |= toOne;
+    v[sel].requires &= toZero;
+    if (oldreqs!=v[sel].requires) mod = true;
+  }
+  updateGui();
+  if (mod) setModified(true);
+  return mod;
+}
+
+
 
 #define TR AskFlagsDialog::tr
 void MainWindow::setFlagsBody(){
-  unsigned int curfOR=0, curfAND = 0xFFFFFFFF;
-
 
   QString FlagNameArray[64] = {
      TR("Two-sided"),"",
@@ -3889,8 +4519,6 @@ void MainWindow::setFlagsBody(){
 
   };
 
-  QModelIndexList list=selector->selectedList();
-
   int sel = selector->firstSelected();
   if (sel<0 || sel>=(int)brfdata.body.size()) return;
 
@@ -3899,34 +4527,22 @@ void MainWindow::setFlagsBody(){
   BrfBodyPart &p(brfdata.body[sel].part[selp]);
 
   if (p.type==BrfBodyPart::MANIFOLD) return;
-  curfOR = curfAND = p.flags;
 
-  //setFlags(curf,ui->leMatFlags->text());
-  QStringList l, tips ;
-  for (int i=0; i<32; i++) {
-    l.append(FlagNameArray[i*2]);
-    tips.append(FlagNameArray[i*2+1]);
-  }
+  AskFlagsDialog *d = new AskFlagsDialog(this,tr("Collision objects flags"), p.flags,p.flags, FlagNameArray);
 
-  AskFlagsDialog *d = new AskFlagsDialog(this,curfOR,curfAND, l,tips);
-  d->setWindowTitle(tr("Collision objects flags"));
   if (d->exec()==QDialog::Accepted) {
 
     uint flags = d->toOne();
 
     if (p.flags != flags) {
-
       p.flags = flags;
       setModified(true);
       guiPanel->updateBodyPartData();
     }
-    //guiPanel->update(); //setSelection(list,MATERIAL);
   }
 
 }
 void MainWindow::setFlagsMesh(){
-  unsigned int curfOR=0, curfAND = 0xFFFFFFFF;
-
 
   QString FlagNameArray[64] = {
     TR("Unknown (for props?)"),TR("Exact meaning of this flag is unknown."),
@@ -3967,51 +4583,18 @@ void MainWindow::setFlagsMesh(){
 
   };
 
-  QModelIndexList list=selector->selectedList();
+  unsigned int curfOR, curfAND;
+  getAllFlags( brfdata.mesh, curfOR, curfAND );
 
-  for (int i=0; i<(int)list.size(); i++) {
-    int sel = list[i].row();
-    if (sel<0 || sel>=(int)brfdata.mesh.size()) continue;
+  AskFlagsDialog *d = new AskFlagsDialog(this,tr("Mesh flags"), curfOR,curfAND, FlagNameArray);
 
-    BrfMesh &m(brfdata.mesh[sel]);
-
-    curfOR |= m.flags;
-    curfAND &= m.flags;
-
-  }
-
-  //setFlags(curf,ui->leMatFlags->text());
-  QStringList l, tips ;
-  for (int i=0; i<32; i++) {
-    l.append(FlagNameArray[i*2]);
-    tips.append(FlagNameArray[i*2+1]);
-  }
-
-  AskFlagsDialog *d = new AskFlagsDialog(this,curfOR,curfAND, l,tips);
-  d->setWindowTitle(tr("Mesh flags"));
   if (d->exec()==QDialog::Accepted) {
-    //ui->leMatFlags->setText(StringH( d->getRes() ));
-    //emit(dataMaterialChanged());
-
-    for (int i=0; i<(int)list.size(); i++) {
-      int sel = list[i].row();
-      if (sel<0 || sel>=(int)brfdata.mesh.size()) continue;
-
-      BrfMesh &m(brfdata.mesh[sel]);
-
-      m.flags |= d->toOne();
-      m.flags &= d->toZero();
-
-    }
-    guiPanel->setSelection(list,MESH);
-    setModified(true);
+      setAllFlags(brfdata.mesh,d->toZero(),d->toOne() );
   }
 
 }
 
 void MainWindow::setFlagsTexture(){
-  unsigned int curfOR=0, curfAND = 0xFFFFFFFF;
-
 
   QString FlagNameArray[64] = {
     TR("Unknown"),"",
@@ -4052,56 +4635,25 @@ void MainWindow::setFlagsTexture(){
 
   };
 
-  QModelIndexList list=selector->selectedList();
+  unsigned int curfOR, curfAND;
+  getAllFlags( brfdata.texture, curfOR, curfAND );
 
-  for (int i=0; i<(int)list.size(); i++) {
-    int sel = list[i].row();
-    if (sel<0 || sel>=(int)brfdata.texture.size()) continue;
+  AskFlagsDialog *d = new AskFlagsDialog(this,tr("Texture flags"), curfOR,curfAND, FlagNameArray);
 
-    BrfTexture &t(brfdata.texture[sel]);
-    curfOR |= t.flags;
-    curfAND &= t.flags;
-  }
-
-  //setFlags(curf,ui->leMatFlags->text());
-  QStringList l, tips ;
-  for (int i=0; i<32; i++) {
-    l.append(FlagNameArray[i*2]);
-    tips.append(FlagNameArray[i*2+1]);
-  }
-
-  AskFlagsDialog *d = new AskFlagsDialog(this,curfOR,curfAND, l,tips);
   int aniVals[16] = {0,4,8,12,16,20,24,28,32,36,40,44,48,52,56,60};
   d->setBitCombo(TR("Animation frames"),TR("N. of frames of texture anim (append \"_0\", \"_1\" ... to dds file names)."),24,28,aniVals);
   const char* aniPows[16] = {"default","2","4","8","16","32","64","128","256","512","1024","2K", "4K","8K","16K","32K",};
-  d->setBitCombo(TR("Size U (?)"),TR("Unclear meaining, usually only set for face textures"),12,16,aniPows);
-  d->setBitCombo(TR("Size V (?)"),TR("Unclear meaining, usually only set for face textures"),16,20,aniPows);
+  d->setBitCombo(TR("Size U (?)"),TR("Unclear meaining, usually only set for facial textures"),12,16,aniPows);
+  d->setBitCombo(TR("Size V (?)"),TR("Unclear meaining, usually only set for facial textures"),16,20,aniPows);
 
-  d->setWindowTitle(tr("Texture flags"));
   if (d->exec()==QDialog::Accepted) {
-    //ui->leMatFlags->setText(StringH( d->getRes() ));
-    //emit(dataMaterialChanged());
-
-    for (int i=0; i<(int)list.size(); i++) {
-      int sel = list[i].row();
-      if (sel<0 || sel>=(int)brfdata.texture.size()) continue;
-
-      BrfTexture &t(brfdata.texture[sel]);
-
-      t.flags |= d->toOne();
-      t.flags &= d->toZero();
-
-    }
-    guiPanel->setSelection(list,TEXTURE);
-    setModified(true);
+    setAllFlags(brfdata.texture, d->toZero(), d->toOne() );
   }
 
 }
 
 
 void MainWindow::setFlagsMaterial(){
-  unsigned int curfOR=0, curfAND = 0xFFFFFFFF;
-
 
   QString FlagNameArray[64] = {
      TR("No fog"),TR("This object must not be affected by fog"),
@@ -4144,60 +4696,26 @@ void MainWindow::setFlagsMaterial(){
 
   };
 
+  unsigned int curfOR, curfAND;
+  getAllFlags( brfdata.material, curfOR, curfAND );
 
-  QModelIndexList list=selector->selectedList();
+  AskFlagsDialog *d = new AskFlagsDialog(this,tr("Material flags"), curfOR,curfAND, FlagNameArray);
 
-  for (int i=0; i<(int)list.size(); i++) {
-    int sel = list[i].row();
-    if (sel<0 || sel>=(int)brfdata.material.size()) continue;
-
-    BrfMaterial &m(brfdata.material[sel]);
-
-    curfOR |= m.flags;
-    curfAND &= m.flags;
-
-  }
-
-  //setFlags(curf,ui->leMatFlags->text());
-  QStringList l, tips ;
-  for (int i=0; i<32; i++) {
-    l.append(FlagNameArray[i*2]);
-    tips.append(FlagNameArray[i*2+1]);
-  }
-
-  AskFlagsDialog *d = new AskFlagsDialog(this,curfOR,curfAND, l,tips);
   int vals[16] = {-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7};
   d->setBitCombo(TR("Render order"),TR("Determines what is rendered first (neg number), or later (pos numbers)"),24,28, vals,8);
 
   const char* valsAlpha[4] = {"No","< 8/256","< 136/256","< 251/256"};
   d->setBitCombo(TR("Alpha test:"),TR("Alpha testing (for cutouts). Pixels more transparent than a given number will be not drawn."),12,14, valsAlpha);
 
-  d->setWindowTitle(tr("Material flags"));
   if (d->exec()==QDialog::Accepted) {
-    //ui->leMatFlags->setText(StringH( d->getRes() ));
-    //emit(dataMaterialChanged());
-
-    for (int i=0; i<(int)list.size(); i++) {
-      int sel = list[i].row();
-      if (sel<0 || sel>=(int)brfdata.material.size()) continue;
-
-      BrfMaterial &m(brfdata.material[sel]);
-
-      m.flags |= d->toOne();
-      m.flags &= d->toZero();
-
-    }
-    guiPanel->setSelection(list,MATERIAL);
-    setModified(true);
+    setAllFlags(brfdata.material, d->toZero(), d->toOne() );
   }
 
 }
 
 void MainWindow::setFlagsShaderRequires(){
-	unsigned int curfOR=0, curfAND = 0xFFFFFFFF;
 
-
-	QString FlagNameArray[64] = {
+    QString FlagNameArray[64] = {
 		"","",
 		"","",
 		"","",
@@ -4213,9 +4731,9 @@ void MainWindow::setFlagsShaderRequires(){
 		"","",
 		"","",
 
-		"pixel shader", "requires config setting use_pixel_shaders and video card PS 1.1 capability",// 0x1000, //
-		"mid quality",  "requires config setting shader_quality > 0",// 0x2000, //
-		"hi quality", "requires config setting shader_quality > 1 and some additional video card PS 2.0a/b capabilities",  // 0x4000, //
+        TR("pixel shader"), TR("requires config setting use_pixel_shaders and video card PS 1.1 capability"),// 0x1000
+        TR("mid quality"),  TR("requires config setting shader_quality > 0"),// 0x2000
+        TR("hi quality"), TR("requires config setting shader_quality > 1 and some additional video card PS 2.0a/b capabilities"),  // 0x4000
 
 		"","",
 		"","",
@@ -4239,50 +4757,18 @@ void MainWindow::setFlagsShaderRequires(){
 
 	};
 
-	QModelIndexList list=selector->selectedList();
+    unsigned int curfOR, curfAND;
+    getAllRequires( brfdata.shader, curfOR, curfAND );
 
-	for (int i=0; i<(int)list.size(); i++) {
-		int sel = list[i].row();
-		if (sel<0 || sel>=(int)brfdata.shader.size()) continue;
+    AskFlagsDialog *d = new AskFlagsDialog(this,tr("Shader Requirements"), curfOR,curfAND, FlagNameArray );
 
-		BrfShader &t(brfdata.shader[sel]);
-		curfOR |= t.requires;
-		curfAND &= t.requires;
-	}
-
-	//setFlags(curf,ui->leMatFlags->text());
-	QStringList l, tips ;
-	for (int i=0; i<32; i++) {
-		l.append(FlagNameArray[i*2]);
-		tips.append(FlagNameArray[i*2+1]);
-	}
-
-	AskFlagsDialog *d = new AskFlagsDialog(this,curfOR,curfAND, l,tips);
-
-	d->setWindowTitle(tr("Shader Requirements"));
 	if (d->exec()==QDialog::Accepted) {
-		//ui->leMatFlags->setText(StringH( d->getRes() ));
-		//emit(dataMaterialChanged());
-
-		for (int i=0; i<(int)list.size(); i++) {
-			int sel = list[i].row();
-			if (sel<0 || sel>=(int)brfdata.shader.size()) continue;
-
-			BrfShader &t(brfdata.shader[sel]);
-
-			t.requires |= d->toOne();
-			t.requires &= d->toZero();
-
-		}
-		guiPanel->setSelection(list,SHADER);
-		setModified(true);
-	}
+        setAllRequires( brfdata.shader, d->toZero(), d->toOne() );
+    }
 
 }
 
 void MainWindow::setFlagsShader(){
-	unsigned int curfOR=0, curfAND = 0xFFFFFFFF;
-
 
 	QString FlagNameArray[64] = {
 		"","",
@@ -4291,19 +4777,19 @@ void MainWindow::setFlagsShader(){
 		"","",
 
 		"","",
-		"specular enable","self explanatory",    // 0x20        //
+        TR("specular enable"),TR("enables specular light"),    // 0x20
 		"","",
-		"static_lighting","meshes using this shader will simulate lighting by vertex painting (static, on scene creation)",
+        TR("static_lighting"),TR("meshes using this shader will simulate lighting by vertex painting (static, on scene creation)"),
 
 		"","",
 		"","",
 		"","",
 		"","",
 
-		"preshaded"        ,"uses preshaded technique", //0x1000,     //
-		"uses instancing"  ,"shader receives instance data as input (TEXCOORD1..4)", //0x2000,     //
-		"","",
-		"biased"           ,"used for shadowmap bias", //0x8000,     //
+        TR("preshaded")        ,TR("uses preshaded technique"), //0x1000
+        TR("uses instancing")  ,TR("shader receives instance data as input (TEXCOORD1..4)"), //0x2000
+        "","",
+        TR("biased")           ,TR("used for shadowmap bias"), //0x8000
 
 		"","",
 		"","",
@@ -4320,50 +4806,20 @@ void MainWindow::setFlagsShader(){
 		"","",
 		"","",
 
-		"uses pixel shader","self explanatory", //0x10000000, //
-		"uses HLSL"        ,"if not set the FFP will be used", //0x20000000, //
-		"uses normal map"  ,"shader receives binormal and tangent as input (TANGENT, BINORMAL)", //0x40000000, //
-		"uses skinning"    ,"shader receives skinning data as input (BLENDWEIGHTS, BLENDINDICES)", //0x80000000, //
+        TR("uses pixel shader"),TR("this shader uses pixel shader"), //0x10000000
+        TR("uses HLSL")        ,TR("if not set the FFP will be used"), //0x20000000
+        TR("uses normal map")  ,TR("shader receives binormal and tangent as input (TANGENT, BINORMAL)"), //0x40000000
+        TR("uses skinning")    ,TR("shader receives skinning data as input (BLENDWEIGHTS, BLENDINDICES)"), //0x80000000
 
 	};
 
-	QModelIndexList list=selector->selectedList();
+    unsigned int curfOR, curfAND;
+    getAllFlags( brfdata.shader, curfOR, curfAND );
 
-	for (int i=0; i<(int)list.size(); i++) {
-		int sel = list[i].row();
-		if (sel<0 || sel>=(int)brfdata.shader.size()) continue;
+    AskFlagsDialog *d = new AskFlagsDialog(this, tr("Shader flags"), curfOR,curfAND, FlagNameArray);
 
-		BrfShader &t(brfdata.shader[sel]);
-		curfOR |= t.flags;
-		curfAND &= t.flags;
-	}
-
-	//setFlags(curf,ui->leMatFlags->text());
-	QStringList l, tips ;
-	for (int i=0; i<32; i++) {
-		l.append(FlagNameArray[i*2]);
-		tips.append(FlagNameArray[i*2+1]);
-	}
-
-	AskFlagsDialog *d = new AskFlagsDialog(this,curfOR,curfAND, l,tips);
-
-	d->setWindowTitle(tr("Shader flags"));
 	if (d->exec()==QDialog::Accepted) {
-		//ui->leMatFlags->setText(StringH( d->getRes() ));
-		//emit(dataMaterialChanged());
-
-		for (int i=0; i<(int)list.size(); i++) {
-			int sel = list[i].row();
-			if (sel<0 || sel>=(int)brfdata.shader.size()) continue;
-
-			BrfShader &t(brfdata.shader[sel]);
-
-			t.flags |= d->toOne();
-			t.flags &= d->toZero();
-
-		}
-		guiPanel->setSelection(list,SHADER);
-		setModified(true);
+        setAllFlags(brfdata.shader, d->toZero(), d->toOne() );
 	}
 
 }

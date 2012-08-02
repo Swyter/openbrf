@@ -16,10 +16,12 @@ public:
 
   bool Load(FILE*f,int verbose=0);
   void Save(FILE*f) const;
-  static bool IsAnimable() { return false; }
+  bool IsAnimable() const;
   static Box3f bbox;
+  char* FrameName(int i) const;
 
   void SetDefault();
+  int NFrames() const;
 
 };
 

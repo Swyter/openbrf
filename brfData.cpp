@@ -26,6 +26,17 @@ const char* BrfData::GetFirstObjectName() const{
   return NULL;
 }
 
+
+bool BrfData::IsOneSkelOneHitbox() const{
+  return 1
+    && (skeleton.size()==1)
+    && (body.size()==1)
+    && (totSize() == 2 )
+    && (body[0].part.size()==skeleton[0].bone.size())
+    && (0==strcmp(body[0].name,skeleton[0].name))
+  ;
+}
+
 BrfData::BrfData(){
   version = 0;
   //globalVersion = 0;
@@ -70,7 +81,7 @@ static void mergeVec(vector<T> &a, const vector<T> &b){
 }
 
 template <class T>
-static int myfind(const vector<T> &b, const char* name){
+static int myfind(const vector<T> &b, const char* name) {
   for (unsigned int i=0; i<b.size(); i++) if (strcmp(b[i].name,name)==0) return i;
   return -1;
 }
@@ -116,7 +127,7 @@ bool BrfData::HasAnyTangentDirs() const{
   return false;
 }
 
-int BrfData::Find(const char* name, int token){
+int BrfData::Find(const char* name, int token) const{
   switch (token) {
     case MESH: return myfind(mesh,name);
     case MATERIAL: return myfind(material,name);
@@ -127,6 +138,13 @@ int BrfData::Find(const char* name, int token){
     case ANIMATION: return myfind(animation,name);
   }
   return -1;
+}
+
+BrfBody* BrfData::FindBody(const char* name){
+  int i= myfind(body,name); if (i<0) return NULL; else return &(body[i]);
+}
+BrfMesh* BrfData::FindMesh(const char* name){
+  int i= myfind(mesh,name); if (i<0) return NULL; else return &(mesh[i]);
 }
 
 void  BrfData::Merge(const BrfData& b){

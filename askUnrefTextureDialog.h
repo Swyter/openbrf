@@ -5,6 +5,8 @@
 
 #include <QDialog>
 
+class QListWidgetItem;
+
 namespace Ui {
     class AskUnrefTextureDialog;
 }
@@ -15,9 +17,12 @@ public:
     AskUnrefTextureDialog(QWidget *parent = 0);
     ~AskUnrefTextureDialog();
     void addFile(QString f);
+    QString texturePath;
 
 private slots:
     void refresh();
+    void openTexture(QListWidgetItem* i);
+    void moveAllToUnused();
 
 protected:
     void changeEvent(QEvent *e);
