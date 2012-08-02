@@ -15,11 +15,18 @@ AskBoneDialog::AskBoneDialog(QWidget *parent,const std::vector<BrfSkeleton> &s) 
   for (int i=0; i<(int)sv.size(); i++)
     ui->cbSlel->addItem( sv[i].name );
   selectSkel(0);
+  ui->radioButton->setChecked(true);
+  ui->radioButton_2->setChecked(false);
   connect(ui->cbSlel, SIGNAL(currentIndexChanged(int)), this, SLOT(selectSkel(int)) );
+
 }
 
 void AskBoneDialog::sayNotRigged(bool say){
   ui->label_3->setVisible(say);
+}
+
+bool AskBoneDialog::pieceAtOrigin()const{
+  return ui->radioButton->isChecked();
 }
 
 void AskBoneDialog::selectSkel(int i){

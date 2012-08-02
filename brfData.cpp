@@ -89,6 +89,25 @@ static void mergeVec(vector<T> &a, const vector<T> &b){
   for (unsigned int i=0; i<b.size(); i++) a.push_back(b[i]);
 }
 
+template <class T>
+static int myfind(const vector<T> &b, char* name){
+  for (unsigned int i=0; i<b.size(); i++) if (strcmp(b[i].name,name)==0) return i;
+  return -1;
+}
+
+int BrfData::Find(char* name, int token){
+  switch (token) {
+    case MESH: return myfind(mesh,name);
+    case MATERIAL: return myfind(material,name);
+    case SHADER: return myfind(shader,name);
+    case TEXTURE: return myfind(texture,name);
+    case BODY: return myfind(body,name);
+    case SKELETON: return myfind(skeleton,name);
+    case ANIMATION: return myfind(animation,name);
+  }
+  return -1;
+}
+
 void  BrfData::Merge(const BrfData& b){
   mergeVec(mesh, b.mesh);
   mergeVec(texture, b.texture);

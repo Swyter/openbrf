@@ -9,6 +9,8 @@ namespace vcg{
   template<typename T> class Matrix44;
 }
 
+class BrfBody;
+
 class BrfBone
 {
 public:
@@ -33,6 +35,7 @@ public:
   vcg::Matrix44<float> getRotationMatrix() const;
   void  setRotationMatrix(vcg::Matrix44<float>);
 
+  BrfBody *hitBox; // array of hitboxes
   std::vector<int> next;
 };
 
@@ -58,6 +61,7 @@ public:
   bool IsAnimable() const{return false;}
   vcg::Box3f bbox;
 
+  void LoadHitBox(char * filename);
   bool SaveSMD(FILE *f) const;
   bool LoadSMD(FILE *f);
   std::vector<vcg::Matrix44<float> >  GetBoneMatrices(const BrfAnimationFrame &fr) const;

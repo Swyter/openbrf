@@ -53,6 +53,7 @@ public:
   BrfMesh GetCompleteSkin(int i) const; // returns a mesh composed of all skin pieces
 
   int getOneSkeleton(int nbones, int after);
+  int Find(char* name, int token);
   void ForgetTextureLocations();
   int version;
 private:

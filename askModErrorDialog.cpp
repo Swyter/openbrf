@@ -12,19 +12,18 @@ void AskModErrorDialog::refresh(){
   setup();
 }
 
+void AskModErrorDialog::moreErrors(){
+  maxErr+=10;
+  performErrorSearch();
+}
+
 void AskModErrorDialog::getIniDataReady(){
   inidata->updated=false;
   inidata->load(false);
   iniDataReady=true;
 
   if (!isSearch) {
-    inidata->findErrors();
-    te->setText(inidata->errorList.join("<p>"));
-    int ne=inidata->errorList.size();
-    if (!ne) {
-      m_ui->label->setText(QString("Found 0 errors in module!"));
-    }
-    else m_ui->label->setText(QString("Found %1 error%2:").arg(ne).arg((ne>1)?"s":""));
+    performErrorSearch();
   } else {
     performSearch();
   }
@@ -81,6 +80,19 @@ void AskModErrorDialog::linkClicked(const QUrl&l){
   return m_ui->lineEdit->text();
 }*/
 
+void AskModErrorDialog::performErrorSearch(){
+
+    bool more = inidata->findErrors(maxErr);
+    te->setText(inidata->errorList.join("<p>"));
+    int ne=inidata->errorList.size();
+    if (!ne) {
+      m_ui->label->setText(QString("Found 0 errors in module!"));
+    }
+    else m_ui->label->setText(QString("Found %1%3 error%2:").arg(ne).arg((ne>1)?"s":"").arg((more)?"+":""));
+
+    m_ui->buttonBox->buttons()[1]->setEnabled(more);
+}
+
 void AskModErrorDialog::performSearch(){
   if (!iniDataReady) return;
   searchString = m_ui->lineEdit->text();
@@ -104,6 +116,15 @@ AskModErrorDialog::AskModErrorDialog(QWidget *parent, IniData &i,bool search, QS
   inidata = &i;
   te = m_ui->textBrowser;
   te->setReadOnly(true);
+
+
+  if (!search) {
+    QPushButton *b = new QPushButton(tr("More errors"));
+    b->setEnabled(false);
+    m_ui->buttonBox->addButton(b,QDialogButtonBox::ActionRole);
+    connect(b,SIGNAL(clicked()),this,SLOT(moreErrors()));
+  }
+
   QPushButton *b = new QPushButton(tr("Refresh"));
   m_ui->buttonBox->addButton(b,QDialogButtonBox::ActionRole);
   connect(b,SIGNAL(clicked()),this,SLOT(refresh()));
@@ -117,6 +138,7 @@ AskModErrorDialog::AskModErrorDialog(QWidget *parent, IniData &i,bool search, QS
 
   searchCommonRes = true;
   searchToken = -1;
+  maxErr = 10;
 
   setWindowTitle(QString("OpenBrf -- Module %1").arg(i.name()));
   if (search) {
@@ -124,13 +146,13 @@ AskModErrorDialog::AskModErrorDialog(QWidget *parent, IniData &i,bool search, QS
     resize(510, 250);
     connect(m_ui->lineEdit,SIGNAL(textEdited(QString)),this,SLOT(performSearch()));
     connect(m_ui->comboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(performSearch()));
-    connect(m_ui->checkBox,SIGNAL(stateChanged(int)),this,SLOT(performSearch()));
+    connect(m_ui->checkBox,SIGNAL(clicked()),this,SLOT(performSearch()));
   }
   else {
     resize(710, 250);
   }
   iniDataReady=firstPaintDone=false;
-  update(); // an extra redraw command
+  //update(); // an extra redraw command
 
 }
 
@@ -139,6 +161,7 @@ void AskModErrorDialog::paintEvent ( QPaintEvent * event ){
   if (firstPaintDone) {
     if (!iniDataReady) getIniDataReady();
   }
+  if (!firstPaintDone) update();
   firstPaintDone=true;
 }
 

@@ -96,8 +96,10 @@ Selector::Selector(QWidget *parent)
   exportMovingMeshAct = new QAction(tr("Export vertex ani"), this);
   exportMovingMeshAct->setStatusTip(tr("Export this model as a mesh with vertex animation."));
 
-  exportMeshGroupAct = new QAction(tr("Export mesh group"), this);
-  exportMeshGroupAct->setStatusTip(tr("Export this group of model in a single OBJ."));
+  exportMeshGroupAct = new QAction(tr("Export combined mesh"), this);
+  exportMeshGroupAct->setStatusTip(tr("Export this group of models in a single OBJ."));
+  exportMeshGroupManyFilesAct = new QAction(tr("Export all meshes"), this);
+  exportMeshGroupManyFilesAct->setStatusTip(tr("Export each of these models as separate OBJs."));
 
   exportRiggedMeshAct = new QAction(tr("Export rigged mesh"), this);
   exportRiggedMeshAct->setStatusTip(tr("Export this model (or this frame) as a rigged mesh."));
@@ -149,10 +151,14 @@ Selector::Selector(QWidget *parent)
   meshAddBackfacing->setStatusTip(tr("Duplicate all faces: for each current face, add a backfacing face."));
 
 
+  discardColAct = new QAction(tr("per-vertex color"), this);
+  discardRigAct = new QAction(tr("rigging"), this);
+  discardAniAct = new QAction(tr("vertex animation"), this);
+  discardAniAct->setStatusTip(tr("Discard vertex animation (keeps only current frame)"));
   //exportAnyBrfAct = new QAction(tr("in a BRF"), this);
   //exportAnyBrfAct->setStatusTip(tr("Export this object in a BRF file."));
 
-  exportSkeletonModAct = new QAction(tr("Make a sk3eleton-modification mesh"), this);
+  exportSkeletonModAct = new QAction(tr("Make a skeleton-modification mesh"), this);
   importSkeletonModAct = new QAction(tr("Modify from a skeleton-modification mesh"), this);
 
   connect(goNextTabAct, SIGNAL(triggered()),this,SLOT(goNextTab()));
@@ -174,6 +180,7 @@ Selector::Selector(QWidget *parent)
   connect(exportRiggedMeshAct, SIGNAL(triggered()),parent,SLOT(exportRiggedMesh()));
   connect(exportMovingMeshAct, SIGNAL(triggered()),parent,SLOT(exportMovingMesh()));
   connect(exportMeshGroupAct, SIGNAL(triggered()),parent,SLOT(exportMeshGroup()));
+  connect(exportMeshGroupManyFilesAct, SIGNAL(triggered()),parent,SLOT(exportMeshGroupManyFiles()));
   connect(exportSkeletonModAct, SIGNAL(triggered()),parent,SLOT(exportSkeletonMod()));
   connect(exportSkeletonAct, SIGNAL(triggered()),parent,SLOT(exportSkeleton()));
   connect(exportAnimationAct, SIGNAL(triggered()),parent,SLOT(exportAnimation()));
@@ -186,6 +193,9 @@ Selector::Selector(QWidget *parent)
   connect(exportBodyAct, SIGNAL(triggered()), parent, SLOT(exportCollisionBody()));
   connect(shiftAniAct, SIGNAL(triggered()),parent,SLOT(shiftAni()));
 
+  connect(discardAniAct,SIGNAL(triggered()),parent,SLOT(meshDiscardAni()));
+  connect(discardColAct,SIGNAL(triggered()),parent,SLOT(meshDiscardCol()));
+  connect(discardRigAct,SIGNAL(triggered()),parent,SLOT(meshDiscardRig()));
 
   connect(exportSkinAct, SIGNAL(triggered()), parent, SLOT(exportSkeletonAndSkin()));
   connect(exportSkinForAnimationAct, SIGNAL(triggered()), parent, SLOT(exportSkeletonAndSkin()));
@@ -214,7 +224,7 @@ Selector::Selector(QWidget *parent)
 
     tab[ti]->setModel(tableModel[ti]);
 
-    if (ti==MESH || ti==MATERIAL || ti==TEXTURE ) {
+    if (ti==MESH || ti==MATERIAL || ti==TEXTURE || ti==SKELETON ) {
       tab[ti]->setSelectionMode(QAbstractItemView::ExtendedSelection);
       tab[ti]->setStatusTip(QString("[Right-Click]: tools for %1. Multiple selections with [Shift]-[Ctrl].").arg(tokenFullName[ti]));
     }
@@ -354,6 +364,7 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
        ((QListView*)(this->currentWidget()))->selectionModel()->selectedIndexes() ;
 
    bool onesel = sel.size()==1;
+   bool mulsel = sel.size()>1;
    bool nosel = sel.size()==0;
    int seli = 0;
    if (!nosel) seli = sel[0].row();
@@ -402,21 +413,24 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
      if (t==MESH) {
        menu.addSeparator();
        menu.addAction(exportMeshGroupAct);
+       menu.addAction(exportMeshGroupManyFilesAct);
      }
    }
 
    // tool section
    bool sep = false;
+   if (!nosel) {
    if (t==MESH) {
-     if (data->mesh[ seli ].isRigged) {
+     const BrfMesh &mesh(data->mesh[ seli ]);
+     if (mesh.isRigged) {
        if (!sep) menu.addSeparator(); sep=true;
        menu.addAction(reskeletonizeAct);
      }
      //menu.addAction(transferRiggingAct);
+     if (!sep) menu.addSeparator(); sep=true;
      menu.addAction(flipAct);
      menu.addAction(transformAct);
      //menu.addAction(scaleAct);
-     if (!sep) menu.addSeparator(); sep=true;
      menu.addAction(meshRecomputeNormalsAndUnify);
      menu.addAction(meshUnify);
      if (!onesel && !nosel) { menu.addAction(meshMerge); }
@@ -424,6 +438,15 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
      QMenu *m = menu.addMenu("Backfacing faces");
      m->addAction(meshRemoveBackfacing);
      m->addAction(meshAddBackfacing);
+
+     m = menu.addMenu("Discard");
+
+     m->addAction(discardAniAct);
+     discardAniAct->setEnabled(mulsel || (mesh.frame.size()>1));
+     m->addAction(discardRigAct);
+     discardRigAct->setEnabled(mulsel || mesh.isRigged);
+     m->addAction(discardColAct);
+     discardColAct->setEnabled(mulsel || mesh.hasVertexColor);
 
    }
 
@@ -440,7 +463,7 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
        menu.addAction(shiftAniAct);
      }
    }
-
+   }
    // add to reference
    if (onesel && t==MESH) {
      menu.addSeparator();

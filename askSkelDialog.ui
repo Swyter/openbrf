@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>320</width>
-    <height>222</height>
+    <height>273</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <property name="geometry">
     <rect>
      <x>90</x>
-     <y>180</y>
+     <y>230</y>
      <width>161</width>
      <height>32</height>
     </rect>
@@ -99,7 +99,7 @@
     </font>
    </property>
    <property name="text">
-    <string>Change geometry of a mesh currently tigged for a skeleton</string>
+    <string>Change geometry of meshes currently rigged for a skeleton</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_4">
@@ -120,18 +120,96 @@
     <string>to make it follow a new skeleton:</string>
    </property>
   </widget>
-  <widget class="QCheckBox" name="checkBox">
+  <widget class="QGroupBox" name="groupBox">
    <property name="geometry">
     <rect>
-     <x>50</x>
+     <x>160</x>
      <y>140</y>
-     <width>221</width>
-     <height>21</height>
+     <width>151</width>
+     <height>80</height>
     </rect>
    </property>
-   <property name="text">
-    <string>result in a new vertex-ani frame</string>
+   <property name="title">
+    <string>Put result in:</string>
    </property>
+   <widget class="QRadioButton" name="radioButtonB2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>50</y>
+      <width>141</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>same mesh (overwrite)</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radioButtonB1">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>32</y>
+      <width>84</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>new mesh</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radioButtonB0">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>12</y>
+      <width>131</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>new vertex-ani frame</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="groupBox_2">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>140</y>
+     <width>141</width>
+     <height>81</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Method:</string>
+   </property>
+   <widget class="QRadioButton" name="radioButtonA0">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>131</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>generic</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="radioButtonA1">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>40</y>
+      <width>84</width>
+      <height>18</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>humanoids</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <resources/>

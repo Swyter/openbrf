@@ -75,6 +75,9 @@ private:
     *moveUpAct,
     *moveDownAct,
     *duplicateAct,
+    *discardColAct,
+    *discardRigAct,
+    *discardAniAct,
 
 
     // exporter acts
@@ -83,6 +86,8 @@ private:
     *exportRiggedMeshAct,
     *exportMovingMeshAct,
     *exportMeshGroupAct,
+    *exportMeshGroupManyFilesAct,
+
     *exportSkeletonModAct,
     *exportSkeletonAct,
     *exportSkinAct,
@@ -96,6 +101,8 @@ private:
     *transformAct,
     *scaleAct,
     *shiftAniAct,
+
+    *sortEntriesAct,
 
 
     // importer acts

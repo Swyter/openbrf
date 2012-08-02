@@ -201,6 +201,16 @@ static bool _copy(vector<T> &t, const QModelIndexList &l, vector<T> &d){
   return true;
 }
 
+template< class T >
+bool _compareName(const T &ta, const T &tb){
+  return strcmp(ta.name,tb.name)<0;
+}
+
+template< class T >
+static bool _sort(vector<T> &t){
+  std::sort(t.begin(),t.end(),_compareName<T>);
+  return true;
+}
 
 void MainWindow::updateTextureAccessDup(){
   int i = selector->firstSelected();
@@ -357,11 +367,140 @@ void MainWindow::onChangeTimeOfFrame(QString time){
 
 }
 
+void MainWindow::tld2mabArmor(){
+}
 
-void  MainWindow::mab2tld(){
+void MainWindow::tldMakeDwarfBoots(){
+  int sdi=reference.Find("skel_dwarf",SKELETON);
+  int shi=reference.Find("skel_human",SKELETON);
+  if (sdi==-1 || shi==-1) {
+    QMessageBox::information(this,
+      tr("Open Brf"),tr("CAnnot find skel_human, skel_dwarf and skel_orc in reference data.\n")
+    );
+    return;
+  }
+  BrfSkeleton &sd (reference.skeleton[sdi]);
+  BrfSkeleton &sh (reference.skeleton[shi]);
+  //vector<BrfMesh> res;
+  for (int ii=0; ii<selector->selectedList().size(); ii++) {
+    int i = selector->selectedList()[ii].row();
+    if (i<0) continue;
+    if (i>(int)brfdata.mesh.size()) continue;
+
+    BrfMesh &m (brfdata.mesh[i]);
+
+    m.ReskeletonizeHuman( sh, sd , 0.05);
+    m.Scale(1.00,1.00,1,1,0.9,0.95);
+    //m.TowardZero(0.008,0,0);
+
+    QString tmp= QString("%1").arg(m.name);
+
+    int indof = tmp.indexOf(".",0); if (indof == -1) indof = tmp.length();
+    QString tmp2 = tmp.left(indof)+"_dwarf"+tmp.right(tmp.length()-indof);
+    sprintf(m.name,"%s",tmp2.toAscii().data());
+
+    //res.push_back(m);
+    setModified(true);
+  }
+/*  for (unsigned int k=0; k<res.size(); k++) {
+    insert(res[k]);
+  }*/
+  updateGui();
+  updateSel();
+}
+
+void MainWindow::tldMakeDwarfSlim(){
+  int sdi=reference.Find("skel_dwarf",SKELETON);
+  if (sdi==-1) {
+    QMessageBox::information(this,
+      tr("Open Brf"),tr("CAnnot find skel_human, skel_dwarf and skel_orc in reference data.\n")
+    );
+    return;
+  }
+  BrfSkeleton &sd (reference.skeleton[sdi]);
+  for (int ii=0; ii<selector->selectedList().size(); ii++) {
+    int i = selector->selectedList()[ii].row();
+    if (i<0) continue;
+    if (i>(int)brfdata.mesh.size()) continue;
+    BrfMesh &m(brfdata.mesh[i]);
+    if (m.frame.size()<4) return;
+
+    m.frame[1].MakeSlim(0.95,0.95,&sd);
+    setModified(true);
+    updateGl();
+  }
+
+}
+
+void MainWindow::mab2tldArmor(){
+
+  //int shi=reference.Find("skel_orc_tall",SKELETON);
+  int shi=reference.Find("skel_human",SKELETON);
+  int sdi=reference.Find("skel_dwarf",SKELETON);
+  int soi=reference.Find("skel_orc",SKELETON);
+  if (shi==-1 || sdi==-1  || soi==-1) {
+    QMessageBox::information(this,
+      tr("Open Brf"),tr("Cannot find skel_human, skel_dwarf and skel_orc in reference data.\n")
+    );
+    return;
+  }
+  BrfSkeleton &sh (reference.skeleton[shi]);
+  BrfSkeleton &sd (reference.skeleton[sdi]);
+  BrfSkeleton &so (reference.skeleton[soi]);
+
+  for (int ii=0; ii<selector->selectedList().size(); ii++) {
+    int i = selector->selectedList()[ii].row();
+    if (i<0) continue;
+    if (i>(int)brfdata.mesh.size()) continue;
+
+    BrfMesh &m(brfdata.mesh[i]);
+    BrfMesh fem;
+    int lst = m.frame.size()-1;
+    bool usefem = false;
+    if (m.frame.size()==3) {
+      usefem = true;
+      fem=m;
+      fem.KeepOnlyFrame(1);
+      lst = 2;
+    }
+    if (m.frame.size()==5) {
+      usefem = true;
+      fem=m;
+      fem.KeepOnlyFrame(3);
+      lst = 4;
+    }
+
+    BrfMesh ml = m;  // last frame
+    ml.KeepOnlyFrame(lst);// or 0
+    m.KeepOnlyFrame( 0 );
+
+    BrfMesh md = m; // dwarf mesh
+    md.ReskeletonizeHuman( sh, sd , 0.05); // 0.05 = big arms!
+    float t[16]={1,0,0,0, 0,1,0,0, 0,0,1.25,0, 0,0,0,1};
+    md.Transform(t); // fat dwarf!
+    m.AddFrameDirect(md);
+
+    BrfMesh mo = m; // orc mesh
+    mo.ReskeletonizeHuman( sh, so , 0.00);
+    m.AddFrameDirect(mo);
+
+    if (usefem) m.AddFrameDirect(fem); // feminine mesh
+
+    m.AddFrameDirect(ml); // last frame
+
+
+
+    m.AdjustNormDuplicates();
+    setModified(true);
+  }
+  selector->updateData(brfdata);
+
+}
+
+void  MainWindow::mab2tldHead(){
   tldHead(1);
 }
-void  MainWindow::tld2mab(){
+void  MainWindow::tld2mabHead(){
   tldHead(-1);
 }
 void  MainWindow::tldHead(float verse){
@@ -659,15 +798,21 @@ int MainWindow::currentDisplayFrame(){
 }
 
 void MainWindow::meshUnify(){
-  int i = selector->firstSelected();
-  if (i<0) return;
-  if (i>(int)brfdata.mesh.size()) return;
-  BrfMesh &m (brfdata.mesh[i]);
-  m.UnifyPos();
-  m.UnifyVert(true,0.95);
-  statusBar()->showMessage(tr("Normals recomputed."), 2000);
-  selector->selectOne(MESH,i);
+
+  for (int k=0; k<selector->selectedList().size(); k++) {
+    int i= selector->selectedList()[k].row();
+    if (i<0) continue;
+    if (i>(int)brfdata.mesh.size()) continue;
+
+    BrfMesh &m (brfdata.mesh[i]);
+    m.UnifyPos();
+    m.UnifyVert(true,0.95);
+
+  }
+  updateGui();
+  updateGl();
   setModified(true);
+  statusBar()->showMessage(tr("Vertex unified."), 2000);
 }
 
 void MainWindow::meshMerge(){
@@ -681,7 +826,7 @@ void MainWindow::meshMerge(){
       if (!res.Merge( brfdata.mesh[j] )) {
         QMessageBox::information(this,
           tr("Open Brf"),
-          tr("Cannot merge these meshes\n (different number of frames,\n or rigged VS nor rigged).\n")
+          tr("Cannot merge these meshes\n (different number of frames,\n or rigged VS not rigged).\n")
         );
         return;
       }
@@ -690,6 +835,16 @@ void MainWindow::meshMerge(){
   }
   insert(res);
   setModified(true);
+}
+
+void MainWindow::updateGl(){
+  glWidget->update();
+}
+void MainWindow::updateGui(){
+  guiPanel->setSelection( selector->selectedList(),selector->currentTabName());
+}
+void MainWindow::updateSel(){
+  selector->updateData(brfdata);
 }
 
 void MainWindow::meshRecomputeNormalsAndUnify(int crease){
@@ -705,13 +860,12 @@ void MainWindow::meshRecomputeNormalsAndUnify(int crease){
     m.UnifyPos();
 
     m.DivideVert();
-    //m.UnifyVert(false);
     m.ComputeNormals();
     m.UnifyVert(true,1-crease/100.0f*2);
     m.ComputeNormals();
   }
-  guiPanel->setSelection( selector->selectedList(),MESH);
-  glWidget->update();
+  updateGui();
+  updateGl();
   statusBar()->showMessage(tr("Normals recomputed with %1% hard edges.").arg(crease), 2000);
 }
 
@@ -743,7 +897,7 @@ void MainWindow::flip(){
     break;
   default: return;
   }
-  glWidget->update();
+  updateGl();
   setModified(true);
 }
 
@@ -781,7 +935,41 @@ void MainWindow::shiftAni(){
       setModified(true);
     }
   }
-  glWidget->update();
+  updateGl();
+}
+
+void MainWindow::meshDiscardRig(){
+  QModelIndexList list= selector->selectedList();
+  for (int j=0; j<list.size(); j++){
+    BrfMesh &m(brfdata.mesh[list[j].row()]);
+    m.Unskeletonize(reference.skeleton[9]);//gimmeASkeleton(20)]);
+
+    m.DiscardRigging();
+    setModified(true);
+  }
+  updateGui();
+  updateGl();
+}
+void MainWindow::meshDiscardCol(){
+  QModelIndexList list= selector->selectedList();
+  for (int j=0; j<list.size(); j++){
+    BrfMesh &m(brfdata.mesh[list[j].row()]);
+    m.ColorAll(0xFFFFFFFF);
+    setModified(true);
+  }
+  updateGui();
+  updateGl();
+}
+void MainWindow::meshDiscardAni(){
+  QModelIndexList list= selector->selectedList();
+  for (int j=0; j<list.size(); j++){
+    BrfMesh &m(brfdata.mesh[list[j].row()]);
+
+    m.KeepOnlyFrame(guiPanel->getCurrentSubpieceIndex(MESH));
+    setModified(true);
+  }
+  updateGui();
+  updateGl();
 }
 
 
@@ -810,6 +998,7 @@ void MainWindow::transform(){
   glWidget->update();
 }
 
+
 void MainWindow::transferRigging(){
   int i = selector->firstSelected();
   QModelIndexList list= selector->selectedList();
@@ -832,14 +1021,12 @@ void MainWindow::transferRigging(){
 }
 
 void MainWindow::reskeletonize(){
-  int i = selector->firstSelected();
-  if (i<0) return;
-  if (i>(int)brfdata.mesh.size()) return;
+int k=0;
 
-  BrfMesh m = brfdata.mesh[i];
-  m.KeepOnlyFrame( currentDisplayFrame() );
-  bool asFrame=false;
-  QPair<int,int> res = askRefSkel( m.maxBone, asFrame);
+  BrfMesh m2 = brfdata.mesh[selector->firstSelected()];
+  int method=0, output=0;
+  QPair<int,int> res = askRefSkel( m2.maxBone,  method, output);
+
   int a=res.first; int b=res.second;
   if (a==-1) return;
   if (a==b) {
@@ -857,15 +1044,34 @@ void MainWindow::reskeletonize(){
     return;
   }
 
-  m.Reskeletonize( reference.skeleton[a], reference.skeleton[b]);
-  if (!asFrame) {
+for (int ii=0; ii<selector->selectedList().size(); ii++) {
+  int i = selector->selectedList()[ii].row()+k;
+  if (i<0) continue;
+  if (i>(int)brfdata.mesh.size()) continue;
+
+  BrfMesh m = brfdata.mesh[i];
+  m.KeepOnlyFrame( currentDisplayFrame() );
+
+  if (method==1)
+    m.ReskeletonizeHuman( reference.skeleton[a], reference.skeleton[b]);
+  else
+    m.Reskeletonize( reference.skeleton[a], reference.skeleton[b]);
+  if (output==1) {
     sprintf(m.name,"%s_%s",m.name,reference.skeleton[b].name);
     insert(m);
-  } else {
-    brfdata.mesh[i].AddFrameDirect(m);
+    k++;
   }
-  selector->updateData(brfdata);
+  if (output==0) {  
+    brfdata.mesh[i].KeepOnlyFrame(0);
+    brfdata.mesh[i].AddFrameDirect(m);
+    brfdata.mesh[i].AddFrameDirect(brfdata.mesh[i]);
+  }
+  if (output==2)  {
+    brfdata.mesh[i] = m;
+  }
   setModified(true);
+}
+selector->updateData(brfdata);
 
 }
 
@@ -1013,7 +1219,6 @@ void MainWindow::deleteSel(){
 }
 
 
-
 void MainWindow::editCutFrame(){
   if (selector->currentTabName()!=MESH) return;
   int i = selector->firstSelected();
@@ -1097,6 +1302,10 @@ void MainWindow::editPasteFrame(){
       res = m.AddFrameMatchVert(clipboard.mesh[0],j);
       if (!res) statusBar()->showMessage(tr("Vertex number mismatch... using texture-coord matching instead of vertex-ordering"),7000);
     }
+    if (assembleAniMode()==2) {
+      res = m.AddFrameMatchPosOrDie(clipboard.mesh[0],j);
+      if (!res) statusBar()->showMessage(tr("Vertex number mismatch... using texture-coord matching instead"),7000);
+    }
     if (!res) m.AddFrameMatchTc(clipboard.mesh[0],j);
     statusBar()->showMessage(tr("Added frame %1").arg(j+1),2000);
     setModified(true);
@@ -1108,6 +1317,23 @@ void MainWindow::editPasteFrame(){
 void MainWindow::editCut(){
   editCopy(false);
   deleteSel();
+}
+
+
+void MainWindow::sortEntries(){
+  switch (selector->currentTabName()) {
+    case MESH:     _sort(brfdata.mesh);  break;
+    case TEXTURE:  _sort(brfdata.texture); break;
+    case SHADER:   _sort(brfdata.shader); break;
+    case MATERIAL: _sort(brfdata.material); break;
+    case SKELETON: _sort(brfdata.skeleton); break;
+    case ANIMATION:_sort(brfdata.animation); break;
+    case BODY:     _sort(brfdata.body); break;
+    default: return ; //assert(0);
+  }
+  setModified(true);
+  updateSel();
+  updateGui();
 }
 
 void MainWindow::editCopy(bool deselect){
@@ -1125,24 +1351,46 @@ void MainWindow::editCopy(bool deselect){
   }
 
   if (selector->currentTabName()==MESH) {
-    // maybe it was a rigged mesh?
+    // maybe it was just rigged meshes?
     bool allRigged=true;
     for (unsigned int i=0; i<clipboard.mesh.size(); i++)
       if (!clipboard.mesh[i].isRigged) allRigged = false;
     editPasteRiggingAct->setEnabled(allRigged && clipboard.mesh.size()>0);
 
     // maybe it was a single frame mesh?
-    int i = selector->firstSelected();
-    if (i>=0)
-    editPasteFrameAct->setEnabled(
-      (selector->currentTabName()==MESH) &&
-      (i<(int)clipboard.mesh.size()) &&
-      (clipboard.mesh[0].frame.size()==1)
-    );
+    editPasteFrameAct->setEnabled((clipboard.mesh.size()==1) && (clipboard.mesh[0].frame.size()==1));
 
+    editPasteModificationAct->setEnabled(true);
+
+  } else {
+    editPasteRiggingAct->setEnabled(false);
+    editPasteFrameAct->setEnabled(false);
+    editPasteModificationAct->setEnabled(false);
   }
 
 
+}
+
+void MainWindow::editPasteMod(){
+  int max = selector->selectedList().size();
+  TokenEnum t=(TokenEnum)selector->currentTabName();
+
+
+  if (clipboard.mesh.size()!=1 || clipboard.mesh[0].frame.size()!=2
+      || t!=MESH || max <1 ) {
+    QMessageBox::information(this,tr("OpenBrf"),tr("To use paste modification mesh: first"
+                "copy a 2 frames mesh. Then, select one or more destination meshes, and \"paste modification\""
+                "any vertex in any frame of the destination mesh that are in the same pos of frame 0,"
+                "will be moved on the position of frame 1."));
+  } else {
+    for (int j=0; j<max; j++) {
+      int i = selector->selectedList()[j].row();
+      brfdata.mesh[i].CopyModification(clipboard.mesh[0]);
+    }
+    updateGl();
+    updateGui();
+    setModified(true);
+  }
 }
 
 void MainWindow::editPaste(){
@@ -1194,24 +1442,29 @@ void MainWindow::addToRef(){
 }
 
 
-Pair MainWindow:: askRefSkel(int nbones, bool &asAFrame){
+Pair MainWindow:: askRefSkel(int nbones,  int &method, int &output){
   if (reference.skeleton.size()<2) return Pair(-1,-1);
 
-  AskSkelDialog d(this,reference.skeleton);
+  static int lastA=0, lastB=0;
+  static int from =0, to=1;
+  AskSkelDialog d(this,reference.skeleton,from,to, lastA, lastB);
   int res=d.exec();
   if (res==QDialog::Accepted) {
-    asAFrame = d.asFrame();
-    return Pair(d.getSkelFrom (),d.getSkelTo());
+    lastA = method = d.getMethodType();
+    lastB = output = d.getOutputType();
+    return Pair(from=d.getSkelFrom (),to=d.getSkelTo());
   }
   else
     return Pair(-1,-1);
 }
 
-Pair MainWindow::askRefBoneInt(bool sayNotRigged){
+Pair MainWindow::askRefBoneInt(bool sayNotRigged, bool &isAtOrigin){
   if (!reference.skeleton.size()) return Pair(-1,-1);
   AskBoneDialog d(this,reference.skeleton);
   d.sayNotRigged(sayNotRigged);
   int res=d.exec();
+  isAtOrigin = d.pieceAtOrigin();
+
   if (res==QDialog::Accepted) return Pair(d.getSkel(),d.getBone());
   else
   return Pair(-1,-1);
@@ -1254,7 +1507,8 @@ void MainWindow::meshAddBack(){
 }
 
 void MainWindow::meshMountOnBone(){
-  Pair p = askRefBoneInt(false);
+  bool isOri;
+  Pair p = askRefBoneInt(false, isOri);
 
   if (p.first==-1) {
     statusBar()->showMessage(tr("Canceled."), 2000);
@@ -1266,6 +1520,7 @@ void MainWindow::meshMountOnBone(){
     int i = selector->selectedList()[j].row();
     if (i<0 || i>=(int)brfdata.mesh.size()) continue;
     BrfMesh &m(brfdata.mesh[i]);
+    if (isOri)
     m.Apply(
       BrfSkeleton::adjustCoordSystHalf(
         reference.skeleton[p.first].GetBoneMatrices()[p.second].transpose()
@@ -1290,13 +1545,15 @@ void MainWindow::addToRefMesh(int k){
   BrfMesh m = brfdata.mesh[i];
   if (!m.isRigged) {
     m.KeepOnlyFrame(guiPanel->getCurrentSubpieceIndex(MESH));
-    Pair p = askRefBoneInt(true);
+    bool isAtOrigin;
+    Pair p = askRefBoneInt(true,isAtOrigin);
 
     if (p.first==-1) {
       statusBar()->showMessage(tr("Canceled."), 2000);
       return;
     }
 
+    if (isAtOrigin)
     m.Apply(
       BrfSkeleton::adjustCoordSystHalf(
         reference.skeleton[p.first].GetBoneMatrices()[p.second].transpose()
@@ -1401,6 +1658,7 @@ int MainWindow::afterMeshImport() const{
 
 int MainWindow::assembleAniMode() const{
   if (optionAssembleAniMatchVert->isChecked()) return 0;
+  if (optionAssembleAniQuiverMode->isChecked()) return 2;
   return 1;
 }
 
@@ -1448,6 +1706,7 @@ void MainWindow::loadOptions(){
   if (s.isValid()) k = s.toInt();
   optionAssembleAniMatchVert->setChecked(k==0);
   optionAssembleAniMatchTc->setChecked(k==1);
+  optionAssembleAniQuiverMode->setChecked(k==2);
   }
 
   {
@@ -1680,6 +1939,17 @@ void MainWindow::guessPaths(QString fn){
     a.cdUp(); // out of "modules"
     mabPath = a.absolutePath();
   }
+
+  {
+    QDir a(fn);
+    a.cdUp();
+    if (a.cd("ModuleSystem")) {
+      if (a.exists("forOpenBRF.txt"))
+        menuBar()->addAction(tldMenuAction);
+    }
+  }
+
+
 
   QDir a(fn);
   if  (QString::compare(a.dirName(),"commonres",Qt::CaseInsensitive)==0)

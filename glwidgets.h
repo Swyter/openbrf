@@ -166,7 +166,7 @@ public:
     QString texturePath[3];
     QString locateOnDisk(QString nome, const char*ext, BrfMaterial::Location *loc = NULL);
     void forgetChachedTextures();
-    enum{MAXSEL=500};
+    enum{MAXSEL=2000};
     bool selGroup[MAXSEL];
     int selIndex() const;
 

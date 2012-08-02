@@ -77,6 +77,7 @@ private:
     //bool exportBrf();
     bool exportCollisionBody();
     bool exportMeshGroup();
+    bool exportMeshGroupManyFiles();
     bool exportStaticMesh();
     bool importStaticMesh();
     bool exportRiggedMesh();
@@ -110,6 +111,8 @@ private:
     void editCopyFrame();
     void editPasteFrame();
     void editPasteRigging();
+    void editPasteMod();
+    void sortEntries();
     void meshRecomputeNormalsAndUnify(int crease);
     void meshRecomputeNormalsAndUnify();
     void meshUnify();
@@ -117,6 +120,9 @@ private:
     void meshMountOnBone();
     void meshRemoveBack();
     void meshAddBack();
+    void meshDiscardRig();
+    void meshDiscardCol();
+    void meshDiscardAni();
 
     void setFlagsMaterial();
 
@@ -131,9 +137,15 @@ private:
     void optionAutoFixTextureUpdated();
     void optionAutoFixTextureShowInfo();
 
-    void mab2tld();
-    void tld2mab();
+    void mab2tldHead();
+    void tld2mabHead();
+    void mab2tldArmor();
+    void tld2mabArmor();
     void tldHead(float verse);
+    void tldMakeDwarfSlim();
+    void tldMakeDwarfBoots();
+
+
 
 public slots:
     void displayInfo(QString st, int howlong);
@@ -169,8 +181,8 @@ private:
     QString askExportFilename(QString, QString ext );
     QString askImportFilename(QString ext);
     QStringList askImportFilenames(QString ext);
-    QPair<int, int>  askRefBoneInt(bool sayNotRigged); // ask user to specify a skel and bone
-    QPair<int, int>  askRefSkel(int nbones, bool &asAFrame); // ask user to specify two skel
+    QPair<int, int>  askRefBoneInt(bool sayNotRigged, bool &isOri); // ask user to specify a skel and bone
+    QPair<int, int>  askRefSkel(int nbones, int &method, int &res); // ask user to specify two skel
     int askRefSkin(); //  ask user to specify a skin
     int currentDisplaySkin(); // returns skin currently used as display
     int currentDisplaySkeleton(); // returns skeleton currently used as display
@@ -190,6 +202,11 @@ private:
 
     void saveOptions() const;
     void loadOptions();
+
+
+    void updateGl();
+    void updateGui();
+    void updateSel();
 
     int afterMeshImport() const; // 0:nothing   1:merge   2:normal recompute and merge
     int assembleAniMode() const; // 0:trust vertex order   1:trust vertex coords
@@ -216,6 +233,7 @@ private:
     QAction *saveAct;
     QAction *saveAsAct;
     QAction *exitAct;
+    QAction *sortEntriesAct;
     QAction *aboutCheckboardAct;
     QAction *aboutAct;
     QAction *editRefAct;
@@ -224,6 +242,7 @@ private:
     QAction *editCopyAct;
     QAction *editPasteAct;
     QAction *editPasteRiggingAct;
+    QAction *editPasteModificationAct;
     QAction *editCutFrameAct;
     QAction *editCopyFrameAct;
     QAction *editPasteFrameAct;
@@ -235,8 +254,11 @@ private:
     QAction *navigateDownAct;
     QAction *refreshIniAct;
 
-    QAction *mab2tldAct;
-    QAction *tld2mabAct;
+    QAction *mab2tldHeadAct;
+    QAction *tld2mabHeadAct;
+    QAction *mab2tldArmorAct;
+    QAction *tld2mabArmorAct;
+    QAction *tldMakeDwarfSlimAct;
 
     QAction *checkIniAct;
     QAction *searchIniAct;
@@ -250,11 +272,14 @@ private:
     QAction *optionAfterMeshLoadNothing;
     QAction *optionAssembleAniMatchVert;
     QAction *optionAssembleAniMatchTc;
+    QAction *optionAssembleAniQuiverMode;
     QAction *optionAutoFixTextureOn;
     QAction *optionAutoFixTextureOff;
     QAction *optionAutoFixTextureInfo;
     QAction *optionAutoZoomUseGlobal;
     QAction *optionAutoZoomUseSelected;
+
+    QAction *tldMenuAction;
 
     QAction
       *importStaticMeshAct,

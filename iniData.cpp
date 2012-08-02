@@ -4,8 +4,6 @@
 
 #include "iniData.h"
 
-#define MAX_ERR 10
-
 template <class T> int _findByName( const vector<T> &v, const QString &s){
   for (unsigned int i=0; i<v.size(); i++)
     if (QString::compare(v[i].name,s,Qt::CaseInsensitive)==0) return i;
@@ -66,7 +64,7 @@ void IniData::clearIndexing(){
 
 void IniData::checkFile(int i, int j, int kind, char* usedFile, QDir *d0, QDir *d1){
 
-  if (errorList.size()>MAX_ERR) return;
+  //if (errorList.size()>MAX_ERR) return;
   bool res = false;
   if (d0) if (d0->exists(usedFile)) res = true;
   if (!res) if (d1) if (d1->exists(usedFile)) res = true;
@@ -83,7 +81,6 @@ void IniData::checkUses(int i, int j, int kind, char* usedName, int usedKind){
 
   if (usedKind==TEXTURE && QString(usedName)=="none") return;
 
-  if (errorList.size()>MAX_ERR) return;
   Pair d = indexOf( usedName, usedKind );
   if (d.first==-1) {
     errorList.push_back(
@@ -100,10 +97,10 @@ void IniData::checkUses(int i, int j, int kind, char* usedName, int usedKind){
 }
 
 template <class T>
-bool IniData::checkDuplicated(std::vector<T> &v, int j){
+bool IniData::checkDuplicated(std::vector<T> &v, int j, int maxErr){
   int kind = T::tokenIndex();
   for (unsigned int i=0; i<v.size(); i++) {
-    if (errorList.size()>MAX_ERR) return false;
+    if (errorList.size()>maxErr) return false;
     Pair d = indexOf(v[i].name, kind );
     if (d.first==-1) {
       errorList.push_back("<b>Internal error:</b> this should never happen");
@@ -130,25 +127,29 @@ void IniData::searchAllNamesV(const QString &s, int t,const std::vector<T> &v, i
   }
 }
 
-void IniData::findErrors(){
+bool IniData::findErrors(int maxErr){
   errorList = errorListOnLoad;//.clear();
   for (unsigned int i=0; i<file.size(); i++) {
+    if (errorList.size()>maxErr) break;
+
     // check for dupilcates
-    checkDuplicated(file[i].texture,i);
-    checkDuplicated(file[i].shader,i);
-    checkDuplicated(file[i].material,i);
-    checkDuplicated(file[i].mesh,i);
-    checkDuplicated(file[i].body,i);
-    checkDuplicated(file[i].skeleton,i);
-    checkDuplicated(file[i].animation,i);
+    checkDuplicated(file[i].texture,i,maxErr);
+    checkDuplicated(file[i].shader,i,maxErr);
+    checkDuplicated(file[i].material,i,maxErr);
+    checkDuplicated(file[i].mesh,i,maxErr);
+    checkDuplicated(file[i].body,i,maxErr);
+    checkDuplicated(file[i].skeleton,i,maxErr);
+    checkDuplicated(file[i].animation,i,maxErr);
 
     // check for mesh->material
     for (unsigned int j=0; j<file[i].mesh.size(); j++) {
+      if (errorList.size()>maxErr) break;
       checkUses(i,j,MESH, file[i].mesh[j].material, MATERIAL );
     }
 
     // check for material->etc
     for (unsigned int j=0; j<file[i].material.size(); j++) {
+      if (errorList.size()>maxErr) break;
       checkUses(i,j,MATERIAL, file[i].material[j].diffuseA, TEXTURE );
       checkUses(i,j,MATERIAL, file[i].material[j].diffuseB, TEXTURE );
       checkUses(i,j,MATERIAL, file[i].material[j].bump, TEXTURE );
@@ -161,13 +162,15 @@ void IniData::findErrors(){
     QDir d0(this->mabPath); d0.cd("Textures");
     QDir d1(this->modPath); d1.cd("Textures");
     for (unsigned int j=0; j<file[i].texture.size(); j++) {
+      if (errorList.size()>maxErr) break;
       if (QString(file[i].texture[j].name)!="waterbump") // waterbumb hack
       checkFile(i,j,TEXTURE, file[i].texture[j].name , &d0, &d1);
     }
   }
-  if (errorList.size()>MAX_ERR) {
-    errorList.push_back("Too many errors for now. Stopping here.");
-  };
+  if (errorList.size()>maxErr) {
+    errorList.push_back("<i>more errors to follow...</i>");
+    return true;
+  } else return false;
 
 }
 

@@ -80,6 +80,8 @@ public:
   Point3f MaxPos();
   void Apply(Matrix44<float> m);
   int FindClosestPoint(Point3f to, float* maxdist)const;
+
+  void MakeSlim(float ratioX, float ratioZ, const BrfSkeleton* s);
 };
 
 class BrfMesh{
@@ -98,9 +100,14 @@ public:
   void DiminishAni(float t);
   void DiminishAniSelected(float t);
 
+  void Unskeletonize(const BrfSkeleton& from);
   void Reskeletonize(const BrfSkeleton& from, const BrfSkeleton& to);
+  void ReskeletonizeHuman(const BrfSkeleton& from, const BrfSkeleton& to, float bonusArm = 0);
   void TransferRigging(const std::vector<BrfMesh>& from, int nf, int nfb);
   void NormalizeRigging();
+  void DiscardRigging();
+  bool CopyModification(const BrfMesh& mod);
+
 
   BrfMesh(){}
   BrfMesh(FILE *f){ Load(f);}
@@ -134,6 +141,7 @@ public:
   void SetUniformRig(int nbone);
   void SplitFaces(const std::vector<int> &matIndex);
   void RemoveUnreferenced();
+  void ColorAll(unsigned int newcol);
  
   void AdjustNormDuplicates(); // copys normals
   // sanity check
@@ -155,6 +163,7 @@ public:
   void ComputeNormals();
   void UnifyPos();
   void UnifyVert(bool careForNormals, float crease=0);
+  void UnifyVertNormPerPos(bool careForNormals, float crease=0);
   void DivideVert();
   void AfterLoad();
   bool hasVertexColor;
@@ -163,8 +172,12 @@ public:
   bool AddFrameDirect(const BrfMesh &brf);
   bool AddFrameMatchVert(const BrfMesh &brf, int k);
   bool AddFrameMatchTc(const BrfMesh &brf, int k);
+  bool AddFrameMatchPosOrDie(const BrfMesh &brf, int k);
 
   void Scale(float f);
+  void Scale(float xNeg, float xPos, float yPos, float yNeg, float zPos, float zNeg);
+  void TowardZero(float x,float y, float z);
+
   void Transform(float * m);
   void Translate(Point3f p);
 

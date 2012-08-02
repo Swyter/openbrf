@@ -122,10 +122,11 @@ public:
   void AdjustRoot(){
     for (unsigned int i=0; i<cas.size(); i++)
       cas[i].rot = BrfSkeleton::adjustCoordSystHalf(cas[i].rot);
-//    for (unsigned int i=0; i<cas.size(); i++) {
-//      Quaternionf q = Quaternionf(0,0,1,1).Normalize();
-//      cas[i].rot.Import( ((Quaternionf)cas[i].rot)*q );
-//    }
+/*    for (unsigned int i=0; i<cas.size(); i++) {
+        Quaternionf q = Quaternionf(0,0,1,1).Normalize();
+        cas[i].rot.Import( ((Quaternionf)cas[i].rot)*q );
+      }
+*/
   }
   void AdjustRootInv(){    
     AdjustRoot(); // it's its own inverse

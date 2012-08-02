@@ -37,7 +37,8 @@ SOURCES += main.cpp \
     askCreaseDialog.cpp \
     main_info.cpp \
     main_create.cpp \
-    main_ImpExp.cpp
+    main_ImpExp.cpp \
+    brfHitBox.cpp
 HEADERS += mainwindow.h \
     glwidgets.h \
     saveLoad.h \

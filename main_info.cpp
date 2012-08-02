@@ -29,17 +29,18 @@ void MainWindow::about()
 
  QMessageBox msg(QMessageBox::Information,tr("OpenBrf"),
   //QMessageBox::about(this, tr("Open-Brf"),
-            tr("<p>&nbsp; &nbsp; <b>ver 0.0.33 beta</b><br>"
+            tr("<p>&nbsp; &nbsp; <b>ver 0.0.37b</b><br>"
                "&nbsp; &nbsp; (%1)<br></p>"
                "<p>&nbsp; &nbsp; by [mtarini] --- Marco Tarini<br></p>"
                "<p>&nbsp; &nbsp; Testing, bug reporting, suggestions by: <br>[amade], &nbsp; [André de Cuyne],"
                "[Barf], [Brutus], [captain lust], "
                "[cdvader], [Chel], [DaBlade], [Dain Ironfoot], "
-               "[Darwin], [dreamterror], [eierkopf], [EvolutiveBrain], [Fei Dao], [Freddex], [FrisianDude], [Geroj], "
+               "[Darwin], [dreamterror], [ealabor], [eierkopf], [EvolutiveBrain], [Fei Dao], [Freddex], [FrisianDude], [Geroj], "
                "[GetAssista], [giles], [Highelf], [HokieBT], [killkhergit], [Konar], [Llew], "
                "[LordRaglan], [Lumos], "
                "[Merlkir], [mysstick], "
-               "[octoburn], [pagan], [Percus], [RATMdude92], [Red River], [Septa Scarabae], [Swyter], "
+               "[octoburn], [pagan], [Percus], [RATMdude92], [Red River], [Septa Scarabae], "
+               "[Silver Wolf], [Swyter], "
                "[Triglav], [Tul], [Ursca], [yellowmosquito]</p>"
                "<p>Additional art by: [amade], [Swyter]!</p>"
              ).arg(__DATE__)//,this);
