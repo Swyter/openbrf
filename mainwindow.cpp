@@ -62,6 +62,32 @@ void MainWindow::onActionTriggered(QAction *q){
 }
 
 
+void MainWindow::activateFloatingProbe(bool mode){
+  glWidget->setFloatingProbe(mode);
+  if (mode) {
+    glWidget->setRuler(false);
+    if (activateRulerAct->isChecked()) activateRulerAct->setChecked(false);
+  }
+  if (activateFloatingProbeAct->isChecked()!=mode) activateFloatingProbeAct->setChecked(mode);
+
+  if (activateFloatingProbeAct->isChecked()) guiPanel->setMeasuringTool(1);
+  else if (activateRulerAct->isChecked()) guiPanel->setMeasuringTool(0);
+  else guiPanel->setMeasuringTool(-1);
+}
+
+void MainWindow::activateRuler(bool mode){
+  glWidget->setRuler(mode);
+  if (mode) {
+    glWidget->setFloatingProbe(false);
+    if (activateFloatingProbeAct->isChecked()) activateFloatingProbeAct->setChecked(false);
+  }
+  if (activateRulerAct->isChecked()!=mode) activateRulerAct->setChecked(mode);
+
+  if (activateFloatingProbeAct->isChecked()) guiPanel->setMeasuringTool(1);
+  else if (activateRulerAct->isChecked()) guiPanel->setMeasuringTool(0);
+  else guiPanel->setMeasuringTool(-1);
+}
+
 void MainWindow::repeatLastCommand(){
   executingRepeatedCommand = true;
   if ((repeatableAction) && (tokenOfRepeatableAction == selector->currentTabName()))
@@ -753,7 +779,7 @@ void MainWindow::refreshReference(){
   if (usingModReference()) {
     // attempt to use module spcific folder
     QString fn = referenceFilename(1);
-    qDebug("Trying to load '%s'",fn.toAscii().data());
+    //qDebug("Trying to load '%s'",fn.toAscii().data());
     if (reference.Load(fn.toStdWString().c_str())) {
        loadedModReference = true;
        loaded = true;
@@ -762,7 +788,7 @@ void MainWindow::refreshReference(){
   if (!loaded) {
     loadedModReference = false;
     QString fn = referenceFilename(0);
-    qDebug("Trying to standard load '%s'",fn.toAscii().data());
+    //qDebug("Trying to standard load '%s'",fn.toAscii().data());
     if (reference.Load(fn.toStdWString().c_str()))  loaded = true;
   }
   if (loaded) {
@@ -1476,6 +1502,16 @@ void MainWindow::hitboxReset(){
 }
 
 
+void MainWindow::meshColorWithTexture(){
+  glWidget->renderTextureColorOnMeshes();
+  setModified(true);
+  if (guiPanel->ui->cbTexture->isEnabled()) guiPanel->ui->cbTexture->toggle();
+
+
+  updateGui();
+  updateGl();
+}
+
 void MainWindow::meshComputeAo(){
   bool inAlpha = optionAoInAlpha->isChecked() && useAlphaCommands;
   glWidget->renderAoOnMeshes(
@@ -1927,7 +1963,8 @@ void MainWindow::aniMirror(){
 		BrfSkeleton s =reference.skeleton[si];
 
 
-    if (a.Mirror(a,s))	setModified(true);
+    BrfAnimation b = a;
+    if (a.Mirror(b,s))	setModified(true);
 	}
 	updateGl();
 }
@@ -2694,6 +2731,18 @@ void MainWindow::editCopyFrame(){
   saveSystemClipboard();
 }
 
+void MainWindow::onSelectedPoint(float x, float y, float z){
+  QString st = QString("(%1 , %2 , %3)").arg(x).arg(y).arg(z);
+
+  QMimeData *mime = new QMimeData();
+  mime->setText( st );
+
+  statusBar()->showMessage(QString("Point %1 copyed to clipboard").arg(st));
+  QApplication::clipboard()->clear();
+  QApplication::clipboard()->setMimeData(mime);
+}
+
+
 void MainWindow::onClipboardChange(){
   const QMimeData *mime = QApplication::clipboard()->mimeData();
   if (!mime) return;
@@ -2706,9 +2755,10 @@ void MainWindow::onClipboardChange(){
   } else {
     clipboard.Clear();
   }
+  if (isMyData)
   statusBar()->showMessage((isMyData)?
-    QString("%1 new items found in clipboard...").arg(clipboard.totSize())
-    :"Unusable data in clipboard");
+    QString(tr("%1 new BRF items found in clipboard...")).arg(clipboard.totSize())
+    :tr("Unusable data in clipboard"));
 
   editPasteAct->setEnabled( clipboard.totSize() );
 

@@ -11,6 +11,21 @@
 
 class BrfData;
 class QGLShaderProgram;
+
+// for picking
+class GlCamera{
+public:
+  static GlCamera currentCamera(int targetIndex);
+
+  GlCamera();
+  double mv[16],pr[16];
+  int vp[4];
+  int targetIndex; // index of mesh target
+  bool isInViewport(int x, int y) const;
+  bool getCurrent();
+  vcg::Point3f unproject(int x, int y) const;
+};
+
 //typedef std::map< std::string, std::string > MapSS;
 
 class GLWidget : public QGLWidget
@@ -59,6 +74,8 @@ private slots:
 
 public slots:
    void setSelection(const QModelIndexList &, int k);
+   void setFloatingProbePos(float x, float y, float z);
+
    void setSubSelected(int k);
    void setRefAnimation(int i);
    void setRefSkin(int i);
@@ -77,6 +94,7 @@ public slots:
    void setComparisonMesh(int i);
    void setFloor(int i);
    void setRuler(int i);
+   void setFloatingProbe(int i);
    void setHitboxes(int i);
    void setRulerLenght(int i);
    void setPlay();
@@ -91,6 +109,7 @@ public slots:
    void setDefaultBgColor(QColor bgColor, bool alsoCurrent);
 
    void renderAoOnMeshes(float brightness, float fromAbove, bool perface, bool inAlpha);
+   void renderTextureColorOnMeshes();
 
    void browseTexture();
 
@@ -111,11 +130,11 @@ public slots:
 public:
 
 bool useWireframe, useLighting, useTexture , useNormalmap, useFloor;
-bool useRuler, useSpecularmap, useHitboxes, useComparisonMesh;
+bool useRuler, useFloatingProbe, useSpecularmap, useHitboxes, useComparisonMesh;
 bool ghostMode;
 bool fixTexturesOnSight;
 int colorMode, rulerLenght;
-enum{STOP, PAUSE, PLAY} runningState;
+enum{STOP, PAUSE, PLAY} runningState, defaultRunningState;
 enum{DIFFUSEA, DIFFUSEB, BUMP, ENVIRO, SPECULAR } curMaterialTexture;
 enum{TRANSALPHA, PURPLEALPHA, NOALPHA} showAlpha;
 bool commonBBox;
@@ -124,12 +143,14 @@ bool useOpenGL2;
 
 float runningSpeed;
 int relTime; // msec, zeroed at stop.
+float floatingProbePulseColor;
 
 signals:
     void signalFrameNumber(int);
     void notifyCheckboardChanged();
     void setTextureData(DdsData d);
     void displayInfo(QString st, int howlong);
+    void notifySelectedPoint(float x, float y, float z);
 
 protected:
     //MapSS *mapMT;
@@ -137,6 +158,9 @@ protected:
     void resizeGL(int width, int height);
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *);
+    void mouseDoubleClickEvent(QMouseEvent *);
+    void mouseClickEvent(QMouseEvent *);
     void wheelEvent(QWheelEvent *event);
 
     // rendering of stuff
@@ -201,7 +225,7 @@ protected:
 
     bool skeletalAnimation();
 
-
+    bool viewIs2D() const;
 
 
 public:
@@ -219,16 +243,25 @@ public:
 
     int lastSkelAniFrameUsed;
 
+public:
+    bool picking;
+    int selPointIndex, selPointFace, selPointWedge; // selected mesh, face, wedge
+private:
+    vcg::Point3f floatingProbe; // tmp
+    void renderFloatingProbe();
+
 private:
     int w, h; // screen size
     QColor currBgColor, defaultBgColor; // bgcolors
     QPoint lastPos; // mouse pos
+    bool mouseMoved;
     float phi, theta, dist;
     int tw, th; // texture size, when texture is shown
     bool ta; // textures uses alpha, when texture is shown
     float cx, cy, zoom; // for texture display
     vcg::Point3f avatP, avatV; // pos, vel of avatat
     bool keys[5];
+
 
     QTimer *timer;
 
@@ -254,6 +287,8 @@ private:
 		QString shaderLog[SHADER_MODES][SHADER_MODES];
 		int lastUsedShader;
 		int lastUsedShaderBumpgreen;
+
+    std::vector<GlCamera> camera;
 
 		//void newShaderProgram(QGLShaderProgram& s, const QStirng prefix, const QStirng vs, const QStirng fs);
 

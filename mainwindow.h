@@ -58,6 +58,7 @@ private:
 
  private slots:
 
+
     void notifyCheckboardChanged();
     bool setEditingRef(bool mode);
 
@@ -97,6 +98,7 @@ private:
     void onChangeMeshMaterial(QString newName);
     void onChangeFlags(QString flags); // of any object
     void onChangeTimeOfFrame(QString flags);
+    void onSelectedPoint(float, float, float);
 
     //bool hitboxToBody();
     //bool bodyToHitbox();
@@ -191,6 +193,7 @@ private:
     void meshRecolor();
     void meshTuneColor();
     void meshComputeAo();
+    void meshColorWithTexture();
     void meshTuneColorDo(int,int,int,int);
     void meshFemininize();
     void meshComputeLod();
@@ -271,6 +274,8 @@ private:
 
 public slots:
     void displayInfo(QString st, int howlong);
+    void activateRuler(bool mode);
+    void activateFloatingProbe(bool mode);
 
 private:
     bool executingRepeatedCommand;
@@ -493,6 +498,9 @@ private:
     QAction *optionUseOwnReference;
 
     QAction *tldMenuAction;
+
+    QAction *activateFloatingProbeAct;
+    QAction *activateRulerAct;
 
     QAction
       *importStaticMeshAct,

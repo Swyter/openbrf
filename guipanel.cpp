@@ -197,6 +197,57 @@ void GuiPanel::quickToggleHideSkin(){
 void GuiPanel::updateHighlight(){
 }
 
+void GuiPanel::setMeasuringTool(int toolNo){
+  ui->viewRuler->setVisible( toolNo == 0);
+  ui->cbRuler->setChecked(toolNo == 0);
+
+  ui->viewFloatingProbe->setVisible( toolNo == 1);
+  ui->cbFloatingProbe->setChecked(toolNo == 1);
+}
+
+void GuiPanel::onEditFloatingProbePos(){
+  float x = ui->floatingProbeX->value();
+  float y = ui->floatingProbeY->value();
+  float z = ui->floatingProbeZ->value();
+  emit notifyFloatingProbePos(x,y,z);
+}
+
+void GuiPanel::setFloatingProbePos(float x, float y, float z){
+  ui->floatingProbeX->blockSignals(true);
+  ui->floatingProbeY->blockSignals(true);
+  ui->floatingProbeZ->blockSignals(true);
+  if (z==z) {
+
+    ui->floatingProbeX->setSingleStep(5);
+    ui->floatingProbeY->setSingleStep(5);
+    ui->floatingProbeZ->setSingleStep(5);
+    ui->floatingProbeX->setDecimals(1);
+    ui->floatingProbeY->setDecimals(1);
+    ui->floatingProbeZ->setDecimals(1);
+
+    ui->floatingProbeZ->setValue(z);
+    ui->floatingProbeZ->setEnabled(true);
+
+  } else {
+
+    ui->floatingProbeZ->setValue(0);
+    ui->floatingProbeZ->setEnabled(false);
+
+    ui->floatingProbeX->setSingleStep(0.1);
+    ui->floatingProbeY->setSingleStep(0.1);
+    ui->floatingProbeZ->setSingleStep(0.1);
+
+    ui->floatingProbeX->setDecimals(3);
+    ui->floatingProbeY->setDecimals(3);
+    ui->floatingProbeZ->setDecimals(3);
+  }
+  ui->floatingProbeX->setValue(x);
+  ui->floatingProbeY->setValue(y);
+  ui->floatingProbeX->blockSignals(false);
+  ui->floatingProbeY->blockSignals(false);
+  ui->floatingProbeZ->blockSignals(false);
+}
+
 GuiPanel::GuiPanel(QWidget *parent, IniData &id) :
     QWidget(parent),
     inidata(id),
@@ -209,6 +260,13 @@ GuiPanel::GuiPanel(QWidget *parent, IniData &id) :
   _selectedIndex = -1;
 
   ui->setupUi(this);
+
+//  ui->attributeData->tabBar()->setContentsMargins(-4,0,-4,0);
+  QTabWidget *tw = ui->attributeData;
+  int mar = 0;
+  tw->setStyleSheet(QString("QTabBar::tab { width: %1px;padding-top: 1px; padding-bottom: 1px;margin-right: %2px;margin-left: %2px;} ")
+                    .arg((tw->size().width()+(2*mar*tw->count())-1)/tw->count()).arg(-mar)
+                    );
 
   ui->wiBodyAxisA->setVisible(false);
   ui->wiBodyAxisB->setVisible(false);
@@ -226,6 +284,11 @@ GuiPanel::GuiPanel(QWidget *parent, IniData &id) :
   ui->skeletonData->setVisible(false);
   ui->shaderData->setVisible(false);
   ui->hitboxEdit->setVisible(false);
+
+  ui->viewRuler->setVisible(false);
+  ui->viewFloatingProbe->setVisible(false);
+
+  ui->vertexData->setVisible(false);
 
   ui->lvTextAcc->setModel( new TextureAccessModel(this) );
   ui->lvBodyPart->setModel( new BodyPartModel(this) );
@@ -308,12 +371,19 @@ GuiPanel::GuiPanel(QWidget *parent, IniData &id) :
 
   connect(ui->editHbActive, SIGNAL(stateChanged(int)),this,SLOT(setHbEditVisible(int)));
 
+  connect(ui->floatingProbeX,SIGNAL(valueChanged(double)),this,SLOT(onEditFloatingProbePos()));
+  connect(ui->floatingProbeY,SIGNAL(valueChanged(double)),this,SLOT(onEditFloatingProbePos()));
+  connect(ui->floatingProbeZ,SIGNAL(valueChanged(double)),this,SLOT(onEditFloatingProbePos()));
+
   // add a shortcut to hide/show skin
   quickToggleHideSkinAct = new QAction(this);
   quickToggleHideSkinAct->setShortcut(QKeySequence("space"));
   //quickToggleHideSkinAct->setShortcutContext(Qt::ApplicationShortcut);
   connect(quickToggleHideSkinAct, SIGNAL(triggered()),this,SLOT(quickToggleHideSkin()));
   ui->cbSkin->addAction(quickToggleHideSkinAct);
+
+  connect(ui->cbFloatingProbe,SIGNAL(toggled(bool)),parent,SLOT(activateFloatingProbe(bool)));
+  connect(ui->cbRuler,SIGNAL(toggled(bool)),parent,SLOT(activateRuler(bool)));
 
 }
 
@@ -902,12 +972,13 @@ switch (TokenEnum(k)){
 
 
     BrfAnimation *ani =NULL;
-    if (sel>0 && nsel==1 && sel<(int)data->animation.size()) ani=&(data->animation[sel]);
+    if (sel>=0 && nsel==1 && sel<(int)data->animation.size()) ani=&(data->animation[sel]);
     if (ani) {
       for (unsigned int fi=0; fi < ani->frame.size(); fi++)
        frameTime[fi]=ani->frame[fi].index;
       ui->frameNumberAni->setMaximum(ani->frame.size());
       ui->frameNumberAni->setMinimum(1);
+      updateFrameNumber( ui->frameNumberAni->value() );
     }
 
     ui->rbRiggingcolor->setEnabled( true ); // quick: use "true": just let user edit them
@@ -1018,7 +1089,7 @@ void GuiPanel::updateFrameNumber(int newFr){
       ui->frameNumberAni->blockSignals(false);
 
       ui->timeOfFrameAni->blockSignals(true);
-      ui->timeOfFrameAni->setText( QString("%1").arg( frameTime[newFr-1] ) );
+      if (newFr>0) ui->timeOfFrameAni->setText( QString("%1").arg( frameTime[newFr-1] ) );
       ui->timeOfFrameAni->blockSignals(false);
   }
 
@@ -1039,7 +1110,7 @@ void GuiPanel::updateVisibility(){
 
   int k=displaying;
 
-  ui->viewRuler->setVisible(k==MESH);
+  //ui->viewRuler->setVisible(k==MESH);
   ui->viewComparisonMesh->setVisible(k==BODY) ;
 
   // set visibility
@@ -1051,8 +1122,8 @@ void GuiPanel::updateVisibility(){
     ui->viewAni->setVisible( (ui->viewRefAni->isVisible() && ui->cbRefani->currentIndex())
                              || ui->meshDataAni->isVisible() );
     ui->viewRefSkel->setVisible( ui->viewRefAni->isVisible() && ui->cbRefani->currentIndex() );
-    ui->rulerSlid->setVisible(ui->cbRuler->isChecked());
-    ui->rulerSpin->setVisible(ui->cbRuler->isChecked());
+    //ui->rulerSlid->setVisible(ui->cbRuler->isChecked());
+    //ui->rulerSpin->setVisible(ui->cbRuler->isChecked());
     ui->viewHitboxes->setVisible(ui->viewRefSkel->isVisible() );
 
   } else if (k==ANIMATION) {

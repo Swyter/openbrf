@@ -255,6 +255,9 @@ Selector::Selector(QWidget *parent)
   meshComputeAoAct = new QAction(tr("Color with Ambient Occlusion"), this);
   meshComputeAoAct->setStatusTip(tr("Set per vertex color as ambient occlusion (globlal lighting)"));
 
+  meshColorWithTextureAct = new QAction(tr("Copy colors from texture"), this);
+  meshColorWithTextureAct->setStatusTip(tr("Set per vertex color as texture colors"));
+
   meshFemininizeAct = new QAction(tr("Add femininized frame"),this);
   meshFemininizeAct->setStatusTip(tr("Build a feminine frame for this armour(s)"));
 
@@ -321,6 +324,7 @@ Selector::Selector(QWidget *parent)
 	connect(aniMirrorAct, SIGNAL(triggered()),parent,SLOT(aniMirror()));
 	connect(breakAniWithIniAct, SIGNAL(triggered()),this,SLOT(onBreakAniWithIni()));
   connect(meshRecolorAct,SIGNAL(triggered()),parent,SLOT(meshRecolor()));
+  connect(meshColorWithTextureAct,SIGNAL(triggered()),parent,SLOT(meshColorWithTexture()));
   connect(meshTellBoundingBoxAct,SIGNAL(triggered()),parent,SLOT(meshTellBoundingBox()));
   connect(meshTuneColorAct,SIGNAL(triggered()),parent,SLOT(meshTuneColor()));
   connect(meshComputeAoAct, SIGNAL(triggered()), parent, SLOT(meshComputeAo()));
@@ -745,6 +749,7 @@ void Selector::updateContextMenu(){
       contextMenu->addSeparator();
 
       contextMenu->addAction(meshRecolorAct);
+      //contextMenu->addAction(meshColorWithTextureAct);
       contextMenu->addAction(meshComputeAoAct);
       contextMenu->addAction(meshTuneColorAct);
 
@@ -920,7 +925,6 @@ void Selector::onChanged(){
   static QModelIndexList empty;
   for(int ti=0; ti<N_TOKEN; ti++) if (tab[ti]) {
     //if (tab[ti]) tab[ti]->clearSelection();
-
     if (this->currentWidget()==tab[ti]) {
       QItemSelectionModel * tmp = tab[ti]->selectionModel();
       assert(tmp);
@@ -930,18 +934,10 @@ void Selector::onChanged(){
       return;
     }
   }
-
-
   //emit setSelection(empty , NONE );
-
 }
 
-
-
-
 void Selector::setup(const BrfData &_data){
-
-
   addBrfTab<BrfMesh> (_data.mesh);
   addBrfTab<BrfShader> (_data.shader);
   addBrfTab<BrfTexture> (_data.texture);
@@ -956,5 +952,4 @@ void Selector::setup(const BrfData &_data){
 
   //static QModelIndexList *empty = new QModelIndexList();
   //emit setSelection(*empty , NONE );
-
 }

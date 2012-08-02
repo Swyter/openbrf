@@ -31,12 +31,15 @@ public:
     IniData &inidata;
     void setReference(BrfData*);
     void setAnimation(const BrfAnimation* a);
+    void setMeasuringTool(int toolNo); // -1:none, 0:ruler, 1:floating probe
+
     int getCurrentSubpieceIndex(int brfObjectType) const;
 
     void setIniData(const IniData &inidata);
 
     enum{DIFFUSEA, DIFFUSEB, BUMP, ENVIRO, SPECULAR, SHADERNAME } curMaterialFocus;
     QLineEdit* materialLeFocus();
+
 
 protected:
     //MapSS *mapMT;
@@ -68,6 +71,7 @@ signals:
     void selectedSubPiece(int);
     //void dataMaterialChanged();
     void editHitbox(int whichAttr, int dir);
+    void notifyFloatingProbePos(float x, float y, float z);
 
 private slots:
     void on_listView_customContextMenuRequested(QPoint pos);
@@ -76,6 +80,8 @@ private slots:
     void setRulerLenght(int l);
     void setTextureData(DdsData d);
     void onEditHitbox(int);
+    void onEditFloatingProbePos();
+
 
 public slots:
     void quickToggleHideSkin();
@@ -102,6 +108,8 @@ public slots:
     void showMaterialShader();
 
     void setNavigationStackDepth(int k);
+
+    void setFloatingProbePos(float x, float y, float z);
 
 };
 

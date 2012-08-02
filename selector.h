@@ -98,6 +98,7 @@ private:
     *meshRecomputeTangentsAct,
     *meshTuneColorAct,
     *meshComputeAoAct,
+    *meshColorWithTextureAct,
     *meshFemininizeAct,
     *meshComputeLodAct,
     *meshTellBoundingBoxAct,
