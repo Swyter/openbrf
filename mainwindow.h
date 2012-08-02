@@ -23,6 +23,8 @@ public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+    bool loadModAndDump(QString modpath, QString file);
+
     int GetFirstUnusedRefLetter() const;
     bool loadFile(const QString &fileName);
 

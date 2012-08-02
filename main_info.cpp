@@ -57,22 +57,27 @@ void MainWindow::about()
                "<p><i>Translations by:</i> %5</p>")
              ).arg(__DATE__)
               .arg("[mtarini] --- Marco Tarini")
-              .arg(" <br>[amade], [Andrde Cuyne], [Barf], [Brutus], [Caba`drin],"
+              .arg(" <br>[amade], [Andrde Cuyne], [Barf], [Brutus], [Caba`drin], "
                    "[captain lust], [cdvader], [Chel], [DaBlade], [Dain Ironfoot], "
-                   "[Darwin], [dreamterror], [ealabor], [eierkopf], [EvolutiveBrain],"
+                   "[Darwin], [dreamterror], [dunde], [ealabor], [eierkopf], "
+                   "[EvolutiveBrain], "
                    "[fedeita], [Fafhrd], [Fei Dao], [foxyman], [Freddex], [FrisianDude], "
-                   "[Geroj], [GetAssista], [giles], [Gothic Knight], [Hatonastick], [havarez], "
-                   "[Highelf], [Highlander], [HokieBT], [Jai], [killkhergit], [Konar], [Llew], "
-                   "[LordRaglan], [Lumos], [MadVader], [Mandible], [Mekelan], [Merlkir], [mr.master], "
+                   "[Geroj], [GetAssista], [giles], [Gothic Knight], [Hatonastick], "
+                   "[havarez], "
+                   "[Highelf], [Highlander], [HokieBT], [Jai], [killkhergit], "
+                   "[Konar], [Llew], "
+                   "[LordRaglan], [Lumos], [MadVader], [Mandible], [Mekelan], "
+                   "[Merlkir], [mr.master], "
                    "[mysstick], "
                    "[octoburn], [pagan], [Percus], [qlithe], [RATMdude92], [Red River], "
                    "[Septa Scarabae], [Silesian], [Shik], [Silver Wolf], [Swyter], "
-                   "[Triglav], [Tul], [Ursca], [Vlejundo], [Vornne], [WilliamBerne], [yellowmosquito], [Yoshiboy], [xenoargh]")
+                   "[Triglav], [Tul], [Ursca], [Vlejundo], [Vornne], [WilliamBerne], "
+                   "[yellowmosquito], [Yoshiboy], [xenoargh]")
               .arg("<br>[amade], [Swyter]!")
               .arg(QString("<br> [foxyman] <i>(%1)</i><br>"
                            " [Swyter] <i>(Español)</i><br>"
                            " [Vlejundo] <i>(Deutsche)</i><").arg(tr("additional code and Chinese")))
-              .arg("0.0.53")
+              .arg("0.0.54b")
             ,QMessageBox::Ok, this);
     msg.setLocale(QLocale::system());
   //msg.layout()->addWidget(&lab);

@@ -70,7 +70,9 @@ public:
   void setPath(QString mabPath, QString modPath);
 
   QStringList namelist[N_TOKEN];
-  void updateLists();
+  void updateNeededLists(); // only these needed for autocompletion
+  void updateAllLists(); // all
+  bool saveLists(const QString &fn);
 
   int findFile(const QString &fn,bool onlyModFolder=false); // returns index of a given file
   bool findTexture(const QString &fn);

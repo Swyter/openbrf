@@ -1,6 +1,26 @@
 #include <QtGui/QApplication>
 #include "mainwindow.h"
 
+static void showUsage(){
+  system(
+    "echo off&"
+    "echo off&"
+    "echo.usages: &"
+    "echo.&"
+    "echo.  OpenBRF &"
+    "echo.     ...starts GUI&"
+    "echo.&"
+    "echo.  OpenBRF ^<file.brf^> &"
+    "echo.     ...starts GUI, opens file.brf&"
+    "echo.&"
+    "echo.  OpenBRF --dump ^<module_path^> ^<file.txt^>&"
+    "echo.     ...shell only, dumps objects names into file.txt&"
+    "echo.&"
+    "echo.&"
+    "pause"
+  );
+
+}
 
 int main(int argc, char* argv[])
 {
@@ -14,40 +34,49 @@ int main(int argc, char* argv[])
   QApplication app(argc_2,argv_2); //argc, argv);
   QStringList arguments = QCoreApplication::arguments();
 
+  if ((arguments.size()>1)&&(arguments[1].startsWith("-"))) {
+    if ((arguments[1] != "--dump")||(arguments.size()!=4)) {
+      showUsage();
+      return -1;
+    }
+
+    if (!MainWindow().loadModAndDump(arguments[2],arguments[3])) {
+      system("echo OpenBRF: errors. No dump written & pause");
+      return -1;
+    }
+    else return 0;
+  }
 
   while (1){
+    QTranslator translator;
+    QTranslator qtTranslator;
 
-  QTranslator translator;
-  QTranslator qtTranslator;
-
-  if (nextTranslator.isEmpty()){
-    QString loc;
-    switch (MainWindow::getLanguageOption()) {
-    default: loc = QLocale::system().name(); break;
-    case 1: loc = QString("en");break;
-    case 2: loc = QString("zh_CN");break;
-    case 3: loc = QString("es");break;
-    case 4: loc = QString("de");break;
+    if (nextTranslator.isEmpty()){
+      QString loc;
+      switch (MainWindow::getLanguageOption()) {
+      default: loc = QLocale::system().name(); break;
+      case 1: loc = QString("en");break;
+      case 2: loc = QString("zh_CN");break;
+      case 3: loc = QString("es");break;
+      case 4: loc = QString("de");break;
+      }
+      translator.load(QString(":/translations/openbrf_%1.qm").arg(loc));
+      qtTranslator.load(QString(":/translations/qt_%1.qm").arg(loc));
+    } else {
+      translator.load(nextTranslator);
     }
-    translator.load(QString(":/translations/openbrf_%1.qm").arg(loc));
-    qtTranslator.load(QString(":/translations/qt_%1.qm").arg(loc));
-  } else {
-    translator.load(nextTranslator);
-  }
-  app.installTranslator(&translator);
+    app.installTranslator(&translator);
+    app.installTranslator(&qtTranslator);
 
-  app.installTranslator(&qtTranslator);
+    MainWindow w;
+    w.show();
 
-  MainWindow w;
-  w.show();
-
-  if (arguments.size()>=2) w.loadFile(arguments[1]); arguments.clear();
-
-  if (app.exec()==101) {
-    nextTranslator = w.getNextTranslatorFilename();
-    continue; // just changed language! another run
-  }
-  break;
+    if (arguments.size()>1) w.loadFile(arguments[1]); arguments.clear();
+    if (app.exec()==101) {
+      nextTranslator = w.getNextTranslatorFilename();
+      continue; // just changed language! another run
+    }
+    break;
   }
 
   return 0;
