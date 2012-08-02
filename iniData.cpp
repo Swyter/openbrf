@@ -900,7 +900,7 @@ bool IniData::findErrors(int maxErr){
     }
   }
   if (errorList.size()>maxErr) {
-    errorList.push_back("<i>more errors to follow...</i>");
+    errorList.push_back(QTextBrowser::QTextBrowser::tr("<i>more errors to follow...</i>"));
     return true;
   } else return false;
 
@@ -922,7 +922,7 @@ QString IniData::searchAllNames(const QString &s, bool cr, int to) const{
     searchAllNamesV(s,to,file[i].skeleton,i,res);
   for (int i=0; i<(int)file.size(); i++) if (origin[i]==MODULE_RES || cr)
     searchAllNamesV(s,to,file[i].animation,i,res);
-  if (res.isEmpty()) res+="<i>[0 results]</i>";
+  if (res.isEmpty()) res+=QTextBrowser::QTextBrowser::tr("<i>[0 results]</i>");
 
   return res;
 }

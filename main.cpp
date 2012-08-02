@@ -40,11 +40,13 @@ int main(int argc, char* argv[])
       return -1;
     }
 
-    if (!MainWindow().loadModAndDump(arguments[2],arguments[3])) {
-      system("echo OpenBRF: errors. No dump written & pause");
-      return -1;
+    switch (MainWindow().loadModAndDump(arguments[2],arguments[3])) {
+    case -1: system("echo OpenBRF: invalid module folder & pause"); break;
+    case -2: system("echo OpenBRF: error scanning brf data or ini file & pause"); break;
+    case -3: system("echo OpenBRF: error writing output file & pause"); break;
+    default: return 0;
     }
-    else return 0;
+    return -1;
   }
 
   while (1){

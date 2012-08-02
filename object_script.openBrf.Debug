@@ -36,6 +36,8 @@ INPUT(
 ./debug\askNewUiPictureDialog.o
 ./debug\askSelectBrfDialog.o
 ./debug\askUnrefTextureDialog.o
+./debug\askIntervalDialog.o
+./debug\askHueSatBriDialog.o
 ./debug\glew.o
 ./debug\moc_mainwindow.o
 ./debug\moc_glwidgets.o
@@ -52,5 +54,7 @@ INPUT(
 ./debug\moc_askNewUiPictureDialog.o
 ./debug\moc_askSelectBrfDialog.o
 ./debug\moc_askUnrefTextureDialog.o
+./debug\moc_askIntervalDialog.o
+./debug\moc_askHueSatBriDialog.o
 ./debug\qrc_resource.o
 );

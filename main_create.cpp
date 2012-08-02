@@ -75,6 +75,7 @@ void MainWindow::createMenus()
 
     QMenu* toolMenu = menuBar()->addMenu(tr("&Tools"));
     toolMenu->addAction(sortEntriesAct);
+    toolMenu->addAction(repeatLastCommandAct);
 
     QMenu* optionMenu=menuBar()->addMenu(tr("&Settings"));
     QMenu* onImport = optionMenu->addMenu(tr("On import meshes"));
@@ -244,6 +245,14 @@ void MainWindow::createMenus()
     connect(optionLanguage[3],SIGNAL(triggered()), this, SLOT(optionLanguageSet3()));
     connect(optionLanguage[4],SIGNAL(triggered()), this, SLOT(optionLanguageSet4()));
     connect(optionLanguageCustom,SIGNAL(triggered()), this, SLOT(optionLanguageSetCustom()));
+
+    // HIDE OPTION TO LEARN NEW FEMININIZTION
+    if (0) {
+      optionLearnFeminization= new QAction(tr("Learn how to femininize armours from current meshes."),this);
+      optionMenu-> addAction(optionLearnFeminization);
+      connect(optionLearnFeminization, SIGNAL(triggered()), this, SLOT(learnFemininzation()));
+    }
+
     optionMenu-> addSeparator();
 
     optionMenu->addAction(registerMime);
@@ -437,6 +446,10 @@ void MainWindow::createActions()
     connect(moduleSelectAct,SIGNAL(triggered()), this, SLOT(moduleSelect()));
     connect(exportNamesAct, SIGNAL(triggered()), this, SLOT(exportNames()));
 
+    repeatLastCommandAct = new QAction(tr("&Repeat last command"),this);
+    repeatLastCommandAct->setEnabled(false);
+    repeatLastCommandAct->setShortcut(QKeySequence("Ctrl+R"));
+    connect(repeatLastCommandAct, SIGNAL(triggered()), this, SLOT(repeatLastCommand()));
 
     registerMime = new QAction(tr("Register BRF extension"),this);
     registerMime->setStatusTip(tr("Make so that clicking on a brf file opens OpenBRF."));

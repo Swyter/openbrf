@@ -36,6 +36,8 @@ INPUT(
 ./release\askNewUiPictureDialog.o
 ./release\askSelectBrfDialog.o
 ./release\askUnrefTextureDialog.o
+./release\askIntervalDialog.o
+./release\askHueSatBriDialog.o
 ./release\glew.o
 ./release\moc_mainwindow.o
 ./release\moc_glwidgets.o
@@ -52,5 +54,7 @@ INPUT(
 ./release\moc_askNewUiPictureDialog.o
 ./release\moc_askSelectBrfDialog.o
 ./release\moc_askUnrefTextureDialog.o
+./release\moc_askIntervalDialog.o
+./release\moc_askHueSatBriDialog.o
 ./release\qrc_resource.o
 );

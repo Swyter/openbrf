@@ -25,6 +25,23 @@ void MainWindow::moduleSelect(){
 }
 
 
+/*
+void MainWindow::simpify(){
+  int i = selector->firstSelected();
+  if (i<0) return;// false;
+  if (i>(int)brfdata.mesh.size()) return;// false;
+  if (selector->currentTabName()!=MESH) return;// false;
+  VcgMesh::add(brfdata.mesh[ i ], 0 );
+  VcgMesh::simplify(25);
+  BrfMesh res;
+  res = VcgMesh::toBrfMesh();
+  sprintf(res.name,"%s.LOD1",brfdata.mesh[ i ].name);
+  insert(res);
+  //return true;
+}
+*/
+
+
 bool MainWindow::exportMeshGroup(){
   int i = selector->firstSelected();
   if (i<0) return false;

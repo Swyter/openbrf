@@ -38,6 +38,10 @@ Selector::Selector(QWidget *parent)
   }
   iniDataWaitsSaving = false;
 
+  contextMenu = new QMenu(this);
+  connect(contextMenu, SIGNAL(triggered(QAction *)),parent, SLOT(onActionTriggered(QAction *)));
+
+
   connect(this, SIGNAL(currentChanged(int)),
           this, SLOT(onChanged()) );
 
@@ -220,6 +224,9 @@ Selector::Selector(QWidget *parent)
   meshComputeAoAct = new QAction(tr("Color with Ambient Occlusion"), this);
   meshComputeAoAct->setStatusTip(tr("Set per vertex color as ambient occlusion (globlal lighting)"));
 
+  meshFemininizeAct = new QAction(tr("Add femininized frame"),this);
+  meshFemininizeAct->setStatusTip(tr("Build a feminine frame for this armour(s)"));
+
   meshRecolorAct = new QAction(tr("Color uniform"), this);
   meshRecolorAct->setStatusTip(tr("Set per vertex color as a uniform color"));
 
@@ -246,8 +253,8 @@ Selector::Selector(QWidget *parent)
   connect(breakAniWithIniAct, SIGNAL(triggered()),this,SLOT(onBreakAniWithIni()));
   connect(meshRecolorAct,SIGNAL(triggered()),parent,SLOT(meshRecolor()));
   connect(meshTuneColorAct,SIGNAL(triggered()),parent,SLOT(meshTuneColor()));
-  connect(meshToBody,SIGNAL(triggered()),parent,SLOT(meshRecolor()));
   connect(meshComputeAoAct, SIGNAL(triggered()), parent, SLOT(meshComputeAo()));
+  connect(meshFemininizeAct,SIGNAL(triggered()),parent,SLOT(meshFemininize()));
   connect(meshRecomputeNormalsAndUnify,  SIGNAL(triggered()),parent,SLOT(meshRecomputeNormalsAndUnify()));
   connect(meshUnify,  SIGNAL(triggered()),parent,SLOT(meshUnify()));
   connect(meshMerge,  SIGNAL(triggered()),parent,SLOT(meshMerge()));
@@ -439,8 +446,7 @@ int Selector::currentTabName() const{
 
 void Selector::contextMenuEvent(QContextMenuEvent *event)
 {
-
-   QMenu menu(this);
+   contextMenu->clear();
 
    if (!this->currentWidget()) { event->ignore(); return; }
 
@@ -456,22 +462,22 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
 
 
    QString title ("title");
-   menu.setTitle(title);
+   contextMenu->setTitle(title);
 
-   menu.addAction(removeAct);
+   contextMenu->addAction(removeAct);
    if (onesel) renameAct->setText(tr("Rename")); else renameAct->setText(tr("Group rename"));
-   menu.addAction(renameAct);
+   contextMenu->addAction(renameAct);
    if (onesel) {
-     menu.addAction(duplicateAct);
-     //menu.addSeparator();
-     menu.addAction(moveUpAct);
-     menu.addAction(moveDownAct);
+     contextMenu->addAction(duplicateAct);
+     //contextMenu->addSeparator();
+     contextMenu->addAction(moveUpAct);
+     contextMenu->addAction(moveDownAct);
    }
 
    if (onesel){
 
-      //menu.addSeparator();
-      QMenu *m = menu.addMenu(tr("Used by..."));
+      //contextMenu->addSeparator();
+      QMenu *m = contextMenu->addMenu(tr("Used by..."));
       if (iniDataWaitsSaving)
         m->addAction(usedIn_SaveFirst);
       else
@@ -508,35 +514,35 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
 
    if (onesel) {
 
-     menu.addSeparator();
+     contextMenu->addSeparator();
 
      if (t==MESH) {
-       menu.addAction(exportStaticMeshAct);
+       contextMenu->addAction(exportStaticMeshAct);
        if (data->mesh[ seli ].isRigged)
-         menu.addAction(exportRiggedMeshAct);
+         contextMenu->addAction(exportRiggedMeshAct);
        if (data->mesh[ seli ].frame.size()>1)
-          menu.addAction(exportMovingMeshAct);
+          contextMenu->addAction(exportMovingMeshAct);
      }
 
      if (t==SKELETON) {
-       menu.addAction(exportSkeletonAct);
-       menu.addAction(exportSkinAct);
-       menu.addSeparator();
-       menu.addAction(exportSkeletonModAct);
-       menu.addAction(importSkeletonModAct);
+       contextMenu->addAction(exportSkeletonAct);
+       contextMenu->addAction(exportSkinAct);
+       contextMenu->addSeparator();
+       contextMenu->addAction(exportSkeletonModAct);
+       contextMenu->addAction(importSkeletonModAct);
      }
      if (t==ANIMATION){
-       menu.addAction(exportAnimationAct);
-       menu.addAction(exportSkinForAnimationAct);
+       contextMenu->addAction(exportAnimationAct);
+       contextMenu->addAction(exportSkinForAnimationAct);
      }
      if (t==BODY) {
-       menu.addAction(exportBodyAct);
+       contextMenu->addAction(exportBodyAct);
      }
    } else {
      if (t==MESH) {
-       menu.addSeparator();
-       menu.addAction(exportMeshGroupAct);
-       menu.addAction(exportMeshGroupManyFilesAct);
+       contextMenu->addSeparator();
+       contextMenu->addAction(exportMeshGroupAct);
+       contextMenu->addAction(exportMeshGroupManyFilesAct);
      }
    }
 
@@ -546,24 +552,27 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
    if (t==MESH) {
      const BrfMesh &mesh(data->mesh[ seli ]);
      if (mesh.isRigged) {
-       if (!sep) menu.addSeparator(); sep=true;
-       menu.addAction(reskeletonizeAct);
+       if (!sep) contextMenu->addSeparator(); sep=true;
+       contextMenu->addAction(reskeletonizeAct);
+       contextMenu->addAction(meshFemininizeAct);
      }
-     //menu.addAction(transferRiggingAct);
-     if (!sep) menu.addSeparator(); sep=true;
-     menu.addAction(flipAct);
-     menu.addAction(transformAct);
-     //menu.addAction(scaleAct);
-     menu.addAction(meshRecomputeNormalsAndUnify);
-     menu.addAction(meshUnify);
-     if (!nosel)  menu.addAction(meshToBody);
-     if (!onesel && !nosel)  menu.addAction(meshMerge);
-     menu.addAction(meshMountOnBone);
-     QMenu *m = menu.addMenu(tr("Backfacing faces"));
+     //contextMenu->addAction(transferRiggingAct);
+
+     if (!sep) contextMenu->addSeparator(); sep=true;
+     contextMenu->addAction(flipAct);
+     contextMenu->addAction(transformAct);
+     //contextMenu->addAction(scaleAct);
+     contextMenu->addAction(meshRecomputeNormalsAndUnify);
+     contextMenu->addAction(meshUnify);
+     if (!nosel)  contextMenu->addAction(meshToBody);
+     if (!onesel && !nosel)  contextMenu->addAction(meshMerge);
+     contextMenu->addAction(meshMountOnBone);
+     QMenu *m = contextMenu->addMenu(tr("Backfacing faces"));
      m->addAction(meshRemoveBackfacing);
      m->addAction(meshAddBackfacing);
 
-     m = menu.addMenu(tr("Discard"));
+
+     m = contextMenu->addMenu(tr("Discard"));
      m->addAction(discardAniAct);
      discardAniAct->setEnabled(mulsel || (mesh.frame.size()>1));
      m->addAction(discardRigAct);
@@ -571,39 +580,39 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
      m->addAction(discardColAct);
      discardColAct->setEnabled(mulsel || mesh.hasVertexColor);
 
-     menu.addSeparator();
+     contextMenu->addSeparator();
 
-     menu.addAction(meshRecolorAct);
-     menu.addAction(meshComputeAoAct);
-     menu.addAction(meshTuneColorAct);
+     contextMenu->addAction(meshRecolorAct);
+     contextMenu->addAction(meshComputeAoAct);
+     contextMenu->addAction(meshTuneColorAct);
 
    }
 
    if (t==BODY) {
-     if (!sep) menu.addSeparator(); sep=true;
-     menu.addAction(flipAct);
-     menu.addAction(transformAct);
-     if (!onesel && !nosel) { menu.addAction(bodyMerge); }
-     menu.addAction(bodyMakeQuadDominantAct);
+     if (!sep) contextMenu->addSeparator(); sep=true;
+     contextMenu->addAction(flipAct);
+     contextMenu->addAction(transformAct);
+     if (!onesel && !nosel) { contextMenu->addAction(bodyMerge); }
+     contextMenu->addAction(bodyMakeQuadDominantAct);
    }
    if (t==ANIMATION) {
      if (onesel) {
-       if (!sep) menu.addSeparator(); sep=true;
-       menu.addAction(breakAniAct);
-       menu.addAction(breakAniWithIniAct);
-       menu.addAction(shiftAniAct);
-       menu.addAction(aniExtractIntervalAct);
-       menu.addAction(aniRemoveIntervalAct);
+       if (!sep) contextMenu->addSeparator(); sep=true;
+       contextMenu->addAction(breakAniAct);
+       contextMenu->addAction(breakAniWithIniAct);
+       contextMenu->addAction(shiftAniAct);
+       contextMenu->addAction(aniExtractIntervalAct);
+       contextMenu->addAction(aniRemoveIntervalAct);
      }
-     if (mulsel) menu.addAction(aniMergeAct);
+     if (mulsel) contextMenu->addAction(aniMergeAct);
    }
    }
 
 
    // add to reference
    if (onesel && t==MESH) {
-     menu.addSeparator();
-     QMenu* refMenu=menu.addMenu(tr("Add to reference skins"));
+     contextMenu->addSeparator();
+     QMenu* refMenu=contextMenu->addMenu(tr("Add to reference skins"));
      int N=reference->GetFirstUnusedLetter();
      for (int i=0; i<N; i++) {
        addToRefMeshAct[i]->setText(tr("to Skin Set %1").arg(char('A'+i)) );
@@ -615,21 +624,21 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
      }
    }
    if (onesel && t==ANIMATION) {
-     menu.addSeparator();
-     menu.addAction(addToRefAnimAct);
+     contextMenu->addSeparator();
+     contextMenu->addAction(addToRefAnimAct);
    }
    if (onesel && t==SKELETON) {
-     menu.addSeparator();
-     menu.addAction(addToRefSkelAct);
+     contextMenu->addSeparator();
+     contextMenu->addAction(addToRefSkelAct);
    }
 
 
 
 
-   //menu.addAction(moveUp);
-   //menu.addAction(moveDown);
+   //contextMenu->addAction(moveUp);
+   //contextMenu->addAction(moveDown);
 
-   menu.exec(event->globalPos());
+   contextMenu->exec(event->globalPos());
    event->accept();
 
 

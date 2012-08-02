@@ -21,15 +21,38 @@
 
 typedef QPair<int, int> Pair;
 
-bool MainWindow::loadModAndDump(QString modpath, QString file){
+int MainWindow::loadModAndDump(QString modpath, QString file){
   modpath = modpath.replace('/','\\');
   if (modpath.endsWith('\\')) modpath.chop(1);
-  if (!guessPaths(modpath+"\\Resource")) return false;
-  if (!inidata.loadAll(3)) return false;
+  if (!guessPaths(modpath+"\\Resource")) return -1;
+  if (!inidata.loadAll(3)) return -2;
   inidata.updateAllLists();
-  if (!inidata.saveLists(file)) return false;
-  return true;
+  if (!inidata.saveLists(file)) return -3;
+  return 1;
 }
+
+void MainWindow::onActionTriggered(QAction *q){
+  if (setNextActionAsRepeatable) {
+    setNextActionAsRepeatable = false;
+    if (q==repeatLastCommandAct) return;
+
+    //qDebug("Triggred action: %s\n",q->text().toAscii().data());
+    qDebug("Command to be repeatable: \"%s\"\n",q->text().toAscii().data());
+    repeatableAction = q;
+    tokenOfRepeatableAction = selector->currentTabName();
+    repeatLastCommandAct->setText(QString("&Repeat %1").arg(q->text()));
+    repeatLastCommandAct->setEnabled(true);
+
+  }
+
+}
+
+
+void MainWindow::repeatLastCommand(){
+  if ((repeatableAction) && (tokenOfRepeatableAction == selector->currentTabName()))
+    repeatableAction->trigger();
+}
+
 
 void MainWindow::notifyDataChanged(){
   setModified(false);
@@ -598,8 +621,28 @@ void MainWindow::openModuleIniFile(){
 
 MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),inidata(brfdata)
 {
+  usingWarband = true; // until proven otherwise
+
   setWindowIcon(QIcon(":/openBrf.ico"));
+  QFile f(":/femininizer.morpher");
+
+  QByteArray r;
+  bool ok = false;
+
+  if (f.open(QIODevice::ReadOnly)){
+   r = f.readAll();
+   if (femininizer.Load(r.data())) ok = true;
+  }
+
+  if (!ok){
+    QMessageBox::warning(this, tr("OpenBrf"),
+                         QString("Internal error on loading femininizer"));
+  }
+
   settings = new QSettings("mtarini", "OpenBRF");
+
+  repeatableAction = 0;
+  setNextActionAsRepeatable = false;
 
   glWidget = new GLWidget(this,inidata);
   selector = new Selector(this);
@@ -646,7 +689,11 @@ MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),inidata(brfdata)
 
   setLanguage( curLanguage );
 
+  connect(this->menuBar(), SIGNAL(triggered(QAction*)),this, SLOT(onActionTriggered(QAction *)));
+
+
 }
+
 
 
 
@@ -960,6 +1007,69 @@ void MainWindow::meshComputeAo(){
 
 }
 
+void MainWindow::learnFemininzation(){
+  if (selector->currentTabName()!=MESH) return;
+  int ndone = 0;
+
+  for (int k=0; k<selector->selectedList().size(); k++) {
+    int i= selector->selectedList()[k].row();
+    if (i<0) continue;
+    if (i>(int)brfdata.mesh.size()) continue;
+    BrfMesh& m (brfdata.mesh[i]);
+    if (m.frame.size()!=3) continue;
+    if (!ndone) femininizer.ResetLearning();
+    femininizer.LearnFrom(m,1,2);
+    ndone++;
+  }
+  if (ndone) {
+    femininizer.FinishLearning();
+    femininizer.Emphatize(0.2);
+  }
+  femininizer.Save("femininizer.morpher");
+  if (ndone) QMessageBox::information(this,tr("OpenBRF"),tr("Learnt how to femininize an armour\nfrom %1 examples!").arg(ndone));
+  else QMessageBox::warning(this,tr("OpenBRF"),tr("No mesh found to learn how to femininize an armour!"));
+}
+
+
+void MainWindow::meshFemininize(){
+  if (selector->currentTabName()!=MESH) return;
+  int ndone = 0;
+
+  bool yesToAll = false;
+  for (int k=0; k<selector->selectedList().size(); k++) {
+    int i= selector->selectedList()[k].row();
+    if (i<0) continue;
+    if (i>(int)brfdata.mesh.size()) continue;
+    BrfMesh& m (brfdata.mesh[i]);
+
+
+    if (!yesToAll) {
+      if (m.frame.size()>1) {
+        int res = QMessageBox::warning(this,"OpenBRF",tr("Warning: mesh %1 has already a feminine frame.\n\nOverwrite it?").arg(m.name),
+          QMessageBox::Yes|QMessageBox::YesToAll|QMessageBox::No
+        );
+        if (res==QMessageBox::No) continue;
+        if (res==QMessageBox::YesToAll) yesToAll = true;
+      }
+    }
+    while (m.frame.size()<3) m.frame.push_back(m.frame[0]);
+    int feminineFrame = (usingWarband)?2:1;
+    int masculineFrame = (usingWarband)?1:2;
+    m.MorphFrame(masculineFrame,feminineFrame,femininizer);
+    m.AddALittleOfBreast(feminineFrame);
+    m.ComputeNormals(feminineFrame);
+    ndone++;
+  }
+  if (ndone){
+    setModified(true);
+    updateGui();
+    updateGl();
+  }
+
+}
+
+
+
 void MainWindow::exportNames(){
   // TODO!!!
 }
@@ -1211,6 +1321,8 @@ void MainWindow::meshDiscardRig(){
   updateGl();
 }
 
+
+
 void MainWindow::meshRecolor(){
   QColor color = QColorDialog::getColor(Qt::white, this);
   if (!color.isValid()) return;
@@ -1237,7 +1349,10 @@ unsigned int tuneColor(unsigned int col, int contr, int dh, int ds, int db){
   qreal h,s,b,a;
   c.getHsvF(&h,&s,&b,&a);
   h = c.hueF();
-  h+=dh/100.0;
+  if (h<0) h=0;
+    h+=dh/200.0;
+
+  h = h+100 - floor(h+100);
   //h = dh;
   b+= 0.5 * contr/50.0 * (0.5*(sin(3.1415*(b-0.5))+1.0)-b) + db/100.0;
   s+=ds/100.0;
@@ -2634,6 +2749,7 @@ void MainWindow::updateTitle(){
 
 void MainWindow::setModified(bool mod){
   isModified=mod;
+  if (mod) setNextActionAsRepeatable = true; // action becomes repetable
   updateTitle();
 }
 
@@ -2657,6 +2773,7 @@ bool MainWindow::guessPaths(QString fn){
     a.cdUp();
     a.cdUp(); // out of "modules"
     mabPath = a.absolutePath();
+    usingWarband = (a.exists("mb_warband.exe")||(!a.exists("mount&blade.exe"))) ;
     res=true;
   }
 
@@ -2986,12 +3103,16 @@ bool writeFile(QIODevice &device, const QSettings::SettingsMap &map){
 }
 
 void MainWindow::registerExtension(){
+  QString exeFile = QCoreApplication::applicationFilePath();
+  exeFile.replace('/',QString("\\\\"));
+
   //QSettings settings(QSettings::NativeFormat, QSettings::SystemScope,"HKEY_CLASSES_ROOT");
   {
   //QSettings settings("HKEY_CLASSES_ROOT", QSettings::NativeFormat);
   //QSettings settings("HKEY_LOCAL_MACHINE", QSettings::NativeFormat);
   //settings.beginGroup("SOFTWARE");
   //settings.beginGroup("Classes");
+
 
   //settings.beginGroup(".brf");
   QSettings settings(QSettings::NativeFormat,QSettings::SystemScope, "classes", ".brf");
@@ -3002,19 +3123,23 @@ void MainWindow::registerExtension(){
   QSettings settings(QSettings::NativeFormat,QSettings::SystemScope,"classes", "brf.resource");
 
   //settings.beginGroup("brf.resource");
-    settings.setValue("","Mount and Blade resource filess");
+    //settings.setValue("","Mount&Blade Binary Resource File");
+    settings.setValue("","");
+    settings.setValue("FriendlyTypeName","Mount&Blade Binary Resource File");
+    settings.setValue("PerceivedType","Application");
+
     settings.beginGroup("DafualtIcon");
-    settings.setValue("",QString("%1%2 test").arg(QCoreApplication::applicationFilePath()).arg(",0") );
+    settings.setValue("",QString("%1%2 test").arg(exeFile).arg(",0") );
     settings.endGroup();
 
     settings.beginGroup("shell");
-      settings.setValue("","");
+      //settings.setValue("","");
       settings.beginGroup("open");
-        settings.setValue("","");
+        //settings.setValue("","");
         settings.beginGroup("command");
           settings.setValue("",
              QString("\"%1\" \"%2\"").
-             arg(QCoreApplication::applicationFilePath()).arg("%1") );
+             arg(exeFile).arg("%1") );
         settings.endGroup();
       settings.endGroup();
     settings.endGroup();
