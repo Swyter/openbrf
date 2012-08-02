@@ -21,6 +21,18 @@ class AskUvTransformDialog;
 //    class MainWindow;
 //}
 
+struct UndoLevel {
+	// info on the action(s) which took us to the status:
+	QString actionName;
+	int actionRepetitions;
+	QString actionDescription() const;
+
+	// the status:
+	BrfData data;
+	bool needsBeSaved;
+
+};
+
 class MainWindow : public QMainWindow
 {
 	Q_OBJECT
@@ -159,6 +171,10 @@ private slots:
 	void duplicateSel();
 	void addToRef(); // add current selected item to ref
 	void addToRefMesh(int);
+
+	bool performUndo();
+	bool performRedo();
+
 	void editCut();
 	void editCopy();
 	void editAddToCopy();
@@ -272,6 +288,10 @@ private slots:
 
 
 	void onActionTriggered(QAction* q);
+	void undoHistoryAddAction(QAction *q);
+	void undoHistoryAddAction();
+	void undoHistoryAddEditAction();
+
 	void repeatLastCommand();
 	void setUseOpenGL2(bool);
 	void setNormalmap(int);
@@ -409,10 +429,11 @@ private:
 
 	QWidget *comboViewmodeSelector;
 	QButtonGroup *comboViewmodeBG;
-	QMenu *fileMenu;
-	QMenu *helpMenu;
-	QMenu *recentModsMenu;
-	QMenu *selectedMenu;
+
+	QMenu *fileMenu, *importMenu, *editMenu, *optionMenu, *moduleMenu, *selectedMenu, *toolMenu;
+
+	QMenu *recentModsMenu, *autoFemMenu;
+
 	QAction *newAct;
 	QAction *registerMime;
 	QAction *openAct;
@@ -449,6 +470,9 @@ private:
 	QAction *editPasteVertColorsAct;
 	QAction *editPasteVertAniAct;
 
+	QAction *undoAct;
+	QAction *redoAct;
+	QAction *fakeEditAction, *fakeEditFlagAction;
 	QAction *openNextInModAct;
 	QAction *openPrevInModAct;
 
@@ -479,7 +503,7 @@ private:
 
 	QAction *repeatLastCommandAct;
 
-	QAction *repeatableAction;
+	QAction *repeatableAction, *lastAction;
 	int tokenOfRepeatableAction; // e.g. mesh, texture...
 	bool setNextActionAsRepeatable;
 
@@ -542,8 +566,9 @@ private:
 
 	bool maybeSave();
 	bool maybeSaveHitboxes();
-	void setModified(bool mod, bool repeateble = true);
+	void setModified(bool repeateble = true);
 	void setModifiedHitboxes(bool mod);
+	void setNotModified();
 	void updateTitle();
 	bool isModified;
 	bool isModifiedHitboxes;
@@ -559,13 +584,10 @@ private:
 	QLabel* modStatus; // widget in status bar
 
 	// to tune colors
-	void meshTuneColorUndo(bool storeUndo);
+	void meshTuneColorCancel(bool storeUndo);
 
 	bool easterTLD; // if true, use easteregg
 	bool _importStaticMesh(QString s, vector<BrfMesh> &m, vector<bool> &wasMultiple, bool onlyOneFile);
-
-	QMenu* optionMenu;
-	QMenu* autoFemMenu;
 
 	static QString hitboxExplaination();
 	QString senderText() const; // just a hack: returns the text of command being exectued:
@@ -579,6 +601,14 @@ private:
 	bool _importMesh(bool reimportExisting);
 
 
+	std::vector<UndoLevel> undoHistoryRing;
+	int undoHistoryRingIndex(int lvl) const;
+	UndoLevel* undoHistory(int lvl);
+	void undoHistoryClear();
+	void markCurrendUndoAsSaved();
+	int undoLvlCurr, undoLvlLast;
+	int numModifics;
+	void updateUndoRedoAct();
 };
 
 #endif // MAINWINDOW_H

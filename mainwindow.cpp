@@ -46,23 +46,6 @@ int MainWindow::loadModAndDump(QString modpath, QString file){
 }
 
 
-void MainWindow::onActionTriggered(QAction *q){
-	if (setNextActionAsRepeatable) {
-		setNextActionAsRepeatable = false;
-		if (q==repeatLastCommandAct) return;
-
-		qDebug("Triggred action: %s\n",q->text().toAscii().data());
-		qDebug("Command to be repeatable: \"%s\"\n",q->text().toAscii().data());
-		repeatableAction = q;
-		tokenOfRepeatableAction = selector->currentTabName();
-		repeatLastCommandAct->setText(QString("&Repeat %2%1").arg(q->text()).arg(q->data().toString()));
-		repeatLastCommandAct->setEnabled(true);
-
-	}
-
-}
-
-
 void MainWindow::activateFloatingProbe(bool mode){
 	glWidget->setFloatingProbe(mode);
 	if (mode) {
@@ -113,16 +96,12 @@ bool MainWindow::maybeSave()
 		                              "Save changes?").arg((editingRef)?tr("Internal reference objects have"):tr("The dataset has")),
 		                           QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
 		if (ret == QMessageBox::Save) {
-			if (editingRef) {
-				reference = brfdata;
-				return saveReference();
-			} else
-				return save();
+			return save();
 		}
 		else if (ret == QMessageBox::Cancel)
 			return false;
 	}
-	setModified(false);
+
 
 	return maybeSaveHitboxes();
 }
@@ -333,7 +312,8 @@ void MainWindow::updateTextureAccessDup(){
 	if (i>=0 && j>=0) {
 		_dupNN( brfdata.shader[i].opt, j );
 		guiPanel->updateShaderTextaccSize();
-		setModified(true);
+		setModified();
+		undoHistoryAddEditAction();
 	}
 }
 void MainWindow::updateTextureAccessDel(){
@@ -342,7 +322,8 @@ void MainWindow::updateTextureAccessDel(){
 	if (i>=0 && j>=0) {
 		_del( brfdata.shader[i].opt, selector->selectedList() );
 		guiPanel->updateShaderTextaccSize();
-		setModified(true);
+		setModified();
+		undoHistoryAddEditAction();
 	}
 }
 void MainWindow::updateTextureAccessAdd(){
@@ -351,7 +332,8 @@ void MainWindow::updateTextureAccessAdd(){
 		BrfShaderOpt o;
 		brfdata.shader[i].opt.push_back(o);
 		guiPanel->updateShaderTextaccSize();
-		setModified(true);
+		setModified();
+		undoHistoryAddEditAction();
 	}
 }
 
@@ -374,7 +356,8 @@ void MainWindow::updateDataShader(){
 		setFlags(s.opt[ta].flags, u->leShaderTaFlags);
 		setInt(s.opt[ta].map, u->leShaderTaMap);
 	}
-	setModified(true);
+	setModified();
+	undoHistoryAddEditAction();
 }
 
 void MainWindow::updateDataBody(){
@@ -409,8 +392,9 @@ void MainWindow::updateDataBody(){
 		if (wasEmptyThen!=isEmptyNow) {
 			guiPanel->updateBodyPartData();
 		}
-		setModified(true);
+		setModified();
 		updateGl();
+		undoHistoryAddEditAction();
 	}
 }
 
@@ -430,7 +414,9 @@ void MainWindow::onChangeMeshMaterial(QString st){
 	statusBar()->showMessage( tr("Set %1 mesh materials to \"%2\"")
 	                          .arg(n).arg(u->boxMaterial->text()),5000 );
 	updateGl();
-	setModified(true);
+	setModified();
+	undoHistoryAddEditAction();
+
 }
 
 
@@ -462,7 +448,8 @@ void MainWindow::updateDataMaterial(){
 		//mapMT[m.name] = m.diffuseA;
 	}
 	updateGl();
-	setModified(true);
+	setModified();
+	undoHistoryAddEditAction();
 }
 
 void MainWindow::onChangeTimeOfFrame(QString time){
@@ -484,9 +471,10 @@ void MainWindow::onChangeTimeOfFrame(QString time){
 		}
 	} else assert(0);
 	statusBar()->showMessage( tr("Set time of frame %1 to %2").arg(j).arg(fl),3000 );
-	setModified(true);
 	guiPanel->frameTime[j]=fl;
+	setModified();
 
+	undoHistoryAddEditAction();
 }
 
 void MainWindow::tld2mabArmor(){
@@ -522,7 +510,7 @@ void MainWindow::tldMakeDwarfBoots(){
 		sprintf(m.name,"%s",tmp2.toAscii().data());
 
 		//res.push_back(m);
-		setModified(true);
+		setModified();
 	}
 	/*  for (unsigned int k=0; k<res.size(); k++) {
 		insert(res[k]);
@@ -548,7 +536,7 @@ void MainWindow::tldMakeDwarfSlim(){
 		if (m.frame.size()<4) return;
 
 		m.frame[1].MakeSlim(0.95,0.95,&sd);
-		setModified(true);
+		setModified();
 		updateGl();
 	}
 
@@ -565,7 +553,7 @@ void MainWindow::tldGrassAlphaPaint(){
 		done = true;
 	}
 	if (done) {
-		setModified(true);
+		setModified();
 		updateGl();
 		updateGui();
 	}
@@ -591,7 +579,7 @@ void MainWindow::tldShrinkAroundBones(){
 		}
 
 		m.ShrinkAroundBones(*skel,frame);
-		setModified(true);
+		setModified();
 		updateGl();
 		done++;
 	}
@@ -659,7 +647,7 @@ void MainWindow::mab2tldArmor(){
 
 
 		m.AdjustNormDuplicates();
-		setModified(true);
+		setModified();
 	}
 	selector->updateData(brfdata);
 
@@ -724,7 +712,7 @@ void  MainWindow::tldHead(float verse){
 	}
 
 	if (changed) {
-		setModified(true);
+		setModified();
 		updateGl();
 	}
 
@@ -754,7 +742,8 @@ void MainWindow::onChangeFlags(QString st){
 	default: return; //assert(0);
 	}
 	statusBar()->showMessage( tr("Set flag(s) to \"%1\"").arg(st) );
-	setModified(true);
+	setModified();
+	undoHistoryAddEditAction();
 }
 
 int MainWindow::getLanguageOption(){
@@ -800,8 +789,6 @@ void MainWindow::refreshReference(){
 
 MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),inidata(brfdata)
 {
-
-
 	setWindowIcon(QIcon(":/openBrf.ico"));
 
 	usingWarband = true; // until proven otherwise
@@ -816,18 +803,23 @@ MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),inidata(brfdata)
 	selector = new Selector(this);
 	selector->reference=&reference;
 
-
-
 	isModified=false;
 	isModifiedHitboxes=false;
 	executingRepeatedCommand = false;
 	createMiniViewOptions();
+	guiPanel = new GuiPanel( this, inidata);
+
+	connect(menuBar(), SIGNAL(triggered(QAction*)), this, SLOT(undoHistoryAddAction(QAction*)) );
+
 	createActions();
 	createMenus();
 
 	QSplitter* main = new QSplitter();
-	guiPanel = new GuiPanel( this, inidata);
+
 	loadOptions();
+
+	undoHistoryRing.resize(25); // that many undo levels
+
 	setEditingRef(false);
 
 	main->addWidget(selector);
@@ -867,7 +859,10 @@ MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),inidata(brfdata)
 
 	glWidget->setDefaultBgColor(background,true);
 
+	undoHistoryClear();
+
 	connect(this->menuBar(), SIGNAL(triggered(QAction*)),this, SLOT(onActionTriggered(QAction *)));
+
 
 	// create askTransofrDialog windows
 	askTransformDialog = new AskTransformDialog(this );
@@ -884,6 +879,10 @@ MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),inidata(brfdata)
 
 
 bool MainWindow::setEditingRef(bool mode){
+	if (editingRef!=mode) {
+		undoHistoryClear();
+		setNotModified();
+	}
 	editingRef = mode;
 	if (editingRef) {
 		editRefAct->setText(tr("Stop editing reference data"));
@@ -919,7 +918,7 @@ void MainWindow::replaceInit(BrfType &o){
 		sprintf( o.name, curr.name );
 		curr = o;
 	}
-	setModified(true);
+	setModified();
 	updateGl();
 	updateGui();
 }
@@ -1016,7 +1015,7 @@ bool MainWindow::addNewUiPicture(){
 			insert(tex);
 			insert(mes);
 		}
-		setModified(true);
+		setModified();
 		return true;
 	}
 	return false;
@@ -1070,7 +1069,7 @@ bool MainWindow::addNewGeneral(QStringList defaultst ){
 				}
 			}
 			//selector->updateData(brfdata);
-			setModified(true);
+			setModified();
 		}
 		return true;
 
@@ -1191,7 +1190,7 @@ void MainWindow::meshUnify(){
 	updateGl();
 
 
-	if (mod) setModified(true);
+	if (mod) setModified();
 	statusBar()->showMessage(tr("Vertex unified."), 2000);
 }
 
@@ -1258,7 +1257,7 @@ void MainWindow::meshAniSplit(){
 		updateGui();
 		updateGl();
 
-		setModified(true);
+		setModified();
 
 		break;
 
@@ -1295,7 +1294,7 @@ void MainWindow::meshSubdivideIntoComponents(){
 		updateGui();
 		updateGl();
 
-		setModified(true);
+		setModified();
 
 		break;
 
@@ -1316,7 +1315,7 @@ void MainWindow::meshFixRiggingRigidParts(){
 	updateGl();
 
 
-	setModified(true);
+	setModified();
 	statusBar()->showMessage(tr("Autofixed rigid parts."), 2000);
 }
 
@@ -1349,7 +1348,7 @@ void MainWindow::objectMergeSelected(vector<BrfType> &v){
 	else commonPrefix+="_combined";
 	sprintf(res.name,"%s",commonPrefix.toAscii().data());
 	insert(res);
-	setModified(true);
+	setModified();
 }
 
 /*template<> BrfMesh& MainWindow::getSelected<BrfMesh>(int n){
@@ -1650,7 +1649,7 @@ void MainWindow::meshFemininize(){
 		ndone++;
 	}
 	if (ndone){
-		setModified(true);
+		setModified();
 		updateGui();
 		updateGl();
 	}
@@ -1692,7 +1691,7 @@ void MainWindow::meshUvTransform(){
 	int res = askUvTransformDialog->exec();
 
 	if (res==QDialog::Accepted) {
-		setModified(true);
+		setModified();
 	} else {
 		brfdata.mesh = brfdataTmp.mesh;
 		updateGl();
@@ -1781,7 +1780,7 @@ void MainWindow::meshRecomputeNormalsAndUnify(){
 
 
 	if (res==QDialog::Accepted) {
-		setModified(true);
+		setModified();
 	} else {
 		brfdata.mesh = backup;
 		updateGl();
@@ -1802,7 +1801,7 @@ void MainWindow::smoothenRigging(){
 	}
 	if (k) {
 		updateGl();
-		setModified(true);
+		setModified();
 	}
 	statusBar()->showMessage(tr("Softened %1 rigged meshes!").arg(k), 2000);
 }
@@ -1822,7 +1821,7 @@ void MainWindow::stiffenRigging(){
 	}
 	if (k) {
 		updateGl();
-		setModified(true);
+		setModified();
 	}
 	statusBar()->showMessage(tr("Stiffened %1 rigged meshes!").arg(k), 2000);
 }
@@ -1857,7 +1856,7 @@ void MainWindow::flip(){
 	default: return;
 	}
 	updateGl();
-	setModified(true);
+	setModified();
 }
 
 void MainWindow::scale(){
@@ -1870,7 +1869,7 @@ void MainWindow::scale(){
 			for (int j=0; j<list.size(); j++){
 				brfdata.mesh[list[j].row()].Scale(sca/100.0);
 			}
-			setModified(true);
+			setModified();
 		}
 	}
 	updateGl();
@@ -1900,7 +1899,7 @@ void MainWindow::meshToBody(){
 		b.UpdateBBox();
 
 		insert(b);
-		setModified(true);
+		setModified();
 	}
 
 }
@@ -1912,7 +1911,7 @@ void MainWindow::bodyMakeQuadDominant(){
 		for (int j=0; j<list.size(); j++){
 			brfdata.body[list[j].row()].MakeQuadDominant();
 		}
-		setModified(true);
+		setModified();
 	}
 	updateGui();
 	updateGl();
@@ -1933,7 +1932,7 @@ void MainWindow::shiftAni(){
 		                                  0,-a,1000,1,&ok);
 		if (ok) {
 			brfdata.animation[j].ShiftIndexInterval(k);
-			setModified(true);
+			setModified();
 		}
 	}
 	updateGui();
@@ -1950,7 +1949,7 @@ void MainWindow::aniMirror(){
 		// MEGAHACK
 		//a.AddBoneHack(16);
 		//a.AddBoneHack(17);
-		//setModified(true);
+		//setModified();
 		//continue;
 
 
@@ -1960,7 +1959,7 @@ void MainWindow::aniMirror(){
 
 
 		BrfAnimation b = a;
-		if (a.Mirror(b,s))	setModified(true);
+		if (a.Mirror(b,s))	setModified();
 	}
 	updateGl();
 }
@@ -1988,7 +1987,7 @@ void MainWindow::aniRemoveInterval(){
 	if (d.exec()!=QDialog::Accepted) return;
 	int res = ani.RemoveIndexInterval(d.getA(),d.getB());
 	if (res>0) {
-		setModified(true);
+		setModified();
 		updateGui();
 		updateGl();
 	}
@@ -2096,7 +2095,7 @@ void MainWindow::aniReskeletonize(){
 	if (done) {
 		updateGui();
 		updateGl();
-		setModified(true);
+		setModified();
 	}
 
 
@@ -2116,7 +2115,7 @@ void MainWindow::meshFreezeFrame(){
 				m.FreezeFrame(*s,*a,f);
 			else assert(0);
 			m.DiscardRigging();
-			setModified(true);
+			setModified();
 		}
 
 	}
@@ -2156,7 +2155,7 @@ void MainWindow::meshDiscardRig(){
 		//m.Unskeletonize(reference.skeleton[9]);//gimmeASkeleton(20)]);
 
 		m.DiscardRigging();
-		setModified(true);
+		setModified();
 	}
 	updateGui();
 	updateGl();
@@ -2167,7 +2166,7 @@ void MainWindow::meshRecomputeTangents(){
 	for (int j=0; j<list.size(); j++){
 		BrfMesh &m(brfdata.mesh[list[j].row()]);
 		m.ComputeTangents();
-		setModified(true);
+		setModified();
 	}
 	updateGui();
 	updateGl();
@@ -2203,7 +2202,7 @@ void MainWindow::meshRecolor(){
 		BrfMesh &m(brfdata.mesh[list[j].row()]);
 		if (overwrite) m.ColorAll(col);
 		else m.MultColorAll(col);
-		setModified(true);
+		setModified();
 	}
 	guiPanel->ui->rbVertexcolor->click();
 	updateGui();
@@ -2214,7 +2213,7 @@ void MainWindow::meshRecolor(){
 void MainWindow::meshColorWithTexture(){
 
 	glWidget->renderTextureColorOnMeshes( mustOverwriteColors() );
-	setModified(true);
+	setModified();
 	if (guiPanel->ui->cbTexture->isChecked()) guiPanel->ui->cbTexture->click();
 	if (!guiPanel->ui->rbVertexcolor->isChecked()) guiPanel->ui->rbVertexcolor->click();
 
@@ -2235,7 +2234,7 @@ void MainWindow::meshComputeAo(){
 	      inAlpha,
 	      mustOverwriteColors()
 	);
-	setModified(true);
+	setModified();
 	statusBar()->showMessage(tr("Computed AO%1").arg(inAlpha?tr("(in alpha channel)"):""), 2000);
 
 	updateGui();
@@ -2272,22 +2271,32 @@ unsigned int tuneColor(unsigned int col, int contr, int dh, int ds, int db){
 }
 
 
-void MainWindow::meshTuneColorUndo(bool storeUndo){
+void MainWindow::meshTuneColorCancel(bool reallyCancel){
 	static std::vector<unsigned int> stored;
-	if (storeUndo) stored.clear();
 	QModelIndexList list= selector->selectedList();
-	for (int j=0,h=0; j<list.size(); j++){
-		BrfMesh &m(brfdata.mesh[list[j].row()]);
-		for (uint i=0; i<m.vert.size(); i++,h++) {
-			if (storeUndo) stored.push_back(m.vert[i].col);
-			else m.vert[i].col = stored[h];
+	if (reallyCancel) {
+		// store original colors
+		stored.clear();
+		for (int j=0,h=0; j<list.size(); j++){
+			BrfMesh &m(brfdata.mesh[list[j].row()]);
+			for (uint i=0; i<m.vert.size(); i++,h++) {
+				stored.push_back(m.vert[i].col);
+			}
+		}
+	} else {
+		// recover original colors
+		for (int j=0,h=0; j<list.size(); j++){
+			BrfMesh &m(brfdata.mesh[list[j].row()]);
+			for (uint i=0; i<m.vert.size(); i++,h++) {
+				m.vert[i].col = stored[h];
+			}
 		}
 	}
 
 }
 
 void MainWindow::meshTuneColorDo(int c,int h,int s,int b){
-	meshTuneColorUndo(false);
+	meshTuneColorCancel(false);
 	QModelIndexList list= selector->selectedList();
 	for (int j=0; j<list.size(); j++){
 		BrfMesh &m(brfdata.mesh[list[j].row()]);
@@ -2297,12 +2306,12 @@ void MainWindow::meshTuneColorDo(int c,int h,int s,int b){
 }
 
 void MainWindow::meshTuneColor(){
-	meshTuneColorUndo(true);
+	meshTuneColorCancel(true);
 	AskHueSatBriDialog *d = new AskHueSatBriDialog(this);
 	connect(d, SIGNAL(anySliderMoved(int,int,int,int)), this, SLOT(meshTuneColorDo(int,int,int,int)));
 	int res = d->exec();
-	if (res!=QDialog::Accepted) meshTuneColorUndo(false); else {
-		setModified(true);
+	if (res!=QDialog::Accepted) meshTuneColorCancel(false); else {
+		setModified();
 		guiPanel->ui->rbVertexcolor->click();
 	}
 	updateGui();
@@ -2315,7 +2324,7 @@ void MainWindow::meshDiscardCol(){
 	for (int j=0; j<list.size(); j++){
 		BrfMesh &m(brfdata.mesh[list[j].row()]);
 		m.ColorAll(0xFFFFFFFF);
-		setModified(true);
+		setModified();
 	}
 	updateGui();
 	updateGl();
@@ -2325,7 +2334,7 @@ void MainWindow::meshDiscardTan(){
 	for (int j=0; j<list.size(); j++){
 		BrfMesh &m(brfdata.mesh[list[j].row()]);
 		m.DiscardTangentField();
-		setModified(true);
+		setModified();
 	}
 	updateGui();
 	updateGl();
@@ -2338,7 +2347,7 @@ void MainWindow::meshDiscardNor(){
 		BrfMesh &m(brfdata.mesh[list[j].row()]);
 		m.UnifyPos();
 		m.UnifyVert(false);
-		setModified(true);
+		setModified();
 	}
 	updateGui();
 	updateGl();
@@ -2349,7 +2358,7 @@ void MainWindow::meshDiscardAni(){
 	for (int j=0; j<list.size(); j++){
 		BrfMesh &m(brfdata.mesh[list[j].row()]);
 		m.KeepOnlyFrame(guiPanel->getCurrentSubpieceIndex(MESH));
-		setModified(true);
+		setModified();
 	}
 	updateGui();
 	updateGl();
@@ -2430,7 +2439,7 @@ void MainWindow::transform(){
 				for (int j=start; j<list.size(); j++)
 					brfdata.body[list[j].row()].Transform(d->matrix);
 
-			setModified(true);
+			setModified();
 		}
 
 	}
@@ -2457,7 +2466,7 @@ void MainWindow::transferRigging(){
 	}
 
 	selector->updateData(brfdata);
-	setModified(true);
+	setModified();
 }
 
 void MainWindow::reskeletonize(){
@@ -2509,7 +2518,7 @@ void MainWindow::reskeletonize(){
 		if (output==2)  {
 			brfdata.mesh[i] = m;
 		}
-		setModified(true);
+		setModified();
 	}
 	selector->updateData(brfdata);
 
@@ -2532,7 +2541,7 @@ void MainWindow::moveUpSel(){
 	selector->updateData(brfdata);
 	selector->moveSel(-1);
 	inidataChanged();
-	setModified(true,false);
+	setModified(false);
 }
 void MainWindow::moveDownSel(){
 	int i = selector->firstSelected();
@@ -2552,7 +2561,7 @@ void MainWindow::moveDownSel(){
 		selector->updateData(brfdata);
 		selector->moveSel(+1);
 		inidataChanged();
-		setModified(true,false);
+		setModified(false);
 	}
 }
 static void _findCommonPrefix(QString& a, QString b){
@@ -2603,6 +2612,7 @@ void MainWindow::renameSel(){
 			      QLineEdit::Normal,
 			      QString(commonPrefix), &ok
 			      );
+			if (newPrefix==commonPrefix) ok = false;
 			if ((t==TEXTURE) && (!newPrefix.contains('.'))) newPrefix+=".dds";
 		}
 		else {
@@ -2614,6 +2624,7 @@ void MainWindow::renameSel(){
 			      QLineEdit::Normal,
 			      commonPrefix, &ok
 			      );
+			if (newPrefix==commonPrefix) ok = false;
 		}
 		if (ok) {
 			for (int j=0; j<max; j++) {
@@ -2635,7 +2646,7 @@ void MainWindow::renameSel(){
 				newName =newPrefix + newName.remove( 0,ps );
 				_setName(name,newName);
 			}
-			setModified(true);
+			setModified();
 			inidataChanged();
 			updateSel();
 
@@ -2644,6 +2655,7 @@ void MainWindow::renameSel(){
 }
 void MainWindow::deleteSel(){
 	int i = selector->lastSelected();
+	if (i==-1) return;
 	unsigned int res=0;
 	switch (selector->currentTabName()) {
 	case MESH: res=_del(brfdata.mesh, selector->selectedList()); break;
@@ -2657,12 +2669,11 @@ void MainWindow::deleteSel(){
 	}
 	if (res>0) {
 		if (i<0 || i>=(int)res) i=res-1;
-
-		selector->selectOne(selector->currentTabName(),i);
+		selector->selectOneSilent(selector->currentTabName(),i);
 	}
 	inidataChanged();
 	updateSel();
-	setModified(true,false);
+	setModified(false);
 }
 
 
@@ -2680,7 +2691,7 @@ void MainWindow::editCutFrame(){
 		m.frame.erase( m.frame.begin()+j,m.frame.begin()+j+1);
 		m.AdjustNormDuplicates();
 		selector->selectOne(MESH,i);
-		setModified(true);
+		setModified();
 		//guiPanel->ui->frameNumber->setMaximum(m.frame.size()-1);
 	}
 }
@@ -2938,7 +2949,7 @@ void MainWindow::editPasteAniLowerParts(){
 		brfdata.animation[list[j].row()].CopyLowerParts(clipboard.animation[0]);
 	}
 
-	setModified(true);
+	setModified();
 	updateGui();
 	updateGl();
 
@@ -2951,7 +2962,7 @@ void MainWindow::editPasteTextcoords(){
 		brfdata.mesh[list[j].row()].CopyTextcoords(clipboard.mesh[0]);
 	}
 	updateSel();
-	setModified(true);
+	setModified();
 }
 
 
@@ -2961,7 +2972,7 @@ void MainWindow::editPasteVertColors(){
 		brfdata.mesh[list[j].row()].CopyVertColors(clipboard.mesh[0],mustOverwriteColors());
 	}
 	updateSel();
-	setModified(true);
+	setModified();
 }
 
 void MainWindow::editPasteVertAni(){
@@ -2970,7 +2981,7 @@ void MainWindow::editPasteVertAni(){
 		brfdata.mesh[list[j].row()].CopyVertAni(clipboard.mesh[0]);
 	}
 	updateSel();
-	setModified(true);
+	setModified();
 }
 
 void MainWindow::editPasteRigging(){
@@ -3015,7 +3026,7 @@ void MainWindow::editPasteRigging(){
 	}
 
 	selector->updateData(brfdata);
-	setModified(true);
+	setModified();
 }
 
 void MainWindow::editPasteMergeMesh(){
@@ -3052,7 +3063,7 @@ void MainWindow::editPasteMergeMesh(){
 	if (stDone) {
 		updateGl();
 		updateGui();
-		setModified(true);
+		setModified();
 	}
 }
 
@@ -3077,7 +3088,7 @@ void MainWindow::editPasteFrame(){
 		}
 		if (!res) m.AddFrameMatchTc(clipboard.mesh[0],j);
 		statusBar()->showMessage(tr("Added frame %1").arg(j+1),2000);
-		setModified(true);
+		setModified();
 		selector->selectOne(MESH,i);
 	}
 
@@ -3128,7 +3139,7 @@ void MainWindow::sortEntries(){
 	case BODY:     _sort(brfdata.body); break;
 	default: return ; //assert(0);
 	}
-	setModified(true);
+	setModified();
 	inidataChanged();
 	updateSel();
 	updateGui();
@@ -3225,7 +3236,7 @@ void MainWindow::editPasteTimings(){
 		statusBar()->showMessage(tr("Cannot paste times over that"),8000);
 	}
 
-	if (max>0) {  updateGui();  setModified(true);  }
+	if (max>0) {  updateGui();  setModified();  }
 }
 
 void MainWindow::editPasteMod(){
@@ -3246,7 +3257,7 @@ void MainWindow::editPasteMod(){
 		}
 		updateGl();
 		updateGui();
-		setModified(true);
+		setModified();
 	}
 }
 
@@ -3258,7 +3269,7 @@ void MainWindow::editPaste(){
 		BrfBody res;
 		if (clipboard.skeleton[0].LayoutHitboxes(clipboard.body[0],res,false)) {
 			insert(res);
-			setModified(true,false);
+			setModified(false);
 			return;
 		}
 	}
@@ -3271,7 +3282,7 @@ void MainWindow::editPaste(){
 	for (int i=0; i<(int)clipboard.skeleton.size(); i++) insert(clipboard.skeleton[i]);
 	for (int i=0; i<(int)clipboard.animation.size(); i++) insert(clipboard.animation[i]);
 
-	setModified(true,false);
+	setModified(false);
 }
 
 void MainWindow::duplicateSel(){
@@ -3291,28 +3302,9 @@ void MainWindow::duplicateSel(){
 	updateSel();
 
 	selector->moveSel(+1);
-	setModified(true);
+	setModified();
 }
 
-void MainWindow::addToRef(){
-	int i = selector->firstSelected();
-	assert(i>=0);
-	bool currModified = isModified;
-	switch (selector->currentTabName()){
-	case ANIMATION:
-		reference.animation.push_back(brfdata.animation[i]);
-
-		saveReference();
-		break;
-	case SKELETON:
-		reference.skeleton.push_back(brfdata.skeleton[i]);
-		saveReference();
-		break;
-	default: assert(0);
-	}
-	setModified(currModified,false);
-
-}
 
 
 Pair MainWindow:: askRefSkel(int nbones,  int &method, int &output){
@@ -3358,7 +3350,7 @@ void MainWindow::meshRemoveBack(){
 		k++;
 	}
 	if (k>0) {
-		setModified(true);
+		setModified();
 		guiPanel->setSelection(selector->selectedList(),MESH);
 		updateGl();
 	}
@@ -3374,7 +3366,7 @@ void MainWindow::meshAddBack(){
 		k++;
 	}
 	if (k>0) {
-		setModified(true);
+		setModified();
 		guiPanel->setSelection(selector->selectedList(),MESH);
 		updateGl();
 	}
@@ -3411,12 +3403,31 @@ void MainWindow::meshMountOnBone(){
 		k++;
 	}
 	if (k>0) {
-		setModified(true);
+		setModified();
 		updateGl(); updateGui();
 	}
 	//selector->setCurrentIndex(2);
 
 	statusBar()->showMessage(tr("Mounted %1 mesh%2 on bone %3").arg(k).arg((k>1)?"es":"s").arg(p.second), 8000);
+
+}
+
+void MainWindow::addToRef(){
+	int i = selector->firstSelected();
+	assert(i>=0);
+	switch (selector->currentTabName()){
+	case ANIMATION:
+		reference.animation.push_back(brfdata.animation[i]);
+		break;
+	case SKELETON:
+		reference.skeleton.push_back(brfdata.skeleton[i]);
+		break;
+	default: assert(0);
+	}
+
+	//bool wasModified = isModified;
+	saveReference();
+	//isModified = wasModified;	updateTitle();
 
 }
 
@@ -3449,9 +3460,9 @@ void MainWindow::addToRefMesh(int k){
 	char ch =char('A'+k);
 	sprintf(m.name, "Skin%c_%s", ch , brfdata.mesh[i].name);
 	reference.mesh.push_back(m);
-	bool currModified = isModified;
+	//bool wasModified = isModified;
 	saveReference();
-	setModified(currModified,false);
+	//if (wasModified) setModified(false); else setNotModified();
 
 	statusBar()->showMessage(tr("Added mesh %1 to set %2.").arg(m.name).arg(ch), 5000);
 }
@@ -3471,7 +3482,7 @@ void MainWindow::breakAni(int which, bool useIni){
 				updateSel();
 				inidataChanged();
 
-				setModified(true);
+				setModified();
 				//selector->setCurrentIndex(100);
 
 				statusBar()->showMessage(tr("Animation %2 split in %1 chunks!").arg(res).arg(ani.name), 2000);
@@ -3502,7 +3513,7 @@ void MainWindow::breakAni(int which, bool useIni){
 				updateSel();
 				inidataChanged();
 
-				setModified(true);
+				setModified();
 				//selector->setCurrentIndex(2);
 
 				statusBar()->showMessage(
@@ -3918,7 +3929,7 @@ bool MainWindow::saveReference(){
 	{
 		QMessageBox::warning(this, "OpenBRF",tr("Cannot save reference file!"));
 	}
-	setModified(false);
+	//setNotModified();
 	return true;
 }
 
@@ -3941,7 +3952,6 @@ bool MainWindow::editRef()
 		updateSel();
 		return true;
 	} else {
-		if (!maybeSave()) return false;
 		selector->setIniData(NULL,-1);
 		curFileBackup = curFile;
 		brfdataBackup = brfdata;
@@ -3996,7 +4006,8 @@ bool MainWindow::loadFile(const QString &_fileName)
 		//scanBrfDataForMaterials(brfdata);
 
 		//statusBar()->showMessage(tr("File loaded!"), 2000);
-		setModified(false);
+		setNotModified();
+		undoHistoryClear();
 		return true;
 	}
 }
@@ -4014,7 +4025,7 @@ bool MainWindow::saveFile(const QString &fileName)
 	}
 	if (brfdata.HasAnyTangentDirs() && brfdata.version==0) {
 		QMessageBox::warning(
-		      this,"OpenBRF - Warning",tr("You are trying to save meshes with tangend directions in M&B 1.011 file format.\nUnfortunately, tangent directions can only be saved in Warband file format.\nTangent directions will not be saved..."),
+		      this,"OpenBRF - Warning",tr("You are trying to save meshes with tangent directions in M&B 1.011 file format.\nUnfortunately, tangent directions can only be saved in Warband file format.\nTangent directions will not be saved..."),
 		      QMessageBox::Ok
 		      );
 	}
@@ -4031,7 +4042,8 @@ bool MainWindow::saveFile(const QString &fileName)
 			selector->setIniData(&inidata,curFileIndex);
 			updateSel();
 		}
-		setModified(false);
+		setNotModified();
+		markCurrendUndoAsSaved();
 		return true;
 	}
 }
@@ -4165,7 +4177,7 @@ bool MainWindow::open()
 
 		if (!fileName.isEmpty())
 			if (!loadFile(fileName)) return false;
-		setModified(false);
+
 		return true;
 
 	}
@@ -4174,14 +4186,18 @@ bool MainWindow::open()
 
 bool MainWindow::save()
 {
+	bool res = false;
 	if (editingRef) {
 		reference = brfdata;
 		statusBar()->showMessage(tr("Reference file saved!"), 4000);
-		return saveReference();
+		res = saveReference();
+		setNotModified();
+		markCurrendUndoAsSaved();
 	} else {
-		if (curFile.isEmpty()) return saveAs();
-		else return saveFile(curFile);
+		if (curFile.isEmpty()) res = saveAs();
+		else res = saveFile(curFile);
 	}
+	return res;
 }
 
 bool MainWindow::saveAs()
@@ -4204,7 +4220,7 @@ bool MainWindow::saveAs()
 	setCurrentFile(fileName);
 	brfdata.version=(selectedf==f1)?1:0;
 	saveFile(fileName);
-	setModified(false);
+
 	return true;
 }
 
@@ -4228,11 +4244,227 @@ void MainWindow::updateTitle(){
 		               .arg((loadedModReference)?tr("(for [%1] mod)").arg(modName):QString()));
 }
 
-void MainWindow::setModified(bool mod, bool repeatable){
-	isModified=mod;
-	if (mod && repeatable) setNextActionAsRepeatable = true; // action becomes repetable
+
+
+bool MainWindow::performRedo(){
+	if (undoLvlCurr >= undoLvlLast)  return false;
+
+	// apply undo
+	QString commandName;
+
+	undoLvlCurr++;
+	UndoLevel* currUndo = undoHistory(undoLvlCurr) ;
+	if (!currUndo) return false;
+
+	commandName = currUndo->actionDescription();
+	isModified = currUndo->needsBeSaved;
+	brfdata = currUndo->data;
+
+	statusBar()->showMessage(tr("Redone %1").arg(commandName));
+	qDebug() << QString("Redone %1").arg(commandName);
+
+	updateSel();
+	updateGui();
+	updateGl();
+	updateTitle();
+	updateUndoRedoAct();
+
+	lastAction = NULL;
+
+	return true;
+}
+
+bool MainWindow::performUndo(){
+	if (undoLvlCurr <=0 )  return false;
+
+
+	QString commandName;
+	{
+		UndoLevel* currUndo = undoHistory(undoLvlCurr);
+		if (!currUndo) return false;
+		commandName = currUndo->actionDescription();
+	}
+
+	undoLvlCurr--;
+	UndoLevel* currUndo = undoHistory(undoLvlCurr);
+	if (!currUndo) return false;
+
+	isModified = currUndo->needsBeSaved;
+	brfdata = currUndo->data;
+
+	statusBar()->showMessage(tr("Undone %1").arg(commandName));
+	qDebug() << QString("Undone %1").arg(commandName);
+
+	updateSel();
+	updateGui();
+	updateGl();
+	updateTitle();
+	updateUndoRedoAct();
+
+	lastAction = NULL;
+
+	return true;
+}
+
+QString UndoLevel::actionDescription() const{
+	if (actionRepetitions==1) return actionName;
+	else return QString("%1 (x%2)").arg(actionName).arg(actionRepetitions);
+}
+
+void MainWindow::updateUndoRedoAct(){
+
+	UndoLevel *currUndo = undoHistory(undoLvlCurr);
+	if ((undoLvlCurr > 0) && currUndo ) {
+		undoAct->setEnabled(undoHistory(undoLvlCurr-1)!=NULL);
+		undoAct->setText(tr("Undo %1").arg(currUndo->actionDescription()));
+	} else {
+		undoAct->setEnabled(false);
+		undoAct->setText(tr("Undo"));
+	}
+
+	currUndo = undoHistory(undoLvlCurr+1);
+	if ((undoLvlCurr < undoLvlLast) && currUndo ) {
+		redoAct->setEnabled(true);
+		redoAct->setText(tr("Redo %1").arg(currUndo->actionDescription()));
+	} else {
+		redoAct->setEnabled(false);
+	  redoAct->setText(tr("Redo"));
+	}
+
+}
+
+
+void MainWindow::undoHistoryClear(){
+
+	undoLvlCurr = -1;
+	undoLvlLast = -1;
+
+	lastAction = (QAction*)0xFF;
+	numModifics = 1;
+
+	undoHistoryAddAction(NULL);
+
+	updateUndoRedoAct();
+}
+
+int MainWindow::undoHistoryRingIndex(int lvl) const{
+	if (lvl<=undoLvlLast-(int)undoHistoryRing.size()) return -1;
+	return (lvl % undoHistoryRing.size());
+}
+UndoLevel* MainWindow::undoHistory(int lvl){
+	int j = undoHistoryRingIndex(lvl);
+	if (j==-1) return NULL; else return &(undoHistoryRing[j]);
+}
+
+void MainWindow::markCurrendUndoAsSaved(){
+	uint j = (uint)undoHistoryRingIndex(undoLvlCurr);
+	for (uint i=0; i<undoHistoryRing.size(); i++)
+		undoHistoryRing[i].needsBeSaved = (i!=j);
+}
+
+
+void MainWindow::undoHistoryAddAction(){
+	undoHistoryAddAction(NULL);
+}
+
+void MainWindow::undoHistoryAddEditAction(){
+	undoHistoryAddAction(fakeEditAction);
+}
+
+void MainWindow::undoHistoryAddAction(QAction *q){
+
+	if (q==repeatLastCommandAct) return;
+	if (q==undoAct) return;
+	if (q==redoAct) return;
+	if (q && q->menu()!=NULL) return;
+
+
+	if (q) qDebug("Action was triggered: %s",q->text().toAscii().data());
+	else qDebug("Action was triggered: NULL");
+
+
+	if (numModifics!=0) {
+		QString commandName;
+		if (q)
+			commandName = q->data().toString() + q->text();
+		else
+			commandName = "edit";
+
+		if (q!=lastAction) {
+			undoLvlCurr++;
+			//undoHistory.resize(undoLvlCurr+1);
+			//undoHistory[undoLvlCurr].actionRepetitions = 0;
+			assert( undoHistory(undoLvlCurr) );
+			undoHistory(undoLvlCurr)->actionRepetitions = 0;
+		}
+
+		//if (undoLvlLast<undoLvlCurr)
+		undoLvlLast=undoLvlCurr;
+
+		qDebug() << "-- stored! (lvl=" << undoLvlCurr
+		         <<" last=" << undoLvlLast
+		         <<" index="<< undoHistoryRingIndex(undoLvlCurr)<<"/"<<undoHistoryRing.size()<< ")";
+
+
+		UndoLevel * storeHere = undoHistory(undoLvlCurr);
+		storeHere->data = brfdata;
+		storeHere->needsBeSaved = isModified;
+		storeHere->actionName = commandName;
+		int tmp = storeHere->actionName.lastIndexOf("...");
+		if (tmp!=-1)storeHere->actionName.truncate(tmp);
+		storeHere->actionRepetitions += numModifics;
+		numModifics = 0;
+
+
+
+		lastAction = q;
+	}
+	if (!q) lastAction = q;
+	updateUndoRedoAct();
+
+
+}
+
+// called whenever the data is modified (even multiple times in the same action)
+void MainWindow::setModified(bool repeatable){
+	isModified = true;
+	if (repeatable) setNextActionAsRepeatable = true; // action becomes repetable
+	qDebug("set Modified!");
+	updateTitle();
+
+	numModifics++; // one more modific done
+}
+
+
+// called just AFTER any action is processed (modifying actions, or not)
+void MainWindow::onActionTriggered(QAction *q){
+
+	if (q==repeatLastCommandAct) return;
+	if (q==undoAct) return;
+	if (q==redoAct) return;
+
+	// update "repeatLastCommand" action
+	if (setNextActionAsRepeatable) {
+		setNextActionAsRepeatable = false;
+
+		repeatableAction = q;
+		tokenOfRepeatableAction = selector->currentTabName();
+		QString commandName = q->data().toString() + q->text();
+
+		repeatLastCommandAct->setText(QString("&Repeat %1").arg(commandName));
+		repeatLastCommandAct->setEnabled(true);
+	}
+
+
+}
+
+void MainWindow::setNotModified(){
+	isModified = false;
 	updateTitle();
 }
+
+
+
 
 void MainWindow::setModifiedHitboxes(bool mod){
 	if (mod!=isModifiedHitboxes) {
@@ -4652,6 +4884,9 @@ void MainWindow::newFile(){
 		brfdata.Clear();
 		curFile.clear();
 		curFileIndex = -1;
+		setNotModified();
+		undoHistoryClear();
+
 		updateGui();
 		updateGl();
 		updateSel();
@@ -4840,7 +5075,10 @@ template<class BrfType> bool MainWindow::setAllFlags(vector<BrfType> &v, unsigne
 		if (oldflags!=v[sel].flags) mod = true;
 	}
 	updateGui();
-	if (mod) setModified(true);
+	if (mod) {
+		setModified();
+		undoHistoryAddAction(fakeEditFlagAction);
+	}
 	return mod;
 }
 
@@ -4856,7 +5094,7 @@ bool MainWindow::setAllRequires(vector<BrfShader> &v, unsigned int toZero, unsig
 		if (oldreqs!=v[sel].requires) mod = true;
 	}
 	updateGui();
-	if (mod) setModified(true);
+	if (mod) setModified();
 	return mod;
 }
 
@@ -4921,7 +5159,7 @@ void MainWindow::setFlagsBody(){
 
 		if (p.flags != flags) {
 			p.flags = flags;
-			setModified(true);
+			setModified();
 			guiPanel->updateBodyPartData();
 		}
 	}

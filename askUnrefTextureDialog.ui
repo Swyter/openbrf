@@ -103,6 +103,12 @@ They will not be even loaded by the game.</string>
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>buttonBox</tabstop>
+  <tabstop>listWidget</tabstop>
+  <tabstop>moveAll</tabstop>
+  <tabstop>pushButton</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

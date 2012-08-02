@@ -78,6 +78,7 @@ int main(int argc, char* argv[])
       case 4: loc = QString("de");break;
       }
       translator.load(QString(":/translations/openbrf_%1.qm").arg(loc));
+
       qtTranslator.load(QString(":/translations/qt_%1.qm").arg(loc));
     } else {
       translator.load(nextTranslator);
