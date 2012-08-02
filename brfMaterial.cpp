@@ -15,7 +15,7 @@ BrfMaterial::BrfMaterial()
 
 bool BrfMaterial::Load(FILE*f, int verbose){
   LoadString(f, name);
-  if (verbose>0) printf("loading \"%s\"...\n",name);
+  //if (verbose>0) printf("loading \"%s\"...\n",name);
   LoadUint(f , flags);
   LoadString(f, shader);
   LoadString(f, diffuseA);

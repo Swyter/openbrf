@@ -32,6 +32,16 @@ BrfData::BrfData(char*f,int verbose, int stopAt){
   Load(f,verbose,stopAt);
 }
 
+int BrfData::GetFirstUnusedLetter() const{
+  vector<bool> used(255,false);
+
+  for (unsigned int i=0; i<mesh.size(); i++) {
+    char let = mesh[i].name[4];
+    used[let]=true;
+  }
+  for (char i='A'; i<'Z'; i++) if (!used[i]) return i-'A';
+  return -1;
+}
 
 template <class T>
 static void mergeVec(vector<T> &a, const vector<T> &b){
@@ -55,6 +65,7 @@ bool BrfData::Load(char*filename,int verbose, int stopAt){
   return Load(f, verbose, stopAt);
 }
 
+/*
 template<class BrfType> bool BrfData::LoadAll(FILE *f, vector<BrfType> &v, int k){
   int verbose=1;
   for (int i=0; i<k; i++) {
@@ -65,7 +76,7 @@ template<class BrfType> bool BrfData::LoadAll(FILE *f, vector<BrfType> &v, int k
   }
   lastLoaded=BrfType::tokenIndex();
   return true;
-}
+}*/
 
 template<class BrfType> void BrfData::SaveAll(FILE *f, const vector<BrfType> &v) const{
   if (v.size()==0) return;
@@ -101,8 +112,42 @@ bool BrfData::Save(const char*fn) const{
   return true;
 }
 
+bool BrfData::LoadMat(FILE *f){
+  mesh.clear();
+  texture.clear();
+  shader.clear();
+  material.clear();
+  skeleton.clear();
+  animation.clear();
+  body.clear();
+  while (1) {
+    char str[255];
+    LoadString(f, str);
+
+    if (!strcmp(str,"end")) break;
+
+    if (!strcmp(str,"mesh")) SkipVectorV<BrfMesh>(f);
+    else if (!strcmp(str,"texture")) LoadVector(f,texture);
+    else if (!strcmp(str,"shader")) LoadVector(f,shader);
+    else if (!strcmp(str,"material")) {
+      LoadVector(f,material);
+      return true;
+    }
+    else if (!strcmp(str,"skeleton")) LoadVector(f,skeleton);
+    else if (!strcmp(str,"skeleton_anim")) LoadVector(f,animation);
+    else if (!strcmp(str,"body")) LoadVector(f,body);
+    else {
+      printf("ERROR! Unknown token \"%s\"\n",str);
+      fflush(stdout);
+      return false;
+    }
+
+
+  }
+  return true;
+}
+
 bool BrfData::Load(FILE*f,int verbose, int stopAt){
-  printf("LOADING BRF...\n");
 
   mesh.clear();
   texture.clear();
@@ -112,31 +157,28 @@ bool BrfData::Load(FILE*f,int verbose, int stopAt){
   animation.clear();
   body.clear();
 
-  bool res=true;
 
-  lastLoaded = -1;
+
   while (1) {
     char str[255];
     LoadString(f, str);
     if (verbose>1) printf("Read \"%s\"\n",str);
     if (!strcmp(str,"end")) break;
-    int k;
-    LoadInt(f, k);
-    if (!strcmp(str,"mesh")) res&= LoadAll(f,mesh,k);
-    else if (!strcmp(str,"texture")) res&= LoadAll(f,texture,k);
-    else if (!strcmp(str,"shader")) res&= LoadAll(f,shader, k);
-    else if (!strcmp(str,"material")) res&= LoadAll(f,material, k);
-    else if (!strcmp(str,"skeleton")) res&= LoadAll(f,skeleton, k);
-    else if (!strcmp(str,"skeleton_anim")) res&= LoadAll(f,animation,k);
-    else if (!strcmp(str,"body")) res&= LoadAll(f,body,k);
+
+    if (!strcmp(str,"mesh")) LoadVector(f,mesh);
+    else if (!strcmp(str,"texture")) LoadVector(f,texture);
+    else if (!strcmp(str,"shader")) LoadVector(f,shader);
+    else if (!strcmp(str,"material")) LoadVector(f,material);
+    else if (!strcmp(str,"skeleton")) LoadVector(f,skeleton);
+    else if (!strcmp(str,"skeleton_anim")) LoadVector(f,animation);
+    else if (!strcmp(str,"body")) LoadVector(f,body);
     else {
       printf("ERROR! Unknown token \"%s\"\n",str);
       fflush(stdout);
-      res=false;
+      return false;
     }
-    if (lastLoaded>=stopAt) return res;
-    if (!res) break;
+
   }
-  return res;
+  return true;
 
 }

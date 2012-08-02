@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include <vcg/space/box3.h>
+#include <vcg/math/matrix44.h>
 #include <vcg/space/point3.h>
 #include <vcg/space/point2.h>
 
@@ -31,9 +32,35 @@ void BrfMesh::ComputeNormals(){
     }
     for (unsigned int vi=0; vi<vert.size(); vi++){
       frame[fi].norm[vi].Normalize();
-      vert[vi].__norm = frame[fi].norm[vi];
     }
   }
+  AdjustNormDuplicates();
+}
+void BrfFrame::Apply(Matrix44f m){
+  for (int i=0; i<(int)pos.size(); i++){
+    pos[i]=m*pos[i];
+  }
+  Point3f t = m*Point3f(0,0,0);
+  for (int i=0; i<(int)norm.size(); i++){
+    norm[i]=m*norm[i] - t;
+  }
+}
+
+void BrfMesh::Apply(Matrix44<float> m){
+  for (int i=0; i<(int)frame.size(); i++) frame[i].Apply(m);
+  this->UpdateBBox();
+  this->AdjustNormDuplicates();
+}
+
+void BrfMesh::SetUniformRig(int nbone){
+  isRigged=true;
+  int psize = (int)frame[0].pos.size();
+  rigging.resize(psize);
+  for (int i=0; i<psize; i++)
+    for (int j=0; j<4; j++){
+      rigging[i].boneIndex[j]=(j)?-1:nbone;
+      rigging[i].boneWeight[j]=(j)?0 :1;
+    }
 }
 
       class MyIndexClass{
@@ -441,6 +468,10 @@ public:
     SaveInt(f,bindex);
     SaveVector(f,pair);
   }
+  static void Skip(FILE*f){
+    ::Skip<int>(f);
+    SkipVectorF< TmpRiggingPair >(f);
+  }
   /*void Export(FILE *f){
     fprintf(f,"(bone %d) ",bindex);
     for (unsigned int i=0; i<pair.size(); i++){
@@ -495,7 +526,8 @@ void Rigging2TmpRigging(const vector<BrfRigging>& vert , vector<TmpRigging>& v) 
 
 }
 
-void TmpRigging2Rigging(const vector<TmpRigging>& v, vector<BrfRigging>&vert){
+int TmpRigging2Rigging(const vector<TmpRigging>& v, vector<BrfRigging>&vert){
+  int max=0;
 
   for (unsigned int i=0; i<v.size(); i++)
   for (unsigned int j=0; j<v[i].pair.size(); j++){
@@ -505,7 +537,9 @@ void TmpRigging2Rigging(const vector<TmpRigging>& v, vector<BrfRigging>&vert){
     assert(k<4); // otherwise, more than 4 bones for this vertex
     vert[ vi ].boneIndex[k] = v[i].bindex;
     vert[ vi ].boneWeight[k] = v[i].pair[j].weight;
+    if (max<v[i].bindex) max =v[i].bindex;
   }
+  return max;
 }
 
 void BrfMesh::Save(FILE*f) const{
@@ -519,6 +553,7 @@ void BrfMesh::Save(FILE*f) const{
   SaveVector(f, frame[0].pos);
 
   std::vector<TmpRigging> tmpRig;
+  Rigging2TmpRigging(rigging, tmpRig);
 
   SaveVector(f, tmpRig);
 
@@ -547,6 +582,10 @@ BrfMesh& BrfMesh::operator = (const BrfMesh &brf){
   Merge(brf);  
   return *this;
 }*/
+
+bool BrfMesh::HasVertexAni() const{
+  return frame.size()>1;
+}
 
 bool BrfMesh::SaveAsPly(int frameIndex, char* path) const{
   char filename[255];
@@ -907,16 +946,16 @@ bool BrfVert::Load(FILE*f,int verbose){
   LoadInt(f , index);
   LoadUint(f , col ); // color x vert! as 4 bytes AABBGGRR
   LoadPoint(f, __norm );
-  LoadPoint(f, ta );
-  LoadPoint(f, tb );
+  LoadPoint(f, ta ); ta[1]*=-1;
+  LoadPoint(f, tb ); tb[1]*=-1;
   return true;
 }
 void BrfVert::Save(FILE*f) const{
   SaveInt(f , index);
   SaveUint(f , col ); // color x vert! as 4 bytes AABBGGRR
   SavePoint(f, __norm );
-  SavePoint(f, ta );
-  SavePoint(f, tb );
+  SavePoint(f, vcg::Point2f(ta[0],-ta[1]) );
+  SavePoint(f, vcg::Point2f(tb[0],-tb[1]) );
 }
 
 bool BrfFace::Load(FILE*f,int verbose){
@@ -941,6 +980,13 @@ bool BrfFrame::Load(FILE*f, int verbose)
     LoadVector(f,norm);
     return true;
 }
+
+void BrfFrame::Skip(FILE*f){
+  ::Skip<int>(f);
+  SkipVectorF< Point3f > (f);
+  SkipVectorF< Point3f > (f);
+}
+
 
 void BrfFrame::Save(FILE*f) const
 {
@@ -981,33 +1027,29 @@ BrfVert::BrfVert(){
 BrfRigging::BrfRigging(){
   boneIndex[0]=boneIndex[1]=boneIndex[2]=boneIndex[3]=-1;
 }
-/*
-template <class T> void Skip(FILE* f){
-  fseek(f,sizeof(T), SEEK_CUR);
-}
-
-template <class T> void SkipVector(FILE* f){
-  unsigned int k;
-  LoadUInt(f,k);
-  fseek(f,k*sizeof(T),SEEK_CUR);
-}
-
-void SkipVector<TmpRigging>(FILE* f){
-  SkipInt(f);
-  SkipVector<TmpRiggingPair>(f);
-}
 
 void BrfMesh::Skip(FILE* f){
+  char st[255];
+  LoadString(f, st);
+  printf("skipping \"%s\"...\n",st);
+  //SkipString(f);
+  ::Skip<int>(f); // flags
   SkipString(f);
-  Skip<int>(f); // flags
-  SkipString(f);
-  SkipVector< Point3f >(f);
-  SkipVector< TmpRigging >(f);
-  SkipVector< BrfFrame >(f);
-  SkipVector< BrfVert >(f);
-  SkipVector< BrfFace >(f);
+  SkipVectorF< Point3f >(f); // pos
+  SkipVectorV< TmpRigging >(f);
+  SkipVectorV< BrfFrame >(f);
+  SkipVectorF< BrfVert >(f);
+  SkipVectorF< BrfFace >(f);
 }
-*/
+
+void BrfMesh::KeepOnlyFrame(int i){
+  if (i==0) frame.resize(1); else {
+    frame[0]=frame[i];
+    frame.resize(1);
+    AdjustNormDuplicates();
+  }
+}
+
 void BrfMesh::AfterLoad(){
   UpdateBBox();
   hasVertexColor=false;
@@ -1016,7 +1058,7 @@ void BrfMesh::AfterLoad(){
 
 bool BrfMesh::Load(FILE*f, int verbose){
   LoadString(f, name);
-  if (verbose>0) printf("loading \"%s\"...\n",name);
+  //if (verbose>0) printf("loading \"%s\"...\n",name);
 
   LoadInt(f , flags); 
   LoadString(f, material); // material used
@@ -1056,14 +1098,15 @@ bool BrfMesh::Load(FILE*f, int verbose){
 
   isRigged = tmpRig.size()>0;
   rigging.resize(frame[0].pos.size());
-  TmpRigging2Rigging(tmpRig, rigging);
+  maxBone = TmpRigging2Rigging(tmpRig, rigging);
+
 
   AfterLoad();
   return true;
 }
 
 bool BrfMesh::IsAnimable() const{
-  return (frame.size()>1);
+  return (frame.size()>1) || isRigged;
 }
 
 void BrfMesh::CopyTimesFrom(const BrfMesh &b){
@@ -1205,6 +1248,11 @@ void BrfMesh::AddRope(const BrfMesh &to, int nseg, float width){
 
 void BrfMesh::Merge(const BrfMesh &b)
 {
+  assert(frame.size()==b.frame.size());
+
+  bbox.Add(b.bbox);
+  if (maxBone<b.maxBone) maxBone = b.maxBone;
+
   int npos = frame[0].pos.size();
   int nvert = vert.size();
   

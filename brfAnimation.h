@@ -10,6 +10,7 @@ class BrfAnimationFrame
 public:
   int index;
   std::vector<vcg::Point4f> rot;
+  Matrix44f getRotationMatrix(int i) const;
   Point3f tra;
   std::vector< bool > wasImplicit;
 };
@@ -20,7 +21,6 @@ public:
   BrfAnimation();
   static int tokenIndex(){return ANIMATION;}
   char name[255];
-  unsigned int flags;
   int nbones; // in all frames
 
   std::vector<BrfAnimationFrame> frame;
@@ -41,12 +41,15 @@ public:
   int Break(std::vector<BrfAnimation> &res) const;
   int Break(std::vector<BrfAnimation> &res, char* aniFile) const;
 
+  bool SaveSMD(FILE *f) const;
+  bool LoadSMD(FILE *f);
+
+  int FirstIndex() const;
+  int LastIndex() const;
 
 private:
   static BrfSkeleton* skel;
   void EnlongFrames(int nframes);
-  int FirstIndex() const;
-  int LastIndex() const;
 
 };
 

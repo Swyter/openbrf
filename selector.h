@@ -20,16 +20,26 @@ public:
   int firstSelected() const;
   int numSelected() const;
   void moveSel(int d);
+  BrfData* reference;
 
 private slots:
   void onChanged();
   void onBreakAni();
   void onBreakAniWithIni();
-  void onRenameSel();
+  void addToRefMeshA();
+  void addToRefMeshB();
+  void addToRefMeshC();
+  void addToRefMeshD();
+  void addToRefMeshE();
+  void addToRefMeshF();
+  void addToRefMeshG();
+  void addToRefMeshH();
+  void addToRefMeshI();
+  void addToRefMeshJ();
 
 signals:
-  //void selectionChanged (const QItemSelection &selected, const QItemSelection &now);
   void setSelection(const QModelIndexList & newSel, int newToken);
+  void addToRefMesh(int refIndex);
   void breakAni(int i, bool useIni);
 
 private:
@@ -52,7 +62,9 @@ private:
     // importer acts
     *importStaticMeshAct,
     *importSkeletonModAct,
-    *importAnyBrfAct;
+    *importAnyBrfAct,
+    *addToRefAniAct,
+    *addToRefMeshAct[10];
 ;
 };
 

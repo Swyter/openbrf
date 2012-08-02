@@ -1,5 +1,6 @@
 #include <vector>
 #include <vcg/space/box3.h>
+#include <vcg/math/quaternion.h>
 #include <vcg/space/point3.h>
 #include <vcg/space/point2.h>
 using namespace vcg;
@@ -7,6 +8,25 @@ using namespace vcg;
 
 #include "brfSkeleton.h"
 #include "brfAnimation.h"
+
+Matrix44f BrfAnimationFrame::getRotationMatrix(int i) const{
+  vcg::Point4f p = rot[i];
+  vcg::Quaternionf qua(p[1],p[2],p[3],p[0]);
+  qua.Normalize();
+  qua.Invert();
+  vcg::Matrix44f mat;
+  float dva[] = {-1,0,0,0, 0,0,1,0, 0,1,0,0, 0,0,0,1};
+  vcg::Matrix44f swapYZ(dva);
+  float dvb[] = {-1,0,0,0, 0,-1,0,0, 0,0,1,0, 0,0,0,1};
+  vcg::Matrix44f invertXY(dvb);
+  qua.ToMatrix(mat);
+
+  mat=invertXY*swapYZ*mat*swapYZ;
+  //mat=invertXY*mat;
+
+  mat = mat.transpose();
+  return mat;
+}
 
 void BrfAnimation::SetSkeleton(BrfSkeleton *s){
   skel=s;
@@ -216,7 +236,7 @@ int BrfAnimation::Break(vector<BrfAnimation> &vect, char* fn) const{
   float speed;
 
   BrfAnimation ani;
-  ani.flags=flags;
+  //ani.flags=flags;
   ani.nbones=nbones;
 
   char oldst[2048];
@@ -225,7 +245,7 @@ int BrfAnimation::Break(vector<BrfAnimation> &vect, char* fn) const{
     sprintf(oldst," %s %u  %d\n",aniName, v00, nparts);
     int v0; float v1, v2, v3, v4;
     int ia, ib; unsigned int flags;
-    int cumulated = 0;
+    //int cumulated = 0;
     for (int j=0; j<nparts; j++) {
       fscanf(fin,"  %f %s %d %d %u %d %f %f %f %f \n", &speed, aniSubName, &ia, &ib ,  &flags, &v0, &v1,&v2,&v3,&v4);
       sprintf(oldst,"%s  %f %s %d %d %u %d %f %f %f %f \n", oldst, speed, aniSubName, ia, ib ,  flags, v0, v1,v2,v3,v4);
@@ -233,8 +253,8 @@ int BrfAnimation::Break(vector<BrfAnimation> &vect, char* fn) const{
         for (unsigned int h=0; h<frame.size(); h++) {
           if (frame[h].index>=ia && frame[h].index<=ib) {
             ani.frame.push_back(frame[h]);
-            ani.frame[ ani.frame.size()-1 ].index += -ia + cumulated;
-            cumulated+=ib-ia+1;
+            //ani.frame[ ani.frame.size()-1 ].index += -ia + cumulated;
+            //cumulated+=ib-ia+1;
           }
         }
       }
@@ -259,7 +279,7 @@ int BrfAnimation::Break(vector<BrfAnimation> &vect, char* fn) const{
 int BrfAnimation::Break(vector<BrfAnimation> &vect) const{
   int res=0;
   BrfAnimation ani;
-  ani.flags=flags;
+  //ani.flags=flags;
   ani.nbones=nbones;
   int start=-1;
   for (unsigned int i=0; i<frame.size(); i++) {

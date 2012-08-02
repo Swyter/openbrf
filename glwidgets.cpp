@@ -2,12 +2,31 @@
 #include <QtOpenGL>
 
 #include <math.h>
-#include <vcg\math\quaternion.h>
 
 #include "brfdata.h"
 #include "glwidgets.h"
 
+#include <vcg\math\matrix44.h>
 #include <wrap\gl\space.h>
+
+void GLWidget::setRefAnimation(int i){
+
+  selRefAnimation = i-1; // -1 for the "none"
+  update();
+}
+
+void GLWidget::setEditingRef(bool mode){
+  if (mode) {
+    bg_r=045; bg_g=0.5; bg_b=0.35 ;
+  } else {
+    bg_r=0.5; bg_g=0.5; bg_b=0.5 ;
+  }
+}
+
+void GLWidget::setRefSkin(int i){
+  selRefSkin = i-1; // -1 for the "none"
+  update();
+}
 
 static float floatMod(float a,int b){
   if (b<=0) return 0;
@@ -15,35 +34,80 @@ static float floatMod(float a,int b){
   return (a-ia) + ia%b; // which is >=0.0f but <b
 }
 
+void GLWidget::renderFloor(){
+  this->setWireframeLightingMode(false,false,false);
+
+  glDisable(GL_LIGHTING);
+  glPushMatrix();
+  float c[4]={0.6f*bg_r,0.6f*bg_g,0.6f*bg_b,1.0f};
+  float bg[4]={bg_r,bg_g,bg_b,1.0f};
+  glColor3fv(c);
+  glScalef(0.5,0.5,0.5);
+  glEnable(GL_FOG);
+  glFogfv(GL_FOG_COLOR,bg);
+  glFogf(GL_FOG_DENSITY,0.125f);
+  glBegin(GL_LINES);
+  int K = 50;
+  for (int i=-K; i<=K; i++){
+    glVertex3f(-K, 0, i);
+    glVertex3f(+K, 0, i);
+
+    glVertex3f(i, 0, +K);
+    glVertex3f(i, 0, -K);
+  }
+  glEnd();
+  glPopMatrix();
+  glDisable(GL_FOG);
+}
+
 void GLWidget::renderBrfItem (const BrfMesh& p){
-  float fi;
-  if (runningState==STOP) fi=1;
-  else fi = floatMod( relTime*runningSpeed, p.frame.size()-3) +2;
-  if (fi>=(float)p.frame.size()) fi=(float)p.frame.size()-1;
-  renderMesh(p,fi);
+  float fi = 0;
+  if (p.HasVertexAni()) {
+    if (runningState==STOP) fi=1;
+    else fi = floatMod( relTime*runningSpeed, p.frame.size()-3) +2;
+    if (fi>=(float)p.frame.size()) fi=(float)p.frame.size()-1;
+  }
+  BrfAnimation* a=NULL;
+  BrfSkeleton* s=NULL;
+  if (p.isRigged) {
+    if (selRefAnimation>=0) {
+      a=&(reference->animation[selRefAnimation]);
+      s=reference->getOneSkeleton( int(a->nbones ) );
+    }
+  }
+
+  if (a && s) {
+    fi = floatMod( relTime*runningSpeed , a->frame.size() );
+    renderRiggedMesh(p,*s,*a,fi);
+  } else {
+    renderMesh(p,fi);
+  }
 }
 
 void GLWidget::renderBrfItem (const BrfBody& p){
   renderBody(p);
 }
-void GLWidget::renderBrfItem (const BrfAnimation& p){
-  float fi = floatMod( relTime*runningSpeed , p.frame.size() );
+void GLWidget::renderBrfItem (const BrfAnimation& a){
+  float fi = floatMod( relTime*runningSpeed , a.frame.size() );
   if (!reference) return;
-  renderAnimation(p,*reference->getOneSkeleton( int(p.nbones ) ),fi);
+  BrfSkeleton *s=reference->getOneSkeleton( int(a.nbones ) );
+  if (selRefSkin>=0) {
+    for (unsigned int i=0; i<reference->mesh.size(); i++){
+      if (reference->mesh[i].name[4]==char('A'+selRefSkin))
+        renderRiggedMesh(reference->mesh[i],*s,a,fi);
+    }
+  } else {
+    // naked bones
+    renderAnimation(a,*s,fi);
+  }
 }
 void GLWidget::renderBrfItem (const BrfSkeleton& p){
   renderSkeleton(p);
 }
-
-template <class T> void ciao(T t);
-
-void ciao(int t){}
-
-
 void GLWidget::setShadowMode(bool on) const{
   if (on) {
     glPushMatrix();
-    float c[4]={0.175f,0.175f,0.175f,1};
+    float c[4]={0.35f*bg_r,0.35f*bg_g,0.35f*bg_b,1};
     glLightfv(GL_LIGHT1,GL_AMBIENT,c);
     glDisable(GL_LIGHT0);
     glEnable(GL_LIGHT1);
@@ -66,13 +130,21 @@ static float* vecf(float ff){
   static float f[4]; f[0]=f[1]=f[2]=ff; f[3]=1; return f;
 }
 
-void GLWidget::setWireframeLightingTextureMode(bool on, bool light, bool texture) const{
+void GLWidget::setWireframeLightingMode(bool wf, bool light, bool tex) const{
+  if (tex) {
+    glEnable(GL_TEXTURE_2D);
+  }
+  else glDisable(GL_TEXTURE_2D);
 
-  if (on) {
-    glLightfv(GL_LIGHT0,GL_DIFFUSE, (light)?vecf(0.6f):vecf(0.0f) );
+  if (wf) {
+    glLightfv(GL_LIGHT0,GL_DIFFUSE, (light && !tex)?vecf(0.6f):vecf(0.0f) );
     glLightfv(GL_LIGHT0,GL_SPECULAR, vecf(0) ) ;
 
-    glLightfv(GL_LIGHT0,GL_AMBIENT,(light)?vecf(0.0) :vecf(0.55));
+    glLightfv(GL_LIGHT0,GL_AMBIENT,(light || tex)?vecf(0.0) :vecf(0.55));
+
+    //if (tex) glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,vecf(1.0));
+    //    else glMaterialfv(GL_FRONT_AND_BACK,GL_EMISSION,vecf(0.0));
+
     glPolygonMode(GL_FRONT,GL_LINE);
     glPolygonOffset(-0.1f,-1);
     glEnable(GL_POLYGON_OFFSET_LINE);
@@ -86,6 +158,31 @@ void GLWidget::setWireframeLightingTextureMode(bool on, bool light, bool texture
   }
 }
 
+void GLWidget::setTextureName(const char *tn){
+
+    std::string s = (*mapMT)[ tn ];
+    if (s!="") {
+
+      glEnable(GL_TEXTURE_2D);
+      //QGLContext c; c = *context();
+      //c.
+      std::string cazz = std::string(texturePath.toAscii().data()) +"\\"+s+std::string(".dds");
+      const char* textname = cazz.c_str();
+      if (!bindTexture( textname ))
+      {
+        // small checkboard
+        QImage im(QSize(16,16),QImage::Format_ARGB32);
+        for (int x=0; x<16; x++)
+          for (int y=0; y<16; y++)
+            if ((x+y)%2) im.setPixel(QPoint(x,y),0xFFFFFFFF);
+            else im.setPixel(QPoint(x,y),0xFF8888FF);
+        bindTexture(im);
+      }
+      glEnable(GL_TEXTURE_2D);
+    } else
+    glDisable(GL_TEXTURE_2D);
+
+}
 
 // SLOTS
 void GLWidget::setWireframe(int i){
@@ -96,6 +193,9 @@ void GLWidget::setLighting(int i){
 }
 void GLWidget::setTexture(int i){
   useTexture = i; update();
+}
+void GLWidget::setFloor(int i){
+  useFloor = i; update();
 }
 void GLWidget::setPlay(){
   runningState=PLAY;
@@ -138,9 +238,10 @@ void GLWidget::setSelection(const QModelIndexList &newsel, int k){
   update();
 }
 
-GLWidget::GLWidget(QWidget *parent)
+GLWidget::GLWidget(QWidget *parent, MapSS* mm)
     : QGLWidget(parent)
 {
+  mapMT=mm;
   selectNone();
   phi=theta=0;
   dist = 5;
@@ -150,15 +251,18 @@ GLWidget::GLWidget(QWidget *parent)
   timer->setSingleShot(false);
   timer->start();
 
-  useWireframe=false; useLighting=useTexture=true;
+  useTexture=useWireframe=false; useLighting=useFloor=true;
+
   colorMode=1;
+  selRefAnimation = -1;
+  selRefSkin = -1;
+
 
   relTime=0;
   runningState = STOP;
   runningSpeed = 1/75.0f;
 
   connect(timer, SIGNAL(timeout()), this, SLOT(onTimer()));
-
 }
 
 GLWidget::~GLWidget()
@@ -235,9 +339,62 @@ void BrfRigging::SetColorGl()const{
   //glColor3f(boneColor[2][0],boneColor[2][1],boneColor[2][2]);
 }
 
-void GLWidget::renderMesh(const BrfMesh &m, float frame) const {
+
+void GLWidget::renderRiggedMesh(const BrfMesh& m,  const BrfSkeleton& s, const BrfAnimation& a, float frame){
+
+
+  if ((int)s.bone.size()!=a.nbones || m.maxBone>a.nbones) {
+    renderMesh(m,frame); // give up rigging mesh
+    return;
+  }
+
+  glEnable(GL_COLOR_MATERIAL);
+  glColor3f(1,1,1);
+  if ((!m.isRigged && colorMode==2)|| colorMode==0) glDisable(GL_COLOR_MATERIAL);
+
+
+  int fi= (int)frame;
+  vector<Matrix44f> bonepos = s.GetBoneMatrices( a.frame[fi] );
+
+  int fv =0;
+  for (int pass=(useWireframe)?0:1; pass<2; pass++) {
+  setWireframeLightingMode(pass==0, useLighting, useTexture);
+  if (useTexture) setTextureName(m.material);
+
+  glBegin(GL_TRIANGLES);
+  for (unsigned int i=0; i<m.face.size(); i++) {
+    for (int j=0; j<3; j++) {
+
+      const BrfRigging &rig (m.rigging[ m.vert[ m.face[i].index[j] ].index ]);
+      if (colorMode==2) rig.SetColorGl();
+      else glColor3ubv( (GLubyte*)&m.vert[ m.face[i].index[j] ].col );
+
+      //glNormal(vert[face[i].index[j]].__norm);
+      const Point3f &norm(m.frame[fv].norm[      m.face[i].index[j]        ]);
+      const Point3f &pos(m.frame[fv].pos [ m.vert[m.face[i].index[j]].index ]);
+      Point3f v(0,0,0);
+      Point3f n(0,0,0);
+      for (int k=0; k<4; k++){
+        float wieght = rig.boneWeight[k];
+        int       bi = rig.boneIndex [k];
+        if (bi>=0) {
+          v += (bonepos[bi]* pos  )*wieght;
+          n += (bonepos[bi]* norm - bonepos[bi]*Point3f(0,0,0) )*wieght;
+        }
+      }
+      glNormal(n);
+      glTexCoord(m.vert[m.face[i].index[j]].ta);
+      glVertex(v);
+    }
+  }
+  glEnd();
+  }
+}
+void GLWidget::renderMesh(const BrfMesh &m, float frame){
 
   int framei = (int) frame;
+
+
 
   glEnable(GL_COLOR_MATERIAL);
   glColor3f(1,1,1);
@@ -245,7 +402,8 @@ void GLWidget::renderMesh(const BrfMesh &m, float frame) const {
 
 
   for (int pass=(useWireframe)?0:1; pass<2; pass++) {
-  setWireframeLightingTextureMode(pass==0, useLighting, useTexture);
+  setWireframeLightingMode(pass==0, useLighting, useTexture);
+  if (useTexture) setTextureName(m.material);
   glBegin(GL_TRIANGLES);
   for (unsigned int i=0; i<m.face.size(); i++) {
     for (int j=0; j<3; j++) {
@@ -255,11 +413,14 @@ void GLWidget::renderMesh(const BrfMesh &m, float frame) const {
 
       //glNormal(vert[face[i].index[j]].__norm);
       glNormal(m.frame[framei].norm[      m.face[i].index[j]        ]);
+      glTexCoord(m.vert[m.face[i].index[j]].ta);
       glVertex(m.frame[framei].pos [ m.vert[m.face[i].index[j]].index ]);
+
     }
   }
   glEnd();
   }
+  glDisable(GL_TEXTURE_2D);
 }
 
 void GLWidget::renderSphereWire() const{
@@ -322,7 +483,9 @@ void GLWidget::renderOcta() const{
 void GLWidget::renderBone(const BrfSkeleton &s, int i, int lvl) const{
   glPushMatrix();
   glTranslate(s.bone[i].t);
-  glMultMatrixf(s.bone[i].fullMatrix());
+  Matrix44f mat = s.bone[i].getRotationMatrix();
+  mat = mat.transpose();
+  glMultMatrixf((const GLfloat *) mat.V());
   //glMultMatrixf(bone[i].mat);
   glPushMatrix();
     glColor3ub(255-lvl*30,255-lvl*30,255);
@@ -340,41 +503,15 @@ void GLWidget::renderBone(const BrfSkeleton &s, int i, int lvl) const{
 void GLWidget::renderBone(const BrfAnimation &a,const BrfSkeleton &s, float frame, int i, int lvl) const{
   int fi= (int) frame;
   //int fi= (glWidget->frame/100)%(int)frame.size();
-
-  vcg::Point4f p = a.frame[fi].rot[i];
-  vcg::Quaterniond qua(p[1],p[2],p[3],p[0]);
-  qua.Normalize();
-  qua.Invert();
-  vcg::Matrix44d mat;
-  double dva[] = {-1,0,0,0, 0,0,1,0, 0,1,0,0, 0,0,0,1};
-  vcg::Matrix44d swapYZ(dva);
-  double dvb[] = {-1,0,0,0, 0,-1,0,0, 0,0,1,0, 0,0,0,1};
-  vcg::Matrix44d invertXY(dvb);
-  qua.ToMatrix(mat);
-
-  mat=invertXY*swapYZ*mat*swapYZ;
-
- // mat = mat.transpose();
+  vcg::Matrix44f mat = a.frame[fi].getRotationMatrix(i);
+  mat = mat.transpose();
 
   glPushMatrix();
 
   glTranslate(s.bone[i].t);
 
-  if (lvl!=0); glMultMatrixd((const GLdouble *) mat.V());
+  if (lvl!=0); glMultMatrixf((const GLfloat *) mat.V());
 
-  //glMultMatrixf(skel->bone[i].fullMatrix());
-  /*
-  if (tmpHack) {
-    float *f1 = skel->bone[i].fullMatrix();
-    const double *f2 = (const double*)mat.V();
-    fprintf(tmpHack,"[%d]\n\n",i);
-    for (int i=0; i<16; i++)
-      fprintf(tmpHack, "%6.3f%c" ,f1[i],((i+1)%4)?' ':'\n');
-    fprintf(tmpHack,"\n");
-    for (int i=0; i<16; i++)
-      fprintf(tmpHack, "%6.3lf%c",f2[i],((i+1)%4)?' ':'\n');
-    fprintf(tmpHack,"\n\n");
-  }*/
 
   glPushMatrix();
     glColor3ub(255-lvl*30,255-lvl*30,255);
@@ -388,18 +525,22 @@ void GLWidget::renderBone(const BrfAnimation &a,const BrfSkeleton &s, float fram
 }
 
 
-void GLWidget::renderSkeleton(const BrfSkeleton &s) const{
+void GLWidget::renderSkeleton(const BrfSkeleton &s){
   glEnable(GL_COLOR_MATERIAL);
-  setWireframeLightingTextureMode(false,true,false);
+  setWireframeLightingMode(false,true,false);
+
   renderBone(s,s.root,0);
 
   setShadowMode(true);
   renderBone(s,s.root,0);
   setShadowMode(false);
+
 }
 
-void GLWidget::renderAnimation(const BrfAnimation &a, const BrfSkeleton &s, float frame) const{
-  setWireframeLightingTextureMode(false,true,false);
+
+
+void GLWidget::renderAnimation(const BrfAnimation &a, const BrfSkeleton &s, float frame){
+  setWireframeLightingMode(false,true,false);
 
   //if (!skel) return;
   if (s.bone.size()!=(unsigned int)a.nbones) return;
@@ -411,7 +552,7 @@ void GLWidget::renderAnimation(const BrfAnimation &a, const BrfSkeleton &s, floa
   //if (curFrame>=(int)frame.size()) return;
   glEnable(GL_COLOR_MATERIAL);
 
-  int fi= (int)frame;// (glWidget->frame/100)%(int)frame.size();
+  int fi= (int)frame;
   //if (capped) fi=0;
   glPushMatrix();
   glTranslate(a.frame[fi].tra);
@@ -426,6 +567,7 @@ void GLWidget::renderAnimation(const BrfAnimation &a, const BrfSkeleton &s, floa
   glTranslate(a.frame[fi].tra);
   renderBone(a,s,frame,s.root,0);
   setShadowMode(false);
+
 }
 
 void GLWidget::renderBodyPart(const BrfBodyPart &b) const{
@@ -464,7 +606,7 @@ void GLWidget::renderBodyPart(const BrfBodyPart &b) const{
 
 }
 
-void GLWidget::renderBody(const BrfBody& b) const{
+void GLWidget::renderBody(const BrfBody& b){
   for (unsigned int i=0; i<b.part.size(); i++) renderBodyPart(b.part[i]);
 }
 
@@ -489,6 +631,7 @@ void GLWidget::renderSelected(const std::vector<BrfType>& v){
     if (v[i].IsAnimable()) animating=true;
   }
 
+
 }
 
 int GLWidget::selIndex() const{
@@ -500,10 +643,11 @@ int GLWidget::selIndex() const{
 void GLWidget::paintGL()
 {
 
-  switch(displaying){
-  case NONE: glClearColor(0.2f,0.2f,0.2f,1); break;
-  default:  glClearColor(0.5f,0.5f,0.5f,1); break;
-  }
+  //switch(displaying){
+  //case NONE: glClearColor(0.2f,0.2f,0.2f,1); break;
+  //default:
+  glClearColor(bg_r,bg_g,bg_b,1); //break;
+  //}
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   if (displaying == NONE) return;
@@ -542,6 +686,8 @@ void GLWidget::paintGL()
     if (displaying == SKELETON ) renderSelected(data->skeleton);
     if (displaying == ANIMATION )  renderSelected(data->animation);
 
+    if (useFloor || displaying == ANIMATION || displaying == SKELETON || displaying == BODY)
+      renderFloor();
   }
 
 }

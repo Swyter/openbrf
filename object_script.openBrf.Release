@@ -15,6 +15,7 @@ INPUT(
 ./release\brfBody.o
 ./release\guipanel.o
 ./release\vcgmesh.o
+./release\askBoneDialog.o
 ./release\plylib.o
 ./release\xmldocumentmanaging.o
 ./release\moc_mainwindow.o
@@ -22,4 +23,5 @@ INPUT(
 ./release\moc_selector.o
 ./release\moc_tablemodel.o
 ./release\moc_guipanel.o
+./release\moc_askBoneDialog.o
 );
