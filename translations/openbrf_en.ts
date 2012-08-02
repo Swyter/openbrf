@@ -102,92 +102,92 @@ seams hard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2492"/>
+        <location filename="../mainwindow.cpp" line="2580"/>
         <source>No fog</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2493"/>
+        <location filename="../mainwindow.cpp" line="2581"/>
         <source>No Lighting</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2495"/>
+        <location filename="../mainwindow.cpp" line="2583"/>
         <source>No Z-write</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2496"/>
+        <location filename="../mainwindow.cpp" line="2584"/>
         <source>No depth Test</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2497"/>
+        <location filename="../mainwindow.cpp" line="2585"/>
         <source>Specular enable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2498"/>
+        <location filename="../mainwindow.cpp" line="2586"/>
         <source>Alpha test</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2499"/>
+        <location filename="../mainwindow.cpp" line="2587"/>
         <source>Uniform lighting</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2502"/>
+        <location filename="../mainwindow.cpp" line="2590"/>
         <source>Blend</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2503"/>
+        <location filename="../mainwindow.cpp" line="2591"/>
         <source>Blend add</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2504"/>
+        <location filename="../mainwindow.cpp" line="2592"/>
         <source>Blend multiply *</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2505"/>
+        <location filename="../mainwindow.cpp" line="2593"/>
         <source>Blend factor **</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2506"/>
+        <location filename="../mainwindow.cpp" line="2594"/>
         <source>Alpha test 1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2507"/>
+        <location filename="../mainwindow.cpp" line="2595"/>
         <source>Alpha test 128</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2508"/>
+        <location filename="../mainwindow.cpp" line="2596"/>
         <source>Alpha test 256 *</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2511"/>
+        <location filename="../mainwindow.cpp" line="2599"/>
         <source>Render 1st</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2512"/>
+        <location filename="../mainwindow.cpp" line="2600"/>
         <source>Origin at camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2513"/>
+        <location filename="../mainwindow.cpp" line="2601"/>
         <source>LoD</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2524"/>
+        <location filename="../mainwindow.cpp" line="2612"/>
         <source>Invert bumpmap</source>
         <translation type="unfinished"></translation>
     </message>
@@ -244,6 +244,118 @@ seams hard</source>
     <message>
         <location filename="../askModErrorDialog.cpp" line="145"/>
         <source>OpenBrf -- Module %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>AskNewUiPictureDialog</name>
+    <message>
+        <location filename="../askNewUiPictureDialog.ui" line="14"/>
+        <source>Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../askNewUiPictureDialog.ui" line="42"/>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;This will create: a Mesh, a Material, and a Texture&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;which can be used ingame as a 2D decoration &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt; font-style:italic;&quot;&gt;in the background of menus.&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../askNewUiPictureDialog.ui" line="61"/>
+        <source>Size and Pos:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../askNewUiPictureDialog.ui" line="76"/>
+        <source>X:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../askNewUiPictureDialog.ui" line="83"/>
+        <source>Y:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../askNewUiPictureDialog.ui" line="102"/>
+        <source>Size:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../askNewUiPictureDialog.ui" line="112"/>
+        <source>Lower-left
+corner: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../askNewUiPictureDialog.ui" line="120"/>
+        <source>Actual pixels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../askNewUiPictureDialog.ui" line="127"/>
+        <source>Center</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../askNewUiPictureDialog.ui" line="143"/>
+        <source>in pixels, on a
+1024x768 sceen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../askNewUiPictureDialog.ui" line="272"/>
+        <source>replace existing Mat.
+Mesh, and Texture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../askNewUiPictureDialog.ui" line="157"/>
+        <source>in % of screen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../askNewUiPictureDialog.ui" line="170"/>
+        <source>Set fullscreen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../askNewUiPictureDialog.ui" line="184"/>
+        <source>Picture name:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../askNewUiPictureDialog.ui" line="196"/>
+        <source>Browse</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../askNewUiPictureDialog.ui" line="220"/>
+        <source>Overlay mode:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../askNewUiPictureDialog.ui" line="232"/>
+        <source>Darken (multiply)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../askNewUiPictureDialog.ui" line="245"/>
+        <source>Normal (alpha blend)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../askNewUiPictureDialog.ui" line="258"/>
+        <source>Substitute (no alpha)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../askNewUiPictureDialog.cpp" line="138"/>
+        <source>Select a texture for a menu background file</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1114,13 +1226,6 @@ p, li { white-space: pre-wrap; }
         <location filename="../main_ImpExp.cpp" line="770"/>
         <location filename="../main_ImpExp.cpp" line="825"/>
         <location filename="../main_ImpExp.cpp" line="843"/>
-        <location filename="../mainwindow.cpp" line="378"/>
-        <location filename="../mainwindow.cpp" line="416"/>
-        <location filename="../mainwindow.cpp" line="473"/>
-        <location filename="../mainwindow.cpp" line="809"/>
-        <location filename="../mainwindow.cpp" line="876"/>
-        <location filename="../mainwindow.cpp" line="1126"/>
-        <location filename="../mainwindow.cpp" line="1133"/>
         <source>Open Brf</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1318,13 +1423,13 @@ to add a frame to.</source>
     </message>
     <message>
         <location filename="../main_ImpExp.cpp" line="678"/>
-        <location filename="../mainwindow.cpp" line="1396"/>
+        <location filename="../mainwindow.cpp" line="1482"/>
         <source>Vertex number mismatch... using texture-coord matching instead of vertex-ordering</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../main_ImpExp.cpp" line="693"/>
-        <location filename="../mainwindow.cpp" line="1403"/>
+        <location filename="../mainwindow.cpp" line="1489"/>
         <source>Added frame %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1391,574 +1496,584 @@ to add a frame to.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="54"/>
+        <location filename="../main_create.cpp" line="55"/>
         <source>Module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="59"/>
+        <location filename="../main_create.cpp" line="60"/>
         <source>Navigate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="65"/>
+        <location filename="../main_create.cpp" line="66"/>
         <source>&amp;Tools</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="68"/>
+        <location filename="../main_create.cpp" line="69"/>
         <source>&amp;Settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="69"/>
+        <location filename="../main_create.cpp" line="70"/>
         <source>On import meshes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="71"/>
+        <location filename="../main_create.cpp" line="72"/>
         <source>On assemble vertex animations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="109"/>
+        <location filename="../main_create.cpp" line="110"/>
         <source>merge vertices and pos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="111"/>
+        <location filename="../main_create.cpp" line="112"/>
         <source>recompute normals and merge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="113"/>
+        <location filename="../main_create.cpp" line="114"/>
         <source>do nothing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="126"/>
+        <location filename="../main_create.cpp" line="127"/>
         <source>trust vertex order to be the same</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="127"/>
+        <location filename="../main_create.cpp" line="128"/>
         <source>Use this option if you feel lucky and hope that vertex order was preserved between the frames.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="129"/>
+        <location filename="../main_create.cpp" line="130"/>
         <source>trust texture coordinates to be unique</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="131"/>
+        <location filename="../main_create.cpp" line="132"/>
         <source>Use this option if you think that each vertex can be identified uniquely by its texture coords (best option)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="133"/>
+        <location filename="../main_create.cpp" line="134"/>
         <source>quiver mode - start with max arrows</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="134"/>
+        <location filename="../main_create.cpp" line="135"/>
         <source>When you add a frame: what is not in the exact same position as the 1st frame disappears</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="152"/>
+        <location filename="../main_create.cpp" line="153"/>
         <source>Auto zoom-and-recenter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="153"/>
+        <location filename="../main_create.cpp" line="154"/>
         <source>according to selected object(s) only</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="155"/>
+        <location filename="../main_create.cpp" line="156"/>
         <source>according to all objects in file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="176"/>
+        <location filename="../main_create.cpp" line="177"/>
         <source>Language</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="177"/>
+        <location filename="../main_create.cpp" line="178"/>
         <source>System default</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="185"/>
+        <location filename="../main_create.cpp" line="186"/>
         <source>Test a custom translation file...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="202"/>
+        <location filename="../main_create.cpp" line="203"/>
         <source>&amp;New</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="204"/>
+        <location filename="../main_create.cpp" line="205"/>
         <source>Create a new file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="207"/>
+        <location filename="../main_create.cpp" line="208"/>
         <source>&amp;Open...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="209"/>
+        <location filename="../main_create.cpp" line="210"/>
         <source>Open an existing file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="212"/>
+        <location filename="../main_create.cpp" line="213"/>
         <source>&amp;Save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="214"/>
+        <location filename="../main_create.cpp" line="215"/>
         <source>Save the document to disk</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="217"/>
+        <location filename="../main_create.cpp" line="218"/>
         <source>Cut</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="218"/>
+        <location filename="../main_create.cpp" line="219"/>
         <source>Cut currently selected objects.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="220"/>
+        <location filename="../main_create.cpp" line="221"/>
         <source>Copy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="221"/>
+        <location filename="../main_create.cpp" line="222"/>
         <source>Copy currently selected objects in the clipboard.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="222"/>
+        <location filename="../main_create.cpp" line="223"/>
         <source>Add to Clipboard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="223"/>
+        <location filename="../main_create.cpp" line="224"/>
         <source>Add currently selected objects to clipboard.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="225"/>
+        <location filename="../main_create.cpp" line="226"/>
         <source>Paste</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="226"/>
+        <location filename="../main_create.cpp" line="227"/>
         <source>Paste objects from the clipboard into currect BRF.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="230"/>
+        <location filename="../main_create.cpp" line="231"/>
         <source>Cut frame</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="232"/>
+        <location filename="../main_create.cpp" line="233"/>
         <source>Cut current frame of a vertex animated mesh.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="233"/>
+        <location filename="../main_create.cpp" line="234"/>
         <source>Copy frame</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="235"/>
+        <location filename="../main_create.cpp" line="236"/>
         <source>Copy current frame of a vertex animated mesh.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="236"/>
+        <location filename="../main_create.cpp" line="237"/>
         <source>Paste frame</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="239"/>
+        <location filename="../main_create.cpp" line="240"/>
         <source>Paste frame from clipboard as next frame in the current vertex animated mesh</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="240"/>
+        <location filename="../main_create.cpp" line="241"/>
         <source>Paste rigging</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="241"/>
+        <location filename="../main_create.cpp" line="242"/>
         <source>Make a rigging for current mesh(-es) similar to one of the meshes in the clipboard.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="244"/>
+        <location filename="../main_create.cpp" line="245"/>
         <source>Paste modifications</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="245"/>
+        <location filename="../main_create.cpp" line="246"/>
         <source>Move vertices of current mesh according to a 2 frame mesh animation.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="248"/>
+        <location filename="../main_create.cpp" line="249"/>
         <source>Paste timings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="249"/>
+        <location filename="../main_create.cpp" line="250"/>
         <source>Paste timings of vertex or skeletal animation in clipboard into other animation(s).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="264"/>
+        <location filename="../main_create.cpp" line="265"/>
         <source>Save &amp;As...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="266"/>
+        <location filename="../main_create.cpp" line="267"/>
         <source>Save the document under a new name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="276"/>
+        <location filename="../main_create.cpp" line="277"/>
         <source>E&amp;xit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="277"/>
+        <location filename="../main_create.cpp" line="278"/>
         <source>Alt+F4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="278"/>
+        <location filename="../main_create.cpp" line="279"/>
         <source>Exit the application</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="281"/>
+        <location filename="../main_create.cpp" line="282"/>
         <source>Why the checkerboard pattern?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="282"/>
+        <location filename="../main_create.cpp" line="283"/>
         <source>Diagnose why I&apos;m seeing a checkboard pattern instead of my texture.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="287"/>
+        <location filename="../main_create.cpp" line="288"/>
         <source>About</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="288"/>
+        <location filename="../main_create.cpp" line="289"/>
         <source>F1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="289"/>
+        <location filename="../main_create.cpp" line="290"/>
         <source>About OpenBRF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="292"/>
+        <location filename="../main_create.cpp" line="293"/>
         <source>_</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="296"/>
+        <location filename="../main_create.cpp" line="297"/>
         <source>Sort entries</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="297"/>
+        <location filename="../main_create.cpp" line="298"/>
         <source>Sort current entries alphabetically</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="300"/>
+        <location filename="../main_create.cpp" line="301"/>
         <source>Static mesh</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="301"/>
+        <location filename="../main_create.cpp" line="302"/>
         <source>Import a static Mesh</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="302"/>
+        <location filename="../main_create.cpp" line="303"/>
         <source>Rigged mesh</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="303"/>
+        <location filename="../main_create.cpp" line="304"/>
         <source>Import rigged (skeletal animable) Mesh</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="304"/>
+        <location filename="../main_create.cpp" line="305"/>
         <source>Frame of vertex-animated mesh</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="305"/>
+        <location filename="../main_create.cpp" line="306"/>
         <source>Import a static mesh and add it as a vertex-animation frame of current Mesh</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="306"/>
+        <location filename="../main_create.cpp" line="307"/>
         <source>Vertex-animated mesh</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="307"/>
+        <location filename="../main_create.cpp" line="308"/>
         <source>Import a vertex animated mesh from a MD3 file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="308"/>
+        <location filename="../main_create.cpp" line="309"/>
         <location filename="../main_info.cpp" line="13"/>
         <source>Skeleton</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="309"/>
+        <location filename="../main_create.cpp" line="310"/>
         <source>Import a Skeleton</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="313"/>
+        <location filename="../main_create.cpp" line="314"/>
         <source>Skeletal animation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="314"/>
+        <location filename="../main_create.cpp" line="315"/>
         <source>Import a skeletal Animation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="315"/>
+        <location filename="../main_create.cpp" line="316"/>
         <source>Collision body</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="316"/>
+        <location filename="../main_create.cpp" line="317"/>
         <source>Import an (multi-object) OBJ mesh as a Collision object.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="317"/>
+        <location filename="../main_create.cpp" line="318"/>
         <source>Anything from a BRF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="318"/>
+        <location filename="../main_create.cpp" line="319"/>
         <source>Import all content form another BRF file into current one.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="319"/>
+        <location filename="../main_create.cpp" line="320"/>
         <source>New Material</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="320"/>
+        <location filename="../main_create.cpp" line="321"/>
         <source>Make a new Material object.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="321"/>
+        <location filename="../main_create.cpp" line="322"/>
         <source>New Texture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="322"/>
+        <location filename="../main_create.cpp" line="323"/>
         <source>Make a new Texture object from a dds texture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="323"/>
+        <location filename="../main_create.cpp" line="324"/>
         <source>New Shader</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="324"/>
+        <location filename="../main_create.cpp" line="325"/>
         <source>Enlist a new Shader</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../main_create.cpp" line="327"/>
-        <source>follow link</source>
+        <source>New Menu Background</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../main_create.cpp" line="328"/>
-        <source>ctrl+right</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main_create.cpp" line="329"/>
-        <source>Go from a mesh to used material; go from a material to used textures/shader</source>
+        <source>Add a Menu Background (Mesh, Material, and Texture)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../main_create.cpp" line="331"/>
-        <source>follow back-link</source>
+        <source>follow link</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../main_create.cpp" line="332"/>
-        <source>ctrl+left</source>
+        <source>ctrl+right</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../main_create.cpp" line="333"/>
-        <source>Go back to the mesh (from a material) or material (from texture or shaders).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main_create.cpp" line="334"/>
-        <source>next back-link</source>
+        <source>Go from a mesh to used material; go from a material to used textures/shader</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../main_create.cpp" line="335"/>
-        <source>prev back-link</source>
+        <source>follow back-link</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../main_create.cpp" line="336"/>
-        <source>Find</source>
+        <source>ctrl+left</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../main_create.cpp" line="337"/>
-        <location filename="../main_create.cpp" line="347"/>
-        <source>ctrl+F</source>
+        <source>Go back to the mesh (from a material) or material (from texture or shaders).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../main_create.cpp" line="338"/>
-        <source>Refresh ini</source>
+        <source>next back-link</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../main_create.cpp" line="339"/>
-        <source>Reload ini files, brf files inside it, and dds textures</source>
+        <source>prev back-link</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../main_create.cpp" line="340"/>
-        <source>F5</source>
+        <source>Find</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../main_create.cpp" line="341"/>
+        <location filename="../main_create.cpp" line="351"/>
+        <source>ctrl+F</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../main_create.cpp" line="342"/>
-        <source>Scan module for errors</source>
+        <source>Refresh ini</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../main_create.cpp" line="343"/>
-        <source>ctrl+E</source>
+        <source>Reload ini files, brf files inside it, and dds textures</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../main_create.cpp" line="344"/>
-        <source>Scan module.ini and included brf files for inconsistencies.</source>
+        <source>F5</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../main_create.cpp" line="346"/>
-        <source>Find in module</source>
+        <source>Scan module for errors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../main_create.cpp" line="347"/>
+        <source>ctrl+E</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../main_create.cpp" line="348"/>
+        <source>Scan module.ini and included brf files for inconsistencies.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../main_create.cpp" line="350"/>
+        <source>Find in module</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../main_create.cpp" line="352"/>
         <source>Look for an object in all brf listed inside current module.ini.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="359"/>
+        <location filename="../main_create.cpp" line="363"/>
         <source>Register BRF extension</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="360"/>
+        <location filename="../main_create.cpp" line="364"/>
         <source>Make so that clicking on a brf file opens OpenBRF.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="373"/>
+        <location filename="../main_create.cpp" line="377"/>
         <source>default</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="374"/>
+        <location filename="../main_create.cpp" line="378"/>
         <source>Default mode: rotate objects with mouse, zoom in/out with wheel.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="375"/>
+        <location filename="../main_create.cpp" line="379"/>
         <source>helmet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="376"/>
+        <location filename="../main_create.cpp" line="380"/>
         <source>Helmet mode: for objects with vertical Z axis, like M&amp;B helmets or weapons.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="377"/>
+        <location filename="../main_create.cpp" line="381"/>
         <source>scene</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="378"/>
+        <location filename="../main_create.cpp" line="382"/>
         <source>Scene mode: navigate with mouse and WASD (levitate with wheel, zoom with shift)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="389"/>
+        <location filename="../main_create.cpp" line="393"/>
         <source>combo</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="390"/>
+        <location filename="../main_create.cpp" line="394"/>
         <source>See objects combined, when selecting multiple things</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="391"/>
+        <location filename="../main_create.cpp" line="395"/>
         <source>aside</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="392"/>
+        <location filename="../main_create.cpp" line="396"/>
         <source>See object side-to-side, when selecting multiple things</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="394"/>
+        <location filename="../main_create.cpp" line="398"/>
         <source>mult-view:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="412"/>
+        <location filename="../main_create.cpp" line="416"/>
         <source>view-mode:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2105,130 +2220,130 @@ to add a frame to.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="87"/>
-        <location filename="../mainwindow.cpp" line="1251"/>
-        <location filename="../mainwindow.cpp" line="1261"/>
-        <location filename="../mainwindow.cpp" line="1522"/>
+        <location filename="../mainwindow.cpp" line="88"/>
+        <location filename="../mainwindow.cpp" line="1337"/>
+        <location filename="../mainwindow.cpp" line="1347"/>
+        <location filename="../mainwindow.cpp" line="1608"/>
         <source>OpenBrf</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="88"/>
+        <location filename="../mainwindow.cpp" line="89"/>
         <source>%1 been modified.
 Save changes?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="89"/>
+        <location filename="../mainwindow.cpp" line="90"/>
         <source>Internal reference objects have</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="89"/>
+        <location filename="../mainwindow.cpp" line="90"/>
         <source>The dataset has</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="310"/>
+        <location filename="../mainwindow.cpp" line="312"/>
         <source>Set %1 mesh materials to &quot;%2&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="364"/>
+        <location filename="../mainwindow.cpp" line="366"/>
         <source>Set time of frame %1 to %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="378"/>
-        <location filename="../mainwindow.cpp" line="416"/>
+        <location filename="../mainwindow.cpp" line="380"/>
+        <location filename="../mainwindow.cpp" line="418"/>
         <source>CAnnot find skel_human, skel_dwarf and skel_orc in reference data.
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="452"/>
+        <location filename="../mainwindow.cpp" line="454"/>
         <source>Invalid frame %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="461"/>
+        <location filename="../mainwindow.cpp" line="463"/>
         <source>%1 meshes shrunk around bones</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="473"/>
+        <location filename="../mainwindow.cpp" line="475"/>
         <source>Cannot find skel_human, skel_dwarf and skel_orc in reference data.
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="619"/>
+        <location filename="../mainwindow.cpp" line="621"/>
         <source>Set flag(s) to &quot;%1&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="688"/>
+        <location filename="../mainwindow.cpp" line="690"/>
         <source>Stop editing reference data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="689"/>
+        <location filename="../mainwindow.cpp" line="691"/>
         <source>Stop editing &quot;reference&quot; skeletons, animations &amp; meshes, that OpenBrf uses to display data.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="691"/>
+        <location filename="../mainwindow.cpp" line="693"/>
         <source>Edit reference data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="692"/>
+        <location filename="../mainwindow.cpp" line="694"/>
         <source>Edit &quot;reference&quot; skeletons, animations &amp; meshes, that OpenBrf uses to display data.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="739"/>
+        <location filename="../mainwindow.cpp" line="815"/>
         <source>Name:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="740"/>
+        <location filename="../mainwindow.cpp" line="816"/>
         <source>New %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="741"/>
+        <location filename="../mainwindow.cpp" line="817"/>
         <source>new_%1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="810"/>
+        <location filename="../mainwindow.cpp" line="886"/>
         <source>Oops... no skin is currently available...
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="815"/>
+        <location filename="../mainwindow.cpp" line="891"/>
         <source>Skin %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="819"/>
+        <location filename="../mainwindow.cpp" line="895"/>
         <source>Select a skin</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="820"/>
+        <location filename="../mainwindow.cpp" line="896"/>
         <source>Select a skin:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="863"/>
+        <location filename="../mainwindow.cpp" line="939"/>
         <source>Vertex unified.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="877"/>
+        <location filename="../mainwindow.cpp" line="955"/>
         <source>Cannot merge these meshes
  (different number of frames,
  or rigged VS not rigged).
@@ -2236,17 +2351,17 @@ Save changes?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="936"/>
+        <location filename="../mainwindow.cpp" line="1022"/>
         <source>Normals recomputed with %1% hard edges.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1021"/>
+        <location filename="../mainwindow.cpp" line="1107"/>
         <source>Shift animation timings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1022"/>
+        <location filename="../mainwindow.cpp" line="1108"/>
         <source>Current Interval: [%1 %2]
 New interval: [%1+k %2+k]
 
@@ -2254,12 +2369,12 @@ Select k:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1099"/>
+        <location filename="../mainwindow.cpp" line="1185"/>
         <source>Transfer Rigging</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1100"/>
+        <location filename="../mainwindow.cpp" line="1186"/>
         <source>Transfer rigging:
 select a rigged mesh first,
 then all target meshes.
@@ -2267,48 +2382,48 @@ then all target meshes.
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1127"/>
+        <location filename="../mainwindow.cpp" line="1213"/>
         <source>Same skeleton:
 reskeletonization canceled.
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1134"/>
+        <location filename="../mainwindow.cpp" line="1220"/>
         <source>Different number of bones:
 reskeletonization canceled.
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1252"/>
+        <location filename="../mainwindow.cpp" line="1338"/>
         <source>Renaming %1...
 new name:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1262"/>
+        <location filename="../mainwindow.cpp" line="1348"/>
         <source>%3 common prefix for %1 %2...
 new prefix:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1262"/>
+        <location filename="../mainwindow.cpp" line="1348"/>
         <source>Changing the</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1262"/>
+        <location filename="../mainwindow.cpp" line="1348"/>
         <source>Adding a</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1362"/>
+        <location filename="../mainwindow.cpp" line="1448"/>
         <source>Copy Rigging into another mesh</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1363"/>
+        <location filename="../mainwindow.cpp" line="1449"/>
         <source>Copy Rigging into another mesh:
 - select one or more sample rigged mesh first,
 - copy them (ctrl-C)
@@ -2320,210 +2435,203 @@ new prefix:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1400"/>
+        <location filename="../mainwindow.cpp" line="1486"/>
         <source>Vertex number mismatch... using texture-coord matching instead</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1487"/>
+        <location filename="../mainwindow.cpp" line="1573"/>
         <source>Cannot paste timings! Select *one* animated mesh or skel animation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1500"/>
+        <location filename="../mainwindow.cpp" line="1586"/>
         <source>Pasted timings over %1 (animated) mesh</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1506"/>
+        <location filename="../mainwindow.cpp" line="1592"/>
         <source>Pasted timings over %1 skeletal animations</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1509"/>
+        <location filename="../mainwindow.cpp" line="1595"/>
         <source>Cannot paste times over that</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1522"/>
+        <location filename="../mainwindow.cpp" line="1608"/>
         <source>To use paste modification mesh: firstcopy a 2 frames mesh. Then, select one or more destination meshes, and &quot;paste modification&quot;any vertex in any frame of the destination mesh that are in the same pos of frame 0,will be moved on the position of frame 1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1657"/>
-        <location filename="../mainwindow.cpp" line="1696"/>
+        <location filename="../mainwindow.cpp" line="1743"/>
+        <location filename="../mainwindow.cpp" line="1782"/>
         <source>Canceled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1679"/>
+        <location filename="../mainwindow.cpp" line="1765"/>
         <source>Mounted %1 mesh%2 on bone %3</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1713"/>
+        <location filename="../mainwindow.cpp" line="1799"/>
         <source>Added mesh %1 to set %2.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1732"/>
+        <location filename="../mainwindow.cpp" line="1818"/>
         <source>Animation %2 split in %1 chunks!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1734"/>
+        <location filename="../mainwindow.cpp" line="1820"/>
         <source>Animation could be auto-split (frames are too conescutive)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1741"/>
+        <location filename="../mainwindow.cpp" line="1827"/>
         <source>Select an &quot;actions.txt&quot; file (hint: it&apos;s in the module dir)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1742"/>
+        <location filename="../mainwindow.cpp" line="1828"/>
         <source>%1\actions.txt</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1743"/>
+        <location filename="../mainwindow.cpp" line="1829"/>
         <source>Txt file(*.txt)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1746"/>
+        <location filename="../mainwindow.cpp" line="1832"/>
         <source>Split canceled.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1753"/>
+        <location filename="../mainwindow.cpp" line="1839"/>
         <source>Nothing to split (or could not split).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1760"/>
+        <location filename="../mainwindow.cpp" line="1846"/>
         <source>Animation %2 split in %1 chunks -- new animation.txt file save in &quot;%3&quot;!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1942"/>
-        <location filename="../mainwindow.cpp" line="1988"/>
-        <location filename="../mainwindow.cpp" line="2017"/>
-        <source>Open BRF</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../mainwindow.cpp" line="1943"/>
+        <location filename="../mainwindow.cpp" line="2029"/>
         <source>Cannot save reference file!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1974"/>
+        <location filename="../mainwindow.cpp" line="2060"/>
         <source>Editing reference file...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1989"/>
+        <location filename="../mainwindow.cpp" line="2077"/>
         <source>Cannot load %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2018"/>
+        <location filename="../mainwindow.cpp" line="2106"/>
         <source>Cannot write file %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2021"/>
+        <location filename="../mainwindow.cpp" line="2109"/>
         <source>File saved!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2036"/>
+        <location filename="../mainwindow.cpp" line="2124"/>
         <source>Open File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2038"/>
+        <location filename="../mainwindow.cpp" line="2126"/>
         <source>Resource (*.brf)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2055"/>
+        <location filename="../mainwindow.cpp" line="2143"/>
         <source>Reference file saved!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2065"/>
+        <location filename="../mainwindow.cpp" line="2153"/>
         <source>M&amp;B Resource (*.brf)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2065"/>
+        <location filename="../mainwindow.cpp" line="2153"/>
         <source>WarBand Resource v.1 (*.brf)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2068"/>
+        <location filename="../mainwindow.cpp" line="2156"/>
         <source>Save File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2089"/>
+        <location filename="../mainwindow.cpp" line="2177"/>
         <source> [not in module.ini]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2093"/>
+        <location filename="../mainwindow.cpp" line="2181"/>
         <source>%1%2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2095"/>
+        <location filename="../mainwindow.cpp" line="2183"/>
         <source>%1 - %2%3%4</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2097"/>
+        <location filename="../mainwindow.cpp" line="2185"/>
         <source>%1 - editing internal reference data%2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2167"/>
+        <location filename="../mainwindow.cpp" line="2255"/>
         <source>%5 %1 brf files from module.ini of &quot;%3&quot;-- %2 msec total [%4 text/mat/shad]</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2169"/>
+        <location filename="../mainwindow.cpp" line="2257"/>
         <source>scanned</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2169"/>
+        <location filename="../mainwindow.cpp" line="2257"/>
         <source>ERRORS found while scanning</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2259"/>
+        <location filename="../mainwindow.cpp" line="2347"/>
         <source>Navigate: cannot find material &quot;%1&quot; in current module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2302"/>
+        <location filename="../mainwindow.cpp" line="2390"/>
         <source>Navigate: cannot find %2 &quot;%1&quot; in current module</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2315"/>
+        <location filename="../mainwindow.cpp" line="2403"/>
         <source>Navigate right: pos = %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2468"/>
+        <location filename="../mainwindow.cpp" line="2556"/>
         <source>&amp;%1 %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2549"/>
+        <location filename="../mainwindow.cpp" line="2637"/>
         <source>Material flags</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2630,7 +2738,7 @@ new prefix:</source>
     </message>
     <message>
         <location filename="../selector.cpp" line="47"/>
-        <location filename="../selector.cpp" line="391"/>
+        <location filename="../selector.cpp" line="394"/>
         <source>Rename</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2875,132 +2983,142 @@ new prefix:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../selector.cpp" line="147"/>
+        <source>Combine collision objects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../selector.cpp" line="148"/>
+        <source>Make a combined collision obj. unifying these objs.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../selector.cpp" line="150"/>
         <source>Recompute normals</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="149"/>
+        <location filename="../selector.cpp" line="151"/>
         <source>Recompute normals for this model, and unify pos and vertices</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="151"/>
+        <location filename="../selector.cpp" line="153"/>
         <source>Unify vertices</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="152"/>
+        <location filename="../selector.cpp" line="154"/>
         <source>Unify identical vertices and pos.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="154"/>
+        <location filename="../selector.cpp" line="156"/>
         <source>Combine meshes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="155"/>
+        <location filename="../selector.cpp" line="157"/>
         <source>Make a combined mesh unifying these meshes.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="157"/>
+        <location filename="../selector.cpp" line="159"/>
         <source>Mount on one bone</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="158"/>
+        <location filename="../selector.cpp" line="160"/>
         <source>Put this mesh on top of a single skeleton bone.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="160"/>
+        <location filename="../selector.cpp" line="162"/>
         <source>remove all</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="161"/>
+        <location filename="../selector.cpp" line="163"/>
         <source>Remove all faces that are backfacing (e.g. in beard meshes).</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="162"/>
+        <location filename="../selector.cpp" line="164"/>
         <source>add (x2 faces)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="163"/>
+        <location filename="../selector.cpp" line="165"/>
         <source>Duplicate all faces: for each current face, add a backfacing face.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="166"/>
+        <location filename="../selector.cpp" line="168"/>
         <source>per-vertex color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="167"/>
+        <location filename="../selector.cpp" line="169"/>
         <source>rigging</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="168"/>
+        <location filename="../selector.cpp" line="170"/>
         <source>vertex animation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="169"/>
+        <location filename="../selector.cpp" line="171"/>
         <source>Discard vertex animation (keeps only current frame)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="173"/>
+        <location filename="../selector.cpp" line="175"/>
         <source>Make a skeleton-modification mesh</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="174"/>
+        <location filename="../selector.cpp" line="176"/>
         <source>Modify from a skeleton-modification mesh</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="242"/>
+        <location filename="../selector.cpp" line="245"/>
         <source>[Right-Click]: tools for %1. Multiple selections with [Shift]-[Ctrl].</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="245"/>
+        <location filename="../selector.cpp" line="248"/>
         <source>[Right-Click]: tools for %1.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="391"/>
+        <location filename="../selector.cpp" line="394"/>
         <source>Group rename</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="452"/>
+        <location filename="../selector.cpp" line="455"/>
         <source>Backfacing faces</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="456"/>
+        <location filename="../selector.cpp" line="459"/>
         <source>Discard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="485"/>
+        <location filename="../selector.cpp" line="489"/>
         <source>Add to reference skins</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="488"/>
+        <location filename="../selector.cpp" line="492"/>
         <source>to Skin Set %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="492"/>
+        <location filename="../selector.cpp" line="496"/>
         <source>to Skin Set %1 [new set]</source>
         <translation type="unfinished"></translation>
     </message>

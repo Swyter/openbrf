@@ -10,6 +10,7 @@
 #include "askModErrorDialog.h"
 #include "askTransformDialog.h"
 #include "askCreaseDialog.h"
+#include "askNewUiPictureDialog.h"
 #include <QtGui>
 #include <QDebug>
 #include <algorithm>
@@ -89,9 +90,10 @@ bool MainWindow::maybeSave()
                         "Save changes?").arg((editingRef)?tr("Internal reference objects have"):tr("The dataset has")),
                      QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
       if (ret == QMessageBox::Save) {
-        if (editingRef)
+        if (editingRef) {
+          reference = brfdata;
           return saveReference();
-        else
+        } else
           return save();
       }
       else if (ret == QMessageBox::Cancel)
@@ -375,7 +377,7 @@ void MainWindow::tldMakeDwarfBoots(){
   int shi=reference.Find("skel_human",SKELETON);
   if (sdi==-1 || shi==-1) {
     QMessageBox::information(this,
-      tr("Open Brf"),tr("CAnnot find skel_human, skel_dwarf and skel_orc in reference data.\n")
+      "OpenBRF",tr("CAnnot find skel_human, skel_dwarf and skel_orc in reference data.\n")
     );
     return;
   }
@@ -413,7 +415,7 @@ void MainWindow::tldMakeDwarfSlim(){
   int sdi=reference.Find("skel_dwarf",SKELETON);
   if (sdi==-1) {
     QMessageBox::information(this,
-      tr("Open Brf"),tr("CAnnot find skel_human, skel_dwarf and skel_orc in reference data.\n")
+      "OpenBRF",tr("CAnnot find skel_human, skel_dwarf and skel_orc in reference data.\n")
     );
     return;
   }
@@ -470,7 +472,7 @@ void MainWindow::mab2tldArmor(){
   int soi=reference.Find("skel_orc",SKELETON);
   if (shi==-1 || sdi==-1  || soi==-1) {
     QMessageBox::information(this,
-      tr("Open Brf"),tr("Cannot find skel_human, skel_dwarf and skel_orc in reference data.\n")
+      "OpenBRF",tr("Cannot find skel_human, skel_dwarf and skel_orc in reference data.\n")
     );
     return;
   }
@@ -703,6 +705,14 @@ void MainWindow::insert(const BrfMaterial &o){  insert( brfdata.material, o); }
 void MainWindow::insert(const BrfShader &o){   insert( brfdata.shader, o); }
 void MainWindow::insert(const BrfBody &o){   insert( brfdata.body, o); }
 
+void MainWindow::insertOrReplace(const BrfMesh &o){ insertOrReplace( brfdata.mesh, o); }
+void MainWindow::insertOrReplace(const BrfSkeleton &o){ insertOrReplace( brfdata.skeleton, o); }
+void MainWindow::insertOrReplace(const BrfAnimation &o){ insertOrReplace( brfdata.animation, o); }
+void MainWindow::insertOrReplace(const BrfTexture &o){   insertOrReplace( brfdata.texture, o); }
+void MainWindow::insertOrReplace(const BrfMaterial &o){  insertOrReplace( brfdata.material, o); }
+void MainWindow::insertOrReplace(const BrfShader &o){   insertOrReplace( brfdata.shader, o); }
+void MainWindow::insertOrReplace(const BrfBody &o){   insertOrReplace( brfdata.body, o); }
+
 template<class BrfType> void MainWindow::insert( vector<BrfType> &v, const BrfType &o){
   int newpos;
   if (selector->currentTabName()!=BrfType::tokenIndex() ) {
@@ -719,11 +729,77 @@ template<class BrfType> void MainWindow::insert( vector<BrfType> &v, const BrfTy
   selectOne(BrfType::tokenIndex(), newpos);
 }
 
+template <class T> int _findByName( const vector<T> &v, const QString &s){
+  for (unsigned int i=0; i<v.size(); i++)
+    if (QString::compare(v[i].name,s,Qt::CaseInsensitive)==0) return i;
+  return -1;
+}
+
+template<class BrfType> void MainWindow::insertOrReplace( vector<BrfType> &v, const BrfType &o){
+  QString st(o.name);
+  int i = _findByName(v,st);
+  if (i>=0) {
+    v[i]=o;
+    selector->updateData(brfdata);
+    selectOne(BrfType::tokenIndex(), i);
+  }
+  else insert(v,o);
+}
+
 void _setName(char* st, QString s){
   s.truncate(254);
   sprintf(st, "%s", s.toAscii().data());
 }
 
+
+bool MainWindow::addNewUiPicture(){
+  AskNewUiPictureDialog d(this);
+  d.setBrowsable(mabPath+"/Modules/"+modName+"/Textures");
+  int ok=d.exec();
+  if (ok){
+    if (AskNewUiPictureDialog::name[0]==0) return false;
+    BrfMaterial mat;
+    BrfTexture tex;
+    BrfMesh mes;
+
+    mat.SetDefault();
+    tex.SetDefault();
+    mes.SetDefault();
+
+    mes.MakeSingleQuad(
+        AskNewUiPictureDialog::px*0.01,
+        AskNewUiPictureDialog::py*0.01*0.75,
+        AskNewUiPictureDialog::sx*0.01,
+        AskNewUiPictureDialog::sy*0.01*0.75);
+
+    switch (AskNewUiPictureDialog::overlayMode){
+    case 0: mat.flags = 0x301; break; // darken
+    case 1: mat.flags = 0x101; break;
+    case 2: mat.flags = 0x0; break; // solild: only no fog
+      // add 0x10 for no depth
+    }
+
+    sprintf(mat.name,"%s",AskNewUiPictureDialog::name);
+    sprintf(tex.name,"%s.%s",
+            AskNewUiPictureDialog::name,
+            d.ext.toAscii().data());
+    sprintf(mes.name,"%s",AskNewUiPictureDialog::name);
+    sprintf(mat.diffuseA,"%s",AskNewUiPictureDialog::name);
+    sprintf(mes.material,"%s",AskNewUiPictureDialog::name);
+    if (AskNewUiPictureDialog::replace) {
+      insertOrReplace(mat);
+      insertOrReplace(tex);
+      insertOrReplace(mes);
+    } else {
+      insert(mat);
+      insert(tex);
+      insert(mes);
+    }
+    setModified(true);
+    return true;
+  }
+  return false;
+}
 
 
 
@@ -738,7 +814,7 @@ bool MainWindow::addNewGeneral(){
     d.setBrowsable(mabPath+"/Modules/"+modName+"/Textures");
   d.setLabel( tr("Name:") );
   d.setWindowTitle( tr("New %1").arg( IniData::tokenFullName(tok)  ) );
-  d.setDef(tr("new_%1").arg(IniData::tokenFullName(tok).toLower()) );
+  d.setDef(tr("new_%1").arg(QString(tokenBrfName[tok]).toLower()) );
   int ok=d.exec();
   if (ok) {
     QStringList newName=d.getRes();
@@ -806,7 +882,7 @@ int MainWindow::askRefSkin(){
   int n = reference.GetFirstUnusedLetter();
   if (n==0) {
     QMessageBox::information(this,
-        tr("Open Brf"),
+        "OpenBRF",
         tr("Oops... no skin is currently available...\n")
       );
     return -1;
@@ -863,17 +939,19 @@ void MainWindow::meshUnify(){
   statusBar()->showMessage(tr("Vertex unified."), 2000);
 }
 
-void MainWindow::meshMerge(){
-  BrfMesh res;
+
+template<class BrfType>
+void MainWindow::objectMergeSelected(vector<BrfType> &v){
+  BrfType res;
   bool first=true;
   for (int i=0; i<selector->selectedList().size(); i++)
   {
     int j=selector->selectedList()[i].row();
-    if (j<0 || j>=(int)brfdata.mesh.size()) continue;
-    if (first) res = brfdata.mesh[j]; else {
-      if (!res.Merge( brfdata.mesh[j] )) {
+    if (j<0 || j>=(int)v.size()) continue;
+    if (first) res = v[j]; else {
+      if (!res.Merge( v[j] )) {
         QMessageBox::information(this,
-          tr("Open Brf"),
+          "OpenBrf",
           tr("Cannot merge these meshes\n (different number of frames,\n or rigged VS not rigged).\n")
         );
         return;
@@ -883,6 +961,14 @@ void MainWindow::meshMerge(){
   }
   insert(res);
   setModified(true);
+}
+
+void MainWindow::meshMerge(){
+  objectMergeSelected(brfdata.mesh);
+}
+
+void MainWindow::bodyMerge(){
+  objectMergeSelected(brfdata.body);
 }
 
 void MainWindow::updateGl(){
@@ -1123,14 +1209,14 @@ int k=0;
   if (a==-1) return;
   if (a==b) {
     QMessageBox::information(this,
-      tr("Open Brf"),
+      "OpenBRF",
       tr("Same skeleton:\nreskeletonization canceled.\n")
     );
     return;
   }
   if (reference.skeleton[a].bone.size()!=reference.skeleton[b].bone.size()) {
     QMessageBox::information(this,
-      tr("Open Brf"),
+      "OpenBRF",
       tr("Different number of bones:\nreskeletonization canceled.\n")
     );
     return;
@@ -1935,11 +2021,11 @@ bool MainWindow::saveReference(){
   guiPanel->setReference(&reference);
   if ((int)reference.animation.size()>=glWidget->selRefAnimation) glWidget->selRefAnimation=-1;
   if (reference.GetFirstUnusedLetter()>=glWidget->selRefSkin) glWidget->selRefSkin=-1;
-  if (!reference.Save(
-       QString("%1/%2").arg(QCoreApplication::applicationDirPath()).arg("reference.brf").toStdWString().c_str()
-     ))
+  QString fn = QString("%1/%2").arg(QCoreApplication::applicationDirPath()).arg("reference.brf");
+  //QMessageBox::information(this, "OpenBRF",QString("Saving ref: %1").arg(fn));
+  if (!reference.Save(fn.toStdWString().c_str()))
   {
-    QMessageBox::information(this, tr("Open BRF"),
+    QMessageBox::information(this, "OpenBRF",
                               tr("Cannot save reference file!"));
   }
   setModified(false);
@@ -1981,11 +2067,13 @@ bool MainWindow::loadFile(const QString &_fileName)
 {
   QString fileName = _fileName;
   fileName.replace("\\","/");
+  //QMessageBox::information(this, "OpenBRF",tr("Loading %1.").arg(_fileName));
+
   if (!maybeSave()) return false;
   setEditingRef(false);
   setCurrentFile(fileName);
   if (!brfdata.Load(fileName.toStdWString().c_str())) {
-     QMessageBox::information(this, tr("Open BRF"),
+     QMessageBox::information(this, "OpenBRF",
                               tr("Cannot load %1.").arg(fileName));
 
      return false;
@@ -2014,7 +2102,7 @@ bool MainWindow::saveFile(const QString &fileName)
   }
   //setCurrentFile(fileName);
   if (!brfdata.Save(fileName.toStdWString().c_str())) {
-     QMessageBox::information(this, tr("Open BRF"),
+     QMessageBox::information(this, "OpenBRF",
                                  tr("Cannot write file %1.").arg(fileName));
      return false;
    } else {

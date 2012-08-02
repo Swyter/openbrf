@@ -144,6 +144,8 @@ Selector::Selector(QWidget *parent)
 
   bodyMakeQuadDominantAct = new QAction(tr("Make quad-dominant"), this);
   bodyMakeQuadDominantAct->setStatusTip(tr("Try to merge most triangles into fewer quads (more efficient!)"));
+  bodyMerge = new QAction(tr("Combine collision objects"), this);
+  bodyMerge->setStatusTip(tr("Make a combined collision obj. unifying these objs."));
 
   meshRecomputeNormalsAndUnify = new QAction(tr("Recompute normals"), this);
   meshRecomputeNormalsAndUnify->setStatusTip(tr("Recompute normals for this model, and unify pos and vertices"));
@@ -182,6 +184,7 @@ Selector::Selector(QWidget *parent)
   connect(meshRecomputeNormalsAndUnify,  SIGNAL(triggered()),parent,SLOT(meshRecomputeNormalsAndUnify()));
   connect(meshUnify,  SIGNAL(triggered()),parent,SLOT(meshUnify()));
   connect(meshMerge,  SIGNAL(triggered()),parent,SLOT(meshMerge()));
+  connect(bodyMerge,  SIGNAL(triggered()),parent,SLOT(bodyMerge()));
   connect(meshMountOnBone,SIGNAL(triggered()),parent,SLOT(meshMountOnBone()));
   connect(meshRemoveBackfacing,SIGNAL(triggered()),parent,SLOT(meshRemoveBack()));
   connect(meshAddBackfacing,SIGNAL(triggered()),parent,SLOT(meshAddBack()));
@@ -468,6 +471,7 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
      if (!sep) menu.addSeparator(); sep=true;
      menu.addAction(flipAct);
      menu.addAction(transformAct);
+     if (!onesel && !nosel) { menu.addAction(bodyMerge); }
      menu.addAction(bodyMakeQuadDominantAct);
    }
    if (t==ANIMATION) {

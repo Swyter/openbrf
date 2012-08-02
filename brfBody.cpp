@@ -474,6 +474,47 @@ void BrfBody::Save(FILE*f) const{
   }
 }
 
+void BrfBodyPart::Merge(const BrfBodyPart &b){
+  assert(type==MANIFOLD || type == FACE);
+  assert(b.type==MANIFOLD || b.type == FACE);
+  int k = (int)pos.size();
+  for (unsigned int i=0; i<b.pos.size(); i++)
+  pos.push_back(b.pos[i]);
+
+  for (unsigned int i=0; i<b.face.size(); i++){
+    std::vector<int> nf;
+    for (unsigned int j=0; j<b.face[i].size(); j++){
+      nf.push_back(b.face[i][j]+k);
+    }
+    face.push_back(nf);
+  }
+}
+
+bool BrfBody::Merge(const BrfBody &b){
+  int im = -1; // index of 1st manifold
+
+  for (unsigned int i=0; i<part.size(); i++){
+    if (part[i].type==BrfBodyPart::FACE || part[i].type==BrfBodyPart::MANIFOLD){
+      im = i; break;
+    }
+  }
+  for (unsigned int i=0; i<b.part.size(); i++){
+    if (b.part[i].type==BrfBodyPart::FACE || b.part[i].type==BrfBodyPart::MANIFOLD){
+      if (im>=0) part[im].Merge(b.part[i]);
+      else {
+        im = part.size();
+        part.push_back(b.part[i]);
+      }
+    } else {
+      part.push_back(b.part[i]);
+    }
+
+  }
+  UpdateBBox();
+  return true;
+
+}
+
 bool BrfBodyPart::ExportOBJ(FILE* f, int i, int &vc) const{
   fprintf(f,"o %s_%d\n",name(),i);
   switch (type) {

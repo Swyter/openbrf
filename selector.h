@@ -103,6 +103,8 @@ private:
     *scaleAct,
     *shiftAniAct,
     *bodyMakeQuadDominantAct,
+    *bodyMerge,
+
 
     *sortEntriesAct,
 

@@ -14,6 +14,8 @@ public:
   Type type;
   static char* typeName[N_TYPE];
 
+  void Merge(const BrfBodyPart &brf);
+
   // for manyfolds
   std::vector<vcg::Point3f> pos;
   std::vector< std::vector<int> > face;
@@ -64,6 +66,8 @@ public:
 
   void Flip();
   void Transform(float * m);
+
+  bool Merge(const BrfBody &brf);
 
   std::vector<BrfBodyPart> part;
 
