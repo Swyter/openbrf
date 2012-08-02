@@ -7,11 +7,78 @@ using namespace vcg;
 
 #include "brfSkeleton.h"
 #include "brfAnimation.h"
+using namespace std;
+#include "brfMesh.h"
 
 #include "saveLoad.h"
 
+
+void BrfSkeleton::BuildDefaultMesh(BrfMesh & m) const{ // builds a mesh with just an octa x bone...
+  int nb = bone.size();
+  m.vert.resize(nb*6);
+  m.frame.resize(1);
+  m.frame[0].pos.resize(nb*6);
+  m.frame[0].norm.resize(nb*6);
+  m.face.resize(nb*8);
+  m.rigging.resize(nb*6);
+
+  float X=0.04,Y=0.06,Z=0.12;
+  vcg::Point3f pos[6]={
+    vcg::Point3f(+X,0,0), //0
+    vcg::Point3f(0,+Y,0), //1
+    vcg::Point3f(0,0,+Z), //2
+    vcg::Point3f(-X,0,0), //3
+    vcg::Point3f(0,-Y,0), //4
+    vcg::Point3f(0,0,-Z), //5
+  };
+  int facei[8][3] = {
+    {0,1,2},{0,2,4},{0,4,5},{0,5,1},
+    {3,1,5},{3,5,4},{3,4,2},{3,2,1},
+  };
+
+  std::vector<vcg::Matrix44f> mat = GetBoneMatrices();
+
+  for (int i=0, pi=0, fi=0; i<nb; i++) {
+    // set up rigging...
+    for (int j=0; j<6; j++,pi++){
+      m.rigging[pi].boneIndex[0]=i;
+      m.rigging[pi].boneWeight[0]=1;
+      for (int h=1; h<4; h++) {
+        m.rigging[pi].boneIndex[h]=-1;
+        m.rigging[pi].boneWeight[h]=0;
+      }
+
+      // set up pos and norm
+      m.frame[0].pos[pi]=mat[i]*pos[j];
+      m.frame[0].norm[pi]=mat[i]*(pos[j]/pos[j].Norm()) - mat[i]*Point3f(0,0,0);
+
+      // set up uv coords
+      m.vert[pi].index = pi;
+      m.vert[pi].ta = m.vert[pi].tb = Point2f(0,0);
+      m.vert[pi].col = 0xFFFFFFFF;
+
+    }
+    // set up face index
+    for (int j=0; j<8; j++, fi++)
+    for (int w=0; w<3; w++) {
+      m.face[fi].index[w] = facei[j][2-w] + i*6;
+    }
+  }
+
+  sprintf(m.name,"meshFromSkeleton");
+  sprintf(m.material,"none");
+  m.AdjustNormDuplicates();
+  m.isRigged=true;
+  m.hasVertexColor=false;
+
+}
+
 BrfSkeleton::BrfSkeleton()
-{}
+{
+  float h=1;
+  bbox.Add( vcg::Point3f(h,2*h,h));
+  bbox.Add(-vcg::Point3f(h,0,h));
+}
 
 BrfBone::BrfBone()
 {}
@@ -120,6 +187,7 @@ void BrfSkeleton::BuildTree(){
       bone[a].next.push_back(i);
     }
   }
+  assert(root!=-1);
 }
 
 
@@ -146,10 +214,13 @@ bool BrfSkeleton::Load(FILE*f, int verbose){
 
   BuildTree();
   //Export("tmp.txt");
-  float h=1.0;
-  bbox.Add( vcg::Point3f(h,2*h,h));
-  bbox.Add(-vcg::Point3f(h,0,h));
   return true;
+}
+
+void BrfBone::setRotationMatrix(vcg::Matrix44f m){
+  x = m.GetRow3(0);
+  y = m.GetRow3(1);
+  z = m.GetRow3(2);
 }
 
 vcg::Matrix44f BrfBone::getRotationMatrix() const{

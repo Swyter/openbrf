@@ -9,16 +9,20 @@ using namespace vcg;
 #include "brfSkeleton.h"
 #include "brfAnimation.h"
 
+
 Matrix44f BrfAnimationFrame::getRotationMatrix(int i) const{
+
+  float dva[] = {-1,0,0,0, 0,0,1,0, 0,1,0,0, 0,0,0,1};
+  vcg::Matrix44f swapYZ(dva);
+  float dvb[] = {-1,0,0,0, 0,-1,0,0, 0,0,1,0, 0,0,0,1};
+  vcg::Matrix44f invertXY(dvb);
+
   vcg::Point4f p = rot[i];
   vcg::Quaternionf qua(p[1],p[2],p[3],p[0]);
   qua.Normalize();
   qua.Invert();
   vcg::Matrix44f mat;
-  float dva[] = {-1,0,0,0, 0,0,1,0, 0,1,0,0, 0,0,0,1};
-  vcg::Matrix44f swapYZ(dva);
-  float dvb[] = {-1,0,0,0, 0,-1,0,0, 0,0,1,0, 0,0,0,1};
-  vcg::Matrix44f invertXY(dvb);
+
   qua.ToMatrix(mat);
 
   mat=invertXY*swapYZ*mat*swapYZ;
@@ -28,9 +32,25 @@ Matrix44f BrfAnimationFrame::getRotationMatrix(int i) const{
   return mat;
 }
 
+void BrfAnimationFrame::setRotationMatrix(Matrix44f mat, int i){
+
+  float dva[] = {-1,0,0,0, 0,0,1,0, 0,1,0,0, 0,0,0,1};
+  vcg::Matrix44f swapYZ(dva);
+  float dvb[] = {-1,0,0,0, 0,-1,0,0, 0,0,1,0, 0,0,0,1};
+  vcg::Matrix44f invertXY(dvb);
+
+  //mat = mat.transpose();
+  mat=swapYZ*invertXY*mat*swapYZ;
+
+  vcg::Quaternionf qua; qua.FromMatrix(mat);
+  qua.Normalize();
+  qua.Invert();
+  rot[i]= Point4f(qua[3],qua[0],qua[1],qua[2]);
+}
+
 void BrfAnimation::SetSkeleton(BrfSkeleton *s){
-  skel=s;
-  if (s) bbox = s->bbox;
+  //skel=s;
+  //if (s) bbox = s->bbox;
 }
 
 Box3f BrfAnimation::bbox;
@@ -361,4 +381,7 @@ void BrfAnimation::Export(char* fn){
 
 BrfAnimation::BrfAnimation()
 {
+  float h = 1;
+  bbox.Add( vcg::Point3f(h,2*h,h));
+  bbox.Add(-vcg::Point3f(h,0,h));
 }

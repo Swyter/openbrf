@@ -207,8 +207,9 @@ void VcgMesh::add(const BrfSkeleton &s){
   }
 }
 
-void VcgMesh::add(const BrfMesh &b){
+void VcgMesh::add(const BrfMesh &b, int fi){
   mesh.Clear();
+  if ((int)b.frame.size()>=fi) fi=b.frame.size()-1;
 
   mesh.textures.push_back(b.material);
   CMesh::FaceIterator f=vcg::tri::Allocator<CMesh>::AddFaces( mesh , b.face.size() );
@@ -244,8 +245,8 @@ void VcgMesh::add(const BrfMesh &b){
   k=0;
   for (CMesh::VertexIterator v=mesh.vert.begin();v!=mesh.vert.end(); v++,k++) {
       int pi = b.vert[ k ].index;
-      v->N() = b.frame[0].norm[ k ];
-      v->P() = b.frame[0].pos [ pi ];
+      v->N() = b.frame[fi].norm[ k ];
+      v->P() = b.frame[fi].pos [ pi ];
       v->C() = Int2Col( b.vert[ k ].col );
       v->T().P() =  b.vert[ k ].ta;
   }

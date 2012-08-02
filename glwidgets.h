@@ -24,6 +24,8 @@ public:
     int selected;
     int selRefAnimation; // animation selected to view rigged mesh
     int selRefSkin; // rigged mesh
+    int selRefSkel; // current skeleton
+    int selFrameN; // current selected frame of vertex ani
 
     void selectNone();
     void setEditingRef(bool mode);
@@ -36,6 +38,9 @@ public slots:
    void setSelection(const QModelIndexList &, int k);
    void setRefAnimation(int i);
    void setRefSkin(int i);
+   int  getRefSkin() const;
+   void setRefSkeleton(int i);
+   int  getRefSkeleton() const;
    void setWireframe(int i);
    void setLighting(int i);
    void setTexture(int i);
@@ -46,6 +51,8 @@ public slots:
    void setColorPerVert();
    void setColorPerRig();
    void setColorPerWhite();
+   void setFrameNumber(int);
+   int  getFrameNumber() const;
 public:
 bool useWireframe, useLighting, useTexture , useFloor;
 int colorMode;
@@ -56,7 +63,7 @@ float runningSpeed;
 int relTime; // msec, zeroed at stop.
 
 signals:
-
+    void signalFrameNumber(int);
 protected:
     MapSS *mapMT;
     void paintGL();
@@ -95,6 +102,7 @@ protected:
     void setTextureName(const char* text=NULL);
     void initializeGL();
 
+    bool skeletalAnimation();
 
 public:
 

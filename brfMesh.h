@@ -47,6 +47,8 @@ public:
   int boneIndex[4];
   float boneWeight[4];
   void SetColorGl() const;
+  bool operator < (const BrfRigging &b) const;
+  bool operator == (const BrfRigging &b) const;
 };
 
 class BrfFrame{
@@ -131,13 +133,14 @@ public:
   bool IsAnimable() const;
   void ComputeNormals();
   void UnifyPos();
+  void UnifyVert();
   void AfterLoad();
   bool hasVertexColor;
 
+  void Merge(const BrfMesh &brf);
 private:
   void CopyTimesFrom(const BrfMesh &brf);
   void Average(const BrfMesh &brf);
-  void Merge(const BrfMesh &brf);
   void MergeMirror(const BrfMesh &brf);
   void AddFrame(const BrfMesh &brf);
   

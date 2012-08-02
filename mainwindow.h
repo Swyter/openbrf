@@ -26,6 +26,7 @@ public:
 private:
     BrfData brfdata;
     BrfData reference;
+    BrfData clipboard;
     BrfData brfdataBackup;
 
     bool editingRef;
@@ -35,7 +36,7 @@ private:
     bool setEditingRef(bool mode);
 
     void closeEvent(QCloseEvent *event);
-    //void newFile();
+    void newFile();
     bool open();
     bool save();
     bool saveAs();
@@ -46,10 +47,19 @@ private:
     void onChangeMeshMaterial(QString newName);
     void onChangeFlags(QString flags); // of any object
     bool exportBrf();
-    bool exportPly();
-    bool exportSkelMod();
-    bool importSkelMod();
-    bool importMeshPly();
+    bool exportStaticMesh();
+    bool importStaticMesh();
+    bool exportRiggedMesh();
+    bool importRiggedMesh();
+    bool exportMovingMesh();
+    bool importMovingMesh();
+    bool exportSkeletonMod();
+    bool importSkeletonMod();
+    bool exportSkeletonAndSkin();
+    bool exportSkeleton();
+    bool importSkeleton();
+    bool importAnimation();
+    bool exportAnimation();
     bool importBrf();
     void moveUpSel();
     void moveDownSel();
@@ -58,6 +68,9 @@ private:
     void duplicateSel();
     void addToRef(); // add current selected item to ref
     void addToRefMesh(int);
+    void editCut();
+    void editCopy(bool deselect=true);
+    void editPaste();
 
 private:
     std::map< std::string, std::string > mapMT;// map material to textures
@@ -80,7 +93,12 @@ private:
     void updateRecentFileActions();
     QString askExportFilename(QString, QString ext );
     QString askImportFilename(QString ext);
-    QPair<int, int>  askRefBoneInt();
+    QPair<int, int>  askRefBoneInt(); // ask user to specify a skel and bone
+    int askRefSkin(); //  ask user to specify a skin
+    int currentDisplaySkin(); // returns skin currently used as display
+    int currentDisplaySkeleton(); // returns skeleton currently used as display
+    int currentDisplayFrame(); // return v.a. frame currently used as dispalu
+
 
     QString askExportFilename(QString);
     QString askImportFilename();
@@ -93,14 +111,17 @@ private:
     QMenu *fileMenu;
     QMenu *helpMenu;
     QMenu *recentFilesMenu;
+    QAction *newAct;
     QAction *openAct;
     QAction *saveAct;
     QAction *saveAsAct;
     QAction *exitAct;
     QAction *aboutAct;
     QAction *editRefAct;
-    //QAction *aboutQtAct;
     QAction *separatorAct;
+    QAction *editCutAct;
+    QAction *editCopyAct;
+    QAction *editPasteAct;
 
     enum { MaxRecentFiles = 10 };
     QAction *recentFileActs[MaxRecentFiles];

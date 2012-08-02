@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading ui file 'askBoneDialog.ui'
 **
-** Created: Thu Aug 6 19:12:16 2009
+** Created: Tue Aug 11 16:08:36 2009
 **      by: Qt User Interface Compiler version 4.5.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling ui file!

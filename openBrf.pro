@@ -22,9 +22,9 @@ SOURCES += main.cpp \
     guipanel.cpp \
     vcgmesh.cpp \
     askBoneDialog.cpp \
-   ../../vcglib/wrap/ply/plylib.cpp \
-    ../../vcglib/wrap/dae/xmldocumentmanaging.cpp
-
+    ../../vcglib/wrap/ply/plylib.cpp \
+    ../../vcglib/wrap/dae/xmldocumentmanaging.cpp \
+    ioSMD.cpp
 HEADERS += mainwindow.h \
     glwidgets.h \
     saveLoad.h \
@@ -43,7 +43,8 @@ HEADERS += mainwindow.h \
     vcgmesh.h \
     vcgExport.h \
     vcgImport.h \
-    askBoneDialog.h
+    askBoneDialog.h \
+    ioSMD.h
 FORMS += guipanel.ui \
     askBoneDialog.ui
 INCLUDEPATH += "C:\projects\vcglib"

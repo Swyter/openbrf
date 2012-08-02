@@ -18,6 +18,7 @@ INPUT(
 ./debug\askBoneDialog.o
 ./debug\plylib.o
 ./debug\xmldocumentmanaging.o
+./debug\ioSMD.o
 ./debug\moc_mainwindow.o
 ./debug\moc_glwidgets.o
 ./debug\moc_selector.o

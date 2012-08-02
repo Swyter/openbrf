@@ -11,6 +11,7 @@ public:
   int index;
   std::vector<vcg::Point4f> rot;
   Matrix44f getRotationMatrix(int i) const;
+  void setRotationMatrix(Matrix44f m, int i);
   Point3f tra;
   std::vector< bool > wasImplicit;
 };

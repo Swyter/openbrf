@@ -21,6 +21,7 @@ public:
   int numSelected() const;
   void moveSel(int d);
   BrfData* reference;
+  const BrfData* data;
 
 private slots:
   void onChanged();
@@ -54,15 +55,26 @@ private:
     *moveUpAct,
     *moveDownAct,
     *duplicateAct,
+
     // exporter acts
     *exportImportMeshInfoAct,
     *exportStaticMeshAct,
+    *exportRiggedMeshAct,
+    *exportMovingMeshAct,
     *exportSkeletonModAct,
-    *exportAnyBrfAct,
+    *exportSkeletonAct,
+    *exportSkinAct,
+    *exportSkinForAnimationAct,
+    *exportAnimationAct,
+
     // importer acts
     *importStaticMeshAct,
+    *importRiggedMeshAct,
+    *importMovingMeshAct,
     *importSkeletonModAct,
-    *importAnyBrfAct,
+    *importSkeletonAct,
+    *importAnimationAct,
+
     *addToRefAniAct,
     *addToRefMeshAct[10];
 ;

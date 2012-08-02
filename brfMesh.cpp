@@ -70,18 +70,17 @@ void BrfMesh::SetUniformRig(int nbone){
         //MyPair(int a, int b):pair<int,int>(a,b){}
         MyIndexClass(int a):ind(a) {}
 
-        inline bool operator != (MyIndexClass const &b) const
-        { return (mesh->frame[0].pos[ind] != mesh->frame[0].pos[b.ind]); }
         inline bool operator == (MyIndexClass const &b)const
-        { return (mesh->frame[0].pos[ind] == mesh->frame[0].pos[b.ind]); }
+        { return (mesh->frame[0].pos[ind] == mesh->frame[0].pos[b.ind])
+          && ( (mesh->rigging.size()) || (mesh->rigging[ind] == mesh->rigging[b.ind])); }
         inline bool operator < (MyIndexClass const &b)const
-        { return (mesh->frame[0].pos[ind] < mesh->frame[0].pos[b.ind]); }
-        inline bool operator <= (MyIndexClass const &b)const
-        { return (mesh->frame[0].pos[ind] <= mesh->frame[0].pos[b.ind]); }
-        inline bool operator >= (MyIndexClass const &b)const
-        { return (mesh->frame[0].pos[ind] >= mesh->frame[0].pos[b.ind]); }
-        inline bool operator > (MyIndexClass const &b)const
-        { return (mesh->frame[0].pos[ind] > mesh->frame[0].pos[b.ind]); }
+        {
+          if (mesh->frame[0].pos[ind] < mesh->frame[0].pos[b.ind]) return true;
+          if (mesh->frame[0].pos[ind] != mesh->frame[0].pos[b.ind]) return false;
+          if (mesh->rigging.size()) return mesh->rigging[ind] < mesh->rigging[b.ind];
+          return false;
+        }
+
       };
       BrfMesh* MyIndexClass::mesh;
 
@@ -110,10 +109,84 @@ void BrfMesh::UnifyPos(){
   int ns = (int)st.size();
 
   for (unsigned int i=0; i<frame.size(); i++){
-    for (int h=0; h<(int)rank.size(); h++)
-      if (rank[h]>=0) frame[i].pos[ rank[h] ]=frame[i].pos[h];
+    for (int h=0; h<(int)rank.size(); h++) {
+      if (rank[h]>=0) {
+        frame[i].pos[ rank[h] ]=frame[i].pos[h];
+        if (rigging.size()>0 && i==0)
+         rigging[ rank[h] ]=rigging[h];
+      }
+    }
     frame[i].pos.resize( ns );
   }
+}
+
+      class MyIndexVertClass{
+      public:
+        static BrfMesh* mesh;
+        int ind;
+
+        MyIndexVertClass(int a):ind(a) {}
+
+        //inline bool operator == (MyIndexClass const &b)const{ return true; }
+        //{ return (mesh->vert[ind] == mesh->vert[b.ind]);}
+        inline bool operator < (MyIndexVertClass const &b)const
+        {
+          if (mesh->vert[ind].index <  mesh->vert[b.ind].index) return true;
+          if (mesh->vert[ind].index != mesh->vert[b.ind].index) return false;
+
+          if (mesh->vert[ind].col <  mesh->vert[b.ind].col) return true;
+          if (mesh->vert[ind].col != mesh->vert[b.ind].col) return false;
+
+          if (mesh->vert[ind].ta <  mesh->vert[b.ind].ta) return true;
+          if (mesh->vert[ind].ta != mesh->vert[b.ind].ta) return false;
+          if (mesh->vert[ind].tb <  mesh->vert[b.ind].tb) return true;
+          if (mesh->vert[ind].tb != mesh->vert[b.ind].tb) return false;
+
+          for (unsigned int i=0; i<mesh->frame.size(); i++) {
+            if (mesh->frame[i].norm[ind] < mesh->frame[i].norm[b.ind]) return true;
+            if (mesh->frame[i].norm[ind] != mesh->frame[i].norm[b.ind]) return false;
+          }
+
+          return false;
+        }
+
+      };
+      BrfMesh* MyIndexVertClass::mesh;
+void BrfMesh::UnifyVert(){
+  typedef std::set< MyIndexVertClass > Set;
+  Set st;
+  MyIndexVertClass::mesh=this;
+  vector<int> map(vert.size());
+
+  for (unsigned int vi=0; vi<vert.size(); vi++) {
+    pair< Set::iterator, bool> res;
+    res = st.insert( MyIndexVertClass(vi) );
+    int pin = res.first->ind;
+    map[vi]=pin;
+  }
+
+  vector<int> rank(vert.size(),-1);
+  for (int i=0,k=0; i<(int)map.size(); i++) {
+    if (map[i]==i) rank[i]=k++;
+  }
+
+
+  for (unsigned int fi=0; fi<face.size(); fi++)
+  for (int w=0; w<3; w++) {
+    face[fi].index[w] =  rank[ map[ face[fi].index[w] ] ];
+  }
+  int ns = (int)st.size();
+
+  for (int h=0; h<(int)rank.size(); h++) {
+    if (rank[h]>=0) {
+      vert[ rank[h] ]=vert[h];
+      for (unsigned int i=0; i<frame.size(); i++) {
+        frame[i].norm[ rank[h] ] = frame[i].norm[ h ];
+      }
+    }
+  }
+  vert.resize( ns );
+  for (unsigned int i=0; i<frame.size(); i++) frame[i].norm.resize(ns);
 }
 
 int SameTri(Pos a0, Pos a1, Pos b0, Pos b1, Pos c0, Pos c1){  
@@ -484,6 +557,27 @@ public:
 };
 
 
+
+bool BrfRigging::operator == (const BrfRigging &b) const{
+  for (int i=0; i<4; i++) {
+    if  (boneIndex[i]==-1) break;
+    if  (boneIndex[i]!=b.boneIndex[i]) return false;
+    if  (boneIndex[i]!=b.boneIndex[i]) return false;
+    if  (boneWeight[i]!=b.boneWeight[i]) return false;
+    if  (boneWeight[i]!=b.boneWeight[i]) return false;
+  }
+  return true;
+}
+
+bool BrfRigging::operator < (const BrfRigging &b) const{
+  for (int i=0; i<4; i++) {
+    if  (boneIndex[i]<b.boneIndex[i]) return true;
+    if  (boneIndex[i]>b.boneIndex[i]) return false;
+    if  (boneWeight[i]<b.boneWeight[i]) return true;
+    if  (boneWeight[i]>b.boneWeight[i]) return false;
+  }
+  return false;
+}
 
 void Rigging2TmpRigging(const vector<BrfRigging>& vert , vector<TmpRigging>& v) {
   v.clear();
@@ -946,16 +1040,16 @@ bool BrfVert::Load(FILE*f,int verbose){
   LoadInt(f , index);
   LoadUint(f , col ); // color x vert! as 4 bytes AABBGGRR
   LoadPoint(f, __norm );
-  LoadPoint(f, ta ); ta[1]*=-1;
-  LoadPoint(f, tb ); tb[1]*=-1;
+  LoadPoint(f, ta ); ta[1]=1-ta[1];
+  LoadPoint(f, tb ); tb[1]=1-tb[1];
   return true;
 }
 void BrfVert::Save(FILE*f) const{
   SaveInt(f , index);
   SaveUint(f , col ); // color x vert! as 4 bytes AABBGGRR
   SavePoint(f, __norm );
-  SavePoint(f, vcg::Point2f(ta[0],-ta[1]) );
-  SavePoint(f, vcg::Point2f(tb[0],-tb[1]) );
+  SavePoint(f, vcg::Point2f(ta[0],1-ta[1]) );
+  SavePoint(f, vcg::Point2f(tb[0],1-tb[1]) );
 }
 
 bool BrfFace::Load(FILE*f,int verbose){
@@ -1026,6 +1120,7 @@ BrfVert::BrfVert(){
 
 BrfRigging::BrfRigging(){
   boneIndex[0]=boneIndex[1]=boneIndex[2]=boneIndex[3]=-1;
+  boneWeight[0]=boneWeight[1]=boneWeight[2]=boneWeight[3]=0;
 }
 
 void BrfMesh::Skip(FILE* f){
@@ -1063,6 +1158,7 @@ bool BrfMesh::Load(FILE*f, int verbose){
   LoadInt(f , flags); 
   LoadString(f, material); // material used
   frame.resize(1); // first frame (and only one, iff no vertex animation)
+  frame[0].time =0;
   LoadVector(f, frame[0].pos);
 
   vector<TmpRigging> tmpRig;
@@ -1249,6 +1345,7 @@ void BrfMesh::AddRope(const BrfMesh &to, int nseg, float width){
 void BrfMesh::Merge(const BrfMesh &b)
 {
   assert(frame.size()==b.frame.size());
+  assert( (rigging.size()!=0) == (b.rigging.size()!=0) );
 
   bbox.Add(b.bbox);
   if (maxBone<b.maxBone) maxBone = b.maxBone;
@@ -1267,6 +1364,10 @@ void BrfMesh::Merge(const BrfMesh &b)
     
   for (unsigned int i=0; i<b.vert.size(); i++) {
     vert.push_back(b.vert[i] + npos);
+  }
+
+  for (unsigned int i=0; i<b.rigging.size(); i++) {
+    rigging.push_back(b.rigging[i]);
   }
 
   for (unsigned int i=0; i<b.face.size(); i++) {

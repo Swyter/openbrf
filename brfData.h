@@ -41,13 +41,15 @@ public:
   bool Load(FILE*f,int verbose=1, int stopAt=N_TOKEN);
   bool Load(char*filename,int verbose=1, int stopAt=N_TOKEN);
   bool LoadMat(FILE *f);
+  void Clear();
 
   bool Save(const char* f) const;
   void  Merge(const BrfData& b);
 
   int GetFirstUnusedLetter() const; // return first unused alphabet letter in meshes
+  BrfMesh GetCompleteSkin(int i) const; // returns a mesh composed of all skin pieces
 
-  BrfSkeleton *getOneSkeleton(int nbones);
+  int getOneSkeleton(int nbones);
 private:
   //template<class BrfType> bool LoadAll(FILE *f, vector<BrfType> &v, int k);
   template<class BrfType> void SaveAll(FILE *f, const vector<BrfType> &v) const;

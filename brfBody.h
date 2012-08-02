@@ -16,6 +16,7 @@ public:
   // for manyfolds
   std::vector<vcg::Point3f> pos;
   std::vector< std::vector<int> > face;
+  int ori ; // +1 or -1
 
 
   // for capsule / spheres
@@ -25,7 +26,8 @@ public:
   Point3f dir; // for capsule
 
 
-  // for faces: four pos
+  // for faces: four pos (implicit)
+
   unsigned int flags; // for faces, capsules, spheres only
 
   Box3f bbox;

@@ -58,6 +58,8 @@ void GuiPanel::setReference(BrfData* r){
 
 }
 
+static int _frameTime[1000]; // how elegant is that? ;)
+
 void GuiPanel::setSelection(const QModelIndexList &newsel, int k){
   int sel=-1;
   int nsel = (int)newsel.size();
@@ -68,8 +70,11 @@ void GuiPanel::setSelection(const QModelIndexList &newsel, int k){
   bool manyMaterials=false;
   int flags=-1;
   char materialSt[255]="";
+  bool differentAni = false;
 
   int nv=0, nf=0, nfr=0, np=0;
+  int last = -1;
+
   for (QModelIndexList::ConstIterator i=newsel.constBegin(); i!=newsel.constEnd(); i++){
     sel = i->row();
     if (k==MESH && sel<(int)data->mesh.size() ) {
@@ -80,7 +85,21 @@ void GuiPanel::setSelection(const QModelIndexList &newsel, int k){
       np += m->frame[0].pos.size();
       nv += m->vert.size();
       int k = m->frame.size();
-      if (nfr<k) k=nfr;
+      if (nfr>k || !nfr) nfr=k;
+
+      if (!differentAni) {
+
+        if (last!=-1) {
+          if (data->mesh[sel].frame.size()!=data->mesh[last].frame.size()) differentAni=true;
+          else for (unsigned int fi=0; fi < data->mesh[sel].frame.size(); fi++)
+            if (data->mesh[sel].frame[fi].time!=data->mesh[last].frame[fi].time) differentAni=true;
+        } else {
+          for (unsigned int fi=0; fi < data->mesh[sel].frame.size(); fi++)
+            _frameTime[fi]=data->mesh[sel].frame[fi].time;
+        }
+        last = sel;
+      }
+
       nf += m->face.size();
       if (!materialSt[0]) sprintf(materialSt,"%s",m->material);
       else if (strcmp(materialSt,m->material)) {
@@ -95,19 +114,11 @@ void GuiPanel::setSelection(const QModelIndexList &newsel, int k){
 
   }
 
-
   if (k==-1) k=NONE;
-
-
-
-
-
 
   BrfMesh *m = NULL;
   BrfTexture *tex = NULL;
   BrfAnimation *ani = NULL;
-
-
 
   // set data
   switch (TokenEnum(k)){
@@ -117,24 +128,26 @@ void GuiPanel::setSelection(const QModelIndexList &newsel, int k){
       ui->boxFlags    ->setReadOnly( flags<0 || !nsel);
       //ui->boxName     ->setText( (m)?String(m->name     ):"" );
       ui->boxMaterial ->setText( materialSt );
-      if (!manyMaterials) {
-        std::string a( materialSt );
-        std::string s  = (*mapMT)[ a ];
-        if (!s.length()) s="<not found>";
+      ui->boxMaterial ->setEnabled( !manyMaterials && nsel!=0);
 
-        ui->boxTexture  ->setText( s.c_str() );
-      } else
-        ui->boxTexture  ->setText( materialSt );
-      ui->boxMaterial ->setReadOnly( manyMaterials || !nsel);
+      updateMaterial(materialSt);
+
       ui->boxNVerts   ->display( nv );
       ui->boxNFaces   ->display( nf );
       ui->boxNFrames  ->display( nfr);
       ui->boxNPos     ->display( np );
       ui->meshDataAni->setVisible( vertexani);
       ui->viewRefAni->setVisible(rigged);
+      ui->timeOfFrame->setEnabled( !differentAni );
+      if (nfr>0)
+      ui->frameNumber->setMaximum(nfr -1 );
+      ui->frameNumber->setMinimum( 0 );
+      ui->frameNumber->setWrapping(true);
+
 
       ui->rbRiggingcolor->setEnabled( rigged );
       ui->rbVertexcolor->setEnabled(vertexcolor);
+
 
       break;
     case TEXTURE:
@@ -162,6 +175,29 @@ void GuiPanel::setSelection(const QModelIndexList &newsel, int k){
 
   displaying=k;
   updateVisibility();
+  updateFrameNumber( ui->frameNumber->value() );
+
+}
+
+void GuiPanel::updateMaterial(QString a){
+  if (ui->boxMaterial->isEnabled()) {
+    std::string s  = (*mapMT)[ std::string(a.toAscii().data() ) ];
+    if (!s.length()) s="<not found>";
+    ui->boxTexture  ->setText( s.c_str() );
+  } else
+    ui->boxTexture  ->setText( "<various>" );
+}
+
+void GuiPanel::updateFrameNumber(int newFr){
+  if (newFr<0) return;
+  if (!ui->meshDataAni->isVisible()) return;
+  if (ui->timeOfFrame->isEnabled()) {
+    int oldFr =ui->frameNumber->value();
+    if (oldFr!=newFr) ui->frameNumber->setValue(newFr);
+    ui->timeOfFrame->setText( QString("%1").arg( _frameTime[newFr] ) );
+  }
+  else
+    ui->timeOfFrame->setText( QString("---") );
 
 }
 
