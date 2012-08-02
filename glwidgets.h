@@ -80,7 +80,7 @@ public slots:
    void setFrameNumber(int);
    void setDefaultBgColor(QColor bgColor, bool alsoCurrent);
 
-   void renderAoOnMeshes(float brightness, float fromAbove);
+   void renderAoOnMeshes(float brightness, float fromAbove, bool perface, bool inAlpha);
 
    void browseTexture();
 
@@ -163,7 +163,7 @@ protected:
     void renderRuler();
     void mySetViewport(int x,int y,int w,int h);
 
-    void renderAoOnMeshesAllSelected(float brightness, float fromAbove);
+    void renderAoOnMeshesAllSelected(float brightness, float fromAbove, bool perface, bool inAlpha);
 
 
     void glClearCheckBoard();
@@ -199,7 +199,8 @@ private:
     QColor currBgColor, defaultBgColor; // bgcolors
     QPoint lastPos; // mouse pos
     float phi, theta, dist;
-    int tw, th; // texture size, when texture is dysplayed
+    int tw, th; // texture size, when texture is shown
+    bool ta; // textures uses alpha, when texture is shown
     float cx, cy, zoom; // for texture display
     vcg::Point3f avatP, avatV; // pos, vel of avatat
     bool keys[5];
@@ -207,7 +208,7 @@ private:
     QTimer *timer;
 
     bool animating;
-    bool bumpmapActivated;
+    bool bumpmapActivated, bumpmapUsingGreen;
 
     int viewmode;
     int viewmodeMult;
@@ -219,10 +220,10 @@ private:
     float closingUp;
     QString renderedTexture;
     // fragment programs
+    enum { NM_PLAIN = 0, NM_ALPHA, NM_IRON, NM_SHINE, NM_MODES};
     unsigned int
         fragProgramIron,
-        programNormalMapPlain, programNormalMapIron,
-        programNormalMapAlpha, programNormalMapShineMap;
+        programNormalMap[NM_MODES][NM_MODES];
     void initFramPrograms();
 };
 

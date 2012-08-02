@@ -409,6 +409,15 @@ bool BrfAnimation::Merge(const BrfAnimation& a, const BrfAnimation& b){
 
 }
 
+static bool myReadline(FILE* f, char*res, int max){
+  int i;
+  for (i=0; i<max-1; i++) {
+    char c; fscanf(f,"%c",&c); if (c=='\n') break;
+    res[i]=c;
+  }
+  res[i]=0;
+  return true;
+}
 
 int BrfAnimation::Break(vector<BrfAnimation> &vect, const wchar_t* fn, wchar_t *fn2) const{
 
@@ -425,16 +434,23 @@ int BrfAnimation::Break(vector<BrfAnimation> &vect, const wchar_t* fn, wchar_t *
 
   char aniName[255];
   char aniSubName[255];
-  unsigned int v00;
   int nparts;
   float speed;
 
 
-  char* formatHeader = " %s %u  %d\n";
-  char* formatAni = "  %f %s %d %d %u %u %f %f %f  %f \n";
+  char* formatHeaderMab = " %s %u  %d\n";
+  char* formatHeaderWb = " %s %u %u %d\n";
+  char* formatAni = "%f %s %d %d %u %u %f %f %f  %f \n";
 
   for (int i=0; i<n; i++){
-    fscanf (fin, formatHeader,aniName, &v00, &nparts);
+    char line[1024];
+    myReadline(fin,line,255);
+
+    unsigned int v00, v01;
+
+    if (sscanf(line, formatHeaderWb,aniName, &v00,&v01, &nparts)!=4)
+        sscanf(line, formatHeaderMab,aniName, &v00, &nparts);
+
     // fprintf(fout,formatHeader,aniName,  v00,  nparts);
     unsigned int v0; float v1, v2, v3, v4;
     int ia, ib; unsigned int flags;
@@ -469,6 +485,7 @@ int BrfAnimation::Break(vector<BrfAnimation> &vect, const wchar_t* fn, wchar_t *
   //fclose(fout);
   return res;
 }
+
 int BrfAnimation::Break(vector<BrfAnimation> &vect) const{
   int res=0;
   BrfAnimation ani;

@@ -20,18 +20,20 @@ void MainWindow::createMenus()
 
     //menuBar()->addSeparator();
     QMenu *editMenu = menuBar()->addMenu(tr("&Edit"));
-    editMenu->addAction(editCutAct);
     editMenu->addAction(editCopyAct);
-    editMenu->addAction(editPasteAct);
+    editMenu->addAction(editCopyFrameAct);
+    editMenu->addAction(editCopyCompleteAct);
     editMenu->addAction(editAddToCopyAct);
     editMenu->addSeparator();
+    editMenu->addAction(editCutAct);
     editMenu->addAction(editCutFrameAct);
-    editMenu->addAction(editCopyFrameAct);
-    editMenu->addAction(editPasteFrameAct);
+    editMenu->addAction(editCutCompleteAct);
     editMenu->addSeparator();
+    editMenu->addAction(editPasteAct);
     editMenu->addAction(editPasteRiggingAct);
     editMenu->addAction(editPasteModificationAct);
     editMenu->addAction(editPasteTimingsAct);
+    editMenu->addAction(editPasteFrameAct);
 
     QMenu* importMenu=menuBar()->addMenu(tr("&Import"));
 
@@ -227,12 +229,28 @@ void MainWindow::createMenus()
     }
     group6->setExclusive(true);
 
+    QActionGroup* group7=new QActionGroup(this);
+    optionAoPerFace[0] = new QAction(tr("Sample per vertex (much quiker)"),this);
+    optionAoPerFace[1] = new QAction(tr("Sample per wedge (might be better)"),this);
+    for (int i=0; i<2; i++) {
+      optionAoPerFace[i]->setCheckable(true);
+      group7->addAction(optionAoPerFace[i]);
+    }
+    group7->setExclusive(true);
+
+
     QMenu* aoBrightMenu = optionMenu->addMenu(tr("On compute Ambient Occlusion"));
     aoBrightMenu->addActions(group5->actions());
     aoBrightMenu->addSeparator();
     aoBrightMenu->addActions(group6->actions());
+    aoBrightMenu->addSeparator();
+    aoBrightMenu->addActions(group7->actions());
+    aoBrightMenu->addSeparator();
 
-    
+    optionAoInAlpha = new QAction(tr("Store in per-vertex Alpha (not RGB)"),this);
+    optionAoInAlpha->setCheckable(true);
+    aoBrightMenu->addAction(optionAoInAlpha);
+
     onAssemble->addActions(group2->actions());
 
     optionLodSettingsAct = new QAction(tr("On building LOD pyramids..."),this);
@@ -320,8 +338,17 @@ void MainWindow::createActions()
     editCopyFrameAct = new QAction(tr("Copy frame"), this);
     editCopyFrameAct->setShortcut(QString("ctrl+alt+C"));
     editCopyFrameAct->setStatusTip(tr("Copy current frame of a vertex animated mesh."));
+
+    editCopyCompleteAct = new QAction(tr("Copy complete"), this);
+    editCopyCompleteAct->setShortcut(QString("Ctrl+Shift+C"));
+    editCopyCompleteAct->setStatusTip(tr("Copy selected objects plus everything used by them."));
+
+    editCutCompleteAct = new QAction(tr("Cut complete"), this);
+    editCutCompleteAct->setShortcut(QString("Ctrl+Shift+X"));
+    editCutCompleteAct->setStatusTip(tr("Cut selected objects plus everything used by them."));
+
     editPasteFrameAct = new QAction(tr("Paste frame"), this);
-    editPasteFrameAct->setShortcut(QString("ctrl+alt+V"));
+    editPasteFrameAct->setShortcut(QString("Ctrl+Alt+V"));
     editPasteFrameAct->setEnabled(false);
     editPasteFrameAct->setStatusTip(tr("Paste frame from clipboard as next frame in the current vertex animated mesh"));
     editPasteRiggingAct = new QAction(tr("Paste rigging"), this);
@@ -339,6 +366,8 @@ void MainWindow::createActions()
     connect(editCutAct, SIGNAL(triggered()), this, SLOT(editCut()));
     connect(editCopyAct, SIGNAL(triggered()), this, SLOT(editCopy()));
     connect(editPasteAct, SIGNAL(triggered()), this, SLOT(editPaste()));
+    connect(editCopyCompleteAct, SIGNAL(triggered()), this, SLOT(editCopyComplete()));
+    connect(editCutCompleteAct, SIGNAL(triggered()), this, SLOT(editCutComplete()));
     connect(editAddToCopyAct, SIGNAL(triggered()), this, SLOT(editAddToCopy()));
 
     connect(editCutFrameAct, SIGNAL(triggered()), this, SLOT(editCutFrame()));
@@ -647,6 +676,7 @@ void MainWindow::createConnections(){
   connect(guiPanel->ui->leMatFlags,SIGNAL(textEdited(QString)), this, SLOT(updateDataMaterial()));
   connect(guiPanel->ui->leMatRendOrd,SIGNAL(editingFinished()), this, SLOT(updateDataMaterial()));
   //connect(guiPanel, SIGNAL(dataMaterialChanged()), this, SLOT(updateDataMaterial()));
+  connect(guiPanel->ui->buFlagMes, SIGNAL(clicked()), this, SLOT(setFlagsMesh()));
   connect(guiPanel->ui->buFlagMat, SIGNAL(clicked()), this, SLOT(setFlagsMaterial()));
   connect(guiPanel->ui->buFlagBody, SIGNAL(clicked()), this, SLOT(setFlagsBody()));
 

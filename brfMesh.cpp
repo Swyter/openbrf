@@ -363,6 +363,7 @@ void BrfMesh::RemoveBackfacingFaces(){
     Point3f c=frame[fi].pos[ vert[face[ff].index[2]].index ];
     Point3f na=(c-a)^(b-a); // area weighted norm
 
+
     Point3f nb;
     nb.SetZero();
     nb+=frame[fi].norm[ face[ff].index[0] ];
@@ -426,6 +427,7 @@ void BrfMesh::ComputeTangents(){
     vert[vi].tang = -(vert[vi].tang^frame[fi].norm[vi]).Normalize();
   }
 
+  flags |= (1<<16);
 }
 
 void BrfMesh::ComputeNormals(int fi){
@@ -434,12 +436,16 @@ void BrfMesh::ComputeNormals(int fi){
     frame[fi].norm[vi]=Point3f(0,0,0);
   }
   for (unsigned int ff=0; ff<face.size(); ff++){
-    Point3f a=frame[fi].pos[ vert[face[ff].index[0]].index ];
-    Point3f b=frame[fi].pos[ vert[face[ff].index[1]].index ];
-    Point3f c=frame[fi].pos[ vert[face[ff].index[2]].index ];
-    Point3f n=(c-a)^(b-a); // area weighted norm
+    Point3f p[3];
+    p[0]=frame[fi].pos[ vert[face[ff].index[0]].index ];
+    p[1]=frame[fi].pos[ vert[face[ff].index[1]].index ];
+    p[2]=frame[fi].pos[ vert[face[ff].index[2]].index ];
+    Point3f n=(p[2]-p[0])^(p[1]-p[0]); // area weighted norm
+
     for (int w=0; w<3; w++)
-    frame[fi].norm[ face[ff].index[w] ]+=n;
+    frame[fi].norm[ face[ff].index[w] ]+=n
+      *vcg::Angle((p[(w+2)%3]-p[w]),(p[(w+1)%3]-p[w])) // angle weighting
+    ;
   }
   for (unsigned int vi=0; vi<vert.size(); vi++){
     frame[fi].norm[vi].Normalize();
@@ -1448,14 +1454,25 @@ void BrfMesh::NormalizeRigging(){
   }
 }
 
+bool BrfMesh::HasTangentField() const{
+  return flags & (1<<16);
+}
+
+void BrfMesh::DiscardTangentField(){
+  flags &= ~(1<<16);
+  for (int i=0; i<vert.size(); i++) vert[i].tang.SetZero();
+}
+
 void BrfMesh::Save(FILE*f) const{
   CheckAssert();
 
   SaveString(f, name);  
 
-  unsigned int mask = (globVersion != 0)?1<<17:0; // extra warband bit
+  unsigned int fl = flags;
+  if (globVersion == 0) fl = fl & ~(3<<16); // remove tangent and warband bits
+  else fl = fl | (2<<16); // add warband bit
 
-  SaveUint(f , flags|mask);
+  SaveUint(f , fl);
   SaveString(f, material); // material used
 
   if (globVersion != 0) {
@@ -2063,7 +2080,11 @@ bool BrfMesh::Load(FILE*f){
   frame[0].time =0;
 
   if (globVersion != 0) {
-    if (flags & (1<<16)) globVersion = 1; else globVersion = 2;
+    if (flags & (1<<16)) {
+      globVersion = 1;
+    } else {
+      globVersion = 2;
+    }
   }
 
   if (!LoadVector(f, frame[0].pos)) return false;

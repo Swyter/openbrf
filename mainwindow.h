@@ -31,6 +31,7 @@ public:
     static int getLanguageOption();
     QString getNextTranslatorFilename(){return nextTranlationFilename;};
 
+    void setUseAlphaCommands(bool mode);
 private:
     BrfData brfdata;
     BrfData reference;
@@ -41,6 +42,8 @@ private:
 
     bool editingRef;
     template<class BrfType> bool addNewGeneral(QStringList def);
+
+    bool useAlphaCommands;
 
  private slots:
 
@@ -123,11 +126,13 @@ private:
     void addToRef(); // add current selected item to ref
     void addToRefMesh(int);
     void editCut();
-    void editCopy(bool deselect=true);
+    void editCopy();
     void editAddToCopy();
     void editPaste();
     void editCutFrame();
     void editCopyFrame();
+    void editCopyComplete();
+    void editCutComplete();
     void editPasteFrame();
     void editPasteRigging();
     void editPasteMod();
@@ -146,6 +151,7 @@ private:
     void meshDiscardRig();
     void meshDiscardCol();
     void meshDiscardAni();
+    void meshDiscardTan();
     void meshRecolor();
     void meshTuneColor();
     void meshComputeAo();
@@ -155,6 +161,7 @@ private:
     void meshRecomputeTangents();
     void learnFemininzation(); // from current selection
 
+    void setFlagsMesh();
     void setFlagsMaterial();
     void setFlagsBody();
 
@@ -283,11 +290,14 @@ private:
     void updateGui();
     void updateSel();
     void findCurFileInIni();
+    void addSelectedToClipBoard();
+    void completeClipboard(bool andDelete);
 
     int afterMeshImport() const; // 0:nothing   1:merge   2:normal recompute and merge
     int assembleAniMode() const; // 0:trust vertex order   1:trust vertex coords
     int currAoBrightnessLevel() const;
     int currAoFromAboveLevel() const;
+    bool currAoPerFace() const;
 
     void applyAfterMeshImport(BrfMesh &m);
 
@@ -317,7 +327,9 @@ private:
     QAction *editRefAct;
     QAction *separatorAct;
     QAction *editCutAct;
+    QAction *editCutCompleteAct;
     QAction *editCopyAct;
+    QAction *editCopyCompleteAct;
     QAction *editAddToCopyAct;
     QAction *editPasteAct;
     QAction *editPasteRiggingAct;
@@ -356,9 +368,7 @@ private:
     int tokenOfRepeatableAction; // e.g. mesh, texture...
     bool setNextActionAsRepeatable;
 
-    QPair<ObjCoord , QString > navigationStack[3];
-
-    int navigationStackPos;
+    QPair<ObjCoord , QString > navigationStack[2];
 
     QAction *optionAfterMeshLoadMerge;
     QAction *optionAfterMeshLoadRecompute;
@@ -378,6 +388,8 @@ private:
     QAction *optionUseOpenGL2;
     QAction *optionAoBrightness[5];
     QAction *optionAoFromAbove[2];
+    QAction *optionAoPerFace[2];
+    QAction *optionAoInAlpha;
     QAction *optionLearnFeminization;
     QAction *optionBgColor;
     QAction *optionLodSettingsAct;
@@ -414,6 +426,7 @@ private:
     enum {N_LODS = 4};
     bool lodBuild[N_LODS];
     float lodPercent[N_LODS];
+    bool lodReplace;
     QColor background;
 
     QLabel* modStatus; // widget in status bar

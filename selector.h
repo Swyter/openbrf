@@ -98,6 +98,7 @@ private:
     *duplicateAct,
     *discardColAct,
     *discardRigAct,
+    *discardTanAct,
     *discardAniAct,
 
 

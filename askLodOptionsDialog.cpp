@@ -15,7 +15,7 @@ AskLodOptionsDialog::AskLodOptionsDialog(QWidget *parent) :
     restoreDefaults();
 }
 
-void AskLodOptionsDialog::getData(float* perc, bool* yesno) const{
+void AskLodOptionsDialog::getData(float* perc, bool* yesno, bool *overRide) const{
   yesno[0]=ui->checkBox_1->isChecked();
   yesno[1]=ui->checkBox_2->isChecked();
   yesno[2]=ui->checkBox_3->isChecked();
@@ -24,9 +24,10 @@ void AskLodOptionsDialog::getData(float* perc, bool* yesno) const{
   perc[1]=(float)ui->doubleSpinBox_2->value();
   perc[2]=(float)ui->doubleSpinBox_3->value();
   perc[3]=(float)ui->doubleSpinBox_4->value();
+  *overRide = ui->overrideYes->isChecked();
 }
 
-void AskLodOptionsDialog::setData(const float* perc, const bool* yesno){
+void AskLodOptionsDialog::setData(const float* perc, const bool* yesno, bool overRide){
   ui->checkBox_1->setChecked(yesno[0]);
   ui->checkBox_2->setChecked(yesno[1]);
   ui->checkBox_3->setChecked(yesno[2]);
@@ -35,6 +36,8 @@ void AskLodOptionsDialog::setData(const float* perc, const bool* yesno){
   ui->doubleSpinBox_2->setValue(perc[1]);
   ui->doubleSpinBox_3->setValue(perc[2]);
   ui->doubleSpinBox_4->setValue(perc[3]);
+  ui->overrideNo->setChecked(!overRide);
+  ui->overrideYes->setChecked(overRide);
 }
 
 void AskLodOptionsDialog::restoreDefaults(){
@@ -46,6 +49,8 @@ void AskLodOptionsDialog::restoreDefaults(){
   ui->doubleSpinBox_2->setValue(25);
   ui->doubleSpinBox_3->setValue(12.5);
   ui->doubleSpinBox_4->setValue(6.25);
+  ui->overrideNo->setChecked(false);
+  ui->overrideYes->setChecked(true);
 }
 
 AskLodOptionsDialog::~AskLodOptionsDialog()
