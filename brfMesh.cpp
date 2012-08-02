@@ -1011,7 +1011,8 @@ void BrfMesh::SetUniformRig(int nbone){
       };
       BrfMesh* MyIndexClass::mesh;
 
-void BrfMesh::UnifyPos(){
+bool BrfMesh::UnifyPos(){
+  unsigned int oldsize = frame[0].pos.size();
   typedef std::set< MyIndexClass > Set;
   Set st;
   MyIndexClass::mesh=this;
@@ -1046,6 +1047,8 @@ void BrfMesh::UnifyPos(){
     frame[i].pos.resize( ns );
     if (rigging.size()>0) rigging.resize( ns );
   }
+
+  return (oldsize != frame[0].pos.size());
 }
 
 
@@ -1099,10 +1102,11 @@ void BrfMesh::DivideVert(){
   }
 }
 
-void BrfMesh::RemoveUnreferenced(){
+bool BrfMesh::RemoveUnreferenced(){
   vector<bool> present;
   vector<int> rank;
   vector<int> select;
+  bool res = false;
 
   // remove unreferenced verts
   int r=0;
@@ -1116,17 +1120,20 @@ void BrfMesh::RemoveUnreferenced(){
   for (unsigned int i=0; i<vert.size(); i++) {
     if (present[i]) { rank[i]=r++; select.push_back(i); }
   }
+  if (r!=(int)vert.size()) res = true;
   for (unsigned int i=0; i<face.size(); i++) {
     face[i].index[0] = rank[ face[i].index[0] ];
     face[i].index[1] = rank[ face[i].index[1] ];
     face[i].index[2] = rank[ face[i].index[2] ];
   }
+
   for (int i=0; i<r; i++) {
     vert[i] = vert[ select[i] ];
     for (unsigned int nf=0; nf<frame.size(); nf++) frame[nf].norm[i]=frame[nf].norm[ select[i] ];
   }
   vert.resize(r);
   for (unsigned int nf=0; nf<frame.size(); nf++) frame[nf].norm.resize(r);
+
 
   // remove unreferenced pos
 
@@ -1144,8 +1151,18 @@ void BrfMesh::RemoveUnreferenced(){
     if (present[i]) { rank[i]=r++; select.push_back(i); }
   }
   assert(r<=(int)frame[0].pos.size());
+
+  if (r!=(int)frame[0].pos.size()) res = true;
+
   for (unsigned int i=0; i<vert.size(); i++) {
     vert[i].index = rank[ vert[i].index ];
+  }
+
+  if (rigging.size()==frame[0].pos.size()) {
+    for (int i=0; i<r; i++) {
+        rigging[i] = rigging[ select[i] ];
+    }
+    rigging.resize(r);
   }
 
   for (int i=0; i<r; i++) {
@@ -1154,6 +1171,7 @@ void BrfMesh::RemoveUnreferenced(){
   for (unsigned int nf=0; nf<frame.size(); nf++) frame[nf].pos.resize(r);
 
   UpdateBBox();
+  return res;
 }
 
 void BrfMesh::RemoveSeamsFromNormals(double crease)
@@ -1177,13 +1195,14 @@ void BrfMesh::RemoveSeamsFromNormals(double crease)
   AdjustNormDuplicates();
 }
 
-void BrfMesh::UnifyVert(bool careForNormals, float crease){
+bool BrfMesh::UnifyVert(bool careForNormals, float crease){
   typedef std::set< MyIndexVertClass > Set;
   Set st;
   MyIndexVertClass::mesh=this;
   MyIndexVertClass::careForNormals=careForNormals;
   MyIndexVertClass::crease=crease;
   vector<int> map(vert.size());
+  unsigned int oldSize = vert.size();
 
   for (unsigned int vi=0; vi<vert.size(); vi++) {
     pair< Set::iterator, bool> res;
@@ -1204,6 +1223,7 @@ void BrfMesh::UnifyVert(bool careForNormals, float crease){
   }
   int ns = (int)st.size();
 
+
   for (int h=0; h<(int)rank.size(); h++) {
     if (rank[h]>=0) {
       vert[ rank[h] ]=vert[h];
@@ -1214,6 +1234,9 @@ void BrfMesh::UnifyVert(bool careForNormals, float crease){
   }
   vert.resize( ns );
   for (unsigned int i=0; i<frame.size(); i++) frame[i].norm.resize(ns);
+
+  return (vert.size()!=oldSize);
+
 }
 
 int SameTri(Pos a0, Pos a1, Pos b0, Pos b1, Pos c0, Pos c1){  

@@ -998,7 +998,13 @@ BrfMaterial* IniData::findMaterial(const QString &name,ObjCoord ) {
 
   ObjCoord p = indexOf(name, MATERIAL );
   if (p.fi>=0) return &file[p.fi].material[p.oi];
-  return NULL;
+  else return NULL;
+}
+
+BrfShader* IniData::findShader(const QString &name){
+  ObjCoord p = indexOf(name, SHADER );
+  if (p.fi>=0) return &file[p.fi].shader[p.oi];
+  else return NULL;
 }
 
 BrfTexture* IniData::findTexture(const QString &fn){
@@ -1008,10 +1014,8 @@ BrfTexture* IniData::findTexture(const QString &fn){
     if (!(fn.compare(file[i].texture[j].name,Qt::CaseInsensitive))) {
       return &(file[i].texture[j]);
     }
-
   }
   return NULL;
-
 }
 
 int IniData::findFile(const QString &fn,bool onlyModFolder) {

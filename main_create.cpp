@@ -83,6 +83,10 @@ void MainWindow::createMenus()
 
     QMenu* toolMenu = menuBar()->addMenu(tr("&Tools"));
     toolMenu->addAction(sortEntriesAct);
+    toolMenu->addSeparator();
+    toolMenu->addAction(invertSelectionAct);
+    toolMenu->addAction(selectAllAct);
+    toolMenu->addSeparator();
     toolMenu->addAction(repeatLastCommandAct);
 
     QMenu* optionMenu=menuBar()->addMenu(tr("&Settings"));
@@ -416,6 +420,7 @@ void MainWindow::createActions()
     connect(editPasteAniLowerPartsAct, SIGNAL(triggered()), this, SLOT(editPasteAniLowerParts()));
     connect(editPasteTimingsAct, SIGNAL(triggered()), this, SLOT(editPasteTimings()));
     connect(editPasteTextcoordsAct, SIGNAL(triggered()), this, SLOT(editPasteTextcoords()));
+    connect(editPasteVertColorsAct, SIGNAL(triggered()), this, SLOT(editPasteVertColors()));
     connect(editPasteVertAniAct, SIGNAL(triggered()), this, SLOT(editPasteVertAni()));
 
     saveAsAct = new QAction(tr("Save &As..."), this);
@@ -456,6 +461,16 @@ void MainWindow::createActions()
     sortEntriesAct = new QAction(tr("Sort entries"), this);
     sortEntriesAct->setStatusTip(tr("Sort current entries alphabetically"));
     connect(sortEntriesAct, SIGNAL(triggered()), this, SLOT(sortEntries()));
+
+    invertSelectionAct = new QAction(tr("Invert selection"), this);
+    invertSelectionAct->setStatusTip(tr("Invert current selection"));
+    invertSelectionAct->setShortcut(QKeySequence("ctrl+i"));
+    connect(invertSelectionAct, SIGNAL(triggered()), selector, SLOT(invertSelection()));
+
+    selectAllAct = new QAction(tr("Select all"), this);
+    selectAllAct->setStatusTip(tr("Select all items"));
+    selectAllAct->setShortcut(QKeySequence("ctrl+a"));
+    connect(selectAllAct, SIGNAL(triggered()), selector, SLOT(selectAll()));
 
     importStaticMeshAct = new QAction(tr("Static mesh"), this);
     importStaticMeshAct->setStatusTip(tr("Import a static Mesh"));

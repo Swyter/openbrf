@@ -23,15 +23,15 @@ AskTransformDialog::AskTransformDialog(QWidget *parent, bool multObj) :
 
     ui->setupUi(this);
 		ui->applyToLastSel->setEnabled(multObj);
-		connect(ui->rotx,SIGNAL(valueChanged(int)),this,SLOT(update()));
-    connect(ui->roty,SIGNAL(valueChanged(int)),this,SLOT(update()));
-    connect(ui->rotz,SIGNAL(valueChanged(int)),this,SLOT(update()));
-    connect(ui->trax,SIGNAL(valueChanged(double)),this,SLOT(update()));
-    connect(ui->tray,SIGNAL(valueChanged(double)),this,SLOT(update()));
-    connect(ui->traz,SIGNAL(valueChanged(double)),this,SLOT(update()));
-    connect(ui->scx,SIGNAL(valueChanged(int)),this,SLOT(update()));
-    connect(ui->scy,SIGNAL(valueChanged(int)),this,SLOT(update()));
-    connect(ui->scz,SIGNAL(valueChanged(int)),this,SLOT(update()));
+        connect(ui->rotx,SIGNAL(valueChanged(int)),this,SLOT(update()));
+        connect(ui->roty,SIGNAL(valueChanged(int)),this,SLOT(update()));
+        connect(ui->rotz,SIGNAL(valueChanged(int)),this,SLOT(update()));
+        connect(ui->trax,SIGNAL(valueChanged(double)),this,SLOT(update()));
+        connect(ui->tray,SIGNAL(valueChanged(double)),this,SLOT(update()));
+        connect(ui->traz,SIGNAL(valueChanged(double)),this,SLOT(update()));
+        connect(ui->scx,SIGNAL(valueChanged(double)),this,SLOT(update()));
+        connect(ui->scy,SIGNAL(valueChanged(double)),this,SLOT(update()));
+        connect(ui->scz,SIGNAL(valueChanged(double)),this,SLOT(update()));
 		connect(ui->applyToLastSel,SIGNAL(stateChanged(int)),this,SLOT(update()));
 		connect(ui->checkBox,SIGNAL(clicked()),this,SLOT(update()));
 

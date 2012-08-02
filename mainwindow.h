@@ -164,6 +164,7 @@ private:
     void meshDiscardRig();
     void meshDiscardCol();
     void meshDiscardAni();
+    void meshDiscardNor();
     void meshDiscardTan();
     void meshRecolor();
     void meshTuneColor();
@@ -175,6 +176,7 @@ private:
     void meshFreezeFrame();
     void meshAniMerge();
     void meshAniSplit();
+    void meshTellBoundingBox();
     void learnFemininzation(); // from current selection
 
     void setFlagsShader();
@@ -344,6 +346,8 @@ private:
     QAction *saveAsAct;
     QAction *exitAct;
     QAction *sortEntriesAct;
+    QAction *invertSelectionAct;
+    QAction *selectAllAct;
     QAction *aboutCheckboardAct;
     QAction *aboutCurrentShaderAct;
     QAction *aboutAct;

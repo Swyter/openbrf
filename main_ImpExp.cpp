@@ -92,10 +92,11 @@ void MainWindow::meshComputeLod(){
       sprintf(res.material,"%s", m.material);
       res.hasVertexColor = m.hasVertexColor;
       sprintf(res.name,"%s.lod%d%s",partname.toAscii().data(),lod,partnumber.toAscii().data());
+      res.RemoveUnreferenced();
       res.UnifyPos();
       res.UnifyVert(false,0);
       res.ComputeNormals();
-      res.ComputeTangents();
+      if (m.HasTangentField()) res.ComputeTangents();
       resvec.push_back(res);
     }
     for (uint ii=0,jj=0; ii<resvec.size(); ii++){

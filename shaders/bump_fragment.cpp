@@ -29,8 +29,8 @@ void main(){
 
 
 	normt = normt.z * norm +
-					normt.x * tanx +
-					normt.y * tany;
+            normt.x * tanx +
+            normt.y * tany;
 	float diffuse = dot(normt , lightDir ) ;
 	diffuse = (diffuse<0.0)?0.0:diffuse;
 	diffuse = (diffuse>1.0)?1.0:diffuse;
@@ -39,10 +39,10 @@ void main(){
 #endif
 	gl_FragColor.rgb = tex.rgb*color.rgb*(vec3(diffuse*0.8+0.2)
 #ifdef SPECULAR_ALPHA
-									 + spec_col*(   tex.a  *pow( diffuse , spec_exp))
+                     + spec_col*(   tex.a  *pow( diffuse , spec_exp))
 #endif
 #ifdef SPECULAR_MAP
-									 + spec_col*(specmapVal*pow( diffuse , spec_exp))*0.5
+                     + spec_col*(specmapVal*pow( diffuse , spec_exp))*0.5
 #endif
 	);
 #ifdef ALPHA_CUTOUTS
