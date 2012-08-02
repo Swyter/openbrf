@@ -941,11 +941,12 @@ IniData::IniData(BrfData &_currentBrf): currentBrf(_currentBrf)
   isWarband = false;
 }
 
-QString IniData::mat2tex(const QString &n, bool* hasBump){
+QString IniData::mat2tex(const QString &n, bool* hasBump, bool* hasSpec){
   // find in ini file
   int j = _findByName( currentBrf.material, n);
   if (j>=0) {
     *hasBump = currentBrf.material[j].HasBump();
+    *hasSpec = currentBrf.material[j].HasSpec();
     return currentBrf.material[j].diffuseA;
   }
   for (unsigned int i=0; i<filename.size(); i++)
@@ -953,10 +954,12 @@ QString IniData::mat2tex(const QString &n, bool* hasBump){
     BrfMaterial &m(file[i].material[j]);
     if (QString(m.name)==n) {
       *hasBump = m.HasBump();
+      *hasSpec = m.HasSpec();
       return m.diffuseA;
     }
   }
   *hasBump = false;
+  *hasSpec = false;
   return QString();
 }
 

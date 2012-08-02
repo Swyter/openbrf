@@ -3,6 +3,7 @@
 
 #include <QtGui>
 
+char* applVersion = "0.0.58";
 QString IniData::tokenFullName(int k){
 
   switch (k){
@@ -57,7 +58,7 @@ void MainWindow::about()
                "<p><i>Translations by:</i> %5</p>")
              ).arg(__DATE__)
               .arg("[mtarini] --- Marco Tarini")
-              .arg(" <br>[amade], [Andrde Cuyne], [Barf], [Brutus], [Caba`drin], "
+              .arg(" <br>[Abhuva], [amade], [Andrde Cuyne], [Bolkonsky], [Barf], [Brutus], [Caba`drin], "
                    "[captain lust], [cdvader], [Chel], [DaBlade], [Dain Ironfoot], "
                    "[Darwin], [dreamterror], [dunde], [ealabor], [eierkopf], "
                    "[EvolutiveBrain], "
@@ -68,16 +69,16 @@ void MainWindow::about()
                    "[Konar], [Llew], [Lord_Cheap], "
                    "[LordRaglan], [Lumos], [MadVader], [Mandible], [Mekelan], "
                    "[Merlkir], [mr.master], "
-                   "[mysstick], "
+                   "[mysstick], [newaxekub], "
                    "[octoburn], [pagan], [Percus], [qlithe], [RATMdude92], [Red River], "
-                   "[Septa Scarabae], [Silesian], [Shik], [Silver Wolf], [Spak], [Swyter], "
+                   "[Romainoir], [Septa Scarabae], [Silesian], [Shik], [Silver Wolf], [Spak], [Swyter], "
                    "[Triglav], [Tul], [Ursca], [Vlejundo], [Vornne], [WilliamBerne], "
                    "[yellowmosquito], [Yoshiboy], [xenoargh]")
               .arg("<br>[amade], [Swyter]!")
               .arg(QString("<br> [foxyman] <i>(%1)</i><br>"
                            " [Swyter] <i>(Español)</i><br>"
                            " [Vlejundo] <i>(Deutsche)</i><").arg(tr("additional code and Chinese")))
-              .arg("0.0.57")
+              .arg(applVersion)
             ,QMessageBox::Ok, this);
     msg.setLocale(QLocale::system());
   //msg.layout()->addWidget(&lab);
@@ -99,6 +100,17 @@ void MainWindow::optionAutoFixTextureShowInfo(){
                "(I'll shamelessly write on the texture dss files on disk).</p>"
                ));
 
+}
+
+bool MainWindow::askIfUseOpenGL2(bool e){
+  return
+  (QMessageBox::question(this,"OpenBrf",tr(
+    "<b>Activate OpenGL2.0?</b>"
+    "<p>OpenGL2.0 is needed to preview<br>"
+    "bumpmaps, \"iron\" shader, specular maps...<br>"
+    "but it has been reported to crash a few computers,<br>"
+    "with (older?) ATI or Intel graphic cards.<br><br>%1"
+    ).arg(e?tr("<i>(later you can set this option under [Settings])"):""),QMessageBox::Yes|QMessageBox::No,QMessageBox::Yes)==QMessageBox::Yes);
 }
 
 void MainWindow::aboutCheckboard(){

@@ -388,6 +388,46 @@ void BrfMesh::ComputeNormals(){
 
 }
 
+void BrfMesh::ComputeTangents(){
+
+  for (unsigned int vi=0; vi<vert.size(); vi++){
+    vert[vi].tang=Point3f(0,0,0);
+  }
+  int fi =0;
+  for (unsigned int ff=0; ff<face.size(); ff++){
+    vcg::Point2f s0=vert[face[ff].index[0]].ta;
+    vcg::Point2f s1=vert[face[ff].index[1]].ta;
+    vcg::Point2f s2=vert[face[ff].index[2]].ta;
+    s1-=s0;
+    s2-=s0;
+    float det = s1^s2;
+    if (!det) continue;
+    float a,b;
+    a = s2.Y()/det; b = -s1.X()/det;
+    //a = -s1.X()/det; b = s2.Y()/det;
+
+    Point3f p0=frame[fi].pos[ vert[face[ff].index[0]].index ];
+    Point3f p1=frame[fi].pos[ vert[face[ff].index[1]].index ];
+    Point3f p2=frame[fi].pos[ vert[face[ff].index[2]].index ];
+    p1-=p0;
+    p2-=p0;
+
+    vert[face[ff].index[0]].tang+=p1*a + p2*b;
+    vert[face[ff].index[1]].tang+=p1*a + p2*b;
+    vert[face[ff].index[2]].tang+=p1*a + p2*b;
+
+
+
+/*    Point3f n=(c-a)^(b-a); // area weighted norm
+    for (int w=0; w<3; w++)
+    frame[fi].norm[ face[ff].index[w] ]+=n;*/
+  }
+  for (unsigned int vi=0; vi<vert.size(); vi++){
+    vert[vi].tang = -(vert[vi].tang^frame[fi].norm[vi]).Normalize();
+  }
+
+}
+
 void BrfMesh::ComputeNormals(int fi){
 
   for (unsigned int vi=0; vi<vert.size(); vi++){

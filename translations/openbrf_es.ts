@@ -119,95 +119,95 @@ seams hard</source>
         <translation>Más &gt;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3197"/>
+        <location filename="../mainwindow.cpp" line="3333"/>
         <source>No fog</source>
         <translation>Sin niebla</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3198"/>
+        <location filename="../mainwindow.cpp" line="3334"/>
         <source>No Lighting</source>
         <translation>Sin Luz</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3200"/>
+        <location filename="../mainwindow.cpp" line="3336"/>
         <source>No Z-write</source>
         <translation>Sin escritura en Z</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3201"/>
+        <location filename="../mainwindow.cpp" line="3337"/>
         <source>No depth Test</source>
         <translation>Sin profundidad</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3202"/>
+        <location filename="../mainwindow.cpp" line="3338"/>
         <source>Specular enable</source>
         <translation>Activar brillos 
 especulares</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3203"/>
+        <location filename="../mainwindow.cpp" line="3339"/>
         <source>Alpha test</source>
         <translation>Test Alfa</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3204"/>
+        <location filename="../mainwindow.cpp" line="3340"/>
         <source>Uniform lighting</source>
         <translation>Luz Uniforme</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3207"/>
+        <location filename="../mainwindow.cpp" line="3343"/>
         <source>Blend</source>
         <translation>Mezclar</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3208"/>
+        <location filename="../mainwindow.cpp" line="3344"/>
         <source>Blend add</source>
         <translation>Subexponer/
 Añadir</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3209"/>
+        <location filename="../mainwindow.cpp" line="3345"/>
         <source>Blend multiply *</source>
         <translation>Sobreexponer/
 Multiplicar*</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3210"/>
+        <location filename="../mainwindow.cpp" line="3346"/>
         <source>Blend factor **</source>
         <translation>Factor de Mezcla**</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3211"/>
+        <location filename="../mainwindow.cpp" line="3347"/>
         <source>Alpha test 1</source>
         <translation>Test alfa 1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3212"/>
+        <location filename="../mainwindow.cpp" line="3348"/>
         <source>Alpha test 128</source>
         <translation>Test alfa 128</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3213"/>
+        <location filename="../mainwindow.cpp" line="3349"/>
         <source>Alpha test 256 *</source>
         <translation>Test alfa 256*</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3216"/>
+        <location filename="../mainwindow.cpp" line="3352"/>
         <source>Render 1st</source>
         <translation>Renderizar el 1º</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3217"/>
+        <location filename="../mainwindow.cpp" line="3353"/>
         <source>Origin at camera</source>
         <translation>Origen en Cámara</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3218"/>
+        <location filename="../mainwindow.cpp" line="3354"/>
         <source>LoD</source>
         <translation>Nivel de Detalle</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3229"/>
+        <location filename="../mainwindow.cpp" line="3365"/>
         <source>Invert bumpmap</source>
         <translation>Invertir M. de 
 Desplazamiento</translation>
@@ -229,12 +229,12 @@ Desplazamiento</translation>
     <message>
         <location filename="../askIntervalDialog.ui" line="37"/>
         <source>to:</source>
-        <translation>desde:</translation>
+        <translation>Desde:</translation>
     </message>
     <message>
         <location filename="../askIntervalDialog.ui" line="54"/>
         <source>from:</source>
-        <translation>hasta:</translation>
+        <translation>Hasta:</translation>
     </message>
     <message>
         <location filename="../askIntervalDialog.ui" line="64"/>
@@ -245,6 +245,55 @@ Desplazamiento</translation>
         <location filename="../askIntervalDialog.ui" line="71"/>
         <source>select time interval:</source>
         <translation>Selecciona el intervalo:</translation>
+    </message>
+</context>
+<context>
+    <name>AskLodOptionsDialog</name>
+    <message>
+        <location filename="../askLodOptionsDialog.ui" line="14"/>
+        <source>Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../askLodOptionsDialog.ui" line="20"/>
+        <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;When OpenBRF computes &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;a &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;LOD (Level Of Detail) Pyramid&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; for a mesh,&lt;br /&gt;which levels to build, and &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;with how many faces (w.r.t. original mesh)?&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../askLodOptionsDialog.ui" line="39"/>
+        <source>LOD1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../askLodOptionsDialog.ui" line="46"/>
+        <source>LOD2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../askLodOptionsDialog.ui" line="53"/>
+        <source>LOD3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../askLodOptionsDialog.ui" line="60"/>
+        <source>LOD4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../askLodOptionsDialog.ui" line="102"/>
+        <source>Build?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../askLodOptionsDialog.ui" line="112"/>
+        <source>% faces:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -262,7 +311,7 @@ Desplazamiento</translation>
     <message>
         <location filename="../askModErrorDialog.cpp" line="52"/>
         <source>Searching for errors...</source>
-        <translation>Buscando posibles errores</translation>
+        <translation>Buscando errores</translation>
     </message>
     <message>
         <location filename="../askModErrorDialog.cpp" line="54"/>
@@ -679,7 +728,7 @@ Ni siquiera serán cargadas por el juego...</translation>
     <message>
         <location filename="../askHueSatBriDialog.ui" line="14"/>
         <source>Tune Per-Vertex Colors</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajustar coloración de Vértice</translation>
     </message>
     <message>
         <location filename="../askHueSatBriDialog.ui" line="42"/>
@@ -705,17 +754,17 @@ Ni siquiera serán cargadas por el juego...</translation>
 <context>
     <name>GLWidget</name>
     <message>
-        <location filename="../glwidgets.cpp" line="763"/>
+        <location filename="../glwidgets.cpp" line="1023"/>
         <source>Scene mode: navigate with mouse and WASD (levitate with wheel, zoom in with shift)</source>
         <translation>Modo Escena: navega con el ratón y WASD (levitar con el scroll, zoom con mayús)</translation>
     </message>
     <message>
-        <location filename="../glwidgets.cpp" line="768"/>
+        <location filename="../glwidgets.cpp" line="1028"/>
         <source>Helmet mode: for objects with vertical Z axis, like M&amp;B helmets or weapons.</source>
         <translation>Modo Casco: para objetos con eje Z vertical, como los cascos o las armas.</translation>
     </message>
     <message>
-        <location filename="../glwidgets.cpp" line="770"/>
+        <location filename="../glwidgets.cpp" line="1030"/>
         <source>Default mode: rotate objects with mouse, zoom in/out with wheel.</source>
         <translation>Modo por Defecto: puedes rotar objetos con el ratón, utiliza la rueda del ratón para acercar/alejar.</translation>
     </message>
@@ -775,12 +824,12 @@ Ni siquiera serán cargadas por el juego...</translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="44"/>
-        <location filename="../guipanel.ui" line="986"/>
-        <location filename="../guipanel.ui" line="1276"/>
-        <location filename="../guipanel.ui" line="1515"/>
-        <location filename="../guipanel.ui" line="1907"/>
-        <location filename="../guipanel.ui" line="1961"/>
-        <location filename="../guipanel.ui" line="2269"/>
+        <location filename="../guipanel.ui" line="1018"/>
+        <location filename="../guipanel.ui" line="1308"/>
+        <location filename="../guipanel.ui" line="1547"/>
+        <location filename="../guipanel.ui" line="1939"/>
+        <location filename="../guipanel.ui" line="1993"/>
+        <location filename="../guipanel.ui" line="2301"/>
         <source>Data</source>
         <translation>Propiedades</translation>
     </message>
@@ -812,16 +861,16 @@ Ni siquiera serán cargadas por el juego...</translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="122"/>
-        <location filename="../guipanel.ui" line="1020"/>
-        <location filename="../guipanel.ui" line="2065"/>
+        <location filename="../guipanel.ui" line="1052"/>
+        <location filename="../guipanel.ui" line="2097"/>
         <source>000000000000; </source>
         <translation>000000000000; </translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="138"/>
-        <location filename="../guipanel.ui" line="998"/>
-        <location filename="../guipanel.ui" line="1702"/>
-        <location filename="../guipanel.ui" line="2043"/>
+        <location filename="../guipanel.ui" line="1030"/>
+        <location filename="../guipanel.ui" line="1734"/>
+        <location filename="../guipanel.ui" line="2075"/>
         <source>Flags:</source>
         <translation>Insignia:</translation>
     </message>
@@ -837,7 +886,7 @@ Ni siquiera serán cargadas por el juego...</translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="198"/>
-        <location filename="../guipanel.ui" line="2572"/>
+        <location filename="../guipanel.ui" line="2604"/>
         <source>faces:</source>
         <translation>Cara:</translation>
     </message>
@@ -883,7 +932,7 @@ Ni siquiera serán cargadas por el juego...</translation>
     </message>
     <message>
         <location filename="../guipanel.ui" line="403"/>
-        <location filename="../guipanel.ui" line="1500"/>
+        <location filename="../guipanel.ui" line="1532"/>
         <source>:</source>
         <translation></translation>
     </message>
@@ -969,385 +1018,399 @@ Ni siquiera serán cargadas por el juego...</translation>
     <message>
         <location filename="../guipanel.ui" line="600"/>
         <source>Ctrl+T</source>
+        <translation></translation>
+    </message>
+    <message>
+        <source>Normalmap</source>
+        <translation type="obsolete">Relieve</translation>
+    </message>
+    <message>
+        <location filename="../guipanel.ui" line="616"/>
+        <source>BumpMap</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="626"/>
+        <location filename="../guipanel.ui" line="632"/>
+        <source>SpecMap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../guipanel.ui" line="655"/>
         <source>Show/hide a floor at Y = 0.</source>
         <translation>Mostrar/Ocultar el suelo de rejilla en Y = 0</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="629"/>
+        <location filename="../guipanel.ui" line="658"/>
         <source>Floor</source>
         <translation>Suelo</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="655"/>
-        <location filename="../guipanel.ui" line="674"/>
+        <location filename="../guipanel.ui" line="684"/>
+        <location filename="../guipanel.ui" line="703"/>
         <source>Current weapon reach.</source>
         <translation>Alcance de arma actual.</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="696"/>
+        <location filename="../guipanel.ui" line="725"/>
         <source>Show ruler to measure weapon reach.</source>
         <translation>Muestra la regla para medir el alcance del arma.</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="699"/>
+        <location filename="../guipanel.ui" line="728"/>
         <source>Ruler</source>
         <translation>Regla</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="725"/>
+        <location filename="../guipanel.ui" line="754"/>
         <source>Select a reference animation to view rigged meshes.</source>
         <translation>Selecciona una animación de referencia para ver animaciones de esqueleto.</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="738"/>
+        <location filename="../guipanel.ui" line="767"/>
         <source>Animation:</source>
         <translation>Animación:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="764"/>
+        <location filename="../guipanel.ui" line="796"/>
         <source>Skeleton:</source>
         <translation>Esqueleto:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="780"/>
+        <location filename="../guipanel.ui" line="812"/>
         <source>Select a reference skeleton (e.g. human or horse)</source>
         <translation>Selecciona un esqueleto de referencia (por ejemplo humano o caballo)</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="808"/>
+        <location filename="../guipanel.ui" line="840"/>
         <source>Pause the animation.</source>
         <translation>Pausa la animación.</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="811"/>
+        <location filename="../guipanel.ui" line="843"/>
         <source>||</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="829"/>
+        <location filename="../guipanel.ui" line="861"/>
         <source>Play the animation.</source>
         <translation>Reproduce la animación.</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="832"/>
+        <location filename="../guipanel.ui" line="864"/>
         <source>&gt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="850"/>
+        <location filename="../guipanel.ui" line="882"/>
         <source>Stop the animation.</source>
         <translation>Detiene la animación.</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="853"/>
+        <location filename="../guipanel.ui" line="885"/>
         <source>[]</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="871"/>
+        <location filename="../guipanel.ui" line="903"/>
         <source>Next frame.</source>
         <translation>Siguiente cuadro.</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="874"/>
+        <location filename="../guipanel.ui" line="906"/>
         <source>&gt;|</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="892"/>
+        <location filename="../guipanel.ui" line="924"/>
         <source>Prev frame.</source>
         <translation>Cuadro anterior.</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="895"/>
+        <location filename="../guipanel.ui" line="927"/>
         <source>|&lt;</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="918"/>
+        <location filename="../guipanel.ui" line="950"/>
         <source>Show RGB channel of texture.</source>
         <translation>Mostrar el canal RGB de la textura.</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="921"/>
+        <location filename="../guipanel.ui" line="953"/>
         <source>&amp;RGB</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="937"/>
+        <location filename="../guipanel.ui" line="969"/>
         <source>Show alpha transparency (alpha = 0 means transparent).</source>
         <translation>Mostrar la transparencia (alfa = 0 significa transparencia)</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="940"/>
+        <location filename="../guipanel.ui" line="972"/>
         <source>Alpha &amp;Transparency</source>
         <translation>&amp;Transparencia alfa</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="953"/>
+        <location filename="../guipanel.ui" line="985"/>
         <source>Show alpha channel of textures.</source>
         <translation>Mostrar el canal alfa de las texturas</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="956"/>
+        <location filename="../guipanel.ui" line="988"/>
         <source>&amp;Alpha</source>
         <translation>Canal &amp;alfa</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1017"/>
+        <location filename="../guipanel.ui" line="1049"/>
         <source>Texture flags (unknown meaning)</source>
         <translation>Insignias de Textura (significado desconocido)</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1039"/>
+        <location filename="../guipanel.ui" line="1071"/>
         <source>x</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1055"/>
+        <location filename="../guipanel.ui" line="1087"/>
         <source>res:</source>
         <translation>Resoluc:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1087"/>
+        <location filename="../guipanel.ui" line="1119"/>
         <source>Space taken on disk (compressed).</source>
         <translation>Espacio en Disco (comprimido).</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1122"/>
+        <location filename="../guipanel.ui" line="1154"/>
         <source>KBytes:</source>
         <translation>KBytes:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1154"/>
+        <location filename="../guipanel.ui" line="1186"/>
         <source># mipmap:</source>
         <translation>Mipmaps:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1176"/>
+        <location filename="../guipanel.ui" line="1208"/>
         <source>Format of dds file on disk.</source>
         <translation>Formato del archivo DDS en disco.</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1195"/>
+        <location filename="../guipanel.ui" line="1227"/>
         <source>Format:</source>
         <translation>Formato:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1211"/>
+        <location filename="../guipanel.ui" line="1243"/>
         <source>Click to go back to the material.</source>
         <translation>Presiona para volver al material</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1217"/>
-        <location filename="../guipanel.ui" line="1890"/>
-        <location filename="../guipanel.ui" line="2252"/>
+        <location filename="../guipanel.ui" line="1249"/>
+        <location filename="../guipanel.ui" line="1922"/>
+        <location filename="../guipanel.ui" line="2284"/>
         <source>(&lt;a href=&quot;link&quot;&gt;back&lt;/a&gt;)</source>
         <translation>(&lt;a href=&quot;link&quot;&gt;atrás&lt;/a&gt;)</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1233"/>
+        <location filename="../guipanel.ui" line="1265"/>
         <source>location:</source>
         <translation>Situación:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1262"/>
+        <location filename="../guipanel.ui" line="1294"/>
         <source>open it</source>
         <translation>Abrir...</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1288"/>
+        <location filename="../guipanel.ui" line="1320"/>
         <source>First frame of the animation.</source>
         <translation>Primer cuadro de la Animación.</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1307"/>
+        <location filename="../guipanel.ui" line="1339"/>
         <source>Number of bones this animation is made for.</source>
         <translation>Número de huesos por la que esta animación está formada.</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1326"/>
+        <location filename="../guipanel.ui" line="1358"/>
         <source>Number of frames in this animation.</source>
         <translation>Número de cuadros en esta animación.</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1345"/>
+        <location filename="../guipanel.ui" line="1377"/>
         <source>Last frame of the animation.</source>
         <translation>Último cuadro de la animación.</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1364"/>
-        <location filename="../guipanel.ui" line="1919"/>
+        <location filename="../guipanel.ui" line="1396"/>
+        <location filename="../guipanel.ui" line="1951"/>
         <source># bones:</source>
         <translation>Huesos:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1380"/>
+        <location filename="../guipanel.ui" line="1412"/>
         <source># frames:</source>
         <translation>Cuadros:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1396"/>
+        <location filename="../guipanel.ui" line="1428"/>
         <source>interval:</source>
         <translation>Intervalo:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1412"/>
+        <location filename="../guipanel.ui" line="1444"/>
         <source>-</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1437"/>
+        <location filename="../guipanel.ui" line="1469"/>
         <source>time of frame</source>
         <translation>Línea tempor:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1450"/>
+        <location filename="../guipanel.ui" line="1482"/>
         <source>Frame number (1 = first)</source>
         <translation>Número de cuadro (1=primero)</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1481"/>
+        <location filename="../guipanel.ui" line="1513"/>
         <source>Time of this frame (must always be increasing)</source>
         <translation>Tiempo de este cuadro (tiene que ser incremental)</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1527"/>
+        <location filename="../guipanel.ui" line="1559"/>
         <source>Shader used by this material.</source>
         <translation>Sombreador usado por este material.</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1540"/>
+        <location filename="../guipanel.ui" line="1572"/>
         <source>Main diffuse (RGB color) texture</source>
         <translation>M. Difuso principal (color RGB).</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1553"/>
+        <location filename="../guipanel.ui" line="1585"/>
         <source>Second diffuse (RGB color) texture</source>
         <translation>Segunda textura Difusa (color RGB)</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1566"/>
+        <location filename="../guipanel.ui" line="1598"/>
         <source>Bumpmap texture</source>
         <translation>Textura de Desplazamiento</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1579"/>
+        <location filename="../guipanel.ui" line="1611"/>
         <source>Environment map texture</source>
         <translation>Textura del mapa de Entorno</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1592"/>
+        <location filename="../guipanel.ui" line="1624"/>
         <source>Red component of specular color.</source>
         <translation>Componente Rojo del color especular.</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1605"/>
+        <location filename="../guipanel.ui" line="1637"/>
         <source>Green component of specular color.</source>
         <translation>Componente Verde del color especular.</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1618"/>
+        <location filename="../guipanel.ui" line="1650"/>
         <source>Blue component of specular color.</source>
         <translation>Componente Azul del color especular.</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1631"/>
+        <location filename="../guipanel.ui" line="1663"/>
         <source>Spec RGB:</source>
         <translation>Espec RGB:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1647"/>
+        <location filename="../guipanel.ui" line="1679"/>
         <source>Specular map texture.</source>
         <translation>Textura de mapa especular (las partes claras de la imagen referencian las zonas reflectantes)</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1660"/>
+        <location filename="../guipanel.ui" line="1692"/>
         <source>Coeff:</source>
         <translation>Coefic:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1676"/>
+        <location filename="../guipanel.ui" line="1708"/>
         <source>Specular coefficient (glossiness). Higher = smaller brighter reflections.</source>
         <translation>Coeficiente Especular (brillo)  | A mayor número = zonas brillantes más pequeños</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1689"/>
+        <location filename="../guipanel.ui" line="1721"/>
         <source>Flags (click on button to edit bits)</source>
         <translation>Insignias (presiona el botón para editar los bits)</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1718"/>
+        <location filename="../guipanel.ui" line="1750"/>
         <source>...</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1731"/>
+        <location filename="../guipanel.ui" line="1763"/>
         <source>Rend.Ord:</source>
         <translation>Render:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1747"/>
+        <location filename="../guipanel.ui" line="1779"/>
         <source>Rendering order (negative = soonest)</source>
         <translation>Orden de Renderizado (negativo significa más cercano)</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1766"/>
+        <location filename="../guipanel.ui" line="1798"/>
         <source>Click to open file containing shader.</source>
         <translation>Presiona para abrir el archivo que contiene el sombreador</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1769"/>
+        <location filename="../guipanel.ui" line="1801"/>
         <source>&lt;a href=&quot;link&quot;&gt;Shader&lt;/a&gt;:</source>
         <translation>&lt;a href=&quot;link&quot;&gt;Sombread&lt;/a&gt;:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1785"/>
-        <location filename="../guipanel.ui" line="1804"/>
+        <location filename="../guipanel.ui" line="1817"/>
+        <location filename="../guipanel.ui" line="1836"/>
         <source>Click to open file containing this texture.</source>
         <translation>Presiona para abrir el archivo que contiene esta textura.</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1788"/>
+        <location filename="../guipanel.ui" line="1820"/>
         <source>&lt;a href=&quot;link&quot;&gt;DiffuseA&lt;/a&gt;:</source>
         <translation>&lt;a href=&quot;link&quot;&gt;Difuso A&lt;/a&gt;:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1807"/>
+        <location filename="../guipanel.ui" line="1839"/>
         <source>&lt;a href=&quot;link&quot;&gt;DiffuseB&lt;/a&gt;:</source>
         <translation>&lt;a href=&quot;link&quot;&gt;Difuso B&lt;/a&gt;:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1823"/>
+        <location filename="../guipanel.ui" line="1855"/>
         <source>Click to open file containing this bumpmap,</source>
         <translation>Presiona para abrir el archivo que contiene este Mapa de Desplazamiento.</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1826"/>
+        <location filename="../guipanel.ui" line="1858"/>
         <source>&lt;a href=&quot;link&quot;&gt;Bump&lt;/a&gt;:</source>
         <translation>&lt;a href=&quot;link&quot;&gt;Desplaza&lt;/a&gt;:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1842"/>
+        <location filename="../guipanel.ui" line="1874"/>
         <source>Click to open file containing this environment map.</source>
         <translation>Presiona para abrir el archivo que contiene este Mapa de Entorno</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1845"/>
+        <location filename="../guipanel.ui" line="1877"/>
         <source>&lt;a href=&quot;link&quot;&gt;Enviro&lt;/a&gt;:</source>
         <translation>&lt;a href=&quot;link&quot;&gt;Entorno&lt;/a&gt;:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1861"/>
+        <location filename="../guipanel.ui" line="1893"/>
         <source>Click to open file containing this specular map.</source>
         <translation>Presiona para abrir el archivo que contiene este Mapa Especular.</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1864"/>
+        <location filename="../guipanel.ui" line="1896"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
@@ -1360,119 +1423,119 @@ p, li { white-space: pre-wrap; }
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;link&quot;&gt;&lt;span style=&quot; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;Especula&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1884"/>
+        <location filename="../guipanel.ui" line="1916"/>
         <source>Click to go back to the mesh.</source>
         <translation>Presiona para volver al modelo</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1935"/>
+        <location filename="../guipanel.ui" line="1967"/>
         <source>Number of bones composing this skeleton.</source>
         <translation>Número de huesos que componen este esqueleto.</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1973"/>
+        <location filename="../guipanel.ui" line="2005"/>
         <source>Technique:</source>
         <translation>Técnica:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="1989"/>
-        <location filename="../guipanel.ui" line="1998"/>
+        <location filename="../guipanel.ui" line="2021"/>
+        <location filename="../guipanel.ui" line="2030"/>
         <source>Technique: name of the &quot;technique&quot; inside mb.fx file.</source>
         <translation>Técnica: nombre de la &quot;técnica de sombreado&quot; dentro del archivo &quot;mb.fx&quot;.</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2011"/>
+        <location filename="../guipanel.ui" line="2043"/>
         <source>Fallback:</source>
         <translation>Alternativ:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2027"/>
+        <location filename="../guipanel.ui" line="2059"/>
         <source>Which other shader to use if requirements are not met.</source>
         <translation>Especifica que otro sombrador se usará si los requerimientos no se alcanzan.</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2062"/>
+        <location filename="../guipanel.ui" line="2094"/>
         <source>Shader flags (no known meaning).</source>
         <translation>Insignias del Sombreador (Significado desconocido)</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2084"/>
+        <location filename="../guipanel.ui" line="2116"/>
         <source>Specify if a DDX version is required here</source>
         <translation>Especifica si se requiere una versión de DDX</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2100"/>
+        <location filename="../guipanel.ui" line="2132"/>
         <source>Requires:</source>
         <translation>Requiere:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2116"/>
+        <location filename="../guipanel.ui" line="2148"/>
         <source>texture access</source>
         <translation>Acceso de textura</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2128"/>
+        <location filename="../guipanel.ui" line="2160"/>
         <source>map:</source>
         <translation>mapa:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2184"/>
+        <location filename="../guipanel.ui" line="2216"/>
         <source>colorOp:</source>
         <translation>colorOp:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2200"/>
+        <location filename="../guipanel.ui" line="2232"/>
         <source>alphaOp:</source>
         <translation>alpaOp:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2216"/>
-        <location filename="../guipanel.ui" line="2598"/>
+        <location filename="../guipanel.ui" line="2248"/>
+        <location filename="../guipanel.ui" line="2630"/>
         <source>flags:</source>
         <translation>Insignia:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2236"/>
+        <location filename="../guipanel.ui" line="2268"/>
         <source>Texture access index</source>
         <translation>Índice de acceso de textura</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2284"/>
+        <location filename="../guipanel.ui" line="2316"/>
         <source>Select a subpiece composing this collision object.</source>
         <translation>Selecciona una subpieza de las que componen este objeto de colisión.</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2300"/>
+        <location filename="../guipanel.ui" line="2332"/>
         <source>piece</source>
         <translation>pieza</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2375"/>
+        <location filename="../guipanel.ui" line="2407"/>
         <source>axisA:</source>
         <translation>ejeA:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2401"/>
+        <location filename="../guipanel.ui" line="2433"/>
         <source>axisB:</source>
         <translation>ejeB:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2475"/>
+        <location filename="../guipanel.ui" line="2507"/>
         <source>radius:</source>
         <translation>radio:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2530"/>
+        <location filename="../guipanel.ui" line="2562"/>
         <source>verts:</source>
         <translation>vérts:</translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2637"/>
+        <location filename="../guipanel.ui" line="2669"/>
         <source>sign:</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../guipanel.ui" line="2683"/>
+        <location filename="../guipanel.ui" line="2715"/>
         <source>piece list:</source>
         <translation>lista de piezas:</translation>
     </message>
@@ -1560,58 +1623,58 @@ p, li { white-space: pre-wrap; }
         <translation>No parece que contenga un módulo de Mount&amp;Blade</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="56"/>
-        <location filename="../main_ImpExp.cpp" line="88"/>
-        <location filename="../main_ImpExp.cpp" line="108"/>
-        <location filename="../main_ImpExp.cpp" line="134"/>
-        <location filename="../main_ImpExp.cpp" line="156"/>
-        <location filename="../main_ImpExp.cpp" line="189"/>
-        <location filename="../main_ImpExp.cpp" line="206"/>
-        <location filename="../main_ImpExp.cpp" line="219"/>
-        <location filename="../main_ImpExp.cpp" line="259"/>
-        <location filename="../main_ImpExp.cpp" line="279"/>
-        <location filename="../main_ImpExp.cpp" line="309"/>
-        <location filename="../main_ImpExp.cpp" line="316"/>
-        <location filename="../main_ImpExp.cpp" line="341"/>
-        <location filename="../main_ImpExp.cpp" line="359"/>
-        <location filename="../main_ImpExp.cpp" line="521"/>
-        <location filename="../main_ImpExp.cpp" line="551"/>
-        <location filename="../main_ImpExp.cpp" line="572"/>
-        <location filename="../main_ImpExp.cpp" line="614"/>
-        <location filename="../main_ImpExp.cpp" line="624"/>
-        <location filename="../main_ImpExp.cpp" line="742"/>
+        <location filename="../main_ImpExp.cpp" line="115"/>
+        <location filename="../main_ImpExp.cpp" line="147"/>
+        <location filename="../main_ImpExp.cpp" line="167"/>
+        <location filename="../main_ImpExp.cpp" line="193"/>
+        <location filename="../main_ImpExp.cpp" line="215"/>
+        <location filename="../main_ImpExp.cpp" line="248"/>
+        <location filename="../main_ImpExp.cpp" line="265"/>
+        <location filename="../main_ImpExp.cpp" line="278"/>
+        <location filename="../main_ImpExp.cpp" line="318"/>
+        <location filename="../main_ImpExp.cpp" line="338"/>
+        <location filename="../main_ImpExp.cpp" line="368"/>
+        <location filename="../main_ImpExp.cpp" line="375"/>
+        <location filename="../main_ImpExp.cpp" line="400"/>
+        <location filename="../main_ImpExp.cpp" line="418"/>
+        <location filename="../main_ImpExp.cpp" line="580"/>
+        <location filename="../main_ImpExp.cpp" line="610"/>
+        <location filename="../main_ImpExp.cpp" line="631"/>
+        <location filename="../main_ImpExp.cpp" line="673"/>
+        <location filename="../main_ImpExp.cpp" line="683"/>
         <location filename="../main_ImpExp.cpp" line="801"/>
-        <location filename="../main_ImpExp.cpp" line="856"/>
-        <location filename="../main_ImpExp.cpp" line="874"/>
+        <location filename="../main_ImpExp.cpp" line="860"/>
+        <location filename="../main_ImpExp.cpp" line="915"/>
+        <location filename="../main_ImpExp.cpp" line="933"/>
         <source>Open Brf</source>
         <translation>OpenBRF | Traducido al Castellano por Swyter</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="57"/>
+        <location filename="../main_ImpExp.cpp" line="116"/>
         <source>Cannot open file for writing;</source>
         <translation>No se puede abrir con permisos de escritura;</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="78"/>
+        <location filename="../main_ImpExp.cpp" line="137"/>
         <source>Select a folder to export all meshes</source>
         <translation>Selecciona una carpeta donde exportar los modelos</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="89"/>
+        <location filename="../main_ImpExp.cpp" line="148"/>
         <source>Cannot open file %1 for writing;</source>
         <translation>No se puede abrir %1 con permisos de escritura;</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="109"/>
-        <location filename="../main_ImpExp.cpp" line="157"/>
-        <location filename="../main_ImpExp.cpp" line="207"/>
+        <location filename="../main_ImpExp.cpp" line="168"/>
+        <location filename="../main_ImpExp.cpp" line="216"/>
+        <location filename="../main_ImpExp.cpp" line="266"/>
         <source>Cannot export animation without a proper skeleton!
 </source>
         <translation>No se puede exportar la animación sin un esqueleto adecuado!
 </translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="135"/>
+        <location filename="../main_ImpExp.cpp" line="194"/>
         <source>Cannot export rigged mesh:
  %1
 </source>
@@ -1620,7 +1683,7 @@ p, li { white-space: pre-wrap; }
 </translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="190"/>
+        <location filename="../main_ImpExp.cpp" line="249"/>
         <source>Cannot export rest-pose:
  %1
 </source>
@@ -1628,7 +1691,7 @@ p, li { white-space: pre-wrap; }
  %1</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="220"/>
+        <location filename="../main_ImpExp.cpp" line="279"/>
         <source>Cannot export animation:
  %1
 </source>
@@ -1637,7 +1700,7 @@ p, li { white-space: pre-wrap; }
 </translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="260"/>
+        <location filename="../main_ImpExp.cpp" line="319"/>
         <source>Cannot export skeleton:
  %1
 </source>
@@ -1645,7 +1708,7 @@ p, li { white-space: pre-wrap; }
  %1</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="280"/>
+        <location filename="../main_ImpExp.cpp" line="339"/>
         <source>Cannot export control mesh in file 
 &quot;%1&quot;
 
@@ -1656,71 +1719,71 @@ p, li { white-space: pre-wrap; }
 </translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="292"/>
-        <location filename="../main_ImpExp.cpp" line="592"/>
+        <location filename="../main_ImpExp.cpp" line="351"/>
+        <location filename="../main_ImpExp.cpp" line="651"/>
         <source>mesh file (*.obj *.ply *.off *.stl *.dae)</source>
         <translation>Modelo Tridimensional (*.obj *.ply *.off *.stl *.dae)</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="310"/>
+        <location filename="../main_ImpExp.cpp" line="369"/>
         <source>Cannot read mesh!</source>
         <translation>¡No se puede leer el modelo!</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="317"/>
+        <location filename="../main_ImpExp.cpp" line="376"/>
         <source>Modification of skeleton with mesh: fail!</source>
         <translation>La modificación del esqueleto con modelo: ¡ha fallado!</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="342"/>
+        <location filename="../main_ImpExp.cpp" line="401"/>
         <source>Cannot write file?</source>
         <translation>¿No se puede escribir archivo?</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="355"/>
+        <location filename="../main_ImpExp.cpp" line="414"/>
         <source>Quake 3 vertex animation (*.MD3)</source>
         <translation>Animación por Vértices de Quake 3  (*.MD3)</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="360"/>
+        <location filename="../main_ImpExp.cpp" line="419"/>
         <source>Error exporting MD3 file
 : %1</source>
         <translation>Error en la exportación del archivo MD3:
 %1</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="442"/>
+        <location filename="../main_ImpExp.cpp" line="501"/>
         <source>Import file</source>
         <translation>Importar Archivo</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="448"/>
-        <location filename="../main_ImpExp.cpp" line="466"/>
+        <location filename="../main_ImpExp.cpp" line="507"/>
+        <location filename="../main_ImpExp.cpp" line="525"/>
         <source>Import canceled.</source>
         <translation>Importación cancelada.</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="460"/>
+        <location filename="../main_ImpExp.cpp" line="519"/>
         <source>Import files</source>
         <translation>Importar Archivos</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="498"/>
+        <location filename="../main_ImpExp.cpp" line="557"/>
         <source>Export file</source>
         <translation>Exportar Archivo</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="499"/>
+        <location filename="../main_ImpExp.cpp" line="558"/>
         <source>%1\%2</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="503"/>
+        <location filename="../main_ImpExp.cpp" line="562"/>
         <source>Export canceled.</source>
         <translation>Exportación cancelada.</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="522"/>
+        <location filename="../main_ImpExp.cpp" line="581"/>
         <source>Cannot import file %1:
 %3
 </source>
@@ -1729,12 +1792,12 @@ p, li { white-space: pre-wrap; }
 </translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="544"/>
+        <location filename="../main_ImpExp.cpp" line="603"/>
         <source>Warband or M&amp;B resource (*.brf)</source>
         <translation>Recurso de Warband o M&amp;B (*.brf)</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="552"/>
+        <location filename="../main_ImpExp.cpp" line="611"/>
         <source>Cannot import file %1
 
 </source>
@@ -1743,13 +1806,13 @@ p, li { white-space: pre-wrap; }
 </translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="564"/>
+        <location filename="../main_ImpExp.cpp" line="623"/>
         <source>mesh file (*.obj)</source>
         <translation>Modelo Tridimensional (*.obj)</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="573"/>
-        <location filename="../main_ImpExp.cpp" line="615"/>
+        <location filename="../main_ImpExp.cpp" line="632"/>
+        <location filename="../main_ImpExp.cpp" line="674"/>
         <source>Cannot import file %1
 </source>
         <translation>No se puede importar archivo %1
@@ -1757,7 +1820,7 @@ p, li { white-space: pre-wrap; }
 </translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="625"/>
+        <location filename="../main_ImpExp.cpp" line="684"/>
         <source>Cannot import file %1
 
 (error: %2)</source>
@@ -1766,61 +1829,61 @@ p, li { white-space: pre-wrap; }
 (error:%2)</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="655"/>
-        <location filename="../mainwindow.cpp" line="1029"/>
-        <location filename="../mainwindow.cpp" line="1030"/>
+        <location filename="../main_ImpExp.cpp" line="714"/>
+        <location filename="../mainwindow.cpp" line="1033"/>
+        <location filename="../mainwindow.cpp" line="1034"/>
         <location filename="../mainwindow.ui" line="14"/>
         <source>OpenBRF</source>
         <translation>OpenBRF</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="656"/>
+        <location filename="../main_ImpExp.cpp" line="715"/>
         <source>Mesh &quot;%1&quot; has multiple materials\objects.
 Import a separate mesh per material\object?</source>
         <translation>El modelo &quot;%1&quot; tiene multiple materiales/objetos.
 ¿Importar de forma separada?</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="671"/>
+        <location filename="../main_ImpExp.cpp" line="730"/>
         <source>Imported mesh &quot;%1&quot;--- normals:%2 colors:%3 texture_coord:%4</source>
         <translation>Modelo Importado &quot;%1&quot;--- normales:%2 colores:%3 coordenadas de textura:%4</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="689"/>
+        <location filename="../main_ImpExp.cpp" line="748"/>
         <source>Import vertex animation frame</source>
         <translation>Importar cuadro de animación por vértices</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="690"/>
+        <location filename="../main_ImpExp.cpp" line="749"/>
         <source>Frist select a mesh
 to add a frame to.</source>
         <translation>Selecciona primero un modelo
 al que añadir un fotograma o cuadro.</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="699"/>
+        <location filename="../main_ImpExp.cpp" line="758"/>
         <source>Import failed</source>
         <translation>Fallo en la importación</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="709"/>
-        <location filename="../mainwindow.cpp" line="1882"/>
+        <location filename="../main_ImpExp.cpp" line="768"/>
+        <location filename="../mainwindow.cpp" line="1899"/>
         <source>Vertex number mismatch... using texture-coord matching instead of vertex-ordering</source>
         <translation>El número de vértices no concuerda... se usarán las coordenadas de textura para ordenarlos.</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="724"/>
-        <location filename="../mainwindow.cpp" line="1889"/>
+        <location filename="../main_ImpExp.cpp" line="783"/>
+        <location filename="../mainwindow.cpp" line="1906"/>
         <source>Added frame %1</source>
         <translation>Cuadro %1 añadido</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="726"/>
+        <location filename="../main_ImpExp.cpp" line="785"/>
         <source>Added frames %1..%2</source>
         <translation>Cuadros añadidos: %1..%2</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="743"/>
+        <location filename="../main_ImpExp.cpp" line="802"/>
         <source>Cannot import animation:
  %1
 </source>
@@ -1828,12 +1891,12 @@ al que añadir un fotograma o cuadro.</translation>
  %1</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="761"/>
+        <location filename="../main_ImpExp.cpp" line="820"/>
         <source>Found no time value in SMD file, so I added them.</source>
         <translation>No se han encontrado valores temporales en el archivo SMD, así que se han añadido de forma automática.</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="802"/>
+        <location filename="../main_ImpExp.cpp" line="861"/>
         <source>Cannot import skeleton:
 %1
 </source>
@@ -1841,12 +1904,12 @@ al que añadir un fotograma o cuadro.</translation>
 %1</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="814"/>
+        <location filename="../main_ImpExp.cpp" line="873"/>
         <source>Imported skeleton &quot;%1&quot;--- nbones:%2</source>
         <translation>Esqueleto &quot;%1&quot; Importado--- número de huesos:%2</translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="857"/>
+        <location filename="../main_ImpExp.cpp" line="916"/>
         <source>Cannot import mesh %2:
 %1
 </source>
@@ -1855,13 +1918,13 @@ al que añadir un fotograma o cuadro.</translation>
 </translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="875"/>
+        <location filename="../main_ImpExp.cpp" line="934"/>
         <source>%1
 </source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../main_ImpExp.cpp" line="882"/>
+        <location filename="../main_ImpExp.cpp" line="941"/>
         <source>Imported %1 rigged mesh%2</source>
         <translation>Importado %1 modelo esqueletal%2</translation>
     </message>
@@ -1901,554 +1964,579 @@ al que añadir un fotograma o cuadro.</translation>
         <translation>&amp;Configuración</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="81"/>
+        <location filename="../main_create.cpp" line="82"/>
+        <source>Use OpenGL 2.0</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../main_create.cpp" line="84"/>
+        <source>Allows to preview bumpmapping etc. This can create compatibility problems on some (older?) graphic card</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../main_create.cpp" line="91"/>
         <source>On import meshes</source>
         <translation>Al Importar modelos:</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="83"/>
+        <location filename="../main_create.cpp" line="93"/>
         <source>On assemble vertex animations</source>
         <translation>Al ensamblar una animación de vértices:</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="121"/>
+        <location filename="../main_create.cpp" line="131"/>
         <source>merge vertices and pos</source>
         <translation>Unir vértices y posiciones</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="123"/>
+        <location filename="../main_create.cpp" line="133"/>
         <source>recompute normals and merge</source>
         <translation>Recalcular normales</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="125"/>
+        <location filename="../main_create.cpp" line="135"/>
         <source>do nothing</source>
         <translation>No hacer nada</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="138"/>
+        <location filename="../main_create.cpp" line="148"/>
         <source>trust vertex order to be the same</source>
         <translation>Confiar en que el orden de los vértices sea el mismo</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="139"/>
+        <location filename="../main_create.cpp" line="149"/>
         <source>Use this option if you feel lucky and hope that vertex order was preserved between the frames.</source>
         <translation>Usa esta opción si te crees con suerte y esperas que el orden de los vértices se mantenga preservado entre cuadros.</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="141"/>
+        <location filename="../main_create.cpp" line="151"/>
         <source>trust texture coordinates to be unique</source>
         <translation>Confiar en que las coordenadas de textura sean únicas</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="143"/>
+        <location filename="../main_create.cpp" line="153"/>
         <source>Use this option if you think that each vertex can be identified uniquely by its texture coords (best option)</source>
         <translation>Usa esta opción si piensas que cada vértices puede ser identificado de forma exclusiva por sus cordenadas de textura (la mejor opción)</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="145"/>
+        <location filename="../main_create.cpp" line="155"/>
         <source>quiver mode - start with max arrows</source>
         <translation>Modo Carcaj - comenzar con el máximo de flechas</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="146"/>
+        <location filename="../main_create.cpp" line="156"/>
         <source>When you add a frame: what is not in the exact same position as the 1st frame disappears</source>
         <translation>Cuando añadas un cuadro: el que no esté en la posición exacta como el 1º desaparecerá</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="164"/>
+        <location filename="../main_create.cpp" line="174"/>
         <source>Auto zoom-and-recenter</source>
         <translation>Centrar automáticamente la vista:</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="165"/>
+        <location filename="../main_create.cpp" line="175"/>
         <source>according to selected object(s) only</source>
         <translation>Únicamente con los objetos seleccionados.</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="167"/>
+        <location filename="../main_create.cpp" line="177"/>
         <source>according to all objects in file</source>
         <translation>Teniendo en cuenta todos los objetos en el archivo.</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="175"/>
         <source>Mesh rendering</source>
-        <translation>Al dibujar en la Vista 3D:</translation>
+        <translation type="obsolete">Al dibujar en la Vista 3D:</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="179"/>
         <source>always use default settings</source>
-        <translation>Usar las propiedades de visibilidad por defecto de OpenBRF, sin transparencia.</translation>
+        <translation type="obsolete">Usar las propiedades de visibilidad por defecto de OpenBRF, sin transparencia.</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="176"/>
         <source>infer settings from Material flags</source>
-        <translation>Conservar las propiedades de su material (Insignias), incluida su transparencia.</translation>
+        <translation type="obsolete">Conservar las propiedades de su material (Insignias), incluida su transparencia.</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="177"/>
         <source>E.g. alpha-transparency will depend on Material flags</source>
-        <translation>Por ej. la transparencia-alfa dependerá de las insignias de su material.</translation>
+        <translation type="obsolete">Por ej. la transparencia-alfa dependerá de las insignias de su material.</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="180"/>
         <source>Never use alpha transparency, regardless of Material flags</source>
-        <translation>Nunca usar transparencia alfa, ni siquiera aunque las Insignias del material lo indiquen.</translation>
+        <translation type="obsolete">Nunca usar transparencia alfa, ni siquiera aunque las Insignias del material lo indiquen.</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="196"/>
+        <location filename="../main_create.cpp" line="209"/>
         <source>Darkest</source>
         <translation>Más oscura</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="197"/>
+        <location filename="../main_create.cpp" line="210"/>
         <source>Dark</source>
         <translation>Oscura</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="198"/>
+        <location filename="../main_create.cpp" line="211"/>
         <source>Medium</source>
         <translation>Normal</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="199"/>
+        <location filename="../main_create.cpp" line="212"/>
         <source>Light</source>
         <translation>Clara</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="200"/>
+        <location filename="../main_create.cpp" line="213"/>
         <source>Lightest</source>
         <translation>Más clara</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="203"/>
+        <location filename="../main_create.cpp" line="216"/>
         <source>When computing AO, use %1 shades</source>
         <translation>Al calcular la Oclusión Ambiental (AO), usar sombreado: %1</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="209"/>
+        <location filename="../main_create.cpp" line="222"/>
         <source>Light mostly from above</source>
         <translation>Iluminación vertical</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="210"/>
+        <location filename="../main_create.cpp" line="223"/>
         <source>Light from all around</source>
         <translation>Iluminar uniformemente</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="217"/>
+        <location filename="../main_create.cpp" line="230"/>
         <source>On compute Ambient Occlusion</source>
         <translation>Al calcular la Oclusión Ambiental:</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="229"/>
+        <location filename="../main_create.cpp" line="238"/>
+        <source>On building LOD pyramids...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../main_create.cpp" line="239"/>
+        <source>Set the way OpenBRF build LODs pyramids</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../main_create.cpp" line="243"/>
+        <source>Background color...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../main_create.cpp" line="244"/>
+        <source>Sets the background color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../main_create.cpp" line="252"/>
         <source>Language</source>
         <translation>Idioma</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="230"/>
+        <location filename="../main_create.cpp" line="253"/>
         <source>System default</source>
         <translation>Por defecto en el Sistema</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="239"/>
+        <location filename="../main_create.cpp" line="262"/>
         <source>Test a custom translation file...</source>
         <translation>Probar una traducción personalizada...</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="251"/>
+        <location filename="../main_create.cpp" line="274"/>
         <source>Learn how to femininize armours from current meshes.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aprender como feminizar armaduras desde los modelos seleccionados.</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="265"/>
+        <location filename="../main_create.cpp" line="289"/>
         <source>&amp;New</source>
         <translation>&amp;Nuevo</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="267"/>
+        <location filename="../main_create.cpp" line="291"/>
         <source>Create a new file</source>
         <translation>Crea un nuevo archivo</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="270"/>
+        <location filename="../main_create.cpp" line="294"/>
         <source>&amp;Open...</source>
         <translation>&amp;Abrir...</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="272"/>
+        <location filename="../main_create.cpp" line="296"/>
         <source>Open an existing file</source>
         <translation>Abre un archivo existente</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="275"/>
+        <location filename="../main_create.cpp" line="299"/>
         <source>&amp;Save</source>
         <translation>&amp;Guardar</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="277"/>
+        <location filename="../main_create.cpp" line="301"/>
         <source>Save the document to disk</source>
         <translation>Guarda los cambios del archivo de recursos en el disco</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="280"/>
+        <location filename="../main_create.cpp" line="304"/>
         <source>Cut</source>
         <translation>Cortar</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="281"/>
+        <location filename="../main_create.cpp" line="305"/>
         <source>Cut currently selected objects.</source>
         <translation>Corta los objetos seleccionados.</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="283"/>
+        <location filename="../main_create.cpp" line="307"/>
         <source>Copy</source>
         <translation>Copiar</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="284"/>
+        <location filename="../main_create.cpp" line="308"/>
         <source>Copy currently selected objects in the clipboard.</source>
         <translation>Copia los objetos seleccionados.</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="285"/>
+        <location filename="../main_create.cpp" line="309"/>
         <source>Add to Clipboard</source>
         <translation>Añadir al Portapapeles</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="286"/>
+        <location filename="../main_create.cpp" line="310"/>
         <source>Add currently selected objects to clipboard.</source>
         <translation>Añade los objetos seleccionados al portapapeles del sistema.</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="288"/>
+        <location filename="../main_create.cpp" line="312"/>
         <source>Paste</source>
         <translation>Pegar</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="289"/>
+        <location filename="../main_create.cpp" line="313"/>
         <source>Paste objects from the clipboard into currect BRF.</source>
         <translation>Pega los objetos seleccionados.</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="293"/>
+        <location filename="../main_create.cpp" line="317"/>
         <source>Cut frame</source>
         <translation>Cortar cuadro</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="295"/>
+        <location filename="../main_create.cpp" line="319"/>
         <source>Cut current frame of a vertex animated mesh.</source>
         <translation>Corta el cuadro de un modelo con animación de vértices.</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="296"/>
+        <location filename="../main_create.cpp" line="320"/>
         <source>Copy frame</source>
         <translation>Copiar cuadro</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="298"/>
+        <location filename="../main_create.cpp" line="322"/>
         <source>Copy current frame of a vertex animated mesh.</source>
         <translation>Copia el cuadro de un modelo con animación de vértices.</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="299"/>
+        <location filename="../main_create.cpp" line="323"/>
         <source>Paste frame</source>
         <translation>Pegar cuadro</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="302"/>
+        <location filename="../main_create.cpp" line="326"/>
         <source>Paste frame from clipboard as next frame in the current vertex animated mesh</source>
         <translation>Pega el cuadro alamacenado en el portapapeles como cuadro siguiente en la animación seleccionada</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="303"/>
+        <location filename="../main_create.cpp" line="327"/>
         <source>Paste rigging</source>
         <translation>Pegar unión esqueletal</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="304"/>
+        <location filename="../main_create.cpp" line="328"/>
         <source>Make a rigging for current mesh(-es) similar to one of the meshes in the clipboard.</source>
         <translation>Realiza una vinculación de esqueleto para los modelos seleccionados basado en la guardada en el portapapeles.</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="307"/>
+        <location filename="../main_create.cpp" line="331"/>
         <source>Paste modifications</source>
         <translation>Pegar modificaciones</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="308"/>
+        <location filename="../main_create.cpp" line="332"/>
         <source>Move vertices of current mesh according to a 2 frame mesh animation.</source>
         <translation>Mueve los vértices del modelo actual de acuerdo a una animación de 2 cuadros.</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="311"/>
+        <location filename="../main_create.cpp" line="335"/>
         <source>Paste timings</source>
         <translation>Pegar tiempos</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="312"/>
+        <location filename="../main_create.cpp" line="336"/>
         <source>Paste timings of vertex or skeletal animation in clipboard into other animation(s).</source>
         <translation>Pega los tiempos de unos cuadros de animación, sean de vértices o esqueletales en otra animación u animaciones.</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="327"/>
+        <location filename="../main_create.cpp" line="351"/>
         <source>Save &amp;As...</source>
         <translation>Gu&amp;ardar como...</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="329"/>
+        <location filename="../main_create.cpp" line="353"/>
         <source>Save the document under a new name</source>
         <translation>Guarda el archivo de recursos bajo un nuevo nombre</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="339"/>
+        <location filename="../main_create.cpp" line="363"/>
         <source>E&amp;xit</source>
         <translation>Sal&amp;ir</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="340"/>
+        <location filename="../main_create.cpp" line="364"/>
         <source>Alt+F4</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="341"/>
+        <location filename="../main_create.cpp" line="365"/>
         <source>Exit the application</source>
         <translation>Abandona la Aplicación</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="344"/>
+        <location filename="../main_create.cpp" line="368"/>
         <source>Why the checkerboard pattern?</source>
         <translation>¿Por qué aparecen los cuadros de colores?</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="345"/>
+        <location filename="../main_create.cpp" line="369"/>
         <source>Diagnose why I&apos;m seeing a checkboard pattern instead of my texture.</source>
         <translation>Diagnostica el porqué de ver un patrón de cuadrados en vez de la textura.</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="350"/>
+        <location filename="../main_create.cpp" line="374"/>
         <source>About</source>
         <translation>Acerca de...</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="351"/>
+        <location filename="../main_create.cpp" line="375"/>
         <source>F1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="352"/>
+        <location filename="../main_create.cpp" line="376"/>
         <source>About OpenBRF</source>
         <translation>Acerca de OpenBRF</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="355"/>
+        <location filename="../main_create.cpp" line="379"/>
         <source>_</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="359"/>
+        <location filename="../main_create.cpp" line="383"/>
         <source>Sort entries</source>
         <translation>Ordenar la Lista</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="360"/>
+        <location filename="../main_create.cpp" line="384"/>
         <source>Sort current entries alphabetically</source>
         <translation>Ordena la lista alfabéticamente</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="363"/>
+        <location filename="../main_create.cpp" line="387"/>
         <source>Static mesh</source>
         <translation>Modelo Estático</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="364"/>
+        <location filename="../main_create.cpp" line="388"/>
         <source>Import a static Mesh</source>
         <translation>Importa un modelo estático</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="365"/>
+        <location filename="../main_create.cpp" line="389"/>
         <source>Rigged mesh</source>
         <translation>Modelo Esqueletal</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="366"/>
+        <location filename="../main_create.cpp" line="390"/>
         <source>Import rigged (skeletal animable) Mesh</source>
         <translation>Importa un modelo unido a un esqueleto, utilizado en la animación de personajes</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="367"/>
+        <location filename="../main_create.cpp" line="391"/>
         <source>Frame of vertex-animated mesh</source>
         <translation>Cuadro de Animación por Vértices</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="368"/>
+        <location filename="../main_create.cpp" line="392"/>
         <source>Import a static mesh and add it as a vertex-animation frame of current Mesh</source>
         <translation>Importa un modelo estático y lo añade como un cuadro o fotograma de animación por vértices</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="369"/>
+        <location filename="../main_create.cpp" line="393"/>
         <source>Vertex-animated mesh</source>
         <translation>Modelo de Animación por Vértices</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="370"/>
+        <location filename="../main_create.cpp" line="394"/>
         <source>Import a vertex animated mesh from a MD3 file</source>
         <translation>Importa un modelo con cuadros ya animado desde un archivo MD3</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="371"/>
-        <location filename="../main_info.cpp" line="13"/>
+        <location filename="../main_create.cpp" line="395"/>
+        <location filename="../main_info.cpp" line="14"/>
         <source>Skeleton</source>
         <translation>Esqueleto</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="372"/>
+        <location filename="../main_create.cpp" line="396"/>
         <source>Import a Skeleton</source>
         <translation>Importa un Esqueleto</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="376"/>
+        <location filename="../main_create.cpp" line="400"/>
         <source>Skeletal animation</source>
         <translation>Animación Esqueletal</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="377"/>
+        <location filename="../main_create.cpp" line="401"/>
         <source>Import a skeletal Animation</source>
         <translation>Importa una animación de personaje por huesos</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="378"/>
+        <location filename="../main_create.cpp" line="402"/>
         <source>Collision body</source>
         <translation>Cuerpo de Colisión</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="379"/>
+        <location filename="../main_create.cpp" line="403"/>
         <source>Import an (multi-object) OBJ mesh as a Collision object.</source>
         <translation>Importa uno o varios modelos como una malla  u objeto de colisión.</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="380"/>
+        <location filename="../main_create.cpp" line="404"/>
         <source>Anything from a BRF</source>
         <translation>Importación Masiva desde un BRF</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="381"/>
+        <location filename="../main_create.cpp" line="405"/>
         <source>Import all content form another BRF file into current one.</source>
         <translation>Copia todo el contenido de un BRF en el actual.</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="382"/>
+        <location filename="../main_create.cpp" line="406"/>
         <source>New Material</source>
         <translation>Nuevo Material</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="383"/>
+        <location filename="../main_create.cpp" line="407"/>
         <source>Make a new Material object.</source>
         <translation>Crea un objeto de  material nuevo.</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="384"/>
+        <location filename="../main_create.cpp" line="408"/>
         <source>New Texture</source>
         <translation>Nueva Referencia de Textura</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="385"/>
+        <location filename="../main_create.cpp" line="409"/>
         <source>Make a new Texture object from a dds texture</source>
         <translation>Crea una nueva referencia gracias a la que el juego carga un archivo de textura. Tambien hace posible que se pueda asignar a un material</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="386"/>
+        <location filename="../main_create.cpp" line="410"/>
         <source>New Shader</source>
         <translation>Nuevo Sombreador</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="387"/>
+        <location filename="../main_create.cpp" line="411"/>
         <source>Enlist a new Shader</source>
         <translation>Añade a la lista un nuevo especificador de sombreadores, con los que se añaden efectos a las superficies del juego</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="389"/>
+        <location filename="../main_create.cpp" line="413"/>
         <source>New Menu Background</source>
         <translation>Nuevo Fondo de Menú</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="390"/>
+        <location filename="../main_create.cpp" line="414"/>
         <source>Add a Menu Background (Mesh, Material, and Texture)</source>
         <translation>Añade un fondo de menú para el juego mediante un asistente (crea modelo, material y textura)</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="393"/>
+        <location filename="../main_create.cpp" line="417"/>
         <source>follow link</source>
         <translation>seguir enlace</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="394"/>
+        <location filename="../main_create.cpp" line="418"/>
         <source>ctrl+right</source>
         <translation>ctrl+derecha</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="395"/>
+        <location filename="../main_create.cpp" line="419"/>
         <source>Go from a mesh to used material; go from a material to used textures/shader</source>
         <translation>Ve desde un modelo a su material, y desde este a sus texturas y sombradores</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="397"/>
+        <location filename="../main_create.cpp" line="421"/>
         <source>follow back-link</source>
         <translation>seguir enlace anterior</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="398"/>
+        <location filename="../main_create.cpp" line="422"/>
         <source>ctrl+left</source>
         <translation>ctrl+izquierda</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="399"/>
+        <location filename="../main_create.cpp" line="423"/>
         <source>Go back to the mesh (from a material) or material (from texture or shaders).</source>
         <translation>Vuelve atrás hacia el modelo, si estás en un material, o a éste si te encuentras en su textura.</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="400"/>
+        <location filename="../main_create.cpp" line="424"/>
         <source>next back-link</source>
         <translation>siguiente enlace anterior</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="401"/>
+        <location filename="../main_create.cpp" line="425"/>
         <source>prev back-link</source>
         <translation>anterior enlace previo</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="402"/>
+        <location filename="../main_create.cpp" line="426"/>
         <source>Find</source>
         <translation>Buscar</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="403"/>
-        <location filename="../main_create.cpp" line="421"/>
+        <location filename="../main_create.cpp" line="427"/>
+        <location filename="../main_create.cpp" line="445"/>
         <source>ctrl+F</source>
         <translation>ctrl+B</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="404"/>
+        <location filename="../main_create.cpp" line="428"/>
         <source>Refresh</source>
         <translation>Recargar</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="413"/>
+        <location filename="../main_create.cpp" line="437"/>
         <source>Export names</source>
         <translation>Exportar nombres</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="414"/>
+        <location filename="../main_create.cpp" line="438"/>
         <source>Export al the contnt in a txt file</source>
         <translation>Exporta todo el contenido en un archivo txt (de texto)</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="420"/>
+        <location filename="../main_create.cpp" line="444"/>
         <source>Find in module...</source>
         <translation>Búsqueda en el Módulo...</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="424"/>
+        <location filename="../main_create.cpp" line="448"/>
         <source>Select a BRF in module...</source>
         <translation>Seleccionar un BRF en el módulo...</translation>
     </message>
@@ -2457,52 +2545,52 @@ al que añadir un fotograma o cuadro.</translation>
         <translation type="obsolete">Recargar</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="405"/>
+        <location filename="../main_create.cpp" line="429"/>
         <source>Reload ini files, brf files inside it, and dds textures</source>
         <translation>Racarga los archivos ini, con sus respectivos BRF y, a su vez, sus texturas</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="406"/>
+        <location filename="../main_create.cpp" line="430"/>
         <source>F5</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="407"/>
+        <location filename="../main_create.cpp" line="431"/>
         <source>Scan module for usages</source>
         <translation>Escanear el Uso de Recursos</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="408"/>
+        <location filename="../main_create.cpp" line="432"/>
         <source>Scans module content and txt files, to compute what uses what</source>
         <translation>Escanea el contenido del módulo y los archivos txt, para calcular que, donde, y si se usa un recurso del juego</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="409"/>
+        <location filename="../main_create.cpp" line="433"/>
         <source>F3</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="410"/>
+        <location filename="../main_create.cpp" line="434"/>
         <source>Change current Module</source>
         <translation>Cambiar de Módulo</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="411"/>
+        <location filename="../main_create.cpp" line="435"/>
         <source>Choose the current module</source>
         <translation>Elige cual será el módulo activo</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="416"/>
+        <location filename="../main_create.cpp" line="440"/>
         <source>Scan module for errors</source>
         <translation>Comprobación de Errores</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="417"/>
+        <location filename="../main_create.cpp" line="441"/>
         <source>ctrl+E</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="418"/>
+        <location filename="../main_create.cpp" line="442"/>
         <source>Scan module.ini and included brf files for inconsistencies.</source>
         <translation>Escanea module.ini y todas las inconsistencias relacionadas.</translation>
     </message>
@@ -2511,7 +2599,7 @@ al que añadir un fotograma o cuadro.</translation>
         <translation type="obsolete">Buscar en el módulo</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="422"/>
+        <location filename="../main_create.cpp" line="446"/>
         <source>Look for an object in all brf listed inside current module.ini.</source>
         <translation>Encuentra lo que estés buscando en cualquier archivo del juego.</translation>
     </message>
@@ -2520,188 +2608,198 @@ al que añadir un fotograma o cuadro.</translation>
         <translation type="obsolete">Selecciona un BRF del módulo</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="425"/>
+        <location filename="../main_create.cpp" line="449"/>
         <source>Select a BRF file of this module.</source>
         <translation>Selecciona un archivo BRF que se encuentre dentro de este módulo.</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="426"/>
+        <location filename="../main_create.cpp" line="450"/>
         <source>F7</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="427"/>
+        <location filename="../main_create.cpp" line="451"/>
         <source>Show unreferenced texture files</source>
         <translation>Mostrar Texturas sin Referenciar</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="428"/>
+        <location filename="../main_create.cpp" line="452"/>
         <source>Show texture files non referenced in any brf</source>
         <translation>Muestra las texturas dentro del módulo que no carga el juego</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="431"/>
+        <location filename="../main_create.cpp" line="455"/>
         <source>Show module stats</source>
         <translation>Mostrar Estadísticas</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="432"/>
+        <location filename="../main_create.cpp" line="456"/>
         <source>Show statistics for current Module</source>
         <translation>Muestra información estadística relaccionada con el módulo actual</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="449"/>
+        <location filename="../main_create.cpp" line="473"/>
         <source>&amp;Repeat last command</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Repetir última acción</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="454"/>
+        <location filename="../main_create.cpp" line="478"/>
         <source>Register BRF extension</source>
         <translation>Registrar extensión con OpenBRF</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="455"/>
+        <location filename="../main_create.cpp" line="479"/>
         <source>Make so that clicking on a brf file opens OpenBRF.</source>
         <translation>Vincula los archivos BRF con este programa, con lo que se pueden abrir directamente.</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="468"/>
+        <location filename="../main_create.cpp" line="492"/>
         <source>default</source>
         <translation>normal</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="469"/>
+        <location filename="../main_create.cpp" line="493"/>
         <source>Default mode: rotate objects with mouse, zoom in/out with wheel.</source>
         <translation>Modo Normal: rota objetos con el ratón, y acerca/aleja con la rueda del ratón.</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="470"/>
+        <location filename="../main_create.cpp" line="494"/>
         <source>helmet</source>
         <translation>casco</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="471"/>
+        <location filename="../main_create.cpp" line="495"/>
         <source>Helmet mode: for objects with vertical Z axis, like M&amp;B helmets or weapons.</source>
         <translation>Modo Casco: para objetos con eje Z vertical, como los cascos o las armas del juego.</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="472"/>
+        <location filename="../main_create.cpp" line="496"/>
         <source>scene</source>
         <translation>escena</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="473"/>
+        <location filename="../main_create.cpp" line="497"/>
         <source>Scene mode: navigate with mouse and WASD (levitate with wheel, zoom with shift)</source>
         <translation>Modo Escena: navega mediante el ratón y WASD (levita utilizando la rueda, y mayús para acercar/alejar)</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="484"/>
+        <location filename="../main_create.cpp" line="508"/>
         <source>combo</source>
         <translation>juntos</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="485"/>
+        <location filename="../main_create.cpp" line="509"/>
         <source>See objects combined, when selecting multiple things</source>
         <translation>Muestra los objetos seleccionados combinados, en la misma vista.</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="486"/>
+        <location filename="../main_create.cpp" line="510"/>
         <source>aside</source>
         <translation>a parte</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="487"/>
+        <location filename="../main_create.cpp" line="511"/>
         <source>See object side-to-side, when selecting multiple things</source>
         <translation>Cada objeto seleccionado tiene su propia vista previa</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="489"/>
+        <location filename="../main_create.cpp" line="513"/>
         <source>mult-view:</source>
         <translation>v. multiple:</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="507"/>
+        <location filename="../main_create.cpp" line="531"/>
         <source>view-mode:</source>
         <translation>modo vista:</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="9"/>
+        <location filename="../main_info.cpp" line="10"/>
         <source>Mesh</source>
         <translation>Modelo</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="10"/>
+        <location filename="../main_info.cpp" line="11"/>
         <source>Texture</source>
         <translation>Textura</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="11"/>
+        <location filename="../main_info.cpp" line="12"/>
         <source>Shader</source>
         <translation>Sombreador</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="12"/>
+        <location filename="../main_info.cpp" line="13"/>
         <source>Material</source>
         <translation>Material</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="14"/>
+        <location filename="../main_info.cpp" line="15"/>
         <source>Animation</source>
         <translation>Animación</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="15"/>
+        <location filename="../main_info.cpp" line="16"/>
         <source>Collision</source>
         <translation>Colisión</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="16"/>
-        <location filename="../main_info.cpp" line="29"/>
+        <location filename="../main_info.cpp" line="17"/>
+        <location filename="../main_info.cpp" line="30"/>
         <source>???</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="22"/>
+        <location filename="../main_info.cpp" line="23"/>
         <source>Meshes</source>
         <translation>Modelos</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="23"/>
+        <location filename="../main_info.cpp" line="24"/>
         <source>Textures</source>
         <translation>Texturas</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="24"/>
+        <location filename="../main_info.cpp" line="25"/>
         <source>Shaders</source>
         <translation>Sombreadores</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="25"/>
+        <location filename="../main_info.cpp" line="26"/>
         <source>Materials</source>
         <translation>Materiales</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="26"/>
+        <location filename="../main_info.cpp" line="27"/>
         <source>Skeletons</source>
         <translation>Esqueletos</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="27"/>
+        <location filename="../main_info.cpp" line="28"/>
         <source>Animations</source>
         <translation>Animaciones</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="28"/>
+        <location filename="../main_info.cpp" line="29"/>
         <source>Collisions</source>
         <translation>Colisiones</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="49"/>
+        <location filename="../main_info.cpp" line="50"/>
         <source>&lt;p&gt;&amp;nbsp; &amp;nbsp; &lt;b&gt;OpenBrf&lt;/b&gt;&lt;br&gt;&amp;nbsp; &amp;nbsp; by &lt;b&gt;%2&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&amp;nbsp; &amp;nbsp; &lt;b&gt;ver %6&lt;/b&gt;&lt;br&gt;&amp;nbsp; &amp;nbsp; (%1)&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;i&gt;Testing, bug reporting, suggestions by:&lt;/i&gt; %3&lt;/p&gt;&lt;p&gt;&lt;i&gt;Additional art by:&lt;/i&gt; %4&lt;/p&gt;&lt;p&gt;&lt;i&gt;Translations by:&lt;/i&gt; %5&lt;/p&gt;</source>
         <translation>&lt;p&gt;&amp;nbsp; &amp;nbsp; &lt;b&gt;OpenBRF&lt;/b&gt;&lt;br&gt;&amp;nbsp; &amp;nbsp; por &lt;b&gt;%2&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&amp;nbsp; &amp;nbsp; &lt;b&gt;versión %6&lt;/b&gt;&lt;br&gt;&amp;nbsp; &amp;nbsp; (%1)&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;i&gt;Pruebas, Reporte de errores y Sugerencias por:&lt;/i&gt; %3&lt;/p&gt;&lt;p&gt;&lt;i&gt;Arte Adicional:&lt;/i&gt; %4&lt;/p&gt;&lt;p&gt;&lt;i&gt;Traducciones:&lt;/i&gt; %5&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="140"/>
+        <location filename="../main_info.cpp" line="107"/>
+        <source>&lt;b&gt;Activate OpenGL2.0?&lt;/b&gt;&lt;p&gt;OpenGL2.0 is needed to preview&lt;br&gt;bumpmaps, &quot;iron&quot; shader, specular maps...&lt;br&gt;but it has been reported to crash a few computers,&lt;br&gt;with (older?) ATI or Intel graphic cards.&lt;br&gt;&lt;br&gt;%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../main_info.cpp" line="113"/>
+        <source>&lt;i&gt;(later you can set this option under [Settings])</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../main_info.cpp" line="152"/>
         <source>I&apos;m supposed to understand .dds textures of formats DXT1 (maybe), DXT3, and DXT5.&lt;br&gt;But some kinds of DXT1 texture confuse me, and too big textures too.</source>
         <translation>Se supone que debo entender los formatos de textura .dds DXT1 (tal vez), DXT3, y DXT5.&lt;br&gt;Pero algunos tipos de DXT1 me confunden, y las texturas demasiado grandes también.</translation>
     </message>
@@ -2711,52 +2809,52 @@ al que añadir un fotograma o cuadro.</translation>
         <translation type="obsolete">&lt;p&gt;&amp;nbsp; &amp;nbsp; &lt;b&gt;versión %6&lt;/b&gt;&lt;br&gt;&amp;nbsp; &amp;nbsp; (%1)&lt;br&gt;&lt;/p&gt;&lt;p&gt;&amp;nbsp; &amp;nbsp; por %2&lt;br&gt;&lt;/p&gt;&lt;p&gt;Pruebas,reporte de errores y sugerencias por: %3&lt;/p&gt;&lt;p&gt;Arte adicional: %4&lt;/p&gt;&lt;p&gt;Traduciones por: %5&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="79"/>
+        <location filename="../main_info.cpp" line="80"/>
         <source>additional code and Chinese</source>
         <translation>código adicional y traducción al Chino</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="147"/>
+        <location filename="../main_info.cpp" line="159"/>
         <source>Open-Brf</source>
         <translation>OpenBRF</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="92"/>
+        <location filename="../main_info.cpp" line="93"/>
         <source>&lt;b&gt;What is this autofix DXT texture option?&lt;/b&gt;&lt;br&gt;&lt;p&gt;Many DDS texture creation programs/plugins around will output DXT1 textures with a minor error in the header.&lt;/p&gt;&lt;p&gt;This error confuses me (OpenBRF) but not Mount and Blade (or many other programs).&lt;/p&gt;&lt;p&gt;(When I cannot read a texture for this or any other problem, I display a chekerboard pattern instead).&lt;/p&gt;&lt;p&gt;If you want, I can silently fix this error every time I encounter it (I&apos;ll shamelessly write on the texture dss files on disk).&lt;/p&gt;</source>
         <translation>&lt;b&gt;¿Que es la opción de auto-arreglo de textura DXT?&lt;/b&gt;&lt;br&gt;&lt;p&gt;Muchos programas de creación de texturas DDS y extensiones usados habitualmente guardan los archivos con un pequeño error en el encabezado.&lt;/p&gt;&lt;p&gt;Este error me confunde (OpenBRF) pero no a Mount&amp;Blade y muchos otros programas.&lt;/p&gt;&lt;p&gt;(Cuando no puedo leer una textura por culpa de este u otros problemas muestro la cuadricula de colores).&lt;/p&gt;&lt;p&gt;Si quieres puedo arreglar de forma invisible este error cada vez que lo encuentre (y por tantorepararla automáticamente al vuelo guardándola al disco).&lt;/p&gt;</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="112"/>
+        <location filename="../main_info.cpp" line="124"/>
         <source>I don&apos;t know what the material &lt;i&gt;&quot;%1&quot;&lt;/i&gt; is.</source>
         <translation>No sé cual es el material &lt;i&gt;&quot;%1&quot;&lt;/i&gt;.</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="113"/>
+        <location filename="../main_info.cpp" line="125"/>
         <source>I&apos;ve scanned in all file &quot;%1&quot; and didn&apos;t find a &lt;i&gt;load_mod_resource&lt;/i&gt; or &lt;i&gt;load_resource&lt;/i&gt; command that pointed me to a brf file that contained any such material</source>
         <translation>He escaneado en el archivo &quot;%1&quot; y no he encontrado un comando &lt;i&gt;load_mod_resource&lt;/i&gt; o &lt;i&gt;load_resource&lt;/i&gt; que me muestre un archivo brf en el que pueda encontrarse ese material</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="116"/>
+        <location filename="../main_info.cpp" line="128"/>
         <source>&lt;br&gt;- double check material name of the mesh&lt;br&gt;&lt;b&gt;or&lt;/b&gt;&lt;br&gt;- find the brf-file with the material, or create one&lt;br&gt;- add a line &lt;i&gt;load_&lt;b&gt;mod&lt;/b&gt;_resource&lt;/i&gt; in module.ini, with a text editor,&lt;br&gt;- (note the &lt;i&gt;mod&lt;/i&gt; part)!&lt;br&gt;- save module.ini&lt;br&gt;- come back, and refresh Module [f5]</source>
         <translation>&lt;br&gt;- Cerciórate de que has escrito bien el nombre del material.&lt;br&gt;&lt;b&gt;o&lt;/b&gt;&lt;br&gt;- Busca el BRF con el material , o crea uno.&lt;br&gt;- Añade una línea &lt;i&gt;load_&lt;b&gt;mod&lt;/b&gt;_resource&lt;/i&gt; en module.ini, con un editor de texto como Notepad ++&lt;br&gt;- (¡atención a la parte de  &lt;i&gt;mod&lt;/i&gt;!)&lt;br&gt;- Guarda el archivo module.ini&lt;br&gt;- Vuelve y recarga el módulo [f5]</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="126"/>
+        <location filename="../main_info.cpp" line="138"/>
         <source>I cannot find the file &quot;%1&quot; on disk.</source>
         <translation>No puedo encontrar el archivo &quot;%1&quot; en el disco.</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="127"/>
+        <location filename="../main_info.cpp" line="139"/>
         <source>I&apos;ve looked in folders &lt;br&gt;%1&lt;br&gt; and &lt;br&gt;%2&lt;br&gt; and &lt;br&gt;%3&lt;br&gt; but it wasn&apos;t there...&lt;br&gt;Maybe it is was tiff texture? (I don&apos;t understand them).</source>
         <translation>He mirado en las carpetas &lt;br&gt;%1&lt;br&gt;, &lt;br&gt;%2&lt;br&gt; y &lt;br&gt;%3&lt;br&gt; pero no estaban ahí  &lt;br&gt; ¿Tal vez sea una textura tiff? (No las entiendo).</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="130"/>
+        <location filename="../main_info.cpp" line="142"/>
         <source>&lt;br&gt;- double check DiffuesA texture name of the material&lt;br&gt;- (hint: remember you can navigate with ctrl-left/right)&lt;br&gt;&lt;b&gt;or&lt;/b&gt;&lt;br&gt;- make sure the missing texture file in mod texture folder!&lt;br&gt;- put it there if it is missing</source>
         <translation>&lt;br&gt;- Cerciórate de que DifusaA está bien escrito&lt;br&gt;- (recuerda que puedes navegar con ctrl+izquierda y ctrl+derecha)&lt;br&gt;&lt;b&gt;o&lt;/b&gt;&lt;br&gt;-¡Asegúrate de que la textura se encuentra en la carpeta &quot;textures&quot; del módulo!&lt;br&gt;-Ponla ahí en caso de que falte...</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="139"/>
+        <location filename="../main_info.cpp" line="151"/>
         <source>I cannot understand the texture format of  file &quot;%1&quot;.</source>
         <translation>No entiendo el formato del archivo &quot;%1&quot;</translation>
     </message>
@@ -2765,98 +2863,98 @@ al que añadir un fotograma o cuadro.</translation>
         <translation type="obsolete">Se supone que debo entender las texturas .dds de los formatos DXT1 (tal vez), DXT3  y DXT5.&lt;br&gt;Pero algunos tipos de DXT1 me confunden, al igual que las texturas demasiado grandes. EL problema se puede solucionar activando la opción de auto reparación DXT situada arriba.</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="143"/>
+        <location filename="../main_info.cpp" line="155"/>
         <source>Maybe just accept the fact... it should still show the texture in game.</source>
         <translation>Al menos acepta el hecho... seguramente se muestren sin problemas en el juego.</translation>
     </message>
     <message>
-        <location filename="../main_info.cpp" line="148"/>
+        <location filename="../main_info.cpp" line="160"/>
         <source>&lt;i&gt;I could not display the real texture because:&lt;/i&gt;&lt;br&gt;&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;&lt;br&gt;%2&lt;br&gt;&lt;br&gt;&lt;b&gt;Cure: &lt;/b&gt;%3</source>
         <translation>&lt;i&gt;No puedo mostrar la textura real porque:&lt;/i&gt;&lt;br&gt;&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;&lt;br&gt;%2&lt;br&gt;&lt;br&gt;&lt;b&gt;Solución: &lt;/b&gt;%3</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="74"/>
-        <location filename="../mainwindow.cpp" line="638"/>
-        <location filename="../mainwindow.cpp" line="1618"/>
-        <location filename="../mainwindow.cpp" line="1628"/>
-        <location filename="../mainwindow.cpp" line="1980"/>
+        <location filename="../mainwindow.cpp" line="75"/>
+        <location filename="../mainwindow.cpp" line="639"/>
+        <location filename="../mainwindow.cpp" line="1634"/>
+        <location filename="../mainwindow.cpp" line="1645"/>
+        <location filename="../mainwindow.cpp" line="1997"/>
         <source>OpenBrf</source>
         <translation>OpenBRF</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="75"/>
+        <location filename="../mainwindow.cpp" line="76"/>
         <source>%1 been modified.
 Save changes?</source>
         <translation>%1 ha sido modificado.
 ¿Guardar los cambios?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="76"/>
+        <location filename="../mainwindow.cpp" line="77"/>
         <source>Internal reference objects have</source>
         <translation>Las referencias internas tienen</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="76"/>
+        <location filename="../mainwindow.cpp" line="77"/>
         <source>The dataset has</source>
         <translation>El conjunto de datos tiene</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="297"/>
+        <location filename="../mainwindow.cpp" line="298"/>
         <source>Set %1 mesh materials to &quot;%2&quot;</source>
         <translation>Asigna los materiales del modelo %1 a &quot;%2&quot;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="351"/>
+        <location filename="../mainwindow.cpp" line="352"/>
         <source>Set time of frame %1 to %2</source>
         <translation>Asigna el tiempo de cuadro %1 a %2</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="365"/>
-        <location filename="../mainwindow.cpp" line="403"/>
+        <location filename="../mainwindow.cpp" line="366"/>
+        <location filename="../mainwindow.cpp" line="404"/>
         <source>CAnnot find skel_human, skel_dwarf and skel_orc in reference data.
 </source>
         <translation>no se encuentra skel_human, skel_dwarf ni skel_orc en los datos de referencia.
 </translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="439"/>
+        <location filename="../mainwindow.cpp" line="440"/>
         <source>Invalid frame %1</source>
         <translation>Cuadro %1 inválido</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="448"/>
+        <location filename="../mainwindow.cpp" line="449"/>
         <source>%1 meshes shrunk around bones</source>
         <translation>%1 modelos ajustados a lo largo de los huesos</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="460"/>
+        <location filename="../mainwindow.cpp" line="461"/>
         <source>Cannot find skel_human, skel_dwarf and skel_orc in reference data.
 </source>
         <translation>No se encuentra skel_human, skel_dwarf ni skel_orc en los datos de referencia.
 </translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="606"/>
+        <location filename="../mainwindow.cpp" line="607"/>
         <source>Set flag(s) to &quot;%1&quot;</source>
         <translation>Asignar insignia(s) a &quot;%1&quot;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="703"/>
+        <location filename="../mainwindow.cpp" line="707"/>
         <source>Stop editing reference data</source>
         <translation>Detener la edición de datos de referencia</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="704"/>
+        <location filename="../mainwindow.cpp" line="708"/>
         <source>Stop editing &quot;reference&quot; skeletons, animations &amp; meshes, that OpenBrf uses to display data.</source>
         <translation>Detener la edición de esqueletos, animaciones y modelos que OpenBRF utiliza para mostrar la vista previa.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="706"/>
+        <location filename="../mainwindow.cpp" line="710"/>
         <source>Edit reference data</source>
         <translation>Editar datos de Referencia</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="707"/>
+        <location filename="../mainwindow.cpp" line="711"/>
         <source>Edit &quot;reference&quot; skeletons, animations &amp; meshes, that OpenBrf uses to display data.</source>
         <translation>Editar esqueletos, animaciones y modelos que OpenBRF utiliza para mostrar la vista previa.</translation>
     </message>
@@ -2865,43 +2963,43 @@ Save changes?</source>
         <translation type="obsolete">Nombre:</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="839"/>
+        <location filename="../mainwindow.cpp" line="843"/>
         <source>New %1</source>
         <translation>Nuevo %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="835"/>
+        <location filename="../mainwindow.cpp" line="839"/>
         <source>new_%1</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="919"/>
+        <location filename="../mainwindow.cpp" line="923"/>
         <source>Oops... no skin is currently available...
 </source>
         <translation>Ups...vaya, no hay ningún modelo de referencia disponible, añade uno para utilizarlo en las vistas previas...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="924"/>
+        <location filename="../mainwindow.cpp" line="928"/>
         <source>Skin %1</source>
         <translation>Conjunto %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="928"/>
+        <location filename="../mainwindow.cpp" line="932"/>
         <source>Select a skin</source>
         <translation>Selecciona un conjunto</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="929"/>
+        <location filename="../mainwindow.cpp" line="933"/>
         <source>Select a skin:</source>
         <translation>Selecciona un conjunto:</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="972"/>
+        <location filename="../mainwindow.cpp" line="976"/>
         <source>Vertex unified.</source>
         <translation>Vértices unificados.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="988"/>
+        <location filename="../mainwindow.cpp" line="992"/>
         <source>Cannot merge these meshes
  (different number of frames,
  or rigged VS not rigged).
@@ -2912,35 +3010,37 @@ o discordancia en la vinculación esqueletal).
 </translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1029"/>
+        <location filename="../mainwindow.cpp" line="1033"/>
         <source>Learnt how to femininize an armour
 from %1 examples!</source>
-        <translation type="unfinished"></translation>
+        <translation>¡Se aprendió a feminizar armaduras desde %1 ejemplos!</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1030"/>
+        <location filename="../mainwindow.cpp" line="1034"/>
         <source>No mesh found to learn how to femininize an armour!</source>
-        <translation type="unfinished"></translation>
+        <translation>¡No se ha encontrado modelos con los cuales feminizar una armadura!</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1048"/>
+        <location filename="../mainwindow.cpp" line="1052"/>
         <source>Warning: mesh %1 has already a feminine frame.
 
 Overwrite it?</source>
-        <translation type="unfinished"></translation>
+        <translation>Advertencia: El modelo %1 ya tiene un cuadro femenino.
+
+¿Quieres sobreescribirlo?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1133"/>
+        <location filename="../mainwindow.cpp" line="1140"/>
         <source>Normals recomputed with %1% hard edges.</source>
         <translation>Normales recalculadas con %1% bordes marcados retocados.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1249"/>
+        <location filename="../mainwindow.cpp" line="1256"/>
         <source>Shift animation timings</source>
         <translation>Ajustar los tiempos de la animación</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1250"/>
+        <location filename="../mainwindow.cpp" line="1257"/>
         <source>Current Interval: [%1 %2]
 New interval: [%1+k %2+k]
 
@@ -2951,17 +3051,17 @@ Intervalo Nuevo: [%1+k %2+k]
 Seleccionar k:</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1268"/>
+        <location filename="../mainwindow.cpp" line="1275"/>
         <source>Extract Interval</source>
         <translation>Extraer Intervalo</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1281"/>
+        <location filename="../mainwindow.cpp" line="1288"/>
         <source>Remove Interval</source>
         <translation>Eliminar Intervalo</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1302"/>
+        <location filename="../mainwindow.cpp" line="1309"/>
         <source>Cannot merge these animations
  (different number of bones).
 </source>
@@ -2970,12 +3070,12 @@ Seleccionar k:</translation>
 </translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1464"/>
+        <location filename="../mainwindow.cpp" line="1480"/>
         <source>Transfer Rigging</source>
         <translation>Transferir unión esqueletal</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1465"/>
+        <location filename="../mainwindow.cpp" line="1481"/>
         <source>Transfer rigging:
 select a rigged mesh first,
 then all target meshes.
@@ -2985,49 +3085,49 @@ selecciona un modelo vinculado a un esqueleto,
 después selecciona los modelos a vincular.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1492"/>
+        <location filename="../mainwindow.cpp" line="1508"/>
         <source>Same skeleton:
 reskeletonization canceled.
 </source>
         <translation>Mismo esqueleto, no se puede ajustar el esqueleto porque es el mismo.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1499"/>
+        <location filename="../mainwindow.cpp" line="1515"/>
         <source>Different number of bones:
 reskeletonization canceled.
 </source>
         <translation>Número diferente de huesos: no se puede ajustar el esqueleto.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1619"/>
+        <location filename="../mainwindow.cpp" line="1635"/>
         <source>Renaming %1...
 new name:</source>
         <translation>Renombrando %1... nuevo nombre:</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1629"/>
+        <location filename="../mainwindow.cpp" line="1646"/>
         <source>%3 common prefix for %1 %2...
 new prefix:</source>
         <translation>%3 prefijo común en %1 %2...
 Escribe el nuevo aquí:</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1629"/>
+        <location filename="../mainwindow.cpp" line="1646"/>
         <source>Changing the</source>
         <translation>Cambiando el</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1629"/>
+        <location filename="../mainwindow.cpp" line="1646"/>
         <source>Adding a</source>
         <translation>Añadiendo un</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1848"/>
+        <location filename="../mainwindow.cpp" line="1865"/>
         <source>Copy Rigging into another mesh</source>
         <translation>Copiar vinculación esquetal a otro modelo</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1849"/>
+        <location filename="../mainwindow.cpp" line="1866"/>
         <source>Copy Rigging into another mesh:
 - select one or more sample rigged mesh first,
 - copy them (ctrl-C)
@@ -3045,32 +3145,32 @@ Escribe el nuevo aquí:</translation>
 (funciona mejor si los modelos de origen y destino se parecen)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1886"/>
+        <location filename="../mainwindow.cpp" line="1903"/>
         <source>Vertex number mismatch... using texture-coord matching instead</source>
         <translation>El número de vértices no concuerda... se usarán las coordenadas de textura para ordenarlos.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1945"/>
+        <location filename="../mainwindow.cpp" line="1962"/>
         <source>Cannot paste timings! Select *one* animated mesh or skel animation</source>
         <translation>¡No se pueden pegar los tiempos! Selecciona *un* modelo animado o vinculado a un esqueleto</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1958"/>
+        <location filename="../mainwindow.cpp" line="1975"/>
         <source>Pasted timings over %1 (animated) mesh</source>
         <translation>Se han pegado los tiempos sobre  %1 modelo animado</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1964"/>
+        <location filename="../mainwindow.cpp" line="1981"/>
         <source>Pasted timings over %1 skeletal animations</source>
         <translation>Se han pegado los tiempos sobre %1 animaciones esqueletales</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1967"/>
+        <location filename="../mainwindow.cpp" line="1984"/>
         <source>Cannot paste times over that</source>
         <translation>No se pueden pegar los tiempos sobre eso</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="1980"/>
+        <location filename="../mainwindow.cpp" line="1997"/>
         <source>To use paste modification mesh: firstcopy a 2 frames mesh. Then, select one or more destination meshes, and &quot;paste modification&quot;any vertex in any frame of the destination mesh that are in the same pos of frame 0,will be moved on the position of frame 1.</source>
         <translation>Para usar la función de pegar modificaciones de modelo: 
 primero copia un modelo con una animación de 2 cuadros.
@@ -3079,58 +3179,58 @@ Después,selecciona uno o varios objetos de destino y, finalmente
 &quot;Pega la modificación&quot; en cualquier cuadro de cualquier animación de vértices.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2118"/>
-        <location filename="../mainwindow.cpp" line="2157"/>
+        <location filename="../mainwindow.cpp" line="2135"/>
+        <location filename="../mainwindow.cpp" line="2174"/>
         <source>Canceled.</source>
         <translation>Cancelado.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2140"/>
+        <location filename="../mainwindow.cpp" line="2157"/>
         <source>Mounted %1 mesh%2 on bone %3</source>
         <translation>Montada %1 modelo%2 en el hueso %3</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2174"/>
+        <location filename="../mainwindow.cpp" line="2191"/>
         <source>Added mesh %1 to set %2.</source>
         <translation>Añadido modelo %1 al Conjunto %2.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2195"/>
+        <location filename="../mainwindow.cpp" line="2212"/>
         <source>Animation %2 split in %1 chunks!</source>
         <translation>¡La animación %2 ha sido dividida en %1 trozos!</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2197"/>
+        <location filename="../mainwindow.cpp" line="2214"/>
         <source>Animation could be auto-split (frames are too conescutive)</source>
         <translation>La animación puedes ser auto divisible (los cuadros son muy consecutivos)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2204"/>
+        <location filename="../mainwindow.cpp" line="2221"/>
         <source>Select an &quot;actions.txt&quot; file (hint: it&apos;s in the module dir)</source>
         <translation>Selecciona un archivo &quot;actions.txt&quot; (se encuentra en la carpeta del módulo)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2205"/>
+        <location filename="../mainwindow.cpp" line="2222"/>
         <source>%1\actions.txt</source>
         <translation>%1\actions.txt</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2206"/>
+        <location filename="../mainwindow.cpp" line="2223"/>
         <source>Txt file(*.txt)</source>
         <translation>Archivo de Texto (*.txt)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2209"/>
+        <location filename="../mainwindow.cpp" line="2226"/>
         <source>Split canceled.</source>
         <translation>División cancelada.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2216"/>
+        <location filename="../mainwindow.cpp" line="2233"/>
         <source>Nothing to split (or could not split).</source>
         <translation>Nada que dividir (o no es posible).</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2225"/>
+        <location filename="../mainwindow.cpp" line="2242"/>
         <source>Animation %2 split in %1 chunks -- new animation.txt file save in &quot;%3&quot;!</source>
         <translation>La animación %2 se ha dividido en %1 trozos -- ¡Nuevo actions.txt guardado en &quot;%3&quot;!</translation>
     </message>
@@ -3139,22 +3239,22 @@ Después,selecciona uno o varios objetos de destino y, finalmente
         <translation type="obsolete">Open BRF</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2465"/>
+        <location filename="../mainwindow.cpp" line="2579"/>
         <source>Cannot save reference file!</source>
         <translation>¡No se puede guardar el archivo de referencia!</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2498"/>
+        <location filename="../mainwindow.cpp" line="2612"/>
         <source>Editing reference file...</source>
         <translation>Editando archivo de referencia...</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2522"/>
+        <location filename="../mainwindow.cpp" line="2637"/>
         <source>Cannot load %1.</source>
         <translation>No se puede cargar %1.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2552"/>
+        <location filename="../mainwindow.cpp" line="2667"/>
         <source>You are saving a CommonRes file!
 (i.e. not one specific of this module).
 
@@ -3165,102 +3265,112 @@ Are you sure?</source>
 ¿Estás seguro?</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2558"/>
+        <location filename="../mainwindow.cpp" line="2673"/>
         <source>Cannot write file %1.</source>
         <translation>No se puede escribir el archivo %1.</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2561"/>
+        <location filename="../mainwindow.cpp" line="2676"/>
         <source>File saved!</source>
         <translation>¡Archivo guardado!</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2686"/>
+        <location filename="../mainwindow.cpp" line="2801"/>
         <source>Open File</source>
         <translation>Abrir archivo</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2688"/>
+        <location filename="../mainwindow.cpp" line="2803"/>
         <source>Resource (*.brf)</source>
         <translation>Recurso (*.brf)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2705"/>
+        <location filename="../mainwindow.cpp" line="2820"/>
         <source>Reference file saved!</source>
         <translation>¡Archivo de referencia guardado!</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2715"/>
+        <location filename="../mainwindow.cpp" line="2830"/>
         <source>M&amp;B Resource (*.brf)</source>
         <translation>Recurso de Mount&amp;Blade (.brf)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2715"/>
+        <location filename="../mainwindow.cpp" line="2830"/>
         <source>WarBand Resource v.1 (*.brf)</source>
         <translation>Recurso de Warband v.1 (.brf)</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2718"/>
+        <location filename="../mainwindow.cpp" line="2833"/>
         <source>Save File</source>
         <translation>Guardar archivo</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2739"/>
+        <location filename="../mainwindow.cpp" line="2854"/>
         <source> [not in module.ini]</source>
         <translation>[no se encuentra en module.ini]</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2743"/>
+        <location filename="../mainwindow.cpp" line="2858"/>
         <source>%1%2</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2745"/>
+        <location filename="../mainwindow.cpp" line="2860"/>
         <source>%1 - %2%3%4</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2747"/>
+        <location filename="../mainwindow.cpp" line="2862"/>
         <source>%1 - editing internal reference data%2</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2820"/>
+        <location filename="../mainwindow.cpp" line="2935"/>
         <source>%5 %1 brf files from module.ini of &quot;%3&quot;-- %2 msec total [%4 text/mat/shad]</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2822"/>
+        <location filename="../mainwindow.cpp" line="2937"/>
         <source>scanned</source>
         <translation>escaneado</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2822"/>
+        <location filename="../mainwindow.cpp" line="2937"/>
         <source>ERRORS found while scanning</source>
         <translation>se han encontrado ERRORES durante el escaneo</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2944"/>
+        <location filename="../mainwindow.cpp" line="3059"/>
         <source>Navigate: cannot find material &quot;%1&quot; in current module</source>
         <translation>Navegar: no se encuentra el material &quot;%1&quot; en el módulo actual</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="2987"/>
+        <location filename="../mainwindow.cpp" line="3102"/>
         <source>Navigate: cannot find %2 &quot;%1&quot; in current module</source>
         <translation>Navegar: no se encuentra %2 &quot;%1&quot; en el módulo actual</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3000"/>
+        <location filename="../mainwindow.cpp" line="3115"/>
         <source>Navigate right: pos = %1</source>
         <translation>Navegar derecha: pos = %1</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3173"/>
+        <location filename="../mainwindow.cpp" line="3288"/>
         <source>&amp;%1 %2</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="3254"/>
+        <location filename="../mainwindow.cpp" line="3309"/>
+        <source>New Lod parameters set</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="3311"/>
+        <source>Cancelled</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="3390"/>
         <source>Material flags</source>
         <translation>Insignias de material</translation>
     </message>
@@ -3372,7 +3482,7 @@ en la línea %3:
         <translation>&lt;h2&gt;Datos de txt:&lt;/h2&gt;</translation>
     </message>
     <message>
-        <location filename="../iniData.cpp" line="1152"/>
+        <location filename="../iniData.cpp" line="1161"/>
         <source>&lt;b&gt;Missing in txt:&lt;/b&gt; cannot find %1 &lt;u&gt;%2&lt;/u&gt;, referred in &apos;%3&apos;</source>
         <translation>&lt;b&gt;Faltante en txt:&lt;/b&gt; no se encuentra %1 &lt;u&gt;%2&lt;/u&gt;, definido en &apos;%3&apos;</translation>
     </message>
@@ -3385,12 +3495,12 @@ en la línea %3:
         <translation type="obsolete">&lt;b&gt;Duplicado:&lt;/b&gt; %1 ya se definió anteriormente en %2</translation>
     </message>
     <message>
-        <location filename="../iniData.cpp" line="1230"/>
+        <location filename="../iniData.cpp" line="1239"/>
         <source>&lt;b&gt;File-Not-Found:&lt;/b&gt; could not read brf file &lt;u&gt;%1&lt;/u&gt;, listed in module.ini file</source>
         <translation>&lt;b&gt;Archivo no Encontrado:&lt;/b&gt; no se puede leer el archivo brf &lt;u&gt;%1&lt;/u&gt;, listado en module.ini</translation>
     </message>
     <message>
-        <location filename="../iniData.cpp" line="1233"/>
+        <location filename="../iniData.cpp" line="1242"/>
         <source>&lt;b&gt;File-Format Error:&lt;/b&gt; could not read brf file &lt;u&gt;%1&lt;/u&gt;</source>
         <translation>&lt;b&gt;Error de Formato de Archivo:&lt;/b&gt; no se puede leer el archivo brf &lt;u&gt;%1&lt;/u&gt;</translation>
     </message>
@@ -3400,17 +3510,17 @@ en la línea %3:
     <message>
         <location filename="../iniData.cpp" line="903"/>
         <source>&lt;i&gt;more errors to follow...&lt;/i&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;i&gt;más errores por seguir...&lt;/i&gt;</translation>
     </message>
     <message>
         <location filename="../iniData.cpp" line="925"/>
         <source>&lt;i&gt;[0 results]&lt;/i&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;i&gt;[sin resultados]&lt;/i&gt;</translation>
     </message>
     <message>
         <location filename="../iniData.cpp" line="670"/>
         <source>&lt;b&gt;Duplicate:&lt;/b&gt; %1 was already defined in file %2</source>
-        <translation>&lt;b&gt;Duplicado:&lt;/b&gt; %1 ya se definió anteriormente en %2</translation>
+        <translation>&lt;b&gt;Duplicado:&lt;/b&gt; %1 ya ha sido definido en %2</translation>
     </message>
 </context>
 <context>
@@ -3502,7 +3612,7 @@ en la línea %3:
     </message>
     <message>
         <location filename="../selector.cpp" line="64"/>
-        <location filename="../selector.cpp" line="468"/>
+        <location filename="../selector.cpp" line="476"/>
         <source>Rename</source>
         <translation>Renombrar</translation>
     </message>
@@ -3884,105 +3994,125 @@ en la línea %3:
     <message>
         <location filename="../selector.cpp" line="227"/>
         <source>Add femininized frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Crear versión femenina</translation>
     </message>
     <message>
         <location filename="../selector.cpp" line="228"/>
         <source>Build a feminine frame for this armour(s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Crea una una variante femenina de forma automática para las armaduras seleccionadas</translation>
     </message>
     <message>
         <location filename="../selector.cpp" line="230"/>
+        <source>Compute LODs</source>
+        <translation>Calcular Niveles de Detalle</translation>
+    </message>
+    <message>
+        <location filename="../selector.cpp" line="231"/>
+        <source>Tries to compute a LOD pyramid</source>
+        <translation>Calcula los distintos Niveles de Detalle (LODs) de forma automática</translation>
+    </message>
+    <message>
+        <location filename="../selector.cpp" line="233"/>
         <source>Color uniform</source>
         <translation>Color Uniforme</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="231"/>
+        <location filename="../selector.cpp" line="234"/>
         <source>Set per vertex color as a uniform color</source>
         <translation>Tiñe todo el modelo de un color uniforme.</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="233"/>
+        <location filename="../selector.cpp" line="236"/>
+        <source>Recmopute tangent dirs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../selector.cpp" line="237"/>
+        <source>(Tangent dirs are needed for bump-mapping)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../selector.cpp" line="239"/>
         <source>Tune colors HSB</source>
         <translation>Ajustes de Saturación, Tonalidad y Contraste</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="234"/>
+        <location filename="../selector.cpp" line="240"/>
         <source>Then Hue Saturation and Brightness of per-vertex colors</source>
         <translation>Permite cambiar la coloración, brillo y saturación de la pintura vectorial de acuerdo a los gustos del usuario.</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="236"/>
+        <location filename="../selector.cpp" line="242"/>
         <source>per-vertex color</source>
         <translation>Color de Vért.</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="237"/>
+        <location filename="../selector.cpp" line="243"/>
         <source>rigging</source>
         <translation>Vinculación Esqueletal</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="238"/>
+        <location filename="../selector.cpp" line="244"/>
         <source>vertex animation</source>
         <translation>Animación por Vértices</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="239"/>
+        <location filename="../selector.cpp" line="245"/>
         <source>Discard vertex animation (keeps only current frame)</source>
         <translation>Descartar animación por Vértices (mantiene sólo el cuadro actual)</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="243"/>
+        <location filename="../selector.cpp" line="249"/>
         <source>Make a skeleton-modification mesh</source>
         <translation>Modificar Esqueleto</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="244"/>
+        <location filename="../selector.cpp" line="250"/>
         <source>Modify from a skeleton-modification mesh</source>
         <translation>Realizar una modificación del esqueleto del modelo</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="320"/>
+        <location filename="../selector.cpp" line="328"/>
         <source>[Right-Click]: tools for %1. Multiple selections with [Shift]-[Ctrl].</source>
         <translation>[Click Derecho]: Herramientas para %1. Selecciones múltiples con [Máyus]-[Ctrl]</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="323"/>
+        <location filename="../selector.cpp" line="331"/>
         <source>[Right-Click]: tools for %1.</source>
         <translation>[Click Derecho]: Herramientas para %1.</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="468"/>
+        <location filename="../selector.cpp" line="476"/>
         <source>Group rename</source>
         <translation>Renombrar Grupo</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="480"/>
+        <location filename="../selector.cpp" line="488"/>
         <source>Used by...</source>
         <translation>Usado por...</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="570"/>
+        <location filename="../selector.cpp" line="581"/>
         <source>Backfacing faces</source>
         <translation>Caras Internas</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="575"/>
+        <location filename="../selector.cpp" line="586"/>
         <source>Discard</source>
         <translation>Descartar</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="615"/>
+        <location filename="../selector.cpp" line="626"/>
         <source>Add to reference skins</source>
         <translation>Añadir a los modelos de referencia:</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="618"/>
+        <location filename="../selector.cpp" line="629"/>
         <source>to Skin Set %1</source>
         <translation>Conjunto %1</translation>
     </message>
     <message>
-        <location filename="../selector.cpp" line="622"/>
+        <location filename="../selector.cpp" line="633"/>
         <source>to Skin Set %1 [new set]</source>
         <translation>Conjunto %1  [Crear Nuevo Conjunto]</translation>
     </message>

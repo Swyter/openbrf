@@ -22,6 +22,8 @@ static void showUsage(){
 
 }
 
+extern char* applVersion;
+
 int main(int argc, char* argv[])
 {
 
@@ -33,6 +35,7 @@ int main(int argc, char* argv[])
   char* argv_2[]={"OpenBrf"}; int argc_2=1;
   QApplication app(argc_2,argv_2); //argc, argv);
   QStringList arguments = QCoreApplication::arguments();
+  app.setApplicationVersion(applVersion);
 
   if ((arguments.size()>1)&&(arguments[1].startsWith("-"))) {
     if ((arguments[1] != "--dump")||(arguments.size()!=4)) {

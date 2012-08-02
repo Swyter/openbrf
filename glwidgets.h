@@ -65,6 +65,7 @@ public slots:
    void setLighting(int i);
    void setTexture(int i);
    void setNormalmap(int i);
+   void setSpecularmap(int i);
    void setFloor(int i);
    void setRuler(int i);
    void setRulerLenght(int i);
@@ -77,6 +78,7 @@ public slots:
    void setColorPerRig();
    void setColorPerWhite();
    void setFrameNumber(int);
+   void setDefaultBgColor(QColor bgColor, bool alsoCurrent);
 
    void renderAoOnMeshes(float brightness, float fromAbove);
 
@@ -95,9 +97,10 @@ public slots:
    void setCommonBBoxOff();
    void setInferMaterialOn();
    void setInferMaterialOff();
+   void setUseOpenGL2(bool mode);
 public:
 
-bool useWireframe, useLighting, useTexture , useNormalmap, useFloor, useRuler;
+bool useWireframe, useLighting, useTexture , useNormalmap, useFloor, useRuler, useSpecularmap;
 bool ghostMode;
 bool fixTexturesOnSight;
 int colorMode, rulerLenght;
@@ -106,6 +109,7 @@ enum{DIFFUSEA, DIFFUSEB, BUMP, ENVIRO, SPECULAR } curMaterialTexture;
 enum{TRANSALPHA, PURPLEALPHA, NOALPHA} showAlpha;
 bool commonBBox;
 bool inferMaterial;
+bool useOpenGL2;
 
 float runningSpeed;
 int relTime; // msec, zeroed at stop.
@@ -170,7 +174,12 @@ protected:
     static bool fixTextureFormat(QString st);
     void setMaterialName(QString st);
     void setCheckboardTexture();
-    void setDummyTexture();
+    void setDummyRgbTexture();
+    void setDummySpecTexture();
+    void setDummyNormTexture();
+    void initOpenGL2();
+    bool openGL2ready;
+    void initDefaultTextures();
     void initializeGL();
 
     bool skeletalAnimation();
@@ -187,7 +196,7 @@ public:
 
 private:
     int w, h; // screen size
-    float bg_r, bg_g, bg_b; // bgcolor
+    QColor currBgColor, defaultBgColor; // bgcolors
     QPoint lastPos; // mouse pos
     float phi, theta, dist;
     int tw, th; // texture size, when texture is dysplayed
@@ -202,15 +211,18 @@ private:
 
     int viewmode;
     int viewmodeMult;
+    int dummyRgbTexture, dummySpecTexture, dummyNormTexture, checkboardTexture;
     float currViewmodeHelmet;
     float currViewmodeInterior;
     vcg::Point3f lastCenter;
     float lastScale;
     float closingUp;
     QString renderedTexture;
+    // fragment programs
     unsigned int
         fragProgramIron,
-        programNormalMapPlain, programNormalMapIron, programNormalMapAlpha;
+        programNormalMapPlain, programNormalMapIron,
+        programNormalMapAlpha, programNormalMapShineMap;
     void initFramPrograms();
 };
 

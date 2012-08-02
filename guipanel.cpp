@@ -726,10 +726,12 @@ void GuiPanel::updateMaterial(QString a){
 
   if (ui->boxMaterial->hasFrame()) {
     bool bump;
-    QString s = inidata.mat2tex(a,&bump);
+    bool spec;
+    QString s = inidata.mat2tex(a,&bump,&spec);
     if (s.isEmpty()) s="<not found>";
     ui->boxTexture  ->setText( s );
     ui->cbNormalmap->setEnabled(bump);
+    ui->cbSpecularmap->setEnabled(spec);
   } else
     ui->boxTexture  ->setText( "<various>" );
 }
