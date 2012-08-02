@@ -1,5 +1,4 @@
 #include <QtGui/QApplication>
-#include "brfdata.h"
 #include "mainwindow.h"
 
 

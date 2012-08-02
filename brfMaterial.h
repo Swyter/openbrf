@@ -20,7 +20,7 @@ public:
   float r,g,b;
 
   bool Load(FILE*f,int verbose=1);
-  bool Save(FILE*f,int verbose=1) const;
+  void Save(FILE*f) const;
 };
 
 #endif // BRFMATERIAL_H

@@ -7,7 +7,7 @@ class BrfShaderOpt{
 public:
   unsigned int map, colorOp, alphaOp, flags;
   bool Load(FILE*f,int verbose=1);
-  bool Save(FILE*f,int verbose=1) const;
+  void Save(FILE*f) const;
 };
 
 class BrfShader
@@ -19,7 +19,7 @@ public:
 
   char fallback[255];
   bool Load(FILE*f,int verbose=1);
-  bool Save(FILE*f,int verbose=1) const;
+  void Save(FILE*f) const;
 
 
   BrfShader();

@@ -12,7 +12,7 @@ public:
   char name[255];
   unsigned int flags;
   bool Load(FILE*f,int verbose=1);
-  bool Save(FILE*f,int verbose=1) const;
+  void Save(FILE*f) const;
 
 };
 

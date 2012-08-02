@@ -16,12 +16,12 @@ public:
   Selector(QWidget *parent=0);
   void setup(const BrfData &data);
 
-public slots:
-  void onChanged(int);
+private slots:
+  void onChanged();
 
 signals:
-  void selectionChanged (const QItemSelection &selected, const QItemSelection &now);
-  void tabChanged(int);
+  //void selectionChanged (const QItemSelection &selected, const QItemSelection &now);
+  void setSelection(const QModelIndexList & newSel, int newToken);
 
 private:
   template<class BrfType> void addBrfTab(const std::vector<BrfType> &x);
