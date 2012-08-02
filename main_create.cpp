@@ -180,13 +180,15 @@ void MainWindow::createMenus()
     lang -> addAction( optionLanguage[2] = new QAction(QString("%1%2(%3%4)")
       .arg(QChar(20013)).arg(QChar(25991)).arg(QChar(31616)).arg(QChar( 20307))
     ,this ) );
+    lang -> addAction( optionLanguage[3] = new QAction("Español",this) );
     lang -> addSeparator();
     lang -> addAction( optionLanguageCustom = new QAction(tr("Test a custom translation file..."),this) );
 
-    for (int i=0; i<3; i++) optionLanguage[i]->setCheckable(true);
+    for (int i=0; i<4; i++) optionLanguage[i]->setCheckable(true);
     connect(optionLanguage[0],SIGNAL(triggered()), this, SLOT(optionLanguageSet0()));
     connect(optionLanguage[1],SIGNAL(triggered()), this, SLOT(optionLanguageSet1()));
     connect(optionLanguage[2],SIGNAL(triggered()), this, SLOT(optionLanguageSet2()));
+    connect(optionLanguage[3],SIGNAL(triggered()), this, SLOT(optionLanguageSet3()));
     connect(optionLanguageCustom,SIGNAL(triggered()), this, SLOT(optionLanguageSetCustom()));
     optionMenu-> addSeparator();
 

@@ -204,7 +204,7 @@ IniData::IniData(BrfData &_currentBrf): currentBrf(_currentBrf)
 
   modPath.clear();;
   mabPath.clear();
-  updated = false;
+  updated = 0;
 }
 
 QString IniData::mat2tex(const QString &n){
@@ -294,7 +294,10 @@ QString IniData::name() const{
 }
 
 bool IniData::loadAll(bool faster){
-  if (updated) return false;
+
+  int needs = (faster)?1:2;
+  if (updated>=needs) return false;
+  updated = needs;
   errorListOnLoad.clear();
   QFile f(modPath+"/module.ini");
   if (!f.open( QIODevice::ReadOnly| QIODevice::Text )) return false;
@@ -326,7 +329,6 @@ bool IniData::loadAll(bool faster){
 
     }
   }
-  updated = true;
   updateLists();
   return res;
 }

@@ -59,6 +59,7 @@ private:
     void aboutCheckboard();
     void breakAni(int which, bool useIni);
     void shiftAni();
+    void bodyMakeQuadDominant();
     void reskeletonize();
     void transferRigging();
     void flip();
@@ -149,6 +150,7 @@ private:
     void optionLanguageSet0();
     void optionLanguageSet1();
     void optionLanguageSet2();
+    void optionLanguageSet3();
     void optionLanguageSetCustom();
 
     void mab2tldHead();
@@ -300,7 +302,7 @@ private:
     QAction *optionAutoFixTextureInfo;
     QAction *optionAutoZoomUseGlobal;
     QAction *optionAutoZoomUseSelected;
-    QAction *optionLanguage[3];
+    QAction *optionLanguage[4];
     QAction *optionLanguageCustom;
 
     QAction *tldMenuAction;

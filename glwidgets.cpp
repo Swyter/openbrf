@@ -131,6 +131,7 @@ void GLWidget::renderFloor(){
     glEnable(GL_BLEND);
     //glDisable(GL_CULL_FACE);
     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+    if (0) {
     glBegin(GL_QUADS);
       glColor4f(bg_r,bg_g,bg_b,0.7f);
       glVertex3f(+H, h, -H);
@@ -138,6 +139,7 @@ void GLWidget::renderFloor(){
       glVertex3f(-H, h,  H);
       glVertex3f(-H, h, -H);
     glEnd();
+    }
     glDisable(GL_BLEND);
   }
   //glEnable(GL_CULL_FACE);
@@ -1127,7 +1129,7 @@ void GLWidget::renderAnimation(const BrfAnimation &a, const BrfSkeleton &s, floa
 
 void GLWidget::renderBodyPart(const BrfBodyPart &b) const{
   setWireframeLightingMode(true,false,false);
-  glLineWidth(2.0);
+  glLineWidth(1);
   glEnable(GL_FOG);
   glDisable(GL_LIGHTING);
   switch(b.type){
@@ -1145,6 +1147,28 @@ void GLWidget::renderBodyPart(const BrfBodyPart &b) const{
         glVertex(b.pos[b.face[i][j]]);
       glEnd();
     }
+    glPushAttrib(GL_ENABLE_BIT|GL_LIGHTING_BIT);
+    glEnable(GL_BLEND);
+    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_LIGHTING);
+    glBlendFunc(GL_ONE,GL_ONE);
+    glEnable(GL_CULL_FACE);
+    glPolygonMode(GL_FRONT,GL_FILL);
+    glDisable(GL_FOG);
+
+    for (int pass=0; pass<2; pass++){
+      if (pass==0){ glColor3f(0.1f,0,0); glCullFace(GL_FRONT); }
+      else        { glColor3f(0,0,0.1f); glCullFace(GL_BACK); }
+      for (unsigned int i=0; i<b.face.size(); i++) {
+        glBegin(GL_POLYGON);
+        for (unsigned int j=0; j<b.face[i].size(); j++)
+          glVertex(b.pos[b.face[i][j]]);
+        glVertex(b.pos[b.face[i][0]]);
+        glEnd();
+      }
+    }
+    glPopAttrib();
+    glEnable(GL_DEPTH_TEST);
   }
   else if (b.type==BrfBodyPart::SPHERE) {
     glPushMatrix();

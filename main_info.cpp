@@ -46,12 +46,15 @@ void MainWindow::about()
 
  QMessageBox msg(QMessageBox::Information,"OpenBrf",
   //QMessageBox::about(this, ("Open-Brf"),
-              QString(tr("<p>&nbsp; &nbsp; <b>ver %6</b><br>"
+              QString(tr(
+               "<p>"
+               "&nbsp; &nbsp; <b>OpenBrf</b><br>"
+               "&nbsp; &nbsp; by <b>%2</b></p><p>"
+               "&nbsp; &nbsp; <b>ver %6</b><br>"
                "&nbsp; &nbsp; (%1)<br></p>"
-               "<p>&nbsp; &nbsp; by %2<br></p>"
-               "<p>Testing, bug reporting, suggestions by: %3</p>"
-               "<p>Additional art by: %4</p>"
-               "<p>Translation by: %5</p>")
+               "<p><i>Testing, bug reporting, suggestions by:</i> %3</p>"
+               "<p><i>Additional art by:</i> %4</p>"
+               "<p><i>Translations by:</i> %5</p>")
              ).arg(__DATE__)
               .arg("[mtarini] --- Marco Tarini")
               .arg(" <br>[amade], [Andrde Cuyne], [Barf], [Brutus],"
@@ -64,9 +67,10 @@ void MainWindow::about()
                    "[octoburn], [pagan], [Percus], [RATMdude92], [Red River],"
                    "[Septa Scarabae], [Shik], [Silver Wolf], [Swyter], "
                    "[Triglav], [Tul], [Ursca], [yellowmosquito], [xenoargh]")
-              .arg("[amade], [Swyter]!")
-              .arg(QString("[foxyman] (%1)").arg(tr("additional code and Chinese")))
-              .arg("0.0.41")
+              .arg("<br>[amade], [Swyter]!")
+              .arg(QString("<br> [foxyman] <i>(%1)</i><br>"
+                           " [Swyter] <i>(Español)</i>").arg(tr("additional code and Chinese")))
+              .arg("0.0.42")
             ,QMessageBox::Ok, this);
     msg.setLocale(QLocale::system());
   //msg.layout()->addWidget(&lab);

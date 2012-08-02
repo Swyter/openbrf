@@ -290,7 +290,7 @@ void MainWindow::updateDataBody(){
     default: break;
     }
     setModified(true);
-    glWidget->update();
+    updateGl();
   }
 }
 
@@ -309,7 +309,7 @@ void MainWindow::onChangeMeshMaterial(QString st){
   }
   statusBar()->showMessage( tr("Set %1 mesh materials to \"%2\"")
                             .arg(n).arg(u->boxMaterial->text()),5000 );
-  glWidget->update();
+  updateGl();
   setModified(true);
 }
 
@@ -339,7 +339,7 @@ void MainWindow::updateDataMaterial(){
 
     //mapMT[m.name] = m.diffuseA;
   }
-  glWidget->update();
+  updateGl();
   setModified(true);
 }
 
@@ -588,7 +588,7 @@ void  MainWindow::tldHead(float verse){
 
   if (changed) {
     setModified(true);
-    glWidget->update();
+    updateGl();
   }
 
 }
@@ -995,9 +995,21 @@ void MainWindow::scale(){
       setModified(true);
     }
   }
-  glWidget->update();
+  updateGl();
 }
 
+
+void MainWindow::bodyMakeQuadDominant(){
+  QModelIndexList list= selector->selectedList();
+  if (selector->currentTabName()==BODY && list.size()>0) {
+    for (int j=0; j<list.size(); j++){
+      brfdata.body[list[j].row()].MakeQuadDominant();
+    }
+    setModified(true);
+  }
+  updateGui();
+  updateGl();
+}
 
 void MainWindow::shiftAni(){
   int j = selector->firstSelected();
@@ -1075,7 +1087,7 @@ void MainWindow::transform(){
     }
   }
   glWidget->clearExtraMatrix();
-  glWidget->update();
+  updateGl();
 }
 
 
@@ -1616,7 +1628,7 @@ void MainWindow::meshRemoveBack(){
   if (k>0) {
     setModified(true);
     guiPanel->setSelection(selector->selectedList(),MESH);
-    glWidget->update();
+    updateGl();
   }
 }
 
@@ -1632,7 +1644,7 @@ void MainWindow::meshAddBack(){
   if (k>0) {
     setModified(true);
     guiPanel->setSelection(selector->selectedList(),MESH);
-    glWidget->update();
+    updateGl();
   }
 }
 
@@ -1798,12 +1810,13 @@ int MainWindow::assembleAniMode() const{
 
 void MainWindow::optionAutoFixTextureUpdated(){
   if (glWidget->fixTexturesOnSight  = optionAutoFixTextureOn->isChecked())
-    glWidget->update();
+    updateGl();
 }
 
 void MainWindow::optionLanguageSet0(){setLanguage(0);}
 void MainWindow::optionLanguageSet1(){setLanguage(1);}
 void MainWindow::optionLanguageSet2(){setLanguage(2);}
+void MainWindow::optionLanguageSet3(){setLanguage(3);}
 
 void MainWindow::optionLanguageSetCustom(){
   if (maybeSave()) {
@@ -1826,7 +1839,7 @@ void MainWindow::setLanguage(int k){
 
     //QMessageBox::information(this,"OpenBrf",tr("Language changed:\nRerun OpenBrf for changes to take place"));
   }
-  for (int i=0; i<3; i++) optionLanguage[i]->setChecked(i==k);
+  for (int i=0; i<4; i++) optionLanguage[i]->setChecked(i==k);
   curLanguage = k;
 
 }
@@ -2006,7 +2019,7 @@ bool MainWindow::saveFile(const QString &fileName)
      return false;
    } else {
      statusBar()->showMessage(tr("File saved!"), 2000);
-     if (curFileIndex>=0 && curFileIndex<inidata.file.size()){
+     if (curFileIndex>=0 && curFileIndex<(int)inidata.file.size()){
        inidata.file[curFileIndex]=brfdata; // update ini file
      }
      setModified(false);
@@ -2325,7 +2338,7 @@ bool MainWindow::refreshIni(){
   inidata.updated=false;
   brfdata.ForgetTextureLocations();
   glWidget->forgetChachedTextures();
-  glWidget->update();
+  updateGl();
   return loadIni();
 }
 

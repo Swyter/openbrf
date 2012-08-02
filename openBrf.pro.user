@@ -50,7 +50,7 @@
  </data>
  <data>
   <variable>activebuildconfiguration</variable>
-  <value type="QString">Release</value>
+  <value type="QString">Language</value>
  </data>
  <data>
   <variable>buildConfiguration-Debug</variable>
@@ -61,6 +61,18 @@
    <value key="addQDumper" type=""></value>
    <value key="buildConfiguration" type="int">2</value>
    <value key="buildDirectory" type="QString">C:\projects\qtCreator\openBrf</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildConfiguration-Language</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Language</value>
+   <value key="QtVersionId" type="int">0</value>
+   <value key="ToolChain" type="int">2</value>
+   <value key="addQDumper" type=""></value>
+   <value key="buildConfiguration" type="int">0</value>
+   <value key="buildDirectory" type="QString">C:\projects\qtCreator\openBrf</value>
+   <value key="useShadowBuild" type="bool">false</value>
   </valuemap>
  </data>
  <data>
@@ -79,111 +91,28 @@
   <variable>buildconfiguration-Debug-buildstep0</variable>
   <valuemap type="QVariantMap">
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Debug</value>
-   <valuelist key="abstractProcess.Environment" type="QVariantList">
-    <value type="QString">ALLUSERSPROFILE=C:\ProgramData</value>
-    <value type="QString">APPDATA=C:\Users\tarini\AppData\Roaming</value>
-    <value type="QString">CLASSPATH=.;C:\Program Files\Java\jre1.6.0_02\lib\ext\QTJava.zip</value>
-    <value type="QString">COMMONPROGRAMFILES=C:\Program Files\Common Files</value>
-    <value type="QString">COMPUTERNAME=NB-TARINI</value>
-    <value type="QString">COMSPEC=C:\Windows\system32\cmd.exe</value>
-    <value type="QString">DXSDK_DIR=C:\Program Files\Microsoft DirectX SDK (August 2009)\</value>
-    <value type="QString">FP_NO_HOST_CHECK=NO</value>
-    <value type="QString">HOMEDRIVE=C:</value>
-    <value type="QString">HOMEPATH=\Users\tarini</value>
-    <value type="QString">LOCALAPPDATA=C:\Users\tarini\AppData\Local</value>
-    <value type="QString">LOGONSERVER=\\NB-TARINI</value>
-    <value type="QString">NUMBER_OF_PROCESSORS=2</value>
-    <value type="QString">ONLINESERVICES=Servizi in linea</value>
-    <value type="QString">OS=Windows_NT</value>
-    <value type="QString">PATH=C:\Qt\2009.03\mingw\bin;C:\Qt\2009.03\qt\bin;C:\Python26\\Scripts;C:\Python26\;C:\Program Files\PC Connectivity Solution\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Program Files\CyberLink\Power2Go\;C:\Program Files\TortoiseSVN\bin;C:\qt4.4.3\bin;C:\Program Files\QuickTime\QTSystem\;C:\Users\tarini\AppData\Roaming\Python\Scripts;C:\Program Files\MiKTeX 2.7\miktex\bin;C:\Qt\2009.03\mingw\bin</value>
-    <value type="QString">PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.py;.pyw</value>
-    <value type="QString">PCBRAND=Pavilion</value>
-    <value type="QString">PLATFORM=MCD</value>
-    <value type="QString">PROCESSOR_ARCHITECTURE=x86</value>
-    <value type="QString">PROCESSOR_IDENTIFIER=x86 Family 6 Model 23 Stepping 6, GenuineIntel</value>
-    <value type="QString">PROCESSOR_LEVEL=6</value>
-    <value type="QString">PROCESSOR_REVISION=1706</value>
-    <value type="QString">PROGRAMDATA=C:\ProgramData</value>
-    <value type="QString">PROGRAMFILES=C:\Program Files</value>
-    <value type="QString">PUBLIC=C:\Users\Public</value>
-    <value type="QString">QTDIR=C:/Qt/2009.03/qt</value>
-    <value type="QString">QTJAVA=C:\Program Files\Java\jre1.6.0_02\lib\ext\QTJava.zip</value>
-    <value type="QString">SESSIONNAME=Console</value>
-    <value type="QString">SYSTEMDRIVE=C:</value>
-    <value type="QString">SYSTEMROOT=C:\Windows</value>
-    <value type="QString">TEMP=C:\Users\tarini\AppData\Local\Temp</value>
-    <value type="QString">TMP=C:\Users\tarini\AppData\Local\Temp</value>
-    <value type="QString">USERDOMAIN=nb-tarini</value>
-    <value type="QString">USERNAME=tarini</value>
-    <value type="QString">USERPART=E:</value>
-    <value type="QString">USERPROFILE=C:\Users\tarini</value>
-    <value type="QString">VS90COMNTOOLS=C:\Program Files\Microsoft Visual Studio 9.0\Common7\Tools\</value>
-    <value type="QString">WINDIR=C:\Windows</value>
-   </valuelist>
-   <valuelist key="abstractProcess.arguments" type="QVariantList">
-    <value type="QString">C:/projects/qtCreator/openBrf/openBrf.pro</value>
-    <value type="QString">-spec</value>
-    <value type="QString">win32-g++</value>
-    <value type="QString">-r</value>
-   </valuelist>
-   <value key="abstractProcess.command" type="QString">c:/qt/2009.03/qt/bin/qmake.exe</value>
-   <value key="abstractProcess.enabled" type="bool">false</value>
-   <value key="abstractProcess.workingDirectory" type="QString">C:/projects/qtCreator/openBrf</value>
-   <value key="buildConfiguration" type=""></value>
+   <value key="abstractProcess.command" type="QString"></value>
+   <value key="workingDirectory" type="QString">$BUILDDIR</value>
   </valuemap>
  </data>
  <data>
   <variable>buildconfiguration-Debug-buildstep1</variable>
   <valuemap type="QVariantMap">
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Debug</value>
-   <valuelist key="abstractProcess.Environment" type="QVariantList">
-    <value type="QString">ALLUSERSPROFILE=C:\ProgramData</value>
-    <value type="QString">APPDATA=C:\Users\tarini\AppData\Roaming</value>
-    <value type="QString">CLASSPATH=.;C:\Program Files\Java\jre1.6.0_02\lib\ext\QTJava.zip</value>
-    <value type="QString">COMMONPROGRAMFILES=C:\Program Files\Common Files</value>
-    <value type="QString">COMPUTERNAME=NB-TARINI</value>
-    <value type="QString">COMSPEC=C:\Windows\system32\cmd.exe</value>
-    <value type="QString">DXSDK_DIR=C:\Program Files\Microsoft DirectX SDK (August 2009)\</value>
-    <value type="QString">FP_NO_HOST_CHECK=NO</value>
-    <value type="QString">HOMEDRIVE=C:</value>
-    <value type="QString">HOMEPATH=\Users\tarini</value>
-    <value type="QString">LOCALAPPDATA=C:\Users\tarini\AppData\Local</value>
-    <value type="QString">LOGONSERVER=\\NB-TARINI</value>
-    <value type="QString">NUMBER_OF_PROCESSORS=2</value>
-    <value type="QString">ONLINESERVICES=Servizi in linea</value>
-    <value type="QString">OS=Windows_NT</value>
-    <value type="QString">PATH=C:\Qt\2009.03\mingw\bin;C:\Qt\2009.03\qt\bin;C:\Python26\\Scripts;C:\Python26\;C:\Program Files\PC Connectivity Solution\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Program Files\CyberLink\Power2Go\;C:\Program Files\TortoiseSVN\bin;C:\qt4.4.3\bin;C:\Program Files\QuickTime\QTSystem\;C:\Users\tarini\AppData\Roaming\Python\Scripts;C:\Program Files\MiKTeX 2.7\miktex\bin;C:\Qt\2009.03\mingw\bin</value>
-    <value type="QString">PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.py;.pyw</value>
-    <value type="QString">PCBRAND=Pavilion</value>
-    <value type="QString">PLATFORM=MCD</value>
-    <value type="QString">PROCESSOR_ARCHITECTURE=x86</value>
-    <value type="QString">PROCESSOR_IDENTIFIER=x86 Family 6 Model 23 Stepping 6, GenuineIntel</value>
-    <value type="QString">PROCESSOR_LEVEL=6</value>
-    <value type="QString">PROCESSOR_REVISION=1706</value>
-    <value type="QString">PROGRAMDATA=C:\ProgramData</value>
-    <value type="QString">PROGRAMFILES=C:\Program Files</value>
-    <value type="QString">PUBLIC=C:\Users\Public</value>
-    <value type="QString">QTDIR=C:/Qt/2009.03/qt</value>
-    <value type="QString">QTJAVA=C:\Program Files\Java\jre1.6.0_02\lib\ext\QTJava.zip</value>
-    <value type="QString">SESSIONNAME=Console</value>
-    <value type="QString">SYSTEMDRIVE=C:</value>
-    <value type="QString">SYSTEMROOT=C:\Windows</value>
-    <value type="QString">TEMP=C:\Users\tarini\AppData\Local\Temp</value>
-    <value type="QString">TMP=C:\Users\tarini\AppData\Local\Temp</value>
-    <value type="QString">USERDOMAIN=nb-tarini</value>
-    <value type="QString">USERNAME=tarini</value>
-    <value type="QString">USERPART=E:</value>
-    <value type="QString">USERPROFILE=C:\Users\tarini</value>
-    <value type="QString">VS90COMNTOOLS=C:\Program Files\Microsoft Visual Studio 9.0\Common7\Tools\</value>
-    <value type="QString">WINDIR=C:\Windows</value>
-   </valuelist>
-   <value key="abstractProcess.IgnoreReturnValue" type="bool">false</value>
-   <valuelist key="abstractProcess.arguments" type="QVariantList">
-    <value type="QString">-w</value>
-   </valuelist>
-   <value key="abstractProcess.command" type="QString">C:/Qt/2009.03/mingw/bin/mingw32-make.exe</value>
-   <value key="abstractProcess.enabled" type="bool">true</value>
-   <value key="abstractProcess.workingDirectory" type="QString">C:/projects/qtCreator/openBrf</value>
+   <value key="abstractProcess.command" type="QString"></value>
+   <value key="workingDirectory" type="QString">$BUILDDIR</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildconfiguration-Debug-buildstep2</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Debug</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildconfiguration-Debug-buildstep3</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Debug</value>
   </valuemap>
  </data>
  <data>
@@ -244,7 +173,383 @@
   </valuemap>
  </data>
  <data>
+  <variable>buildconfiguration-Language-buildstep0</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Language</value>
+   <valuelist key="abstractProcess.Environment" type="QVariantList">
+    <value type="QString">ALLUSERSPROFILE=C:\ProgramData</value>
+    <value type="QString">APPDATA=C:\Users\tarini\AppData\Roaming</value>
+    <value type="QString">CLASSPATH=.;C:\Program Files\Java\jre1.6.0_02\lib\ext\QTJava.zip</value>
+    <value type="QString">COMMONPROGRAMFILES=C:\Program Files\Common Files</value>
+    <value type="QString">COMPUTERNAME=NB-TARINI</value>
+    <value type="QString">COMSPEC=C:\Windows\system32\cmd.exe</value>
+    <value type="QString">DXSDK_DIR=C:\Program Files\Microsoft DirectX SDK (August 2009)\</value>
+    <value type="QString">FP_NO_HOST_CHECK=NO</value>
+    <value type="QString">HOMEDRIVE=C:</value>
+    <value type="QString">HOMEPATH=\Users\tarini</value>
+    <value type="QString">LOCALAPPDATA=C:\Users\tarini\AppData\Local</value>
+    <value type="QString">LOGONSERVER=\\NB-TARINI</value>
+    <value type="QString">NUMBER_OF_PROCESSORS=2</value>
+    <value type="QString">ONLINESERVICES=Servizi in linea</value>
+    <value type="QString">OS=Windows_NT</value>
+    <value type="QString">PATH=C:\Qt\2009.03\mingw\bin;C:\Qt\2009.03\qt\bin;C:\Python26\\Scripts;C:\Python26\;C:\Program Files\PC Connectivity Solution\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Program Files\CyberLink\Power2Go\;C:\Program Files\TortoiseSVN\bin;C:\qt4.4.3\bin;C:\Program Files\QuickTime\QTSystem\;C:\Users\tarini\AppData\Roaming\Python\Scripts;C:\Program Files\MiKTeX 2.7\miktex\bin;C:\Qt\2009.03\mingw\bin</value>
+    <value type="QString">PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.py;.pyw</value>
+    <value type="QString">PCBRAND=Pavilion</value>
+    <value type="QString">PLATFORM=MCD</value>
+    <value type="QString">PROCESSOR_ARCHITECTURE=x86</value>
+    <value type="QString">PROCESSOR_IDENTIFIER=x86 Family 6 Model 23 Stepping 6, GenuineIntel</value>
+    <value type="QString">PROCESSOR_LEVEL=6</value>
+    <value type="QString">PROCESSOR_REVISION=1706</value>
+    <value type="QString">PROGRAMDATA=C:\ProgramData</value>
+    <value type="QString">PROGRAMFILES=C:\Program Files</value>
+    <value type="QString">PUBLIC=C:\Users\Public</value>
+    <value type="QString">QTDIR=C:/Qt/2009.03/qt</value>
+    <value type="QString">QTJAVA=C:\Program Files\Java\jre1.6.0_02\lib\ext\QTJava.zip</value>
+    <value type="QString">SESSIONNAME=Console</value>
+    <value type="QString">SYSTEMDRIVE=C:</value>
+    <value type="QString">SYSTEMROOT=C:\Windows</value>
+    <value type="QString">TEMP=C:\Users\tarini\AppData\Local\Temp</value>
+    <value type="QString">TMP=C:\Users\tarini\AppData\Local\Temp</value>
+    <value type="QString">USERDOMAIN=nb-tarini</value>
+    <value type="QString">USERNAME=tarini</value>
+    <value type="QString">USERPART=E:</value>
+    <value type="QString">USERPROFILE=C:\Users\tarini</value>
+    <value type="QString">VS90COMNTOOLS=C:\Program Files\Microsoft Visual Studio 9.0\Common7\Tools\</value>
+    <value type="QString">WINDIR=C:\Windows</value>
+   </valuelist>
+   <valuelist key="abstractProcess.arguments" type="QVariantList">
+    <value type="QString">openBrf.pro</value>
+   </valuelist>
+   <value key="abstractProcess.command" type="QString">C:\Qt\2009.03\qt\bin\lupdate.exe</value>
+   <value key="abstractProcess.enabled" type="bool">true</value>
+   <value key="abstractProcess.workingDirectory" type="QString">C:\projects\qtCreator\openBrf</value>
+   <value key="workingDirectory" type="QString">C:\projects\qtCreator\openBrf</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildconfiguration-Language-buildstep1</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Language</value>
+   <valuelist key="abstractProcess.Environment" type="QVariantList">
+    <value type="QString">ALLUSERSPROFILE=C:\ProgramData</value>
+    <value type="QString">APPDATA=C:\Users\tarini\AppData\Roaming</value>
+    <value type="QString">CLASSPATH=.;C:\Program Files\Java\jre1.6.0_02\lib\ext\QTJava.zip</value>
+    <value type="QString">COMMONPROGRAMFILES=C:\Program Files\Common Files</value>
+    <value type="QString">COMPUTERNAME=NB-TARINI</value>
+    <value type="QString">COMSPEC=C:\Windows\system32\cmd.exe</value>
+    <value type="QString">DXSDK_DIR=C:\Program Files\Microsoft DirectX SDK (August 2009)\</value>
+    <value type="QString">FP_NO_HOST_CHECK=NO</value>
+    <value type="QString">HOMEDRIVE=C:</value>
+    <value type="QString">HOMEPATH=\Users\tarini</value>
+    <value type="QString">LOCALAPPDATA=C:\Users\tarini\AppData\Local</value>
+    <value type="QString">LOGONSERVER=\\NB-TARINI</value>
+    <value type="QString">NUMBER_OF_PROCESSORS=2</value>
+    <value type="QString">ONLINESERVICES=Servizi in linea</value>
+    <value type="QString">OS=Windows_NT</value>
+    <value type="QString">PATH=C:\Qt\2009.03\mingw\bin;C:\Qt\2009.03\qt\bin;C:\Python26\\Scripts;C:\Python26\;C:\Program Files\PC Connectivity Solution\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Program Files\CyberLink\Power2Go\;C:\Program Files\TortoiseSVN\bin;C:\qt4.4.3\bin;C:\Program Files\QuickTime\QTSystem\;C:\Users\tarini\AppData\Roaming\Python\Scripts;C:\Program Files\MiKTeX 2.7\miktex\bin;C:\Qt\2009.03\mingw\bin</value>
+    <value type="QString">PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.py;.pyw</value>
+    <value type="QString">PCBRAND=Pavilion</value>
+    <value type="QString">PLATFORM=MCD</value>
+    <value type="QString">PROCESSOR_ARCHITECTURE=x86</value>
+    <value type="QString">PROCESSOR_IDENTIFIER=x86 Family 6 Model 23 Stepping 6, GenuineIntel</value>
+    <value type="QString">PROCESSOR_LEVEL=6</value>
+    <value type="QString">PROCESSOR_REVISION=1706</value>
+    <value type="QString">PROGRAMDATA=C:\ProgramData</value>
+    <value type="QString">PROGRAMFILES=C:\Program Files</value>
+    <value type="QString">PUBLIC=C:\Users\Public</value>
+    <value type="QString">QTDIR=C:/Qt/2009.03/qt</value>
+    <value type="QString">QTJAVA=C:\Program Files\Java\jre1.6.0_02\lib\ext\QTJava.zip</value>
+    <value type="QString">SESSIONNAME=Console</value>
+    <value type="QString">SYSTEMDRIVE=C:</value>
+    <value type="QString">SYSTEMROOT=C:\Windows</value>
+    <value type="QString">TEMP=C:\Users\tarini\AppData\Local\Temp</value>
+    <value type="QString">TMP=C:\Users\tarini\AppData\Local\Temp</value>
+    <value type="QString">USERDOMAIN=nb-tarini</value>
+    <value type="QString">USERNAME=tarini</value>
+    <value type="QString">USERPART=E:</value>
+    <value type="QString">USERPROFILE=C:\Users\tarini</value>
+    <value type="QString">VS90COMNTOOLS=C:\Program Files\Microsoft Visual Studio 9.0\Common7\Tools\</value>
+    <value type="QString">WINDIR=C:\Windows</value>
+   </valuelist>
+   <valuelist key="abstractProcess.arguments" type="QVariantList">
+    <value type="QString">openBrf.pro</value>
+   </valuelist>
+   <value key="abstractProcess.command" type="QString">C:\Qt\2009.03\qt\bin\lrelease.exe</value>
+   <value key="abstractProcess.enabled" type="bool">true</value>
+   <value key="abstractProcess.workingDirectory" type="QString">C:\projects\qtCreator\openBrf</value>
+   <value key="workingDirectory" type="QString">C:\projects\qtCreator\openBrf</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildconfiguration-Language-buildstep2</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Language</value>
+   <valuelist key="abstractProcess.Environment" type="QVariantList">
+    <value type="QString">ALLUSERSPROFILE=C:\ProgramData</value>
+    <value type="QString">APPDATA=C:\Users\tarini\AppData\Roaming</value>
+    <value type="QString">CLASSPATH=.;C:\Program Files\Java\jre1.6.0_02\lib\ext\QTJava.zip</value>
+    <value type="QString">COMMONPROGRAMFILES=C:\Program Files\Common Files</value>
+    <value type="QString">COMPUTERNAME=NB-TARINI</value>
+    <value type="QString">COMSPEC=C:\Windows\system32\cmd.exe</value>
+    <value type="QString">DXSDK_DIR=C:\Program Files\Microsoft DirectX SDK (August 2009)\</value>
+    <value type="QString">FP_NO_HOST_CHECK=NO</value>
+    <value type="QString">HOMEDRIVE=C:</value>
+    <value type="QString">HOMEPATH=\Users\tarini</value>
+    <value type="QString">LOCALAPPDATA=C:\Users\tarini\AppData\Local</value>
+    <value type="QString">LOGONSERVER=\\NB-TARINI</value>
+    <value type="QString">NUMBER_OF_PROCESSORS=2</value>
+    <value type="QString">ONLINESERVICES=Servizi in linea</value>
+    <value type="QString">OS=Windows_NT</value>
+    <value type="QString">PATH=C:\Qt\2009.03\mingw\bin;C:\Qt\2009.03\qt\bin;C:\Python26\\Scripts;C:\Python26\;C:\Program Files\PC Connectivity Solution\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Program Files\CyberLink\Power2Go\;C:\Program Files\TortoiseSVN\bin;C:\qt4.4.3\bin;C:\Program Files\QuickTime\QTSystem\;C:\Users\tarini\AppData\Roaming\Python\Scripts;C:\Program Files\MiKTeX 2.7\miktex\bin;C:\Qt\2009.03\mingw\bin</value>
+    <value type="QString">PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.py;.pyw</value>
+    <value type="QString">PCBRAND=Pavilion</value>
+    <value type="QString">PLATFORM=MCD</value>
+    <value type="QString">PROCESSOR_ARCHITECTURE=x86</value>
+    <value type="QString">PROCESSOR_IDENTIFIER=x86 Family 6 Model 23 Stepping 6, GenuineIntel</value>
+    <value type="QString">PROCESSOR_LEVEL=6</value>
+    <value type="QString">PROCESSOR_REVISION=1706</value>
+    <value type="QString">PROGRAMDATA=C:\ProgramData</value>
+    <value type="QString">PROGRAMFILES=C:\Program Files</value>
+    <value type="QString">PUBLIC=C:\Users\Public</value>
+    <value type="QString">QTDIR=C:/Qt/2009.03/qt</value>
+    <value type="QString">QTJAVA=C:\Program Files\Java\jre1.6.0_02\lib\ext\QTJava.zip</value>
+    <value type="QString">SESSIONNAME=Console</value>
+    <value type="QString">SYSTEMDRIVE=C:</value>
+    <value type="QString">SYSTEMROOT=C:\Windows</value>
+    <value type="QString">TEMP=C:\Users\tarini\AppData\Local\Temp</value>
+    <value type="QString">TMP=C:\Users\tarini\AppData\Local\Temp</value>
+    <value type="QString">USERDOMAIN=nb-tarini</value>
+    <value type="QString">USERNAME=tarini</value>
+    <value type="QString">USERPART=E:</value>
+    <value type="QString">USERPROFILE=C:\Users\tarini</value>
+    <value type="QString">VS90COMNTOOLS=C:\Program Files\Microsoft Visual Studio 9.0\Common7\Tools\</value>
+    <value type="QString">WINDIR=C:\Windows</value>
+   </valuelist>
+   <valuelist key="abstractProcess.arguments" type="QVariantList">
+    <value type="QString">C:/projects/qtCreator/openBrf/openBrf.pro</value>
+    <value type="QString">-spec</value>
+    <value type="QString">win32-g++</value>
+    <value type="QString">-r</value>
+    <value type="QString">CONFIG+=release</value>
+   </valuelist>
+   <value key="abstractProcess.command" type="QString">c:/qt/2009.03/qt/bin/qmake.exe</value>
+   <value key="abstractProcess.enabled" type="bool">false</value>
+   <value key="abstractProcess.workingDirectory" type="QString">C:/projects/qtCreator/openBrf</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildconfiguration-Language-buildstep3</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Language</value>
+   <valuelist key="abstractProcess.Environment" type="QVariantList">
+    <value type="QString">ALLUSERSPROFILE=C:\ProgramData</value>
+    <value type="QString">APPDATA=C:\Users\tarini\AppData\Roaming</value>
+    <value type="QString">CLASSPATH=.;C:\Program Files\Java\jre1.6.0_02\lib\ext\QTJava.zip</value>
+    <value type="QString">COMMONPROGRAMFILES=C:\Program Files\Common Files</value>
+    <value type="QString">COMPUTERNAME=NB-TARINI</value>
+    <value type="QString">COMSPEC=C:\Windows\system32\cmd.exe</value>
+    <value type="QString">DXSDK_DIR=C:\Program Files\Microsoft DirectX SDK (August 2009)\</value>
+    <value type="QString">FP_NO_HOST_CHECK=NO</value>
+    <value type="QString">HOMEDRIVE=C:</value>
+    <value type="QString">HOMEPATH=\Users\tarini</value>
+    <value type="QString">LOCALAPPDATA=C:\Users\tarini\AppData\Local</value>
+    <value type="QString">LOGONSERVER=\\NB-TARINI</value>
+    <value type="QString">NUMBER_OF_PROCESSORS=2</value>
+    <value type="QString">ONLINESERVICES=Servizi in linea</value>
+    <value type="QString">OS=Windows_NT</value>
+    <value type="QString">PATH=C:\Qt\2009.03\mingw\bin;C:\Qt\2009.03\qt\bin;C:\Python26\\Scripts;C:\Python26\;C:\Program Files\PC Connectivity Solution\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Program Files\CyberLink\Power2Go\;C:\Program Files\TortoiseSVN\bin;C:\qt4.4.3\bin;C:\Program Files\QuickTime\QTSystem\;C:\Users\tarini\AppData\Roaming\Python\Scripts;C:\Program Files\MiKTeX 2.7\miktex\bin;C:\Qt\2009.03\mingw\bin</value>
+    <value type="QString">PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.py;.pyw</value>
+    <value type="QString">PCBRAND=Pavilion</value>
+    <value type="QString">PLATFORM=MCD</value>
+    <value type="QString">PROCESSOR_ARCHITECTURE=x86</value>
+    <value type="QString">PROCESSOR_IDENTIFIER=x86 Family 6 Model 23 Stepping 6, GenuineIntel</value>
+    <value type="QString">PROCESSOR_LEVEL=6</value>
+    <value type="QString">PROCESSOR_REVISION=1706</value>
+    <value type="QString">PROGRAMDATA=C:\ProgramData</value>
+    <value type="QString">PROGRAMFILES=C:\Program Files</value>
+    <value type="QString">PUBLIC=C:\Users\Public</value>
+    <value type="QString">QTDIR=C:/Qt/2009.03/qt</value>
+    <value type="QString">QTJAVA=C:\Program Files\Java\jre1.6.0_02\lib\ext\QTJava.zip</value>
+    <value type="QString">SESSIONNAME=Console</value>
+    <value type="QString">SYSTEMDRIVE=C:</value>
+    <value type="QString">SYSTEMROOT=C:\Windows</value>
+    <value type="QString">TEMP=C:\Users\tarini\AppData\Local\Temp</value>
+    <value type="QString">TMP=C:\Users\tarini\AppData\Local\Temp</value>
+    <value type="QString">USERDOMAIN=nb-tarini</value>
+    <value type="QString">USERNAME=tarini</value>
+    <value type="QString">USERPART=E:</value>
+    <value type="QString">USERPROFILE=C:\Users\tarini</value>
+    <value type="QString">VS90COMNTOOLS=C:\Program Files\Microsoft Visual Studio 9.0\Common7\Tools\</value>
+    <value type="QString">WINDIR=C:\Windows</value>
+   </valuelist>
+   <value key="abstractProcess.IgnoreReturnValue" type="bool">false</value>
+   <valuelist key="abstractProcess.arguments" type="QVariantList">
+    <value type="QString">-w</value>
+   </valuelist>
+   <value key="abstractProcess.command" type="QString">C:/Qt/2009.03/mingw/bin/mingw32-make.exe</value>
+   <value key="abstractProcess.enabled" type="bool">true</value>
+   <value key="abstractProcess.workingDirectory" type="QString">C:/projects/qtCreator/openBrf</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildconfiguration-Language-cleanstep0</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Release</value>
+   <valuelist key="abstractProcess.Environment" type="QVariantList">
+    <value type="QString">ALLUSERSPROFILE=C:\ProgramData</value>
+    <value type="QString">APPDATA=C:\Users\tarini\AppData\Roaming</value>
+    <value type="QString">CLASSPATH=.;C:\Program Files\Java\jre1.6.0_02\lib\ext\QTJava.zip</value>
+    <value type="QString">COMMONPROGRAMFILES=C:\Program Files\Common Files</value>
+    <value type="QString">COMPUTERNAME=NB-TARINI</value>
+    <value type="QString">COMSPEC=C:\Windows\system32\cmd.exe</value>
+    <value type="QString">DXSDK_DIR=C:\Program Files\Microsoft DirectX SDK (August 2009)\</value>
+    <value type="QString">FP_NO_HOST_CHECK=NO</value>
+    <value type="QString">HOMEDRIVE=C:</value>
+    <value type="QString">HOMEPATH=\Users\tarini</value>
+    <value type="QString">LOCALAPPDATA=C:\Users\tarini\AppData\Local</value>
+    <value type="QString">LOGONSERVER=\\NB-TARINI</value>
+    <value type="QString">NUMBER_OF_PROCESSORS=2</value>
+    <value type="QString">ONLINESERVICES=Servizi in linea</value>
+    <value type="QString">OS=Windows_NT</value>
+    <value type="QString">PATH=C:\Qt\2009.03\mingw\bin;C:\Qt\2009.03\qt\bin;C:\Python26\\Scripts;C:\Python26\;C:\Program Files\PC Connectivity Solution\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Program Files\CyberLink\Power2Go\;C:\Program Files\TortoiseSVN\bin;C:\qt4.4.3\bin;C:\Program Files\QuickTime\QTSystem\;C:\Users\tarini\AppData\Roaming\Python\Scripts;C:\Program Files\MiKTeX 2.7\miktex\bin;C:\Qt\2009.03\mingw\bin</value>
+    <value type="QString">PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.py;.pyw</value>
+    <value type="QString">PCBRAND=Pavilion</value>
+    <value type="QString">PLATFORM=MCD</value>
+    <value type="QString">PROCESSOR_ARCHITECTURE=x86</value>
+    <value type="QString">PROCESSOR_IDENTIFIER=x86 Family 6 Model 23 Stepping 6, GenuineIntel</value>
+    <value type="QString">PROCESSOR_LEVEL=6</value>
+    <value type="QString">PROCESSOR_REVISION=1706</value>
+    <value type="QString">PROGRAMDATA=C:\ProgramData</value>
+    <value type="QString">PROGRAMFILES=C:\Program Files</value>
+    <value type="QString">PUBLIC=C:\Users\Public</value>
+    <value type="QString">QTDIR=C:/Qt/2009.03/qt</value>
+    <value type="QString">QTJAVA=C:\Program Files\Java\jre1.6.0_02\lib\ext\QTJava.zip</value>
+    <value type="QString">SESSIONNAME=Console</value>
+    <value type="QString">SYSTEMDRIVE=C:</value>
+    <value type="QString">SYSTEMROOT=C:\Windows</value>
+    <value type="QString">TEMP=C:\Users\tarini\AppData\Local\Temp</value>
+    <value type="QString">TMP=C:\Users\tarini\AppData\Local\Temp</value>
+    <value type="QString">USERDOMAIN=nb-tarini</value>
+    <value type="QString">USERNAME=tarini</value>
+    <value type="QString">USERPART=E:</value>
+    <value type="QString">USERPROFILE=C:\Users\tarini</value>
+    <value type="QString">VS90COMNTOOLS=C:\Program Files\Microsoft Visual Studio 9.0\Common7\Tools\</value>
+    <value type="QString">WINDIR=C:\Windows</value>
+   </valuelist>
+   <value key="abstractProcess.IgnoreReturnValue" type="bool">true</value>
+   <valuelist key="abstractProcess.arguments" type="QVariantList">
+    <value type="QString">clean</value>
+    <value type="QString">-w</value>
+   </valuelist>
+   <value key="abstractProcess.command" type="QString">C:/Qt/2009.03/mingw/bin/mingw32-make.exe</value>
+   <value key="abstractProcess.enabled" type="bool">true</value>
+   <value key="abstractProcess.workingDirectory" type="QString">C:/projects/qtCreator/openBrf</value>
+   <value key="cleanConfig" type="bool">true</value>
+   <valuelist key="makeargs" type="QVariantList">
+    <value type="QString">clean</value>
+   </valuelist>
+  </valuemap>
+ </data>
+ <data>
   <variable>buildconfiguration-Release-buildstep0</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Release</value>
+   <valuelist key="abstractProcess.Environment" type="QVariantList">
+    <value type="QString">ALLUSERSPROFILE=C:\ProgramData</value>
+    <value type="QString">APPDATA=C:\Users\tarini\AppData\Roaming</value>
+    <value type="QString">CLASSPATH=.;C:\Program Files\Java\jre1.6.0_02\lib\ext\QTJava.zip</value>
+    <value type="QString">COMMONPROGRAMFILES=C:\Program Files\Common Files</value>
+    <value type="QString">COMPUTERNAME=NB-TARINI</value>
+    <value type="QString">COMSPEC=C:\Windows\system32\cmd.exe</value>
+    <value type="QString">DXSDK_DIR=C:\Program Files\Microsoft DirectX SDK (August 2009)\</value>
+    <value type="QString">FP_NO_HOST_CHECK=NO</value>
+    <value type="QString">HOMEDRIVE=C:</value>
+    <value type="QString">HOMEPATH=\Users\tarini</value>
+    <value type="QString">LOCALAPPDATA=C:\Users\tarini\AppData\Local</value>
+    <value type="QString">LOGONSERVER=\\NB-TARINI</value>
+    <value type="QString">NUMBER_OF_PROCESSORS=2</value>
+    <value type="QString">ONLINESERVICES=Servizi in linea</value>
+    <value type="QString">OS=Windows_NT</value>
+    <value type="QString">PATH=C:\Qt\2009.03\mingw\bin;C:\Qt\2009.03\qt\bin;C:\Python26\\Scripts;C:\Python26\;C:\Program Files\PC Connectivity Solution\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Program Files\CyberLink\Power2Go\;C:\Program Files\TortoiseSVN\bin;C:\qt4.4.3\bin;C:\Program Files\QuickTime\QTSystem\;C:\Users\tarini\AppData\Roaming\Python\Scripts;C:\Program Files\MiKTeX 2.7\miktex\bin;C:\Qt\2009.03\mingw\bin</value>
+    <value type="QString">PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.py;.pyw</value>
+    <value type="QString">PCBRAND=Pavilion</value>
+    <value type="QString">PLATFORM=MCD</value>
+    <value type="QString">PROCESSOR_ARCHITECTURE=x86</value>
+    <value type="QString">PROCESSOR_IDENTIFIER=x86 Family 6 Model 23 Stepping 6, GenuineIntel</value>
+    <value type="QString">PROCESSOR_LEVEL=6</value>
+    <value type="QString">PROCESSOR_REVISION=1706</value>
+    <value type="QString">PROGRAMDATA=C:\ProgramData</value>
+    <value type="QString">PROGRAMFILES=C:\Program Files</value>
+    <value type="QString">PUBLIC=C:\Users\Public</value>
+    <value type="QString">QTDIR=C:/Qt/2009.03/qt</value>
+    <value type="QString">QTJAVA=C:\Program Files\Java\jre1.6.0_02\lib\ext\QTJava.zip</value>
+    <value type="QString">SESSIONNAME=Console</value>
+    <value type="QString">SYSTEMDRIVE=C:</value>
+    <value type="QString">SYSTEMROOT=C:\Windows</value>
+    <value type="QString">TEMP=C:\Users\tarini\AppData\Local\Temp</value>
+    <value type="QString">TMP=C:\Users\tarini\AppData\Local\Temp</value>
+    <value type="QString">USERDOMAIN=nb-tarini</value>
+    <value type="QString">USERNAME=tarini</value>
+    <value type="QString">USERPART=E:</value>
+    <value type="QString">USERPROFILE=C:\Users\tarini</value>
+    <value type="QString">VS90COMNTOOLS=C:\Program Files\Microsoft Visual Studio 9.0\Common7\Tools\</value>
+    <value type="QString">WINDIR=C:\Windows</value>
+   </valuelist>
+   <value key="abstractProcess.command" type="QString"></value>
+   <value key="abstractProcess.workingDirectory" type="QString">C:/projects/qtCreator/openBrf</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildconfiguration-Release-buildstep1</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Release</value>
+   <valuelist key="abstractProcess.Environment" type="QVariantList">
+    <value type="QString">ALLUSERSPROFILE=C:\ProgramData</value>
+    <value type="QString">APPDATA=C:\Users\tarini\AppData\Roaming</value>
+    <value type="QString">CLASSPATH=.;C:\Program Files\Java\jre1.6.0_02\lib\ext\QTJava.zip</value>
+    <value type="QString">COMMONPROGRAMFILES=C:\Program Files\Common Files</value>
+    <value type="QString">COMPUTERNAME=NB-TARINI</value>
+    <value type="QString">COMSPEC=C:\Windows\system32\cmd.exe</value>
+    <value type="QString">DXSDK_DIR=C:\Program Files\Microsoft DirectX SDK (August 2009)\</value>
+    <value type="QString">FP_NO_HOST_CHECK=NO</value>
+    <value type="QString">HOMEDRIVE=C:</value>
+    <value type="QString">HOMEPATH=\Users\tarini</value>
+    <value type="QString">LOCALAPPDATA=C:\Users\tarini\AppData\Local</value>
+    <value type="QString">LOGONSERVER=\\NB-TARINI</value>
+    <value type="QString">NUMBER_OF_PROCESSORS=2</value>
+    <value type="QString">ONLINESERVICES=Servizi in linea</value>
+    <value type="QString">OS=Windows_NT</value>
+    <value type="QString">PATH=C:\Qt\2009.03\mingw\bin;C:\Qt\2009.03\qt\bin;C:\Python26\\Scripts;C:\Python26\;C:\Program Files\PC Connectivity Solution\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Program Files\CyberLink\Power2Go\;C:\Program Files\TortoiseSVN\bin;C:\qt4.4.3\bin;C:\Program Files\QuickTime\QTSystem\;C:\Users\tarini\AppData\Roaming\Python\Scripts;C:\Program Files\MiKTeX 2.7\miktex\bin;C:\Qt\2009.03\mingw\bin</value>
+    <value type="QString">PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.py;.pyw</value>
+    <value type="QString">PCBRAND=Pavilion</value>
+    <value type="QString">PLATFORM=MCD</value>
+    <value type="QString">PROCESSOR_ARCHITECTURE=x86</value>
+    <value type="QString">PROCESSOR_IDENTIFIER=x86 Family 6 Model 23 Stepping 6, GenuineIntel</value>
+    <value type="QString">PROCESSOR_LEVEL=6</value>
+    <value type="QString">PROCESSOR_REVISION=1706</value>
+    <value type="QString">PROGRAMDATA=C:\ProgramData</value>
+    <value type="QString">PROGRAMFILES=C:\Program Files</value>
+    <value type="QString">PUBLIC=C:\Users\Public</value>
+    <value type="QString">QTDIR=C:/Qt/2009.03/qt</value>
+    <value type="QString">QTJAVA=C:\Program Files\Java\jre1.6.0_02\lib\ext\QTJava.zip</value>
+    <value type="QString">SESSIONNAME=Console</value>
+    <value type="QString">SYSTEMDRIVE=C:</value>
+    <value type="QString">SYSTEMROOT=C:\Windows</value>
+    <value type="QString">TEMP=C:\Users\tarini\AppData\Local\Temp</value>
+    <value type="QString">TMP=C:\Users\tarini\AppData\Local\Temp</value>
+    <value type="QString">USERDOMAIN=nb-tarini</value>
+    <value type="QString">USERNAME=tarini</value>
+    <value type="QString">USERPART=E:</value>
+    <value type="QString">USERPROFILE=C:\Users\tarini</value>
+    <value type="QString">VS90COMNTOOLS=C:\Program Files\Microsoft Visual Studio 9.0\Common7\Tools\</value>
+    <value type="QString">WINDIR=C:\Windows</value>
+   </valuelist>
+   <value key="abstractProcess.command" type="QString"></value>
+   <value key="abstractProcess.workingDirectory" type="QString">C:/projects/qtCreator/openBrf</value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildconfiguration-Release-buildstep2</variable>
   <valuemap type="QVariantMap">
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Release</value>
    <valuelist key="abstractProcess.Environment" type="QVariantList">
@@ -298,11 +603,10 @@
    <value key="abstractProcess.command" type="QString">c:/qt/2009.03/qt/bin/qmake.exe</value>
    <value key="abstractProcess.enabled" type="bool">false</value>
    <value key="abstractProcess.workingDirectory" type="QString">C:/projects/qtCreator/openBrf</value>
-   <value key="buildConfiguration" type=""></value>
   </valuemap>
  </data>
  <data>
-  <variable>buildconfiguration-Release-buildstep1</variable>
+  <variable>buildconfiguration-Release-buildstep3</variable>
   <valuemap type="QVariantMap">
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString">Release</value>
    <valuelist key="abstractProcess.Environment" type="QVariantList">
@@ -366,6 +670,7 @@
     <value type="QString">COMMONPROGRAMFILES=C:\Program Files\Common Files</value>
     <value type="QString">COMPUTERNAME=NB-TARINI</value>
     <value type="QString">COMSPEC=C:\Windows\system32\cmd.exe</value>
+    <value type="QString">DXSDK_DIR=C:\Program Files\Microsoft DirectX SDK (August 2009)\</value>
     <value type="QString">FP_NO_HOST_CHECK=NO</value>
     <value type="QString">HOMEDRIVE=C:</value>
     <value type="QString">HOMEPATH=\Users\tarini</value>
@@ -374,8 +679,8 @@
     <value type="QString">NUMBER_OF_PROCESSORS=2</value>
     <value type="QString">ONLINESERVICES=Servizi in linea</value>
     <value type="QString">OS=Windows_NT</value>
-    <value type="QString">PATH=C:\Qt\2009.03\mingw\bin;C:\Qt\2009.03\qt\bin;C:\Program Files\PC Connectivity Solution\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Program Files\CyberLink\Power2Go\;C:\Program Files\TortoiseSVN\bin;C:\qt4.4.3\bin;C:\Program Files\QuickTime\QTSystem\;C:\Program Files\MiKTeX 2.7\miktex\bin;C:\Qt\2009.03\mingw\bin</value>
-    <value type="QString">PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC</value>
+    <value type="QString">PATH=C:\Qt\2009.03\mingw\bin;C:\Qt\2009.03\qt\bin;C:\Python26\\Scripts;C:\Python26\;C:\Program Files\PC Connectivity Solution\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Program Files\CyberLink\Power2Go\;C:\Program Files\TortoiseSVN\bin;C:\qt4.4.3\bin;C:\Program Files\QuickTime\QTSystem\;C:\Users\tarini\AppData\Roaming\Python\Scripts;C:\Program Files\MiKTeX 2.7\miktex\bin;C:\Qt\2009.03\mingw\bin</value>
+    <value type="QString">PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.py;.pyw</value>
     <value type="QString">PCBRAND=Pavilion</value>
     <value type="QString">PLATFORM=MCD</value>
     <value type="QString">PROCESSOR_ARCHITECTURE=x86</value>
@@ -399,6 +704,7 @@
     <value type="QString">VS90COMNTOOLS=C:\Program Files\Microsoft Visual Studio 9.0\Common7\Tools\</value>
     <value type="QString">WINDIR=C:\Windows</value>
    </valuelist>
+   <value key="abstractProcess.IgnoreReturnValue" type="bool">true</value>
    <valuelist key="abstractProcess.arguments" type="QVariantList">
     <value type="QString">clean</value>
     <value type="QString">-w</value>
@@ -417,13 +723,13 @@
   <valuelist type="QVariantList">
    <value type="QString">Debug</value>
    <value type="QString">Release</value>
+   <value type="QString">Language</value>
   </valuelist>
  </data>
  <data>
   <variable>buildstep0</variable>
   <valuemap type="QVariantMap">
    <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString"></value>
-   <value key="mkspec" type="QString"></value>
   </valuemap>
  </data>
  <data>
@@ -433,8 +739,22 @@
   </valuemap>
  </data>
  <data>
+  <variable>buildstep2</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString"></value>
+  </valuemap>
+ </data>
+ <data>
+  <variable>buildstep3</variable>
+  <valuemap type="QVariantMap">
+   <value key="ProjectExplorer.BuildConfiguration.DisplayName" type="QString"></value>
+  </valuemap>
+ </data>
+ <data>
   <variable>buildsteps</variable>
   <valuelist type="QVariantList">
+   <value type="QString">projectexplorer.processstep</value>
+   <value type="QString">projectexplorer.processstep</value>
    <value type="QString">trolltech.qt4projectmanager.qmake</value>
    <value type="QString">trolltech.qt4projectmanager.make</value>
   </valuelist>

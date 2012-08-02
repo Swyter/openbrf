@@ -20,6 +20,7 @@ int main(int argc, char *argv[])
     default: loc = QLocale::system().name(); break;
     case 1: loc = QString("en");break;
     case 2: loc = QString("zh");break;
+    case 3: loc = QString("es");break;
     }
     translator.load(QString(":/translations/openbrf_%1.qm").arg(loc));
   } else {
