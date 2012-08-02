@@ -393,7 +393,11 @@ void BrfMesh::ComputeTangents(){
 
   for (unsigned int vi=0; vi<vert.size(); vi++){
     vert[vi].tang=Point3f(0,0,0);
+    vert[vi].ti = 0;
   }
+
+  std::vector<vcg::Point3f> bitangents(vert.size(),Point3f(0,0,0));
+
   int fi =0;
   for (unsigned int ff=0; ff<face.size(); ff++){
     vcg::Point2f s0=vert[face[ff].index[0]].ta;
@@ -403,9 +407,9 @@ void BrfMesh::ComputeTangents(){
     s2-=s0;
     float det = s1^s2;
     if (!det) continue;
-    float a,b;
-    a = s2.Y()/det; b = -s1.X()/det;
-    //a = -s1.X()/det; b = s2.Y()/det;
+    float aT,bT,aB,bB;
+    aT = -s2.X()/det;  bT =  s1.X()/det;
+    aB =  s2.Y()/det;  bB = -s1.Y()/det;
 
     Point3f p0=frame[fi].pos[ vert[face[ff].index[0]].index ];
     Point3f p1=frame[fi].pos[ vert[face[ff].index[1]].index ];
@@ -413,18 +417,33 @@ void BrfMesh::ComputeTangents(){
     p1-=p0;
     p2-=p0;
 
-    vert[face[ff].index[0]].tang+=p1*a + p2*b;
-    vert[face[ff].index[1]].tang+=p1*a + p2*b;
-    vert[face[ff].index[2]].tang+=p1*a + p2*b;
+    Point3f faceTangent    = p1*aT + p2*bT;
+    Point3f faceBitangent = p1*aB + p2*bB;
 
+    vert[face[ff].index[0]].tang+=faceTangent;
+    vert[face[ff].index[1]].tang+=faceTangent;
+    vert[face[ff].index[2]].tang+=faceTangent;
 
+    bitangents[face[ff].index[0]] +=faceBitangent;
+    bitangents[face[ff].index[1]] +=faceBitangent;
+    bitangents[face[ff].index[2]] +=faceBitangent;
 
-/*    Point3f n=(c-a)^(b-a); // area weighted norm
-    for (int w=0; w<3; w++)
-    frame[fi].norm[ face[ff].index[w] ]+=n;*/
   }
   for (unsigned int vi=0; vi<vert.size(); vi++){
-    vert[vi].tang = -(vert[vi].tang^frame[fi].norm[vi]).Normalize();
+    // right hand or left hand TBN system?
+    float verse = (((vert[vi].tang ^ bitangents[vi] )
+                    * frame[fi].norm[vi])<0)?1:-1;
+    vert[vi].ti = (verse<0)?0:1;
+
+    // average the bitangent computed from UV-mapping and
+    //  bitangent computed by ortogonalizing the tangent
+    vert[vi].tang =
+     (
+      ((vert[vi].tang^frame[fi].norm[vi]).Normalize()*verse)
+      +
+      bitangents[vi].Normalize()
+     ).Normalize();
+    //vert[vi].tang = (vert[vi].tang).Normalize();
   }
 
   flags |= (1<<16);
@@ -460,7 +479,7 @@ void BrfFrame::Apply(Matrix44f m){
   }
   Point3f t = m*Point3f(0,0,0);
   for (int i=0; i<(int)norm.size(); i++){
-    norm[i]=m*norm[i] - t;
+    norm[i]=(m*norm[i] - t).normalized();
   }
 }
 
@@ -482,6 +501,9 @@ void BrfMesh::Transform(float *f){
     for (unsigned int j=0; j<frame[i].norm.size(); j++)
       frame[i].norm[j]=(m*frame[i].norm[j] - z).Normalize();
   }
+  if (HasTangentField())
+    for (unsigned int j=0; j<vert.size(); j++)
+      vert[j].tang=(m*vert[j].tang - z).Normalize();
   AdjustNormDuplicates();
   UpdateBBox();
 
@@ -671,6 +693,12 @@ void BrfMesh::ReskeletonizeHuman(const BrfSkeleton& from, const BrfSkeleton& to,
 
 void BrfMesh::Apply(Matrix44<float> m){
   for (int i=0; i<(int)frame.size(); i++) frame[i].Apply(m);
+
+  Point3f t = m*Point3f(0,0,0);
+  for (int i=0; i<(int)vert.size(); i++){
+    vert[i].tang=(m*vert[i].tang - t).normalized();
+  }
+
   this->UpdateBBox();
   this->AdjustNormDuplicates();
 }
@@ -1460,7 +1488,7 @@ bool BrfMesh::HasTangentField() const{
 
 void BrfMesh::DiscardTangentField(){
   flags &= ~(1<<16);
-  for (int i=0; i<vert.size(); i++) vert[i].tang.SetZero();
+  for (uint i=0; i<vert.size(); i++) vert[i].tang.SetZero();
 }
 
 void BrfMesh::Save(FILE*f) const{
@@ -1720,6 +1748,11 @@ void BrfMesh::Flip(){
     for (unsigned int i=0; i<frame[j].norm.size(); i++){
       frame[j].norm[i].X()*=-1;
     }
+  }
+  if (HasTangentField())
+  for (unsigned int i=0; i<vert.size(); i++){
+    vert[i].tang.X()*=-1;
+    vert[i].ti = 1 - vert[i].ti;
   }
   for (unsigned int i=0; i<face.size(); i++) face[i].Flip();
   AdjustNormDuplicates();

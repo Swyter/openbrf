@@ -230,8 +230,8 @@ void MainWindow::createMenus()
     group6->setExclusive(true);
 
     QActionGroup* group7=new QActionGroup(this);
-    optionAoPerFace[0] = new QAction(tr("Sample per vertex (much quiker)"),this);
-    optionAoPerFace[1] = new QAction(tr("Sample per wedge (might be better)"),this);
+    optionAoPerFace[0] = new QAction(tr("Sample per vertex (quicker)"),this);
+    optionAoPerFace[1] = new QAction(tr("Sample per wedge (softer, better on some models)"),this);
     for (int i=0; i<2; i++) {
       optionAoPerFace[i]->setCheckable(true);
       group7->addAction(optionAoPerFace[i]);

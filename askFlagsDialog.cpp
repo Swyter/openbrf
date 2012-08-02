@@ -43,7 +43,7 @@ AskFlagsDialog::AskFlagsDialog(QWidget *parent, unsigned int ones, unsigned int 
 
       if (!isOne && !isZero) cb[i]->setVisible(false);
     }
-    if ((l[i]==QString("R")) || (l[i].startsWith("Reserved "))) {
+    if ((l[i]==QString("R")) || (l[i].startsWith("reserved "))) {
       if ((l[i]==QString("R"))) cb[i]->setText(tr("reserved"));
       else cb[i]->setText(l[i]);
       cb[i]->setEnabled(false);
@@ -96,5 +96,6 @@ void AskFlagsDialog::changeEvent(QEvent *e)
 
 void AskFlagsDialog::on_pushButton_clicked()
 {
-    for (int i=0; i<32; i++) cb[i]->setVisible(true);
+  for (int i=0; i<32; i++) cb[i]->setVisible(true);
+  m_ui->pushButton->setEnabled(false);
 }

@@ -1136,6 +1136,30 @@ bool IniData::loadAll(int howFast){
 
     }
   }
+
+  /*
+  for (uint fn=0; fn<32; fn++) {
+    int nk=0;
+    QString res;
+    for (uint fi=0; fi<file.size(); fi++) {
+      for (uint mi=0; mi<file[fi].mesh.size(); mi++) {
+        unsigned int b = file[fi].mesh[mi].flags & ~(3<<16);
+
+        QString t;
+        t.sprintf("%s(0x%X) ",file[fi].mesh[mi].name,b);
+        if (b&(1<<fn)) {
+          if (nk<100 || (nk%10==0)) {
+            res+=t;
+            if (nk>=100) res+=" ... \n";
+          };
+          nk++;
+        }
+      }
+    }
+    if (nk>0)
+    qDebug("[spoiler=mesh with flag: %d]\n%s\n[/spoiler]",fn,res.toAscii().data());
+  }
+  */
   updateNeededLists();
   }
   if (howFast>=3){
@@ -1286,6 +1310,7 @@ bool IniData::addBrfFile(const char* name, Origin ori, int line, int howFast){
   bool onlyMatAndTextures = (howFast<=2);
   if (howFast>1) {
     if (!d.LoadFast(brfFn.toStdWString().c_str(),onlyMatAndTextures)) {
+
       // ERROR!!
       if (!QDir(brfPath).exists( QString("%1.brf").arg(name)))
       errorListOnLoad.push_back(QTextBrowser::tr("<b>File-Not-Found:</b> could not read brf file <u>%1</u>, listed in module.ini file")
@@ -1297,6 +1322,18 @@ bool IniData::addBrfFile(const char* name, Origin ori, int line, int howFast){
       //file.pop_back();
       //filename.pop_back(brfFn);
       return false;
+    } else {
+      /*
+        // TEST!
+      for (uint i=0; i<d.mesh.size(); i++) if (d.mesh[i].HasTangentField()){
+        int b = 0;
+        for (uint j=0; j<d.mesh[i].vert.size(); j++) {
+          int nb = d.mesh[i].vert[j].ti;
+          if ((nb!=0)) b = nb;
+        }
+        if (b!=0) qDebug("mesh %s has ti = 0x%X",d.mesh[i].name, b);
+      }
+      */
     }
   } else d.Clear();
   return true;

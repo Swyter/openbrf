@@ -1766,7 +1766,7 @@ void MainWindow::onClipboardChange(){
   }
   statusBar()->showMessage((isMyData)?
     QString("%1 new items found in clipboard...").arg(clipboard.totSize())
-    :"Unusable data in cliboard");
+    :"Unusable data in clipboard");
 
   editPasteAct->setEnabled( clipboard.totSize() );
 
@@ -3509,41 +3509,41 @@ void MainWindow::setFlagsMesh(){
 
 
   QString FlagNameArray[32] = {
-    "Unkonwn",
-    "Unkonwn",
-    "Unkonwn",
-    "Unkonwn",
-    "Unkonwn",
-    "Unkonwn",
-    "Unkonwn",
-    "Unkonwn",
+    AskFlagsDialog::tr("Unknown (for props?)"),
+    AskFlagsDialog::tr("Unknown (for particles?)"),
+    AskFlagsDialog::tr("Unknown (plants?)"),
+    AskFlagsDialog::tr("Unknown (for particles?)"),
+    "",
+    AskFlagsDialog::tr("Unknown (hairs and body parts?)"),
+    "",
+    "",
 
-    "Unkonwn",
-    "Unkonwn",
-    "Unkonwn",
-    "Unkonwn",
-    "Unkonwn",
-    "Unkonwn",
-    "Unkonwn",
-    "Unkonwn",
+    AskFlagsDialog::tr("Unknown (for particles?)"),
+    AskFlagsDialog::tr("Unknown (screen space?)"),
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
 
-    AskFlagsDialog::tr("Reserved (tangent space)"),
-    AskFlagsDialog::tr("Reserved (warband format)"),
-    "Unkonwn",
-    "Unkonwn",
-    "Unkonwn",
-    "Unkonwn",
-    "Unkonwn",
-    "Unkonwn",
+    AskFlagsDialog::tr("reserved (tangent space)"),
+    AskFlagsDialog::tr("reserved (Warband format)"),
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
 
-    "Unkonwn",
-    "Unkonwn",
-    "Unkonwn",
-    "Unkonwn",
-    "Unkonwn",
-    "Unkonwn",
-    "Unkonwn",
-    "Unkonwn",
+    AskFlagsDialog::tr("Unknown (for particles?)"),
+    "",
+    AskFlagsDialog::tr("Unknown (for particles?)"),
+    "",
+    "",
+    "",
+    "",
+    "",
 
   };
 

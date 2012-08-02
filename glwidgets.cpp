@@ -417,13 +417,14 @@ void GLWidget::initFramPrograms(){
 
     void main(){
       gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-      lightDir = vec3(0,0,1)*gl_NormalMatrix;
-      color = (usePerVertColor>0)?gl_Color:vec4(1,1,1,1);
+      lightDir = vec3(0.0,0.0,1.0)*gl_NormalMatrix;
+      color = (usePerVertColor>0)?gl_Color:vec4(1.0,1.0,1.0,1.0);
       tc = gl_MultiTexCoord0.st;
-      lightDir =  normalize( vec3(0,0,1) * gl_NormalMatrix );
+      lightDir =  normalize( vec3(0.0,0.0,1.0) * gl_NormalMatrix );
       norm =  normalize( gl_Normal );
       tanx = gl_MultiTexCoord1.xyz;
       tany = cross( norm, tanx );
+      tany *= (gl_MultiTexCoord2.x==0.0)?-1.0:1.0;
       /*norm = normalize(norm);*/
     }
 
@@ -459,7 +460,7 @@ void GLWidget::initFramPrograms(){
               normt.x * tanx +
               normt.y * tany;
       float diffuse = dot(normt , lightDir ) ;
-      diffuse = (diffuse<0)?0:diffuse;
+      diffuse = (diffuse<0.0)?0.0:diffuse;
       %1if SPECULAR_MAP%2
       vec3 specmapVal =  texture( samplSpec,tc).rgb;
       %1endif%2
@@ -1267,23 +1268,31 @@ void GLWidget::renderRiggedMesh(const BrfMesh& m,  const BrfSkeleton& s, const B
       //glNormal(vert[face[i].index[j]].__norm);
       const Point3f &norm(m.frame[fv].norm[        m.face[i].index[j]        ]);
       const Point3f &tang(m.vert[                  m.face[i].index[j]        ].tang);
+      const int     &tiv (m.vert[                  m.face[i].index[j]        ].ti);
       const Point3f &pos (m.frame[fv].pos [ m.vert[m.face[i].index[j]].index ]);
       Point3f v(0,0,0);
       Point3f n(0,0,0);
       Point3f t(0,0,0);
+      int ti = 0;
       for (int k=0; k<4; k++){
         float wieght = rig.boneWeight[k];
         int       bi = rig.boneIndex [k];
         if (bi>=0 && bi<(int)bonepos.size()) {
           v += (bonepos[bi]* pos  )*wieght;
           n += (bonepos[bi]* norm - bonepos[bi]*Point3f(0,0,0) )*wieght;
-          if (bumpmapActivated)
+          if (bumpmapActivated){
             t += (bonepos[bi]* tang - bonepos[bi]*Point3f(0,0,0) )*wieght;
+            ti = tiv;
+          }
         }
       }
       glNormal(n);
       glTexCoord(m.vert[m.face[i].index[j]].ta);
-      if (bumpmapActivated) glMultiTexCoord3fv(GL_TEXTURE1,t.V());
+      if (bumpmapActivated) {
+        glMultiTexCoord3fv(GL_TEXTURE1,t.V());
+        glMultiTexCoord1i (GL_TEXTURE2,ti );
+
+      }
       glVertex(v);
     }
   }
@@ -1337,8 +1346,10 @@ void GLWidget::renderMesh(const BrfMesh &m, float frame){
       glNormal(m.frame[framei].norm[      m.face[i].index[j]        ]);
       glTexCoord(m.vert[m.face[i].index[j]].ta);
 
-      if (bumpmapActivated) glMultiTexCoord3fv(GL_TEXTURE1,
-               m.vert[m.face[i].index[j]].tang.V());
+      if (bumpmapActivated) {
+        glMultiTexCoord3fv(GL_TEXTURE1,  m.vert[m.face[i].index[j]].tang.V());
+        glMultiTexCoord1i (GL_TEXTURE2,  m.vert[m.face[i].index[j]].ti );
+      }
       glVertex(m.frame[framei].pos [ m.vert[m.face[i].index[j]].index ]);
 
     }
