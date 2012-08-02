@@ -19,6 +19,8 @@ public:
   Point3f tang; // tangent dir...
   unsigned char ti; // texture index
   Point2f ta,tb; // texture
+
+
   
   BrfVert operator + (const int i) const {BrfVert res = *this; res.index += i; return res;}
   bool Load(FILE*f);
@@ -115,7 +117,7 @@ public:
   BrfMesh(){}
   BrfMesh(FILE *f){ Load(f);}
   unsigned int flags;
-  
+
   char name[255];
   char material[255];
   static int tokenIndex(){return MESH;}
@@ -248,8 +250,6 @@ private:
   
   static void AlignToTop(BrfMesh& a, BrfMesh& b);
   BrfMesh SingleFrame(int i) const; // returns a BrfMesh consisting only of frame i
-
-
 
 };
 

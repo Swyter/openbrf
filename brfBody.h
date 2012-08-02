@@ -34,6 +34,8 @@ public:
   unsigned int flags; // for faces, capsules, spheres only
 
   Box3f bbox;
+
+
   const char* name() const;
 
   float* GetRotMatrix() const; // rotation matrix for capsules
@@ -60,6 +62,7 @@ public:
 
   static int tokenIndex(){return BODY;}
   char name[255];
+
   bool Load(FILE*f, int verbose=1);
   bool Skip(FILE*f);
   void Save(FILE*f) const;

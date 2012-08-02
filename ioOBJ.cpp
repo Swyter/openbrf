@@ -58,7 +58,8 @@ bool IoOBJ::writeMesh(QFile &f, const BrfMesh& m, int fr){
   QString s;
   s = QString("s %1\n").arg(m.name);
   f.write(s.toAscii());
-  s = QString("newmtl %1\nusemtl %1\n").arg(m.material);
+  //s = QString("newmtl %1\nusemtl %1\n").arg(m.material);
+  s = QString("newmtl %1\nKa 0.8 0.8 0.8\nKd 0.2 0.2 0.2\nusemtl %1\n").arg(m.material);
   f.write(s.toAscii());
 
 

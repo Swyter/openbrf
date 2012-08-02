@@ -31,6 +31,7 @@ void Selector::addToRefMeshJ(){ emit(addToRefMesh(9)); }
 Selector::Selector(QWidget *parent)
    : QTabWidget(parent)
 {
+  iniData = NULL;
   for (int i=0; i<N_TOKEN; i++) {
     tab[i]=NULL;
     //tabIndex[i]=-1;
@@ -83,6 +84,7 @@ Selector::Selector(QWidget *parent)
     addToRefMeshAct[i]->setStatusTip(tr("Add this mesh to reference skins (to use it later to display animations)."));
 
   }
+
   connect(addToRefMeshAct[0], SIGNAL(triggered()), this, SLOT(addToRefMeshA()));
   connect(addToRefMeshAct[1], SIGNAL(triggered()), this, SLOT(addToRefMeshB()));
   connect(addToRefMeshAct[2], SIGNAL(triggered()), this, SLOT(addToRefMeshC()));
@@ -94,6 +96,40 @@ Selector::Selector(QWidget *parent)
   connect(addToRefMeshAct[8], SIGNAL(triggered()), this, SLOT(addToRefMeshI()));
   connect(addToRefMeshAct[9], SIGNAL(triggered()), this, SLOT(addToRefMeshJ()));
   connect(this, SIGNAL(addToRefMesh(int)), parent, SLOT(addToRefMesh(int)));
+
+  for (int i=0; i<MAX_USED_BY; i++){
+    usedByAct[i] = new QAction("???",this);
+    usedByAct[i]->setProperty("id",i);
+    connect(usedByAct[i], SIGNAL(triggered()),  parent, SLOT(goUsedBy()));
+  }
+
+  QFont fontIta(QApplication::font());
+  fontIta.setItalic(!fontIta.italic());
+
+  usedByNoneAct = new QAction(tr("<none>"),this);
+  usedByNoneAct->setFont( fontIta );
+
+  for (int i=0; i<N_TXTFILES; i++){
+    usedInAct[i]
+        = new QAction(tr("mod file <%1>").arg(txtFileName[i]),this);
+    usedInAct[i+N_TXTFILES]
+        = new QAction(tr("mod file <%1> (indirectly)").arg(txtFileName[i]),this);
+    usedInAct[i]->setFont( fontIta );
+    usedInAct[i+N_TXTFILES]->setFont( fontIta );
+  }
+  usedInNoTxtAct = new QAction(tr("<no .txt file>"),this);
+  usedInNoTxtAct->setFont(fontIta);
+  usedInCoreAct[0] = new QAction(tr("<core engine>"),this);
+  usedInCoreAct[0]->setFont(fontIta);
+  usedInCoreAct[1] = new QAction(tr("<core engine> (indirectly)"),this);
+  usedInCoreAct[1]->setFont(fontIta);
+
+  usedInNotInModule = new QAction(tr("<not in module.ini>"),this);
+  usedInNotInModule->setFont(fontIta);
+
+  usedByComputeAct = new QAction(tr("(not computed: compute now)"),this);
+  connect(usedByComputeAct, SIGNAL(triggered()),parent, SLOT(computeUsedBy()));
+
 
   exportBodyAct = new QAction(tr("Export"), this);
 
@@ -400,6 +436,40 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
      menu.addAction(moveDownAct);
    }
 
+   if (onesel){
+
+      //menu.addSeparator();
+      QMenu *m = menu.addMenu(tr("Used by..."));
+      if (!iniData) {
+        m->addAction(usedInNotInModule);
+      } else {
+        if (iniData->updated<4) {
+          m->addAction( usedByComputeAct );
+        } else {
+          ObjCoord c(iniFileIndex,seli,t);
+          const std::vector< ObjCoord > &s ( iniData->usedBy(c) );
+          IniData::UsedInType ui = iniData->usedIn(c);
+          for (int i=0; i<(int)N_TXTFILES; i++){
+            if (ui.direct & bitMask(i)) m->addAction(usedInAct[i]); else
+            if (ui.indirect & bitMask(i)) m->addAction(usedInAct[i+N_TXTFILES]);
+          }
+          if (ui.direct & bitMask(TXTFILE_CORE)) m->addAction(usedInCoreAct[0]); else
+          if (ui.indirect & bitMask(TXTFILE_CORE)) m->addAction(usedInCoreAct[1]);
+          if ((m->actions().size()==0) && (s.size()!=0)){
+            m->addAction( usedInNoTxtAct );
+          }
+          for (unsigned int i=0; i<s.size(); i++) if (i<MAX_USED_BY){
+            usedByAct[i]->setText(iniData->nameFull( s[i] ));
+            m->addAction( usedByAct[i] );
+          }
+          if (m->actions().size()==0){
+            m->addAction( usedByNoneAct );
+          }
+        }
+      }
+
+   }
+
    if (onesel) {
 
      menu.addSeparator();
@@ -483,6 +553,8 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
      }
    }
    }
+
+
    // add to reference
    if (onesel && t==MESH) {
      menu.addSeparator();
@@ -519,6 +591,11 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
  }
 
 
+void Selector::setIniData(const IniData *data, int fi){
+  iniData = data;
+  iniFileIndex = fi;
+}
+
 template<class BrfType>
 void Selector::addBrfTab(const vector<BrfType>  &v){
 
@@ -529,6 +606,18 @@ void Selector::addBrfTab(const vector<BrfType>  &v){
 
     for (unsigned int k=0; k<v.size(); k++) {
       tableModel[ti]->vec.push_back( QString( v[k].name ) );
+
+    }
+    if (iniData && (iniData->updated>=4)) {
+      for (unsigned int k=0; k<v.size(); k++) {
+        ObjCoord oc(iniFileIndex,k,ti);
+        int h=-1;
+        if (iniData->usedIn(oc).directOrIndirect()!=0) h=1;
+        else if (iniData->usedBy(oc).size()==0) h=-2;
+        tableModel[ti]->vecUsed.push_back( h );
+      }
+    } else {
+      tableModel[ti]->vecUsed.resize(v.size(),0);
     }
     //tab[ti]->setModel(tableModel[ti]);
 

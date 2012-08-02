@@ -63,6 +63,21 @@ static int myfind(const vector<T> &b, char* name){
   return -1;
 }
 
+unsigned int BrfData::size(int token) const{
+
+  switch (token) {
+    case MESH: return mesh.size();
+    case MATERIAL: return material.size();
+    case SHADER: return shader.size();
+    case TEXTURE: return texture.size();
+    case BODY: return body.size();
+    case SKELETON: return skeleton.size();
+    case ANIMATION: return animation.size();
+  }
+  return 0;
+
+}
+
 int BrfData::Find(char* name, int token){
   switch (token) {
     case MESH: return myfind(mesh,name);

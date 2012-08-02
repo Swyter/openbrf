@@ -164,12 +164,18 @@ private:
     void tldMakeDwarfBoots();
     void tldShrinkAroundBones();
 
+    void goUsedBy();
+    void computeUsedBy();
+    void selectBrfData();
+    void showUnrefTextures();
+    void showModuleStats();
 
 
 public slots:
     void displayInfo(QString st, int howlong);
 
 private:
+    bool goTo(ObjCoord o);
     //std::map< std::string, std::string > mapMT;// map material to textures
     GLWidget *glWidget;
     Selector *selector;
@@ -178,7 +184,7 @@ private:
 
     void guessPaths(QString fn);
     void updatePaths();
-    bool loadIni();
+    bool loadIni(int lvl);
     QString mabPath;
     QString modName;
     QString modPath() const;
@@ -286,6 +292,10 @@ private:
     QAction *navigateUpAct;
     QAction *navigateDownAct;
     QAction *refreshIniAct;
+    QAction *computeUsedByAct;
+    QAction *selectBrfDataAct;
+    QAction *showUnrefTexturesAct;
+    QAction *showModuleStatsAct;
 
     QAction *mab2tldHeadAct;
     QAction *tld2mabHeadAct;
@@ -297,7 +307,7 @@ private:
     QAction *checkIniAct;
     QAction *searchIniAct;
 
-    QPair<Pair , QString > navigationStack[3];
+    QPair<ObjCoord , QString > navigationStack[3];
 
     int navigationStackPos;
 

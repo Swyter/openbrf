@@ -41,7 +41,9 @@ SOURCES += main.cpp \
     main_ImpExp.cpp \
     brfHitBox.cpp \
     ioMD3.cpp \
-    askNewUiPictureDialog.cpp
+    askNewUiPictureDialog.cpp \
+    askSelectBrfDialog.cpp \
+    askUnrefTextureDialog.cpp
 HEADERS += mainwindow.h \
     glwidgets.h \
     saveLoad.h \
@@ -74,7 +76,9 @@ HEADERS += mainwindow.h \
     askCreaseDialog.h \
     ioOBJ.h \
     ioMD3.h \
-    askNewUiPictureDialog.h
+    askNewUiPictureDialog.h \
+    askSelectBrfDialog.h \
+    askUnrefTextureDialog.h
 FORMS += guipanel.ui \
     askBoneDialog.ui \
     askSkelDialog.ui \
@@ -84,7 +88,9 @@ FORMS += guipanel.ui \
     askTransformDialog.ui \
     askCreaseDialog.ui \
     mainwindow.ui \
-    askNewUiPictureDialog.ui
+    askNewUiPictureDialog.ui \
+    askSelectBrfDialog.ui \
+    askUnrefTextureDialog.ui
 INCLUDEPATH += "C:\projects\vcglib"
 INCLUDEPATH += "C:\libs\lib3ds-1.3.0"
 RESOURCES += resource.qrc

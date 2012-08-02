@@ -11,62 +11,13 @@
 #include "askTransformDialog.h"
 #include "askCreaseDialog.h"
 #include "askNewUiPictureDialog.h"
+#include "askUnrefTextureDialog.h"
+#include "askSelectBrfDialog.h"
 #include <QtGui>
 #include <QDebug>
 #include <algorithm>
 
 typedef QPair<int, int> Pair;
-
-/*
-bool MainWindow::scanBrfDataForMaterials(const BrfData& tmp){
-  for (unsigned int i=0; i<tmp.material.size(); i++){
-    mapMT[tmp.material[i].name] = tmp.material[i].diffuseA;
-  }
-  return true;
-}
-
-bool MainWindow::scanBrfForMaterials(const QString fname){
-  char st[500];
-  sprintf(st,fname.toAscii().data());
-  FILE *f =_wfopen(fname.toAscii().data(),"rb");
-  if (!f) return false;
-  BrfData tmp;
-  //tmp.LoadMat(f);
-  tmp.Load(f);
-  scanBrfDataForMaterials(tmp);
-  return true;
-}
-
-void MainWindow::tryLoadMaterials(){
-  // tmp, hacked funciton
-
-  QString s = settings->value("LastOpenPath").toString();
-  QString path[2];
-  path[0].clear();
-  path[1].clear();
-
-  QDir d = QFileInfo(s).dir();
-
-  d.cd(QFileInfo(s).fileName());
-  path[0]=d.path();
-  path[1].clear();
-
-  d.cdUp(); d.cd("textures");
-  defpathTexture = d.path();
-  glWidget->texturePath=defpathTexture;
-
-  if (d.cdUp() && d.cdUp() && d.cd("CommonRes") ) path[1]=d.path();
-  for (int i=0; i<2; i++) {
-    if (!path[i].isEmpty()) {
-      scanBrfForMaterials(path[i]+"/materials.brf");
-      scanBrfForMaterials(path[i]+"/core_materials.brf");
-      scanBrfForMaterials(path[i]+"/materials_face_gen.brf");
-    }
-  }
-  //scanBrfForMaterials("C:/games/Mount&Blade1011/CommonRes/body_meshes.brf");
-}
-
-*/
 
 void MainWindow::notifyDataChanged(){
   setModified(false);
@@ -2096,11 +2047,15 @@ bool MainWindow::loadFile(const QString &_fileName)
 
 bool MainWindow::saveFile(const QString &fileName)
 {
-  if (curFileIndex!=-1) {
-    inidata.file[curFileIndex] = brfdata;
-    inidata.updateLists();
-  }
+
   //setCurrentFile(fileName);
+  if (curFileIndex>=0 && curFileIndex<(int)inidata.file.size()){
+    if (inidata.origin[curFileIndex]!=IniData::MODULE_RES)
+    if (QMessageBox::warning(
+      this,"OpenBRF",tr("You are saving a CommonRes file!\n(i.e. not one specific of this module).\n\nAre you sure?"),
+      QMessageBox::Ok, QMessageBox::No
+    )== QMessageBox::No) return false;
+  }
   if (!brfdata.Save(fileName.toStdWString().c_str())) {
      QMessageBox::information(this, "OpenBRF",
                                  tr("Cannot write file %1.").arg(fileName));
@@ -2109,12 +2064,118 @@ bool MainWindow::saveFile(const QString &fileName)
      statusBar()->showMessage(tr("File saved!"), 2000);
      if (curFileIndex>=0 && curFileIndex<(int)inidata.file.size()){
        inidata.file[curFileIndex]=brfdata; // update ini file
+       inidata.updateBeacuseBrfDataChanged();
      }
      setModified(false);
      return true;
    }
 }
 
+void MainWindow::goUsedBy(){
+  int k=-1;
+  QVariant prop;
+  QObject *p = sender();
+  if (p) {
+    prop = p->property("id");
+    if (prop.isValid()) k = prop.toInt();
+    else statusBar()->showMessage("Debug: Prop non valid!");
+  } else statusBar()->showMessage("Debug: Sender not valid!");
+  if (k>=0) {
+    if (curFileIndex<(int)inidata.file.size()) {
+      ObjCoord c(curFileIndex,selector->firstSelected(), selector->currentTabName());
+      const std::vector<ObjCoord> &v(
+        inidata.usedBy(c)
+        //inidata.file[c.fi].GetUsedBy(c.oi, c.t )
+      );
+    if (k<(int)v.size()) goTo(v[k]);
+    else statusBar()->showMessage(QString("Debug: got %1<%2 (%3)!").arg(k).arg(v.size()).arg(inidata.nameShort( c )));
+    }
+  }
+
+}
+
+void MainWindow::selectBrfData(){
+  if (!maybeSave()) return;
+  loadIni(1);
+
+  while (1){
+  AskSelectBRFDialog d(this);
+    for (unsigned int k = 0; k<inidata.file.size(); k++){
+      int h = inidata.origin[k]==IniData::MODULE_RES?0:2;
+      QString shortName = inidata.filename[k];
+      shortName = QString("%1. %2").arg(k).arg(QFileInfo(shortName).baseName());
+      if (inidata.updated>2) {
+        int s = inidata.totSize(k);
+        if (inidata.updated<4) {
+          shortName.append(QString(" (%1)").arg(s));
+        } else {
+          int u = inidata.totUsed(k);
+          shortName.append(QString(" (%2+%1)").arg(s-u).arg(u));
+        }
+      }
+      d.addName(h,shortName,inidata.filename[k]);
+
+    }
+    QDir dir(inidata.modPath);
+    dir.cd("Resource");
+
+    QStringList filters;
+    filters << "*.brf" ;
+    dir.setNameFilters(filters);
+    dir.setFilter(QDir::Files);
+    QStringList list =  dir.entryList();
+    for (int i=0; i<list.size(); i++){
+      QString name = QFileInfo(list[i]).baseName();
+      QString fullname = dir.absoluteFilePath(list[i]);
+      if (inidata.findFile(fullname)==-1)
+      d.addName(1, name ,fullname);
+    }
+
+    //for (int dir.count()
+    d.doExec();
+    if (d.loadMe=="???1") { loadIni(4); continue; }
+    if (d.loadMe=="???2") { refreshIni(); continue; }
+
+    if (!d.loadMe.isEmpty()){
+      loadFile(d.loadMe);
+    }
+    break;
+  }
+}
+
+void MainWindow::showUnrefTextures(){
+  loadIni(4);
+  while(1){
+  AskUnrefTextureDialog d(this);
+
+  QDir dir(inidata.modPath);
+  dir.cd("Textures");
+
+  QStringList filters;
+  filters << "*.dds" << "*.TIF" ;
+  dir.setNameFilters(filters);
+  dir.setFilter(QDir::Files);
+  QStringList list =  dir.entryList();
+  for (int i=0; i<list.size(); i++){
+    QString name = QFileInfo(list[i]).fileName();
+    if (!inidata.findTexture(name))
+    d.addFile(name);
+  }
+
+  if (d.exec()!=QDialog::Accepted) break;
+  }
+
+}
+
+
+void MainWindow::showModuleStats(){
+  inidata.loadAll(4);
+  QMessageBox::information(this,"OpenBRF",inidata.stats());
+}
+
+void MainWindow::computeUsedBy(){
+  loadIni(4);
+}
 
 bool MainWindow::open()
 {
@@ -2240,14 +2301,14 @@ void MainWindow::guessPaths(QString fn){
   updatePaths();
   inidata.setPath(mabPath,_modPath);
 
-  loadIni();
+  loadIni(2);
 }
 
-bool MainWindow::loadIni(){
+bool MainWindow::loadIni(int lvl){
   QTime qtime;
   qtime.start();
 
-  bool res = (!inidata.loadAll(true));
+  bool res = inidata.loadAll(lvl); // only tex mat etc
 
   cancelNavStack();
 
@@ -2256,7 +2317,10 @@ bool MainWindow::loadIni(){
       arg(inidata.file.size()).arg(qtime.elapsed()).arg(modName).arg(inidata.nRefObjects())
       .arg((res)?tr("scanned"):tr("ERRORS found while scanning")),6000);
 
-
+  if (lvl==4) {
+    if (!res) QMessageBox::warning(this,"OpenBRF",inidata.errorStringOnScan);
+    updateSel();
+  }
 
   return true;
 }
@@ -2281,6 +2345,11 @@ void MainWindow::setCurrentFile(const QString &fileName)
   guessPaths(fileName);
 
   curFileIndex = inidata.findFile(fileName);
+  if (curFileIndex>=0) {
+    selector->setIniData(&inidata,curFileIndex);
+  } else {
+    selector->setIniData(NULL,-1);
+  }
 
   updateTitle();
 
@@ -2292,6 +2361,16 @@ MainWindow::~MainWindow()
     //delete ui;
 }
 
+bool MainWindow::goTo(ObjCoord o){
+  if (o.fi!=curFileIndex )
+  if (!loadFile( inidata.filename[o.fi]) ) return false;
+
+  curFileIndex = o.fi;
+
+  selectOne(o.t,o.oi);
+  return true;
+}
+
 bool MainWindow::navigateLeft(){
 
   if (navigationStackPos<=0) return false;
@@ -2299,23 +2378,24 @@ bool MainWindow::navigateLeft(){
 
   int nowPos = navigationStackPos;
   static int num=0; num++;
-  QPair<Pair,QString> p = navigationStack[navigationStackPos];
+  QPair<ObjCoord,QString> p = navigationStack[navigationStackPos];
   //qDebug()<<"p,first: "<<p.first<<" (on"<<inidata.filename.size() << ")\n";
   if (p.second.isEmpty()) return false;
   //if (p.first>=(int)inidata.filename.size()) return false;
 
-  if (p.first.first!=curFileIndex || p.first.first==-1)
+
+  if (p.first.fi!=curFileIndex || p.first.fi==-1)
     if (!loadFile( //inidata.filename[p.first])
         p.second )
         ) return false;
 
-  curFileIndex = p.first.first;
+  curFileIndex = p.first.fi;
 
   int obj=MESH;
   if (nowPos==1) obj=MATERIAL;
 
 
-  selectOne(obj,p.first.second);
+  selectOne(obj,p.first.oi);
   ////selector->currentWidget()->setFocus();
   guiPanel->setNavigationStackDepth( navigationStackPos = nowPos );
 
@@ -2327,40 +2407,42 @@ void MainWindow::cancelNavStack(){
   navigationStackPos = 0;
   guiPanel->setNavigationStackDepth( navigationStackPos );
   for (int i=0; i<3; i++) navigationStack[i]=
-       QPair<Pair, QString>(Pair(-1,-1),"");
+      QPair<ObjCoord, QString>(ObjCoord::Invalid(),"");
 }
 
 bool MainWindow::navigateRight(){
   //int s = selector->onlySelected(MESH);
   //BrfMesh *m = selectedMesh();
 
-  QPair<Pair,QString> old(
-      Pair(curFileIndex,selector->firstSelected()),
+  inidata.loadAll(2); // ini must be loaded, at least mat and textures
+
+  QPair<ObjCoord,QString> old(
+      ObjCoord(curFileIndex,selector->firstSelected(), TokenEnum(selector->currentTabName())),
       curFile);
 
   if (selector->currentTabName()==MESH) {
     if (!guiPanel->ui->boxMaterial->hasFrame()) return false;
 
     QString st = guiPanel->ui->boxMaterial->text();
-    Pair p = inidata.indexOf(st,MATERIAL);
-    if (p.first==-1) {
+    ObjCoord p = inidata.indexOf(st,MATERIAL);
+    if (p.fi==-1) {
       statusBar()->showMessage( tr("Navigate: cannot find material \"%1\" in current module").arg(st),6000);
       return false;
     }
-    if (p.first!=curFileIndex) {
-      if (!loadFile( inidata.filename[p.first])) return false;
+    if (p.fi!=curFileIndex) {
+      if (!loadFile( inidata.filename[p.fi])) return false;
     }
     navigationStackPos = 0;
 
     navigationStack[navigationStackPos]=old;
     //qDebug()<<"WRITING pos: "<<old.first<<"\n";
-    curFileIndex = p.first;
+    curFileIndex = p.fi;
     if (navigationStackPos<10) navigationStackPos ++;
     guiPanel->setNavigationStackDepth( navigationStackPos );
 
 
     // switch to file containing the material
-    selectOne(MATERIAL,p.second);
+    selectOne(MATERIAL,p.oi);
     selector->currentWidget()->setFocus();
 
 
@@ -2384,27 +2466,27 @@ bool MainWindow::navigateRight(){
       ne = TEXTURE;
       //st = st+".dds";
     }
-    Pair p = inidata.indexOf(st, ne);
+    ObjCoord p = inidata.indexOf(st, ne);
 
-    if (p.first==-1) {
+    if (p.fi==-1) {
       statusBar()->showMessage( tr("Navigate: cannot find %2 \"%1\" in current module")
                                 .arg(st).arg(IniData::tokenFullName(ne)),6000);
       return false;
     }
-    if (p.first!=curFileIndex) {
-      if (!loadFile( inidata.filename[p.first])) return false;
+    if (p.fi!=curFileIndex) {
+      if (!loadFile( inidata.filename[p.fi])) return false;
     }
     navigationStackPos = 1;
     //navigationStackObj[navigationStackPos]=MATERIAL;
     navigationStack[navigationStackPos]=old;
-    curFileIndex = p.first;
+    curFileIndex = p.fi;
     if (navigationStackPos<10) navigationStackPos ++;
     guiPanel->setNavigationStackDepth( navigationStackPos );
     statusBar()->showMessage( tr("Navigate right: pos = %1")
                               .arg(navigationStackPos),6000);
 
     // switch to file containing the material
-    selectOne(ne,p.second);
+    selectOne(ne,p.oi);
     selector->currentWidget()->setFocus();
     return true;
   }
@@ -2423,11 +2505,17 @@ bool MainWindow::searchBrf(){
   return false;
 }
 bool MainWindow::refreshIni(){  
-  inidata.updated=false;
+  int tmp = inidata.updated;
+  inidata.updated=0; // force reload all
   brfdata.ForgetTextureLocations();
   glWidget->forgetChachedTextures();
+
+  bool res = loadIni(tmp);
   updateGl();
-  return loadIni();
+  updateGui();
+  updateSel();
+  return res;
+
 }
 
 bool MainWindow::checkIni(){
@@ -2447,6 +2535,7 @@ bool MainWindow::checkIni(){
 
 bool MainWindow::searchIni(){
 
+  int oldIni = inidata.updated;
   if (!maybeSave()) return false;
 
   static bool optA = true;
@@ -2459,6 +2548,8 @@ bool MainWindow::searchIni(){
   if (d->i>=0) {
     loadFile(inidata.filename[d->i]);
     selectOne(d->kind, d->j);
+  } else {
+    if (inidata.updated!=oldIni) updateSel(); // refresh colors
   }
   d->getOptions(&optA,&optB,&optC);
   delete d;
@@ -2476,9 +2567,10 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::newFile(){
   if (maybeSave()) {
-    loadIni();
+    loadIni(2);
     brfdata.Clear();
     curFile.clear();
+    curFileIndex = -1;
     selector->setup( brfdata );
     setEditingRef(false);
     updateTitle();

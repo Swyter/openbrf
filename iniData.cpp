@@ -1,8 +1,23 @@
 #include <QtCore>
+#include <math.h>
 #include <QTextBrowser>
 
 #include "brfData.h"
 #include "iniData.h"
+
+char* txtFileName[N_TXTFILES] = {
+  "actions.txt",          // TXTFILE_ACTIONS,
+  "skins.txt",            // TXTFILE_SKIN,
+  "item_kinds1.txt",      // TXTFILE_ITEM,
+  "meshes.txt",           // TXTFILE_MESHES,
+  "map_icons.txt",        // TXTFILE_ICONS,
+  "scene_props.txt",      // TXTFILE_PROP,
+  "particle_systems.txt", // TXTFILE_PARTICLE,
+  "tableau_materials.txt",// TXTFILE_TABLEAU
+  "flora_kinds.txt",      // TXTFILE_FLORA_KINDS,
+  "ground_specs.txt",     // TXTFILE_GROUND_SPECS,
+  "skyboxes.txt",         // TXTFILE_SKYBOXES,
+};
 
 template <class T> int _findByName( const vector<T> &v, const QString &s){
   for (unsigned int i=0; i<v.size(); i++)
@@ -24,18 +39,557 @@ template <class T> int _findByNameNoExt( const vector<T> &v, const QString &s){
   return -1;
 }
 
-template <class T> void _addNames( const vector<T> &v, std::map<QString, Pair> &m, int j){
+template <class T> void _addNames( const vector<T> &v, std::map<QString, ObjCoord> &m, int j){
   for (unsigned int i=0; i<v.size(); i++)
-    m[v[i].name] = Pair(j,i);
+    m[v[i].name] = ObjCoord(j,i,T::tokenIndex());
 }
 
-template <class T> void _addNamesNoExt( const vector<T> &v, std::map<QString, Pair> &m, int j){
+template <class T> void _addNamesNoExt( const vector<T> &v, std::map<QString, ObjCoord> &m, int j){
   for (unsigned int i=0; i<v.size(); i++) {
     QString st = v[i].name;
     int k = st.lastIndexOf('.');
     if (k>0) st.truncate(k);
-    m[st] = Pair(j,i);
+    m[st] = ObjCoord(j,i,T::tokenIndex());
   }
+}
+
+void IniData::setAllUsedByNone(){
+  for (int t=MESH; t<N_TOKEN; t++){
+    usedByV[t].resize(file.size());
+    for (int fi=0; fi<(int)file.size( ); fi++){
+      usedByV[t].at(fi).resize(file[fi].size(t));
+      for (int fo=0; fo<(int)file[fi].size(t); fo++){
+        usedBy( ObjCoord(fi,fo,t) ).clear();
+      }
+    }
+  }
+}
+
+void IniData::setAllUsedInNone(){
+  for (int t=MESH; t<N_TOKEN; t++){
+    usedInV[t].resize(file.size());
+    for (int fi=0; fi<(int)file.size( ); fi++){
+      usedInV[t].at(fi).resize(file[fi].size(t));
+      for (int fo=0; fo<(int)file[fi].size(t); fo++){
+        usedIn( ObjCoord(fi,fo,t) ).direct = 0;
+        usedIn( ObjCoord(fi,fo,t) ).indirect = 0;
+      }
+    }
+  }
+}
+
+void IniData::propagateUsedIn(int from){
+  ObjCoord i;
+  i.t=from;
+  for (i.fi=0; i.fi<(int)file.size(); i.fi++){
+    for (i.oi=0; i.oi<int(usedByV[i.t].at(i.fi).size()); i.oi++) {
+      ObjCoordV &v(usedBy( i ));
+      for (unsigned int k = 0; k<v.size(); k++){
+        usedIn( i ).indirect |= usedIn( v[k] ).direct;
+        usedIn( i ).indirect |= usedIn( v[k] ).indirect;
+      }
+    }
+  }
+}
+
+void IniData::propagateUsedIn(){
+  propagateUsedIn(MATERIAL); // material from mesh
+  propagateUsedIn(SHADER); // shaders from materials
+  propagateUsedIn(TEXTURE); // textures from materials
+}
+
+// helper class to scan txt files
+class TextFile{
+public:
+  QFile qf;
+  int line;
+  char data[4024];
+  char format[1000];
+  char res[1000];
+  char to[255][255];
+  QString path;
+  QString errorString;
+
+  void open(QString filename) throw (int){
+    qf.setFileName(QString("%1/%2").arg(path).arg(filename));
+    line = 0;
+    if (!qf.open(QIODevice::ReadOnly)) {
+      error(tr("cannot open file"));
+    }
+  }
+  void expectLine(char* st) throw (int){
+    qf.readLine(data,4023);
+    line++;
+    QString dataS = QString(data).remove(QChar('\n'), Qt::CaseSensitive);
+    if (!dataS.startsWith(QString(st))) {
+      error(tr("expected '%1',\ngot '%2'").arg(st).arg(dataS));
+    }
+  }
+  void nextLine() throw (int){
+    if (qf.readLine(data,4023)==-1) error(tr("unexpected end of file"));
+    line++;
+  }
+  void skipLines(int n) throw (int){
+    for (int i=0; i<n; i++) nextLine();
+  }
+  // reads the n^th string token from last read line
+  char* stringT(int n) throw (int){
+    if (n>255)
+      error(QString("Internal error: StringT parameter %1").arg(n));
+    makeFormat(n);
+    int k=sscanf(
+      data,format,
+      to[0x00],to[0x01],to[0x02],to[0x03],to[0x04],to[0x05],to[0x06],to[0x07],to[0x08],to[0x09],to[0x0A],to[0x0B],to[0x0C],to[0x0D],to[0x0E],to[0x0F],
+      to[0x10],to[0x11],to[0x12],to[0x13],to[0x14],to[0x15],to[0x16],to[0x17],to[0x18],to[0x19],to[0x1A],to[0x1B],to[0x1C],to[0x1D],to[0x1E],to[0x1F],
+      to[0x20],to[0x21],to[0x22],to[0x23],to[0x24],to[0x25],to[0x26],to[0x27],to[0x28],to[0x29],to[0x2A],to[0x2B],to[0x2C],to[0x2D],to[0x2E],to[0x2F],
+      to[0x30],to[0x31],to[0x32],to[0x33],to[0x34],to[0x35],to[0x36],to[0x37],to[0x38],to[0x39],to[0x3A],to[0x3B],to[0x3C],to[0x3D],to[0x3E],to[0x3F],
+      to[0x40],to[0x41],to[0x42],to[0x43],to[0x44],to[0x45],to[0x46],to[0x47],to[0x48],to[0x49],to[0x4A],to[0x4B],to[0x4C],to[0x4D],to[0x4E],to[0x4F],
+      to[0x50],to[0x51],to[0x52],to[0x53],to[0x54],to[0x55],to[0x56],to[0x57],to[0x58],to[0x59],to[0x5A],to[0x5B],to[0x5C],to[0x5D],to[0x5E],to[0x5F],
+      to[0x60],to[0x61],to[0x62],to[0x63],to[0x64],to[0x65],to[0x66],to[0x67],to[0x68],to[0x69],to[0x6A],to[0x6B],to[0x6C],to[0x6D],to[0x6E],to[0x6F],
+      to[0x70],to[0x71],to[0x72],to[0x73],to[0x74],to[0x75],to[0x76],to[0x77],to[0x78],to[0x79],to[0x7A],to[0x7B],to[0x7C],to[0x7D],to[0x7E],to[0x7F],
+      to[0x80],to[0x81],to[0x82],to[0x83],to[0x84],to[0x85],to[0x86],to[0x87],to[0x88],to[0x89],to[0x8A],to[0x8B],to[0x8C],to[0x8D],to[0x8E],to[0x8F],
+      to[0x90],to[0x91],to[0x92],to[0x93],to[0x94],to[0x95],to[0x96],to[0x97],to[0x98],to[0x99],to[0x9A],to[0x9B],to[0x9C],to[0x9D],to[0x9E],to[0x9F],
+      to[0xA0],to[0xA1],to[0xA2],to[0xA3],to[0xA4],to[0xA5],to[0xA6],to[0xA7],to[0xA8],to[0xA9],to[0xAA],to[0xAB],to[0xAC],to[0xAD],to[0xAE],to[0xAF],
+      to[0xB0],to[0xB1],to[0xB2],to[0xB3],to[0xB4],to[0xB5],to[0xB6],to[0xB7],to[0xB8],to[0xB9],to[0xBA],to[0xBB],to[0xBC],to[0xBD],to[0xBE],to[0xBF],
+      to[0xC0],to[0xC1],to[0xC2],to[0xC3],to[0xC4],to[0xC5],to[0xC6],to[0xC7],to[0xC8],to[0xC9],to[0xCA],to[0xCB],to[0xCC],to[0xCD],to[0xCE],to[0xCF],
+      to[0xD0],to[0xD1],to[0xD2],to[0xD3],to[0xD4],to[0xD5],to[0xD6],to[0xD7],to[0xD8],to[0xD9],to[0xDA],to[0xDB],to[0xDC],to[0xDD],to[0xDE],to[0xDF],
+      to[0xE0],to[0xE1],to[0xE2],to[0xE3],to[0xE4],to[0xE5],to[0xE6],to[0xE7],to[0xE8],to[0xE9],to[0xEA],to[0xEB],to[0xEC],to[0xED],to[0xEE],to[0xEF],
+      to[0xF0],to[0xF1],to[0xF2],to[0xF3],to[0xF4],to[0xF5],to[0xF6],to[0xF7],to[0xF8],to[0xF9],to[0xFA],to[0xFB],to[0xFC],to[0xFD],to[0xFE],to[0xFF]
+    );
+    if (k!=n) error(tr("cannot read token n. %1 from:\n '%2'").arg(n).arg(data));
+    return to[n-1];
+  }
+  // reads the n^th int token from last read line
+  int intT(int n, int min=0, int max=10000) throw (int){
+    int num;
+    int k=sscanf(stringT(n),"%d",&num);
+    if (k!=1) error(tr("expected number istead of '%1' (token %2)").arg(stringT(n)).arg(n));
+    if (num<min || num>max ) error(tr("wrong number : %1 (not in [%2, %3]) (token %4)").arg(num).arg(min).arg(max).arg(n));
+    return num;
+  }
+  // reads the n^th int token from last read line
+  long long longT(int n) throw (int){
+    long long num;
+    int k=sscanf(stringT(n),"%lld",&num);
+    if (k!=1) error(tr("expected number istead of '%1' (token %2)").arg(stringT(n)).arg(n));
+    return num;
+  }
+  void close(){
+    qf.close();
+  }
+
+private:
+  void error(QString s) throw (int){
+    errorString =  QString(
+        tr("Error reading file '%1',\nat line %3:\n%2\n").arg(qf.fileName()).arg(s).arg(line)
+    );
+    throw 1;
+  }
+  void makeFormat(int n){
+    int h=0;
+    for (int i=0; i<n; i++){format[h++]='%';format[h++]='s';format[h++]=' '; }
+    h--;
+    format[h]=0;
+  }
+
+  QString tr(char* s){return QTextBrowser::tr(s);}
+
+
+
+};
+
+QString IniData::tr(char* s) const {return QTextBrowser::tr(s);}
+
+IniData::ModuleTxtNameList::ModuleTxtNameList(int _tok, int _txtF):brfToken(_tok),txtIndex(_txtF){
+  name.clear();
+}
+void IniData::ModuleTxtNameList::append(const QString &s){
+  name.append(s);
+}
+void IniData::ModuleTxtNameList::appendNon0(const QString &s){
+  if (s!="0") name.append(s);
+}
+
+QString IniData::ModuleTxtNameList::test(){
+  return QString("%1 %2 from '%3' <font size=-1>('%4', '%5', '%6'...)</font>\n\n")
+      .arg(name.size())
+      .arg(IniData::tokenFullName(brfToken))
+      .arg(txtFileName[txtIndex])
+      .arg((name.size()>1)?name[0]:"")
+      .arg((name.size()>2)?name[1]:"")
+      .arg((name.size()>3)?name[2]:"");
+}
+
+QString R4L(QString s){
+  QString t(s);
+  if (t.endsWith('L',Qt::CaseSensitive)) t[t.length()-1]='R';
+  if (t.endsWith('l',Qt::CaseSensitive)) t[t.length()-1]='r';
+  return t;
+}
+
+bool IniData::readModuleTxts(const QString &pathMod, const QString& pathData){
+  TextFile tf;
+  tf.path = pathMod;
+
+  txtNameList.clear();
+
+
+  try {
+  {
+    int txtFile = TXTFILE_ITEM;
+
+    tf.open(txtFileName[txtFile]);
+    ModuleTxtNameList list(MESH, txtFile);
+
+    tf.expectLine("itemsfile version 2");
+    tf.nextLine();
+    int n = tf.intT(1,0,10000);
+
+    for  (int i=0; i<n; i++) {
+      tf.nextLine();
+      int tmp = tf.intT(4,0,10);
+      for (int j=0; j<tmp; j++)
+        list.append( QString(tf.stringT(5+j*2)) );
+      tf.nextLine();
+      tf.skipLines( tf.intT(1,0,5) );
+      tf.nextLine();
+    }
+    txtNameList.push_back(list);
+    //errorStringOnScan = QString("Loaded %1 objs!!\n('%2', '%3'...,)")
+    //                    .arg(list.name.size()).arg(list.name[0]).arg(list.name[0]);
+    //return false;
+    tf.close();
+  }
+
+  {
+    // READING ACTIONS.TXT
+    int txtFile = TXTFILE_ACTIONS;
+    tf.open(txtFileName[txtFile]);
+    ModuleTxtNameList list(ANIMATION, txtFile);
+
+    tf.nextLine();
+    int n = tf.intT(1);
+    for  (int i=0; i<n; i++) {
+      tf.nextLine();
+      int tmp = tf.intT((isWarband)?4:3,0,30);
+      for (int j=0; j<tmp; j++) {
+        tf.nextLine();
+        list.append( QString(tf.stringT(2)) );
+      }
+    }
+    //errorStringOnScan = list.test(); return false;
+    txtNameList.push_back(list);
+    tf.close();
+  }
+
+    {
+      // READING SKINS.TXT
+      int txtFile = TXTFILE_SKIN;
+      tf.open(txtFileName[txtFile]);
+      ModuleTxtNameList listMe(MESH, txtFile);
+      ModuleTxtNameList listMa(MATERIAL, txtFile);
+      ModuleTxtNameList listSk(SKELETON, txtFile);
+
+      tf.expectLine("skins_file version 1");
+      tf.nextLine();
+      int n = tf.intT(1);
+      for  (int i=0; i<n; i++) {
+        tf.nextLine();
+        tf.nextLine();
+        listMe.append( tf.stringT(1) ); // body
+        listMe.append( tf.stringT(2) ); // calfl
+        listMe.append( R4L( tf.stringT(2) ) ); // calfr
+        listMe.append( tf.stringT(3) ); // handl
+        listMe.append( R4L( tf.stringT(3) ) ); // handr
+        tf.nextLine();
+        listMe.append( tf.stringT(1) ); // head
+        tf.nextLine();
+        int tmp = tf.intT(1,0,40);
+        tf.nextLine();
+        for (int j=0; j<tmp; j++) listMe.append( tf.stringT(j+1) ); // hair mesh
+
+        tf.nextLine();
+        tmp = tf.intT(1,0,40);
+        for (int j=0; j<tmp; j++) {
+          tf.nextLine();
+          listMe.append( tf.stringT(1) ); // beard mesh
+        }
+
+        tf.nextLine(); // empty line
+
+        tf.nextLine();
+        tmp = tf.intT(1,0,30);
+        for (int j=0; j<tmp; j++) listMa.append( tf.stringT(j+2) ); // hair mat
+
+        tf.nextLine();
+        tmp = tf.intT(1,0,30);
+        for (int j=0; j<tmp; j++) listMa.append( tf.stringT(j+2) ); // beard mat
+
+        tf.nextLine();
+        tmp = tf.intT(1,0,40);
+        int h=2;
+        for (int j=0; j<tmp; j++) {
+          listMa.append( tf.stringT(h++) ); // skin mat
+          h++;
+          int a = tf.intT(h++);
+          int b = tf.intT(h++);
+          for (int k=0; k<a; k++)
+            listMa.append( tf.stringT(h++) ); // beard mat
+          h+=b;
+        }
+        tf.nextLine(); // sounds
+        tf.nextLine(); // skel
+        listSk.append( tf.stringT(1));
+        tf.nextLine(); // two numbers?
+        tf.nextLine();
+        tmp = tf.intT(1,0,40);
+        tf.skipLines(tmp+1);
+
+      }
+
+      listSk.append("skel_horse"); // bonus!
+      
+      //errorStringOnScan = list.test(); return false;
+      txtNameList.push_back(listMa);
+      txtNameList.push_back(listSk);
+      txtNameList.push_back(listMe);
+      //errorStringOnScan = listMa.test()+listSk.test()+listMe.test(); return false;
+      tf.close();
+    }
+
+    {
+      // READING MAP_ICONS.TXT
+      int txtFile = TXTFILE_ICONS;
+      tf.open(txtFileName[txtFile]);
+      ModuleTxtNameList list(MESH, txtFile);
+
+      tf.expectLine("map_icons_file version 1");
+
+      tf.nextLine();
+      int n = tf.intT(1);
+      for  (int i=0; i<n; i++) {
+        tf.nextLine();
+        list.append( QString(tf.stringT(3)) );
+        tf.skipLines(tf.intT(9)+2);
+      }
+      //errorStringOnScan = list.test(); return false;
+      txtNameList.push_back(list);
+      tf.close();
+    }
+
+    {
+      // READING MESHES.TXT
+      int txtFile = TXTFILE_MESHES;
+      tf.open(txtFileName[txtFile]);
+      ModuleTxtNameList list(MESH, txtFile);
+
+      tf.nextLine();
+      int n = tf.intT(1);
+      for  (int i=0; i<n; i++) {
+        tf.nextLine();
+        list.appendNon0( QString(tf.stringT(3)) );
+      }
+      //errorStringOnScan = list.test(); return false;
+      txtNameList.push_back(list);
+      tf.close();
+    }
+    {
+      // READING PARTICLE_SYSTEM.TXT
+      int txtFile = TXTFILE_PARTICLE;
+      tf.open(txtFileName[txtFile]);
+      ModuleTxtNameList list(MESH, txtFile);
+
+      tf.expectLine("particle_systemsfile version 1");
+      tf.nextLine();
+      int n = tf.intT(1);
+      for  (int i=0; i<n; i++) {
+        tf.nextLine();
+        list.append( QString(tf.stringT(3)) );
+        tf.skipLines(7);
+      }
+      //errorStringOnScan = list.test(); return false;
+      txtNameList.push_back(list);
+      tf.close();
+    }
+    {
+      // READING SCENES_PROP.TXT
+      int txtFile = TXTFILE_PROP;
+      tf.open(txtFileName[txtFile]);
+      ModuleTxtNameList listMe(MESH, txtFile);
+      ModuleTxtNameList listCo(BODY, txtFile);
+
+      tf.expectLine("scene_propsfile version 1");
+      tf.nextLine();
+      int n = tf.intT(1);
+      for  (int i=0; i<n; i++) {
+        tf.nextLine();
+        listMe.appendNon0( tf.stringT(4) );
+        listCo.appendNon0( tf.stringT(5) );
+        tf.skipLines( tf.intT(6)+2);
+      }
+      //errorStringOnScan = list.test(); return false;
+      txtNameList.push_back(listMe);
+      txtNameList.push_back(listCo);
+      tf.close();
+    }
+    {
+      // READING TABLEAU
+      int txtFile = TXTFILE_TABLEAU;
+      tf.open(txtFileName[txtFile]);
+      ModuleTxtNameList list(MATERIAL, txtFile);
+
+      tf.nextLine();
+      int n = tf.intT(1);
+      for  (int i=0; i<n; i++) {
+        tf.nextLine();
+        list.append( QString(tf.stringT(3)) );
+      }
+      //errorStringOnScan = list.test(); return false;
+      txtNameList.push_back(list);
+      tf.close();
+    }
+
+    // data path
+    ///////////////////////
+    tf.path = pathData;
+    {
+      // READING FLORA_KINDS
+      int txtFile = TXTFILE_FLORA_KINDS;
+      tf.open(txtFileName[txtFile]);
+      ModuleTxtNameList listMe(MESH, txtFile);
+      ModuleTxtNameList listBo(BODY, txtFile);
+
+      tf.nextLine();
+      int n = tf.intT(1);
+
+      if (isWarband){
+        tf.nextLine(); // peek next line
+        for  (int i=0; i<n; i++) {
+          // ugly hack:
+          int invert = ((tf.data[0]>='A') && (tf.data[0]<='Z')) ;
+          int m = tf.intT(3);
+          QStringList qla,qlb;
+          qla.clear();qlb.clear();
+          int x2 = 1;
+          for  (int j=0; j<m; j++) {
+            tf.nextLine();
+            qla.append(QString(tf.stringT(1))); qlb.append(QString(tf.stringT(2)));
+          }
+          if (i<n-1) {
+            tf.nextLine();
+            if (tf.data[0]==' ') { // must read twice as many items and keep evens
+              x2 = 2;
+              for  (int j=0; j<m; j++) {
+                qla.append(QString(tf.stringT(1))); qlb.append(QString(tf.stringT(2)));
+                tf.nextLine();
+              }
+            }
+          }
+          for (int j=0; j<m; j++){
+            listMe.append(qla[j*x2+invert*(x2-1)]);
+            listBo.appendNon0(qlb[j*x2+invert*(x2-1)]);
+          }
+        }
+
+      } else {
+        for  (int i=0; i<n; i++) {
+          tf.nextLine();
+          int m = tf.intT(3);
+          for  (int j=0; j<m; j++) {
+            tf.nextLine();
+            listMe.append( tf.stringT(1) );
+            listBo.appendNon0( tf.stringT(2) );
+          }
+        }
+      }
+      //errorStringOnScan = list.test(); return false;
+      txtNameList.push_back(listMe);
+      txtNameList.push_back(listBo);
+      tf.close();
+    }
+
+    {
+      // READING GROUND_SPECS
+      int txtFile = TXTFILE_GROUND_SPECS;
+      tf.open(txtFileName[txtFile]);
+      ModuleTxtNameList list(MATERIAL, txtFile);
+
+      while  (1) {
+        try{
+          tf.nextLine();
+        } catch (int) {
+          break;
+        }
+        list.append( QString(tf.stringT(3)) );
+        QString s = QString(tf.stringT(3));
+        if (s!="none") list.append(s);
+      }
+
+      //errorStringOnScan = list.test(); return false;
+      txtNameList.push_back(list);
+      tf.close();
+    }
+
+    {
+      // READING SKY_BOXES
+      int txtFile = TXTFILE_SKYBOXES;
+      tf.open(txtFileName[txtFile]);
+      ModuleTxtNameList list(MESH, txtFile);
+
+      tf.nextLine();
+      int n = tf.intT(1);
+      for  (int i=0; i<n; i++) {
+        if (isWarband) {
+          tf.nextLine();
+          list.append( QString(tf.stringT(1) ));
+          tf.nextLine();
+        } else{
+          tf.nextLine();
+          list.append( QString(tf.stringT((i==0)?1:12)) );
+        }
+      }
+      //errorStringOnScan = list.test(); return false;
+      txtNameList.push_back(list);
+      tf.close();
+    }
+
+
+  } catch (int) {
+    errorStringOnScan = QString(tf.errorString);
+    return false;
+  }
+
+
+  return true;
+
+
+}
+
+
+IniData::ObjCoordV& IniData::usedBy(ObjCoord o){
+  return usedByV[o.t].at(o.fi).at(o.oi);
+}
+IniData::ObjCoordV IniData::usedBy(ObjCoord o) const{
+  return usedByV[o.t].at(o.fi).at(o.oi);
+}
+
+IniData::UsedInType &IniData::usedIn(ObjCoord o){
+  return usedInV[o.t].at(o.fi).at(o.oi);
+}
+IniData::UsedInType IniData::usedIn(ObjCoord o) const{
+  return usedInV[o.t].at(o.fi).at(o.oi);
+}
+
+QString IniData::nameShort(ObjCoord o) const{
+  return QString(file[o.fi].GetName(o.oi,o.t));
+}
+
+QString IniData::nameFull(ObjCoord o) const{
+  static QString st[3] = {QString(),QString(" (CommonRes)"),QString(" (CoreRes)")};
+
+  QString res = QString("%3 %1%2")
+        .arg(file[o.fi].GetName(o.oi,o.t)).arg(st[origin[o.fi]]).arg(tokenFullName(o.t));
+  return res;
 }
 
 QString IniData::linkShort(int i, int j, int kind) const{
@@ -46,9 +600,9 @@ QString IniData::linkShort(int i, int j, int kind) const{
 }
 
 QString IniData::shortFileName(int i) const {
-  return QString(filename[i]).replace(mabPath,"");
+  if (origin[i]==MODULE_RES) return QString(filename[i]).replace(modPath,"");
+  else return QString(filename[i]).replace(mabPath,"");
 }
-
 
 QString IniData::link(int i, int j, int kind) const {
   QString res;
@@ -56,10 +610,6 @@ QString IniData::link(int i, int j, int kind) const {
         .arg(i).arg(j).arg(kind)
         .arg(file[i].GetName(j,kind)).arg(shortFileName(i)).arg(tokenFullName(kind));
   return res;
-}
-
-void IniData::clearIndexing(){
-  for (int i=0; i<N_TOKEN; i++) indexing[i].clear();
 }
 
 void IniData::checkFile(int i, int j, int kind, char* usedFile, QDir *d0, QDir *d1){
@@ -71,44 +621,27 @@ void IniData::checkFile(int i, int j, int kind, char* usedFile, QDir *d0, QDir *
 
   if (!res)
     errorList.push_back(
-            QTextBrowser::tr("<b>File-not-found:</b> can't find texture file for %1.")
+      tr("<b>File-not-found:</b> can't find texture file for %1.")
       .arg(link(i,j,kind))
     );
 
 }
 
-void IniData::checkUses(int i, int j, int kind, char* usedName, int usedKind){
 
-  if (usedKind==TEXTURE && QString(usedName)=="none") return;
-
-  Pair d = indexOf( usedName, usedKind );
-  if (d.first==-1) {
-    errorList.push_back(
-      QTextBrowser::tr("<b>Missing:</b> %1 uses unknown %2 <u>%3</u>")
-      .arg(link(i,j,kind)).arg(tokenFullName(usedKind)).arg(usedName)
-    );
-  } else
-  if (d.first>i) {
-    errorList.push_back(
-      QTextBrowser::tr("<b>Ordering problem:</b> %1 uses %2, which appears later in <i>module.ini</i>")
-      .arg(link(i,j,kind)).arg(link(d.first,d.second,usedKind))
-    );
-  }
-}
 
 template <class T>
 bool IniData::checkDuplicated(std::vector<T> &v, int j, int maxErr){
   int kind = T::tokenIndex();
   for (unsigned int i=0; i<v.size(); i++) {
     if (errorList.size()>maxErr) return false;
-    Pair d = indexOf(v[i].name, kind );
-    if (d.first==-1) {
+    ObjCoord d = indexOfStrict(v[i].name, kind );
+    if (d.fi==-1) {
       errorList.push_back("<b>Internal error:</b> this should never happen");
     } else
-    if (d.first!=j || d.second!=(int)i) {
+    if (d.fi!=j || d.oi!=(int)i) {
       errorList.push_back(
-          QTextBrowser::tr("<b>Duplicate:</b> %1 was already defined in file %2")
-          .arg(link(j,i,kind)).arg(linkShort(d.first,d.second,kind))
+          tr("<b>Duplicate:</b> %1 was already defined in file %2")
+          .arg(link(j,i,kind)).arg(linkShort(d.fi,d.oi,kind))
       );
     }
   }
@@ -123,6 +656,178 @@ void IniData::searchAllNamesV(const QString &s, int t,const std::vector<T> &v, i
 
     if (QString(v[i].name).contains(s,Qt::CaseInsensitive))
       res+=link(j,i,kind)+"<br>";
+
+  }
+}
+
+void IniData::checkUses(int i, int j, int kind, char* usedName, int usedKind){
+
+  if (usedKind==TEXTURE && QString(usedName)=="none") return;
+
+  ObjCoord d = indexOf( usedName, usedKind );
+  if (d.fi==-1) {
+    errorList.push_back(
+      tr("<b>Missing:</b> %1 uses unknown %2 <u>%3</u>")
+      .arg(link(i,j,kind)).arg(tokenFullName(usedKind)).arg(usedName)
+    );
+  } else
+  if (d.fi>i) {
+    errorList.push_back(
+      tr("<b>Ordering problem:</b> %1 uses %2, which appears later in <i>module.ini</i>")
+      .arg(link(i,j,kind)).arg(link(d.fi,d.oi,usedKind))
+    );
+  }
+}
+
+static QString noDot(QString s){
+  int n = s.indexOf('.');
+  if (n!=-1) s.truncate(n);
+  return s;
+}
+
+const char* IniData::getName(ObjCoord o){
+  return file[o.fi].GetName(o.oi,o.t);
+}
+
+unsigned int IniData::getSize(ObjCoord o){
+  return file[o.fi].size(o.t);
+
+}
+
+QString IniData::stats() {
+  QString res;
+  res.append(tr("<h1>Module <b>%1</b></h1>").arg(name()));
+  bool once = true;
+  res.append("<p><br></p><table border=0><tr>");
+  for (int mod=1; mod>=0; mod--){
+    res.append("<td>");
+    if (mod==1)
+      res.append(tr("<h2>Original BRF files: %1</h2>").arg(totFiles(mod)));
+    else
+      res.append(tr("<h2>CommonRes BRF files: %1</h2>").arg(totFiles(mod)));
+    for (int t=0; t<N_TOKEN; t++){
+      int tot = totSize(t,mod);
+      if (updated>=4) {
+        int u = totUsed(t,mod);
+        res.append(QString("%1: %2 (%3+%4)").arg(tokenPlurName(t)).arg(tot).arg(u).arg(tot-u));
+      } else
+        res.append(QString("%1: %2").arg(tokenPlurName(t)).arg(tot));
+      if (once)res.append(tr("<i>(used+unused)</i>")); once=false;
+      res.append(tr("<br>"));
+    }
+    res.append("</td>");
+  }
+  res.append("</tr></table>");
+
+  res.append(tr("<h2>Txt data:</h2>"));
+  for (unsigned i=0; i<txtNameList.size(); i++){
+    res.append(txtNameList[i].test());
+    res.append("<br>");
+  }
+  return res;
+}
+
+int IniData::totSize(uint t,bool commonRes) const{
+  int res=0;
+  for (unsigned int i=0; i<file.size(); i++) {
+    if (origin[i]!=MODULE_RES == !commonRes) res+=file[i].size(t);
+  }
+  return res;
+}
+
+int IniData::totFiles( bool commonRes) const{
+  int res=0;
+  for (unsigned int i=0; i<file.size(); i++) {
+    if (origin[i]!=MODULE_RES == !commonRes) res++;
+  }
+  return res;
+}
+
+
+int IniData::totUsed(uint t, bool commonRes) const{
+  if (updated<4) return 0;
+  int res=0;
+  ObjCoord o;
+  o.t=t;
+  for (o.fi=0; o.fi<(int)file.size(); o.fi++) {
+    if (origin[o.fi]!=MODULE_RES == !commonRes) {
+      for (o.oi=0; o.oi<int(usedInV[o.t].at(o.fi).size()); o.oi++)
+        if (usedIn(o).directOrIndirect()) res++;
+    }
+  }
+  return res;
+}
+
+int IniData::totUsed(int fi) const{
+  if (updated<4) return 0;
+  int res=0;
+  for (int t=0; t<N_TOKEN; t++) {
+    ObjCoord o(fi,0,t);
+    for (o.oi=0; o.oi<int(usedInV[o.t].at(o.fi).size()); o.oi++)
+      if (usedIn(o).directOrIndirect()) res++;
+  }
+  return res;
+}
+
+int IniData::totSize(int fi) const{
+  if (updated<4) return 0;
+  int res=0;
+  for (int t=0; t<N_TOKEN; t++) {
+    res+=file[fi].size(t);
+  }
+  return res;
+}
+
+void IniData::addUsedBy(int i, int j, int kind,char* usedName,  int usedKind){
+
+  if (kind==TEXTURE && QString(usedName)=="none") return;
+
+  ObjCoord d = indexOf( usedName, usedKind );
+  ObjCoord o (i,j,kind);
+
+  if (d.fi>=0){
+    usedBy(d).push_back( o );
+
+
+
+    if ((usedKind==MESH)||(usedKind==MATERIAL) ){
+      QString nameDot=noDot( getName(d) );
+
+      for (unsigned int k=0; k<getSize(d); k++){
+        ObjCoord d2(d.fi,k,d.t);
+        if (noDot(getName(d2))==nameDot)
+        usedBy(d2).push_back( o );
+      }
+    }
+  }
+
+
+}
+
+void IniData::updateUsedBy(){
+
+  setAllUsedByNone();
+
+  for (unsigned int i=0; i<file.size(); i++) {
+
+    // add for mesh->material
+    for (unsigned int j=0; j<file[i].mesh.size(); j++) {
+      addUsedBy(i,j,MESH, file[i].mesh[j].material, MATERIAL );
+    }
+
+    // add for material->etc
+    for (unsigned int j=0; j<file[i].material.size(); j++) {
+      addUsedBy(i,j,MATERIAL, file[i].material[j].diffuseA, TEXTURE );
+      addUsedBy(i,j,MATERIAL, file[i].material[j].diffuseB, TEXTURE );
+      addUsedBy(i,j,MATERIAL, file[i].material[j].bump, TEXTURE );
+      addUsedBy(i,j,MATERIAL, file[i].material[j].enviro, TEXTURE );
+      addUsedBy(i,j,MATERIAL, file[i].material[j].spec, TEXTURE );
+      addUsedBy(i,j,MATERIAL, file[i].material[j].shader, SHADER );
+    }
+    // add for shader->shader
+    for (unsigned int j=0; j<file[i].shader.size(); j++) {
+      addUsedBy(i,j,SHADER, file[i].shader[j].fallback, SHADER );
+    }
 
   }
 }
@@ -205,6 +910,7 @@ IniData::IniData(BrfData &_currentBrf): currentBrf(_currentBrf)
   modPath.clear();;
   mabPath.clear();
   updated = 0;
+  isWarband = false;
 }
 
 QString IniData::mat2tex(const QString &n){
@@ -220,24 +926,35 @@ QString IniData::mat2tex(const QString &n){
   return QString();
 }
 
-BrfMaterial* IniData::findMaterial(const QString &name,Pair startFrom) {
+BrfMaterial* IniData::findMaterial(const QString &name,ObjCoord ) {
   int j = _findByName( currentBrf.material, name);
   if (j>=0) return &(currentBrf.material[j]);
 
-  Pair p = indexOf(name, MATERIAL, startFrom);
-  if (p.first>=0) return &file[p.first].material[p.second];
+  ObjCoord p = indexOf(name, MATERIAL );
+  if (p.fi>=0) return &file[p.fi].material[p.oi];
   return NULL;
 }
 
-int IniData::findFile(const QString &fn) {
+bool IniData::findTexture(const QString &fn){
+  for (unsigned int i=0; i<filename.size(); i++)
+  for (unsigned int j=0; j<file[i].texture.size();j++ ){
+    if (fn == file[i].texture[j].name) return true;
+  }
+  return false;
+
+}
+
+int IniData::findFile(const QString &fn,bool onlyModFolder) {
   for (unsigned int i=0; i<filename.size(); i++) {
+    if (onlyModFolder) if (origin[i]!=MODULE_RES) continue;
     if (QString::compare(fn,filename[i],Qt::CaseInsensitive)==0) return i;
   }
   return -1;
 }
 
 
-Pair IniData::indexOf(const QString &name, int kind, Pair startFrom){
+
+void IniData::prepareIndex(int kind){
   if (indexing[kind].empty()) {
     for (unsigned int i=0; i<filename.size(); i++) {
       switch (kind) {
@@ -245,38 +962,53 @@ Pair IniData::indexOf(const QString &name, int kind, Pair startFrom){
         case MATERIAL:  _addNames( file[i].material, indexing[kind],i ); break;
         case TEXTURE: _addNamesNoExt( file[i].texture, indexing[kind],i ); break;
         case SHADER: _addNames( file[i].shader, indexing[kind],i ); break;
-        case MESH: _addNames( file[i].mesh, indexing[kind],i ); break;
+        case MESH:
+          _addNames( file[i].mesh, indexing[kind],i );
+          _addNamesNoExt( file[i].mesh, indexing[MESH_NO_EXT],i );
+          break;
         case ANIMATION: _addNames( file[i].animation, indexing[kind],i ); break;
         case SKELETON: _addNames( file[i].skeleton, indexing[kind],i ); break;
         case BODY: _addNames( file[i].body, indexing[kind],i ); break;
       }
     }
   }
+}
+
+ObjCoord IniData::indexOf(const QString &name, int kind){
+  prepareIndex(kind);
+  QString st(name);
+
+  int use_list = kind;
+  if (kind==TEXTURE)  {
+    int k=st.lastIndexOf('.');
+    if (k>0) st.truncate(k);
+  }
+  if (kind==MESH)  {
+    int k=st.lastIndexOf('.');
+    if (k>0) st.truncate(k);
+    use_list = MESH_NO_EXT;
+  }
+  assert(!indexing[use_list].empty());
+  map<QString,ObjCoord>::iterator p=(indexing[use_list]).find(st);
+  if (p==indexing[use_list].end()) return ObjCoord(-1,-1,NONE);
+  else
+    return p->second;
+
+
+}
+
+ObjCoord IniData::indexOfStrict(const QString &name, int kind){
+  prepareIndex(kind);
   QString st = name;
   if (kind==TEXTURE)  {
     int k=st.lastIndexOf('.');
     if (k>0) st.truncate(k);
   }
-  map<QString,Pair>::iterator p=(indexing[kind]).find(st);
-  if (p==indexing[kind].end()) return Pair(-1,-1);
+
+  map<QString,ObjCoord>::iterator p=(indexing[kind]).find(st);
+  if (p==indexing[kind].end()) return ObjCoord(-1,-1,NONE);
   else return p->second;
-  /*
-  for (unsigned int i=0; i<filename.size(); i++) {
-    int k;
-    switch (kind) {
-      default:
-      case MATERIAL: k= _findByName( file[i].material, name ); break;
-      case TEXTURE: k= _findByNameNoExt( file[i].texture, name ); break;
-      case SHADER: k= _findByName( file[i].shader, name ); break;
-      case MESH: k= _findByName( file[i].mesh, name ); break;
-      case ANIMATION: k= _findByName( file[i].animation, name ); break;
-      case SKELETON: k= _findByName( file[i].skeleton, name ); break;
-      case BODY: k= _findByName( file[i].body, name ); break;
-    }
-    if (k>=0) return Pair(i,k);
-  }
-  return Pair(-1,-1);
-  */
+
 }
 
 void IniData::setPath(QString _mabPath, QString _modPath){
@@ -284,7 +1016,7 @@ void IniData::setPath(QString _mabPath, QString _modPath){
    QString::compare(mabPath,_mabPath,Qt::CaseInsensitive)==0 &&
    QString::compare(modPath,_modPath,Qt::CaseInsensitive)==0
   ) return;
-  updated=false;
+  updated=0;
   mabPath=_mabPath;
   modPath=_modPath;
 }
@@ -293,11 +1025,15 @@ QString IniData::name() const{
   return modPath;
 }
 
-bool IniData::loadAll(bool faster){
+bool IniData::loadAll(int howFast){
 
-  int needs = (faster)?1:2;
-  if (updated>=needs) return false;
-  updated = needs;
+  errorStringOnScan = QString("Unspecified error");
+
+  if (updated>=howFast) return true; // true = no error
+
+  //int oldLvl = updated;
+  updated = howFast;
+
   errorListOnLoad.clear();
   QFile f(modPath+"/module.ini");
   if (!f.open( QIODevice::ReadOnly| QIODevice::Text )) return false;
@@ -307,13 +1043,17 @@ bool IniData::loadAll(bool faster){
   filename.clear();
   origin.clear();
 
-  addBrfFile("core_shaders",CORE_RES,faster);
-  addBrfFile("core_textures",CORE_RES,faster);
-  addBrfFile("core_materials",CORE_RES,faster);
-  addBrfFile("core_pictures",CORE_RES,faster);
-  addBrfFile("core_ui_meshes",CORE_RES,faster);
-
   bool res=true;
+
+  {
+  // load core resources...
+  addBrfFile("core_shaders",CORE_RES,howFast);
+  addBrfFile("core_textures",CORE_RES,howFast);
+  addBrfFile("core_materials",CORE_RES,howFast);
+  addBrfFile("core_pictures",CORE_RES,howFast);
+  addBrfFile("core_ui_meshes",CORE_RES,howFast);
+
+
   while (f.readLine(st,254)>-1)  {
 
     QString s = QString("%1").arg(st);
@@ -324,13 +1064,88 @@ bool IniData::loadAll(bool faster){
       bool loadRes = QString(com1)=="load_resource";
       bool loadMod = ((QString(com1)=="load_mod_resource") || (QString(com1)=="load_module_resource"));
       if (loadRes || loadMod) {
-        if (!addBrfFile(com2,(loadMod)?MODULE_RES:COMMON_RES,faster)) res=false;
+        if (!addBrfFile(com2,(loadMod)?MODULE_RES:COMMON_RES,howFast)) res=false;
       }
 
     }
   }
   updateLists();
+  }
+  if (howFast>=3){
+    res = true;
+    updateUsedBy();
+    if (updated>=3){
+
+      isWarband = false; // we try MAB first...
+      if (!readModuleTxts(modPath,mabPath+"/Data")) {
+        isWarband = true;
+        if (!readModuleTxts(modPath,mabPath+"/Data")) res=false;
+      }
+      // remove duplicates
+      for (int i=0; i<int(txtNameList.size()); i++)
+        txtNameList[i].name=txtNameList[i].name.toSet().toList();
+      updateUsedIn();
+      propagateUsedIn();
+    }
+  }
+
   return res;
+}
+
+
+void IniData::updateUsedIn(){
+  setAllUsedInNone();
+  for (unsigned int i=0; i<txtNameList.size(); i++){
+    ModuleTxtNameList &list(txtNameList[i]);
+    for (int j=0; j<(int)list.name.size(); j++){
+      ObjCoord oc =indexOf( list.name[j], list.brfToken  );
+
+      if (oc.fi>=0) {
+        usedIn(oc).direct |= bitMask( list.txtIndex );
+
+        // special: mesh and materials are used also by other files
+        if ((list.brfToken==MESH)||(list.brfToken==MATERIAL) ){
+          QString nameDot=noDot(list.name[j]);
+
+          for (unsigned int k=0; k<file[oc.fi].size(oc.t); k++){
+
+          if (noDot(file[oc.fi].GetName(k,oc.t))==nameDot)
+            usedIn(ObjCoord(oc.fi,k,oc.t)).direct |= bitMask( list.txtIndex );
+          }
+        }
+      } else {
+        errorListOnLoad.push_back(
+          tr("<b>Missing in txt:</b> cannot find %1 <u>%2</u>, defined in '%3'")
+          .arg(tokenFullName(list.brfToken)).arg(list.name[j]).arg(txtFileName[list.txtIndex])
+        );
+
+      }
+    }
+  }
+
+  // all core files are used as "core"
+  ObjCoord oc;
+  for (oc.fi=0; oc.fi<(int)file.size(); oc.fi++){
+    if (origin[oc.fi] == CORE_RES ){
+      for (oc.t=0; oc.t<N_TOKEN; oc.t++){
+        for (oc.oi=0; oc.oi<int(usedInV[oc.t].at(oc.fi).size()); oc.oi++)
+          usedIn(oc).direct|=bitMask(TXTFILE_CORE);
+      }
+    }
+  }
+}
+
+void IniData::updateBeacuseBrfDataChanged(){
+  if (updated>=1) {
+    updateLists();
+  }
+  if (updated>=3) {
+    updateUsedBy();
+  }
+  if (updated>=4) {
+    updateUsedIn();
+    propagateUsedIn();
+  }
 }
 
 int IniData::nRefObjects() const{
@@ -357,7 +1172,7 @@ int IniData::nObjects() const{
   return res;
 }
 
-bool IniData::addBrfFile(const char* name, Origin ori, bool faster){
+bool IniData::addBrfFile(const char* name, Origin ori, int howFast){
   QString brfFn, brfPath;
   if (ori == MODULE_RES) {
     brfFn = modPath + "/Resource/" +name +".brf";
@@ -371,20 +1186,23 @@ bool IniData::addBrfFile(const char* name, Origin ori, bool faster){
   filename.push_back(brfFn);
   origin.push_back(ori);
   BrfData &d(file[file.size()-1]);
-  printf("Loading \"%s\"...\n",brfFn.toAscii().data());
-  if (!d.LoadFast(brfFn.toStdWString().c_str(),faster)) {
-    // ERROR!!
-    if (!QDir(brfPath).exists( QString("%1.brf").arg(name)))
-    errorListOnLoad.push_back(QTextBrowser::tr("<b>File-Not-Found:</b> could not read brf file <u>%1</u>, listed in module.ini file")
-       .arg(shortFileName(file.size()-1)));
-    else
-    errorListOnLoad.push_back(QTextBrowser::tr("<b>File-Format Error:</b> could not read brf file <u>%1</u>")
-       .arg(shortFileName(file.size()-1)));
+  //printf("Loading \"%s\"...\n",brfFn.toAscii().data());
+  bool onlyMatAndTextures = (howFast<=2);
+  if (howFast>1) {
+    if (!d.LoadFast(brfFn.toStdWString().c_str(),onlyMatAndTextures)) {
+      // ERROR!!
+      if (!QDir(brfPath).exists( QString("%1.brf").arg(name)))
+      errorListOnLoad.push_back(tr("<b>File-Not-Found:</b> could not read brf file <u>%1</u>, listed in module.ini file")
+         .arg(shortFileName(file.size()-1)));
+      else
+      errorListOnLoad.push_back(tr("<b>File-Format Error:</b> could not read brf file <u>%1</u>")
+         .arg(shortFileName(file.size()-1)));
 
-    //file.pop_back();
-    //filename.pop_back(brfFn);
-    return false;
-  }
+      //file.pop_back();
+      //filename.pop_back(brfFn);
+      return false;
+    }
+  } else d.Clear();
   return true;
 }
 
@@ -410,15 +1228,19 @@ void IniData::updateLists(){
   for (unsigned int i=0; i<file.size(); i++) {
     _updateListNoExt( namelist[TEXTURE], file[i].texture);
     _updateList( namelist[MATERIAL], file[i].material);
+    _updateList( namelist[SHADER], file[i].shader);
+    // NO NEED:
     //_updateList( namelist[MESH], file[i].mesh);
     //_updateList( namelist[BODY], file[i].body);
-    _updateList( namelist[SHADER], file[i].shader);
     //_updateList( namelist[ANIMATION], file[i].animation);
     //_updateList( namelist[SKELETON], file[i].skeleton);
   }
   namelist[TEXTURE].append("none");
-  namelist[SHADER].append("prova");
-  this->clearIndexing();
+  //namelist[SHADER].append("prova");
+
+  // clear indexing
+  for (int i=0; i<N_TOKEN+1; i++) indexing[i].clear();
+
 }
 /*
 QStringList& IniData::nameList(int kind) const{

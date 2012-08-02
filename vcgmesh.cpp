@@ -50,7 +50,7 @@ public:
 #include <vcg/complex/trimesh/bitquad_creation.h>
 
 static bool noDegenerate(const std::vector<int> &v){
-  for (int i=2; i<v.size(); i++){
+  for (unsigned int i=2; i<v.size(); i++){
     if (v[i]==v[0]) return false;
     if (v[i]==v[i-1]) return false;
     if (v[i-1]==v[0]) return false;

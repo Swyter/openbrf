@@ -6,6 +6,7 @@
 #include "BrfToken.h"
 
 class BrfData;
+class IniData;
 class QListView;
 class TableModel;
 
@@ -17,6 +18,7 @@ public:
   Selector(QWidget *parent=0);
   void setup(const BrfData &data);
   void updateData(const BrfData &data);
+  void setIniData(const IniData* data, int fileIndex);
   int currentTabName() const;
   int firstSelected() const;
   int lastSelected() const;
@@ -26,6 +28,8 @@ public:
   void moveSel(int d);
   BrfData* reference;
   const BrfData* data;
+  const IniData* iniData;
+  int iniFileIndex;
   void selectOne(int kind, int i);
 
 private slots:
@@ -56,6 +60,7 @@ private:
   QListView * tab[N_TOKEN];
   TableModel * tableModel[N_TOKEN];
   void contextMenuEvent(QContextMenuEvent *event);
+  enum {MAX_USED_BY = 50};
   QAction
     *goNextTabAct,
     *goPrevTabAct,
@@ -114,7 +119,14 @@ private:
 
     *addToRefSkelAct,
     *addToRefAnimAct,
-    *addToRefMeshAct[10];
+    *addToRefMeshAct[10],
+    *usedByAct[MAX_USED_BY],
+    *usedByComputeAct,
+    *usedByNoneAct,
+    *usedInCoreAct[2],
+    *usedInNoTxtAct,
+    *usedInAct[N_TXTFILES*2],
+    *usedInNotInModule;
 
 };
 

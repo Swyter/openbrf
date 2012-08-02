@@ -20,6 +20,7 @@ public:
   }
   char name[255];
 
+
   vcg::Point3f x,y,z,t;
 
   // 56 bytes of data.... 3x4 matrix, 12 floats + int + int?
@@ -51,6 +52,7 @@ public:
   static int tokenIndex(){return SKELETON;}
   char name[255];
   unsigned int flags;
+
   bool Load(FILE*f,int verbose=1);
   void Save(FILE*f) const;
   bool Skip(FILE*f);

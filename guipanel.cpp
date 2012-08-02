@@ -148,8 +148,8 @@ void GuiPanel::updateHighlight(){
 }
 GuiPanel::GuiPanel(QWidget *parent, IniData &id) :
     QWidget(parent),
-    ui(new Ui::GuiPanel),
-    inidata(id)
+    inidata(id),
+    ui(new Ui::GuiPanel)
 {
   reference = NULL;
   curMaterialFocus = DIFFUSEA;
