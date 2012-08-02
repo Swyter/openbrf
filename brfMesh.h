@@ -119,6 +119,7 @@ private:
 
 
 public:
+
   void Apply(Matrix44<float> m);
   int GetFirstSelected(int after=-1) const;
   
@@ -146,7 +147,7 @@ public:
 
   bool CopyModification(const BrfMesh& mod);
   bool CopyTextcoords(const BrfMesh& b);
-  bool CopyVertColors(const BrfMesh& b);
+  bool CopyVertColors(const BrfMesh& b, bool overwrite=true);
   bool CopyVertAni(const BrfMesh& b);
   void SetDefault();
   void MakeSingleQuad(float x, float y, float dx, float dy);
@@ -157,6 +158,8 @@ public:
 	void TuneColors(int contast, int hue, int sat, int brigh);
   void MorphFrame(int framei, int framej, const MeshMorpher& m);
 	void AddALittleOfBreast(int framei, float howMuch);
+
+	unsigned int GetAverageColor() const;
 
   void FreezeFrame(const BrfSkeleton& s, const BrfAnimation& a, float frame);
 
@@ -200,7 +203,8 @@ public:
   void SplitFaces(const std::vector<int> &matIndex);
   bool RemoveUnreferenced();
   void ColorAll(unsigned int newcol);
- 
+	void MultColorAll(unsigned int newcol);
+
   void AdjustNormDuplicates(); // copys normals
   // sanity check
   bool CheckAssert() const;
@@ -253,6 +257,9 @@ public:
 
   void GetTimings(std::vector<int> &v);
   void SetTimings(const std::vector<int> &v);
+
+	static unsigned int multCol( unsigned int col, float a);
+	static unsigned int multCol( unsigned int col, unsigned int colb);
 
 private:
   void CopyTimesFrom(const BrfMesh &brf);
@@ -312,6 +319,8 @@ private:
   static void AlignToTop(BrfMesh& a, BrfMesh& b);
   BrfMesh SingleFrame(int i) const; // returns a BrfMesh consisting only of frame i
 	static bool FindVertVertMapping(std::vector<int> &map, const BrfMesh& a, const BrfMesh& b, int ai, int bi, float uv, float xyz);
+
+
 
 };
 

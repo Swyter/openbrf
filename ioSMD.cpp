@@ -104,7 +104,19 @@ static bool fscanln(FILE*f, char *ln){
   }
 }
 
+// defined in vcgmesh.cpp
+void setGotNormals(bool b);
+void setGotMaterialName(bool b);
+void setGotTexture(bool b);
+void setGotColor(bool b);
+
 static bool ioSMD_ImportTriangles(FILE*f, BrfMesh &m ){
+
+	setGotNormals(true);
+	setGotMaterialName(true);
+	setGotTexture(true);
+	setGotColor(false);
+
   int pi=0;
   m.frame.resize(1);
   m.frame[0].time=0;

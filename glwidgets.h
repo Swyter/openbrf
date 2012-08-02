@@ -108,8 +108,8 @@ public slots:
    void setFrameNumber(int);
    void setDefaultBgColor(QColor bgColor, bool alsoCurrent);
 
-   void renderAoOnMeshes(float brightness, float fromAbove, bool perface, bool inAlpha);
-   void renderTextureColorOnMeshes();
+   void renderAoOnMeshes(float brightness, float fromAbove, bool perface, bool inAlpha, bool overwrite);
+   void renderTextureColorOnMeshes(bool overwrite);
 
    void browseTexture();
 
@@ -204,7 +204,7 @@ protected:
     void renderRuler();
     void mySetViewport(int x,int y,int w,int h);
 
-    void renderAoOnMeshesAllSelected(float brightness, float fromAbove, bool perface, bool inAlpha);
+    void renderAoOnMeshesAllSelected(float brightness, float fromAbove, bool perface, bool inAlpha, bool overwrite);
 
 
     void glClearCheckBoard();
@@ -214,6 +214,7 @@ protected:
     void setTextureName(QString st, int origin, int texUnit);
     static bool fixTextureFormat(QString st);
     void setMaterialName(QString st);
+    void setMaterialNameOnlyDiffuse(QString st);
     void setCheckboardTexture();
     void setDummyRgbTexture();
     void setDummySpecTexture();

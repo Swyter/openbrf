@@ -5,7 +5,7 @@
 
 #include <QtGui>
 
-const char* applVersion = "0.0.75";
+const char* applVersion = "0.0.77";
 QString IniData::tokenFullName(int k){
 
   switch (k){
@@ -118,6 +118,26 @@ bool MainWindow::askIfUseOpenGL2(bool e){
 		*/
 }
 
+void MainWindow::aboutColorAssignment(){
+	QString info = tr(
+		"<p><b>Info on mesh recoloring:</b><br/>when activating any tool which assigns<br/>new vertex-colors to an entire mesh: "
+		"<ul>"
+		"<li> keep <b>Shift</b> pressed:<br/>new colors will <i>multiply</i> existing ones</li>"
+		"</ul>"
+		"(by <b>default</b>, new colors <i>replace</i> existing ones).</p>"
+	);
+
+	/* info += tr(
+		"<p>This applies to the following tools:<br/>[%1],<br/>[%2],<br/>[%3],<br/>[%4],<br/></p>"
+	 ).arg(editPasteVertColorsAct->text())
+	  .arg(selector->meshComputeAoAct->text())
+	  .arg(selector->meshColorWithTextureAct->text())
+	  .arg(selector->meshRecolorAct->text())
+	 ); */
+
+	QMessageBox::information(this,"OpenBrf", info );
+}
+
 void MainWindow::aboutCurrentShader(){
 	QString log  = glWidget->getCurrentShaderLog();
 	QString extraText  = tr("<br><p><i>This info has been copyed to clipboard</i>");
@@ -137,13 +157,12 @@ void MainWindow::aboutCurrentShader(){
 	QApplication::clipboard()->setText(
 		text.replace("<br />","\n").replace("<p>","\n").replace("</p>","\n").replace("<i>","").replace("</i>","")
 	);
-
-
 }
 
 QString MainWindow::hitboxExplaination(){
   return tr("<i><br/><br/>(info: skeleton metadata, including hitboxes, are kept in the separate file \"data/skeleton_bodies.xml\")</i>");
 }
+
 
 void MainWindow::aboutCheckboard(){
   int t = glWidget->lastMatErr.type;

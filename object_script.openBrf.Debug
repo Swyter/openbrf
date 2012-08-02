@@ -41,6 +41,7 @@ INPUT(
 ./debug\askLodOptionsDialog.o
 ./debug\askUvTransformDialog.o
 ./debug\askSkelPairDialog.o
+./debug\askColorDialog.o
 ./debug\glew.o
 ./debug\moc_mainwindow.o
 ./debug\moc_glwidgets.o
@@ -62,5 +63,6 @@ INPUT(
 ./debug\moc_askLodOptionsDialog.o
 ./debug\moc_askUvTransformDialog.o
 ./debug\moc_askSkelPairDialog.o
+./debug\moc_askColorDialog.o
 ./debug\qrc_resource.o
 );

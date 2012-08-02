@@ -82,10 +82,12 @@ void BrfBody::MakeQuadDominant(){
 
 void BrfBody::Flip(){
   for (unsigned int i=0; i<part.size(); i++) part[i].Flip();
+  UpdateBBox();
 }
 
 void BrfBody::Transform(float *f){
   for (unsigned int i=0; i<part.size(); i++) part[i].Transform(f);
+  UpdateBBox();
 }
 
 float* BrfBodyPart::GetRotMatrix() const{
