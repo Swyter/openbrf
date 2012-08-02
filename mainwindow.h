@@ -81,6 +81,8 @@ private:
     void flip();
     void scale();
     void transform();
+		void smoothenRigging();
+		void stiffenRigging();
     void onChangeMeshMaterial(QString newName);
     void onChangeFlags(QString flags); // of any object
     void onChangeTimeOfFrame(QString flags);
@@ -101,6 +103,7 @@ private:
     bool exportCollisionBody();
     bool exportMeshGroup();
     bool exportMeshGroupManyFiles();
+    bool exportBodyGroupManyFiles();
     bool exportStaticMesh();
     bool importStaticMesh();
     bool exportRiggedMesh();
@@ -140,18 +143,20 @@ private:
     void editPasteFrame();
     void editPasteRigging();
     void editPasteMod();
-		void editPasteAniLowerParts();
-		void editPasteTimings();
-		void editPasteTextcoords();
-		void sortEntries();
+    void editPasteAniLowerParts();
+    void editPasteTimings();
+    void editPasteTextcoords();
+    void editPasteVertColors();
+    void editPasteVertAni();
+    void sortEntries();
     void meshRecomputeNormalsAndUnifyDoIt();
     void meshRecomputeNormalsAndUnify_onSlider(int i);
     void meshRecomputeNormalsAndUnify_onCheckbox(bool i);
     void meshRecomputeNormalsAndUnify();
     void meshUnify();
-		void meshFixRiggingRigidParts();
-		void meshSubdivideIntoComponents();
-		void meshMerge();
+    void meshFixRiggingRigidParts();
+    void meshSubdivideIntoComponents();
+    void meshMerge();
     void meshToBody();
     void meshMountOnBone();
     void meshRemoveBack();
@@ -168,8 +173,12 @@ private:
     void meshComputeLod();
     void meshRecomputeTangents();
     void meshFreezeFrame();
+    void meshAniMerge();
+    void meshAniSplit();
     void learnFemininzation(); // from current selection
 
+    void setFlagsShader();
+    void setFlagsShaderRequires();
     void setFlagsMesh();
     void setFlagsMaterial();
     void setFlagsTexture();
@@ -336,8 +345,8 @@ private:
     QAction *exitAct;
     QAction *sortEntriesAct;
     QAction *aboutCheckboardAct;
-		QAction *aboutCurrentShaderAct;
-		QAction *aboutAct;
+    QAction *aboutCurrentShaderAct;
+    QAction *aboutAct;
     QAction *editRefAct;
     QAction *separatorAct;
     QAction *editCutAct;
@@ -348,12 +357,14 @@ private:
     QAction *editPasteAct;
     QAction *editPasteRiggingAct;
     QAction *editPasteTimingsAct;
-		QAction *editPasteAniLowerPartsAct;
-		QAction *editPasteModificationAct;
+    QAction *editPasteAniLowerPartsAct;
+    QAction *editPasteModificationAct;
     QAction *editCutFrameAct;
     QAction *editCopyFrameAct;
     QAction *editPasteFrameAct;
-		QAction *editPasteTextcoordsAct;
+    QAction *editPasteTextcoordsAct;
+    QAction *editPasteVertColorsAct;
+    QAction *editPasteVertAniAct;
 
     QAction *searchBrfAct;
     QAction *navigateLeftAct;

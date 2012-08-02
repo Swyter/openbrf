@@ -7,12 +7,23 @@
 #include <vcg/space/point3.h>
 #include <vcg/math/matrix44.h>
 
-AskTransformDialog::AskTransformDialog(QWidget *parent) :
+
+void AskTransformDialog::setApplyToAllLoc(bool *loc){
+	applyToAll = loc;
+	ui->applyToLastSel->setChecked(!(*loc));
+	updateSensitivity();
+}
+
+AskTransformDialog::AskTransformDialog(QWidget *parent, bool multObj) :
     QDialog(parent),
     ui(new Ui::AskTransformDialog)
 {
+		sensitivityOne = sensitivityAll = 0.25;
+		applyToAll = NULL;
+
     ui->setupUi(this);
-    connect(ui->rotx,SIGNAL(valueChanged(int)),this,SLOT(update()));
+		ui->applyToLastSel->setEnabled(multObj);
+		connect(ui->rotx,SIGNAL(valueChanged(int)),this,SLOT(update()));
     connect(ui->roty,SIGNAL(valueChanged(int)),this,SLOT(update()));
     connect(ui->rotz,SIGNAL(valueChanged(int)),this,SLOT(update()));
     connect(ui->trax,SIGNAL(valueChanged(double)),this,SLOT(update()));
@@ -21,8 +32,25 @@ AskTransformDialog::AskTransformDialog(QWidget *parent) :
     connect(ui->scx,SIGNAL(valueChanged(int)),this,SLOT(update()));
     connect(ui->scy,SIGNAL(valueChanged(int)),this,SLOT(update()));
     connect(ui->scz,SIGNAL(valueChanged(int)),this,SLOT(update()));
-    connect(ui->checkBox,SIGNAL(clicked()),this,SLOT(update()));
+		connect(ui->applyToLastSel,SIGNAL(stateChanged(int)),this,SLOT(update()));
+		connect(ui->checkBox,SIGNAL(clicked()),this,SLOT(update()));
 
+}
+
+void AskTransformDialog::setSensitivityAll(double sens){
+	sensitivityAll = sens;
+}
+
+void AskTransformDialog::setSensitivityOne(double sens){
+	sensitivityOne = sens;
+}
+
+void AskTransformDialog::updateSensitivity(){
+	if (!applyToAll) return;
+	float sens = (applyToAll)? sensitivityAll:sensitivityOne;
+	ui->trax->setSingleStep(sens);
+	ui->tray->setSingleStep(sens);
+	ui->traz->setSingleStep(sens);
 }
 
 void AskTransformDialog::reset(){
@@ -40,6 +68,10 @@ void AskTransformDialog::reset(){
 static float toRad(float t) {return t*M_PI/180;}
 
 void AskTransformDialog::update(){
+
+	if (applyToAll) *applyToAll = ! ( ui->applyToLastSel->isChecked());
+	updateSensitivity();
+
   if (ui->checkBox->isChecked()) {
     ui->scy->blockSignals(true);
     ui->scz->blockSignals(true);

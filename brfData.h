@@ -31,8 +31,8 @@ using namespace std;
 class BrfData {
 public:
   BrfData();
-  BrfData(const wchar_t*f,int verbose=1);
-  BrfData(FILE*f,int verbose=1);
+  BrfData(const wchar_t*f,int verbose=0);
+  BrfData(FILE*f,int verbose=0);
   vector<BrfMesh> mesh;
   vector<BrfTexture> texture;
   vector<BrfShader> shader;
@@ -40,7 +40,7 @@ public:
   vector<BrfSkeleton> skeleton;
   vector<BrfAnimation> animation;
   vector<BrfBody> body;
-  bool Load(FILE*f,int verbose=1, int imposeVers = -1);
+  bool Load(FILE*f,int verbose=0, int imposeVers = -1);
   bool Load(const wchar_t*filename,int verbose=1, int imposeVers = -1);
   bool LoadFast(const wchar_t*filename, bool ultrafast); // skips most data
   bool LoadMat(FILE *f);

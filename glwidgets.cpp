@@ -38,6 +38,7 @@ void GLWidget::setDefaultBgColor(QColor col, bool alsoCurrent){
 void GLWidget::setRefAnimation(int i){
 
   selRefAnimation = i-1; // -1 for the "none"
+	relTime = 0;
   update();
 }
 
@@ -966,6 +967,9 @@ GLWidget::GLWidget(QWidget *parent, IniData &_inidata)
 	lastUsedShaderBumpgreen = 0;
 
 
+	applyExtraMatrixToAll = true;
+	lastSelected = -1;
+
   keys[0]=keys[1]=keys[2]=keys[3]=keys[4]=false;
 
 	for (int j=0; j<2; j++)
@@ -1838,7 +1842,7 @@ void GLWidget::renderSelected(const std::vector<BrfType>& v){
   _subdivideScreen(nsel,w,h, &ncol, &nrow);
   for (int i=0,seli=0; i<max; i++) if (selGroup[i]) {
     glPushMatrix();
-    glMultMatrixf(extraMatrix);
+		if ( (i==lastSelected) || applyExtraMatrixToAll ) glMultMatrixf(extraMatrix);
     {
 
       if (_viewmodeMult) {

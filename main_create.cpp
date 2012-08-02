@@ -36,8 +36,10 @@ void MainWindow::createMenus()
     editMenu->addAction(editPasteModificationAct);
     editMenu->addAction(editPasteTimingsAct);
     editMenu->addAction(editPasteFrameAct);
-		editMenu->addAction(editPasteTextcoordsAct);
-		editMenu->addAction(editPasteAniLowerPartsAct);
+    editMenu->addAction(editPasteTextcoordsAct);
+    editMenu->addAction(editPasteVertColorsAct);
+    editMenu->addAction(editPasteVertAniAct);
+    editMenu->addAction(editPasteAniLowerPartsAct);
 
     QMenu* importMenu=menuBar()->addMenu(tr("&Import"));
 
@@ -85,14 +87,39 @@ void MainWindow::createMenus()
 
     QMenu* optionMenu=menuBar()->addMenu(tr("&Settings"));
 
-    optionUseOpenGL2 = new QAction(tr("Use OpenGL 2.0"),this);
-    optionUseOpenGL2->setCheckable(true);
-    optionUseOpenGL2->setToolTip(tr("Allows to preview bumpmapping etc. This can create compatibility problems on some (older?) graphic card"));
-    connect(optionUseOpenGL2, SIGNAL(toggled(bool)), this, SLOT(setUseOpenGL2(bool)));
-    optionMenu->addAction(optionUseOpenGL2);
 
-    optionMenu->addSeparator();
+		/* VIEW OPTIONS */
 
+		optionUseOpenGL2 = new QAction(tr("Use preview Shaders"),this);
+		optionUseOpenGL2->setCheckable(true);
+		optionUseOpenGL2->setStatusTip(tr("Allows to preview bumpmapping etc. This can create compatibility problems on some (older?) graphic card"));
+		connect(optionUseOpenGL2, SIGNAL(toggled(bool)), this, SLOT(setUseOpenGL2(bool)));
+		optionMenu->addAction(optionUseOpenGL2);
+
+		QMenu* autoZoom = optionMenu->addMenu(tr("Auto zoom-and-recenter"));
+		optionAutoZoomUseSelected = new QAction(tr("according to selected object(s) only"),this);
+		optionAutoZoomUseSelected->setCheckable(true);
+		optionAutoZoomUseGlobal = new QAction(tr("according to all objects in file"),this);
+		optionAutoZoomUseGlobal->setCheckable(true);
+		QActionGroup* group3=new QActionGroup(this);
+		group3->addAction(optionAutoZoomUseSelected);
+		group3->addAction(optionAutoZoomUseGlobal);
+		group3->setExclusive(true);
+		autoZoom->addActions(group3->actions());
+
+		optionBgColor = new QAction(tr("Background color..."),this);
+		optionBgColor->setStatusTip(tr("Sets the background color"));
+		connect(optionBgColor, SIGNAL(triggered()), this, SLOT(optionSetBgColor()));
+		optionMenu->addAction(optionBgColor);
+
+		optionMenu->addAction(aboutCurrentShaderAct);
+
+		optionMenu->addAction(aboutCheckboardAct);
+
+		optionMenu->addSeparator();
+
+
+		/* TOOLS OPTIONS */
 
     QMenu* onImport = optionMenu->addMenu(tr("On import meshes"));
 
@@ -182,25 +209,15 @@ void MainWindow::createMenus()
     autoFix->addAction(optionAutoFixTextureInfo);
 */
 
-    QMenu* autoZoom = optionMenu->addMenu(tr("Auto zoom-and-recenter"));
-    optionAutoZoomUseSelected = new QAction(tr("according to selected object(s) only"),this);
-    optionAutoZoomUseSelected->setCheckable(true);
-    optionAutoZoomUseGlobal = new QAction(tr("according to all objects in file"),this);
-    optionAutoZoomUseGlobal->setCheckable(true);
-    QActionGroup* group3=new QActionGroup(this);
-    group3->addAction(optionAutoZoomUseSelected);
-    group3->addAction(optionAutoZoomUseGlobal);
-    group3->setExclusive(true);
-    autoZoom->addActions(group3->actions());
 
 
     /*
     QMenu* inferMaterial = optionMenu->addMenu(tr("Mesh rendering"));
     optionInferMaterialOn = new QAction(tr("infer settings from Material flags"),this);
-    optionInferMaterialOn->setToolTip(tr("E.g. alpha-transparency will depend on Material flags"));
+		optionInferMaterialOn->setStatusTip(tr("E.g. alpha-transparency will depend on Material flags"));
     optionInferMaterialOn->setCheckable(true);
     optionInferMaterialOff = new QAction(tr("always use default settings"),this);
-    optionInferMaterialOn->setToolTip(tr("Never use alpha transparency, regardless of Material flags"));
+		optionInferMaterialOn->setStatusTip(tr("Never use alpha transparency, regardless of Material flags"));
     optionInferMaterialOff->setCheckable(true);
     QActionGroup* group4=new QActionGroup(this);
     group4->addAction(optionInferMaterialOn);
@@ -224,7 +241,7 @@ void MainWindow::createMenus()
     optionAoBrightness[4] = new QAction(tr("Lightest"),this);
 
     for (int i=0; i<5; i++) {
-      optionAoBrightness[i]->setToolTip(tr("When computing AO, use %1 shades").arg(optionAoBrightness[i]->text()) );
+			optionAoBrightness[i]->setStatusTip(tr("When computing AO, use %1 shades").arg(optionAoBrightness[i]->text()) );
       optionAoBrightness[i]->setCheckable(true);
       group5->addAction(optionAoBrightness[i]);
     }
@@ -263,18 +280,15 @@ void MainWindow::createMenus()
     onAssemble->addActions(group2->actions());
 
     optionLodSettingsAct = new QAction(tr("On building LOD pyramids..."),this);
-    optionLodSettingsAct->setToolTip(tr("Set the way OpenBRF build LODs pyramids"));
+		optionLodSettingsAct->setStatusTip(tr("Set the way OpenBRF build LODs pyramids"));
     connect(optionLodSettingsAct, SIGNAL(triggered()), this, SLOT(optionLodSettings()));
     optionMenu->addAction(optionLodSettingsAct);
 
-    optionBgColor = new QAction(tr("Background color..."),this);
-    optionBgColor->setToolTip(tr("Sets the background color"));
-    connect(optionBgColor, SIGNAL(triggered()), this, SLOT(optionSetBgColor()));
-    optionMenu->addAction(optionBgColor);
 
-    optionMenu->addSeparator();
     optionMenu->addAction(editRefAct);
     optionMenu->addSeparator();    
+
+		/* SISTEM OPTIONS*/
 
     QMenu* lang = optionMenu->addMenu(tr("Language"));
     lang -> addAction( optionLanguage[0] = new QAction(tr("System default"),this) );
@@ -304,11 +318,9 @@ void MainWindow::createMenus()
     }
 
 
-    optionMenu-> addSeparator();
+	 // optionMenu-> addSeparator();
 
     optionMenu->addAction(registerMime);
-    optionMenu->addAction(aboutCheckboardAct);
-		optionMenu->addAction(aboutCurrentShaderAct);
 		optionMenu->addAction(aboutAct);
 }
 
@@ -365,13 +377,21 @@ void MainWindow::createActions()
     editPasteRiggingAct->setStatusTip(tr("Make a rigging for current mesh(-es) similar to one of the meshes in the clipboard."));
     editPasteRiggingAct->setEnabled(false);
 
-		editPasteTextcoordsAct = new QAction(tr("Paste text coordinates"), this);
-		editPasteTextcoordsAct->setStatusTip(tr("Copy the texture coordiante from the mesh in the clipboard."));
-		editPasteTextcoordsAct->setEnabled(false);
+    editPasteTextcoordsAct = new QAction(tr("Paste texture coords"), this);
+    editPasteTextcoordsAct->setStatusTip(tr("Copy the texture coordiante from the mesh in the clipboard."));
+    editPasteTextcoordsAct->setEnabled(false);
 
-		editPasteAniLowerPartsAct = new QAction(tr("Paste lower parts of animations"), this);
-		editPasteAniLowerPartsAct->setStatusTip(tr("Copy lower parts of this ani from the animation in the clipboard."));
-		editPasteAniLowerPartsAct->setEnabled(false);
+    editPasteVertColorsAct = new QAction(tr("Paste vert colors"), this);
+    editPasteVertColorsAct->setStatusTip(tr("Copy the vert colors from the mesh in the clipboard."));
+    editPasteVertColorsAct->setEnabled(false);
+
+    editPasteVertAniAct = new QAction(tr("Paste vert animations"), this);
+    editPasteVertAniAct->setStatusTip(tr("Try to paste the vert animations (good for face morph, can work only for very similar meshes)."));
+    editPasteVertAniAct->setEnabled(false);
+
+    editPasteAniLowerPartsAct = new QAction(tr("Paste lower parts of animations"), this);
+    editPasteAniLowerPartsAct->setStatusTip(tr("Copy lower parts of this ani from the animation in the clipboard."));
+    editPasteAniLowerPartsAct->setEnabled(false);
 
     editPasteModificationAct = new QAction(tr("Paste modifications"), this);
     editPasteModificationAct->setStatusTip(tr("Move vertices of current mesh according to a 2 frame mesh animation."));
@@ -393,9 +413,10 @@ void MainWindow::createActions()
     connect(editPasteFrameAct, SIGNAL(triggered()), this, SLOT(editPasteFrame()));
     connect(editPasteRiggingAct, SIGNAL(triggered()), this, SLOT(editPasteRigging()));
     connect(editPasteModificationAct, SIGNAL(triggered()), this, SLOT(editPasteMod()));
-		connect(editPasteAniLowerPartsAct, SIGNAL(triggered()), this, SLOT(editPasteAniLowerParts()));
-		connect(editPasteTimingsAct, SIGNAL(triggered()), this, SLOT(editPasteTimings()));
-		connect(editPasteTextcoordsAct, SIGNAL(triggered()), this, SLOT(editPasteTextcoords()));
+    connect(editPasteAniLowerPartsAct, SIGNAL(triggered()), this, SLOT(editPasteAniLowerParts()));
+    connect(editPasteTimingsAct, SIGNAL(triggered()), this, SLOT(editPasteTimings()));
+    connect(editPasteTextcoordsAct, SIGNAL(triggered()), this, SLOT(editPasteTextcoords()));
+    connect(editPasteVertAniAct, SIGNAL(triggered()), this, SLOT(editPasteVertAni()));
 
     saveAsAct = new QAction(tr("Save &As..."), this);
     //saveAsAct->setShortcuts(QKeySequence::SaveAs);
@@ -414,8 +435,8 @@ void MainWindow::createActions()
     exitAct->setStatusTip(tr("Exit the application"));
     connect(exitAct, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
 
-		aboutCurrentShaderAct = new QAction(tr("Shaders diagnostics"),this);
-		aboutCurrentShaderAct->setStatusTip(tr("Tell me about the shader that is being used now."));
+		aboutCurrentShaderAct = new QAction(tr("Preview-shaders diagnostics"),this);
+		aboutCurrentShaderAct->setStatusTip(tr("Tell me about the preview hader that is being used now."));
 		aboutCheckboardAct = new QAction(tr("Why the checkerboard pattern?"), this);
     aboutCheckboardAct->setStatusTip(tr("Diagnose why I'm seeing a checkboard pattern instead of my texture."));
     aboutCheckboardAct->setVisible(false);
@@ -703,7 +724,9 @@ void MainWindow::createConnections(){
 
 
   //connect(guiPanel, SIGNAL(dataMaterialChanged()), this, SLOT(updateDataMaterial()));
-  connect(guiPanel->ui->buFlagMes, SIGNAL(clicked()), this, SLOT(setFlagsMesh()));
+	connect(guiPanel->ui->buFlagSha, SIGNAL(clicked()), this, SLOT(setFlagsShader()));
+	connect(guiPanel->ui->buFlagReq, SIGNAL(clicked()), this, SLOT(setFlagsShaderRequires()));
+	connect(guiPanel->ui->buFlagMes, SIGNAL(clicked()), this, SLOT(setFlagsMesh()));
   connect(guiPanel->ui->buFlagTex, SIGNAL(clicked()), this, SLOT(setFlagsTexture()));
   connect(guiPanel->ui->buFlagMat, SIGNAL(clicked()), this, SLOT(setFlagsMaterial()));
   connect(guiPanel->ui->buFlagBody, SIGNAL(clicked()), this, SLOT(setFlagsBody()));

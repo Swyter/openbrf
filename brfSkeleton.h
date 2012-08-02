@@ -17,7 +17,7 @@ class BrfBone
 {
 public:
   BrfBone();
-  BrfBone(FILE *f, int verbose=1){
+  BrfBone(FILE *f, int verbose=0){
     Load(f,verbose);
   }
   char name[255];
@@ -28,7 +28,7 @@ public:
   // 56 bytes of data.... 3x4 matrix, 12 floats + int + int?
   int attach,b;
 
-  bool Load(FILE*f,int verbose=1);
+  bool Load(FILE*f,int verbose=0);
   void Save(FILE*f) const;
   void Export(FILE*f);
   static bool Skip(FILE*f);
@@ -55,7 +55,7 @@ public:
   char name[255];
   unsigned int flags;
 
-  bool Load(FILE*f,int verbose=1);
+  bool Load(FILE*f,int verbose=0);
   void Save(FILE*f) const;
   bool Skip(FILE*f);
 

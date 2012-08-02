@@ -33,6 +33,8 @@ public:
     int selRefSkel; // current skeleton
     int selFrameN; // current selected frame of vertex ani
 
+		int lastSelected;
+		bool applyExtraMatrixToAll;
     float extraMatrix[16]; // matric for temp transforms
     void clearExtraMatrix();
 

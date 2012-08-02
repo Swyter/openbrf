@@ -96,6 +96,9 @@ private:
     *meshComputeLodAct,
     *meshFreezeFrameAct,
 
+		*meshAniMergeAct,
+		*meshAniSplitAct,
+
 
     *renameAct,
     *removeAct,
@@ -123,11 +126,14 @@ private:
     *exportSkinForAnimationAct,
     *exportAnimationAct,
     *exportBodyAct,
+    *exportBodyGroupManyFilesAct,
 
 
     *reskeletonizeAct,
     *transferRiggingAct,
     *flipAct,
+		*smoothenRiggingAct,
+		*stiffenRiggingAct,
     *transformAct,
     *scaleAct,
     *shiftAniAct,
