@@ -92,6 +92,7 @@ public:
   static float BoneSizeY();
   static float BoneSizeZ();
   int FindBoneByName(const char * name) const;
+	int FindSpecularBoneOf(int bonei) const; /* judges by the name */
 
 private:
 

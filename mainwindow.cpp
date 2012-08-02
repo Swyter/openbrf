@@ -1386,6 +1386,22 @@ void MainWindow::shiftAni(){
   updateGl();
 }
 
+void MainWindow::aniMirror(){
+	if (selector->currentTabName()!=ANIMATION) return;
+	QModelIndexList list= selector->selectedList();
+	for (int i=0; i<list.size(); i++){
+		int j = list[i].row();
+
+		BrfAnimation a = brfdata.animation[j];
+		int si = glWidget->getRefSkeleton();
+		if (si<0) continue;
+		BrfSkeleton s =reference.skeleton[si];
+
+		if (brfdata.animation[j].Mirror(a,s))	setModified(true);
+	}
+	updateGl();
+}
+
 void MainWindow::aniExtractInterval(){
   if (selector->currentTabName()!=ANIMATION) return;
   int j = selector->firstSelected();
@@ -1721,7 +1737,7 @@ void MainWindow::moveUpSel(){
   selector->updateData(brfdata);
   selector->moveSel(-1);
   inidataChanged();
-  setModified(true);
+	setModified(true,false);
 }
 void MainWindow::moveDownSel(){
   int i = selector->firstSelected();
@@ -1741,7 +1757,7 @@ void MainWindow::moveDownSel(){
     selector->updateData(brfdata);
     selector->moveSel(+1);
     inidataChanged();
-    setModified(true);
+		setModified(true,false);
   }
 }
 static void _findCommonPrefix(QString& a, QString b){
@@ -1850,7 +1866,7 @@ void MainWindow::deleteSel(){
   }
   inidataChanged();
   updateSel();
-  setModified(true);
+	setModified(true,false);
 }
 
 
@@ -1975,6 +1991,8 @@ void MainWindow::saveSystemClipboard(){
   refile.close();
   file.close();
 
+
+	QApplication::clipboard()->clear();
   QApplication::clipboard()->setMimeData(mime);
 
 
@@ -2271,7 +2289,7 @@ void MainWindow::editPaste(){
   for (int i=0; i<(int)clipboard.animation.size(); i++) insert(clipboard.animation[i]);
   //brfdata.Merge(clipboard);
   //selector->updateData(brfdata);
-  setModified(true);
+	setModified(true,false);
 }
 
 void MainWindow::duplicateSel(){
@@ -3165,9 +3183,9 @@ void MainWindow::updateTitle(){
     setWindowTitle(tr("%1 - editing internal reference data%2").arg(tit).arg(maybestar));
 }
 
-void MainWindow::setModified(bool mod){
+void MainWindow::setModified(bool mod, bool repeatable){
   isModified=mod;
-  if (mod) setNextActionAsRepeatable = true; // action becomes repetable
+	if (mod && repeatable) setNextActionAsRepeatable = true; // action becomes repetable
   updateTitle();
 }
 

@@ -95,7 +95,7 @@ seams hard</source>
         <translation type="obsolete">¿sin usar?</translation>
     </message>
     <message>
-        <location filename="../askFlagsDialog.cpp" line="+55"/>
+        <location filename="../askFlagsDialog.cpp" line="+57"/>
         <source>unused (?)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -215,7 +215,7 @@ Desplazamiento</translation>
     </message>
     <message>
         <source>Two-sided (?)</source>
-        <translation type="obsolete">Bilateral (¿?)</translation>
+        <translation type="obsolete">Bilateral (?)</translation>
     </message>
     <message>
         <source>No Collision</source>
@@ -227,11 +227,11 @@ Desplazamiento</translation>
     </message>
     <message>
         <source>Difficult (?)</source>
-        <translation type="obsolete">Dificultad (¿?)</translation>
+        <translation type="obsolete">Dificultad (?)</translation>
     </message>
     <message>
         <source>Unwalkable (?)</source>
-        <translation type="obsolete">Intransitable (¿?)</translation>
+        <translation type="obsolete">Intransitable (?)</translation>
     </message>
     <message>
         <source>Unknown (for props?)</source>
@@ -251,7 +251,7 @@ Desplazamiento</translation>
     </message>
     <message>
         <source>Unknown (screen space?)</source>
-        <translation type="obsolete">Desconocido (¿espacio en pantalla?)</translation>
+        <translation type="obsolete">Desconocido (¿screen space?)</translation>
     </message>
     <message>
         <source>reserved (tangent space)</source>
@@ -259,7 +259,7 @@ Desplazamiento</translation>
     </message>
     <message>
         <source>reserved (Warband format)</source>
-        <translation type="obsolete">reservado (formato Warband)</translation>
+        <translation type="obsolete">reservado (formato de Warband)</translation>
     </message>
 </context>
 <context>
@@ -330,12 +330,13 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Cuando OpenBRF calcula &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;Pirámides LOD (Nivel de Detalle)&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; para un modelo...&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Cuando OpenBRF calcula &lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;una &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;Pirámide LOD (Nivel de Detalle)&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; para un modelo...&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location line="+14"/>
         <source>which levels to build, and with how many faces (w.r.t. original mesh)?</source>
-        <translation>¿Qué niveles tiene que hacer, y con cuantas caras (en % desde la malla original)?</translation>
+        <translation>¿Qué niveles tiene que hacer, y con cuantas caras? (en % desde la malla original)</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -370,7 +371,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location line="+25"/>
         <source>Overwrite existing LOD Pyramid (if there is one?):</source>
-        <translation>Sobreescribir pirámides LOD existentes (en caso de que existan):</translation>
+        <translation>Sobreescribir pirámides LOD existentes (si las hay):</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -380,13 +381,13 @@ p, li { white-space: pre-wrap; }
     <message>
         <location line="+7"/>
         <source>No</source>
-        <translation></translation>
+        <translation>No</translation>
     </message>
 </context>
 <context>
     <name>AskModErrorDialog</name>
     <message>
-        <location filename="../askModErrorDialog.cpp" line="+35"/>
+        <location filename="../askModErrorDialog.cpp" line="+37"/>
         <source>Look for:</source>
         <translation> Buscar:</translation>
     </message>
@@ -442,7 +443,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>AskNewUiPictureDialog</name>
     <message>
-        <location filename="../askNewUiPictureDialog.cpp" line="+159"/>
+        <location filename="../askNewUiPictureDialog.cpp" line="+161"/>
         <source>Select a texture for a menu background file</source>
         <translation>Selecciona una textura como menú de fondo</translation>
     </message>
@@ -710,7 +711,7 @@ Comm Res:</translation>
 <context>
     <name>AskTexturenameDialog</name>
     <message>
-        <location filename="../askTexturenameDialog.cpp" line="+17"/>
+        <location filename="../askTexturenameDialog.cpp" line="+19"/>
         <source>also add new %1(s) 
 with the same name(s)</source>
         <translation>Añadir también un(a) %1 
@@ -841,7 +842,67 @@ Ni siquiera serán cargadas por el juego...</translation>
 <context>
     <name>GLWidget</name>
     <message>
-        <location filename="../glwidgets.cpp" line="+1094"/>
+        <location filename="../glwidgets.cpp" line="+421"/>
+        <source>&lt;br /&gt;Vertex compilation: &lt;br /&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>&lt;br /&gt;Fragment compilation: &lt;br /&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>&lt;br /&gt;Linking: &lt;br /&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>&lt;br /&gt;Binding: &lt;br /&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+482"/>
+        <source>&quot;green&quot; NM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>&quot;blue&quot; NM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Deafult (fixed functionality)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Alpha to Shininess</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Plain NormalMap (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>NormalMap + Alpha to Transparency (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>NormalMap + Alpha to Shininiess (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>NormalMap + ShininessMap (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+103"/>
         <source>Scene mode: navigate with mouse and WASD (levitate with wheel, zoom in with shift)</source>
         <translation>Modo Escena: navega con el ratón y WASD (levita mediante la rueda del ratón, zoom con mayús)</translation>
     </message>
@@ -859,7 +920,7 @@ Ni siquiera serán cargadas por el juego...</translation>
 <context>
     <name>GuiPanel</name>
     <message>
-        <location filename="../guipanel.cpp" line="+134"/>
+        <location filename="../guipanel.cpp" line="+136"/>
         <location line="+11"/>
         <source>unknown</source>
         <translation>desconocido</translation>
@@ -1055,7 +1116,7 @@ Ni siquiera serán cargadas por el juego...</translation>
     <message>
         <location line="+3"/>
         <source>Vertex Color</source>
-        <translation type="unfinished">Color Vért.</translation>
+        <translation>Color de Vért.</translation>
     </message>
     <message>
         <location line="+16"/>
@@ -1455,7 +1516,7 @@ Ni siquiera serán cargadas por el juego...</translation>
     <message>
         <location line="+311"/>
         <source>Vertex Anim.</source>
-        <translation type="unfinished">Anim Vértice</translation>
+        <translation>Anim. Vértice</translation>
     </message>
     <message>
         <location line="+19"/>
@@ -1465,12 +1526,12 @@ Ni siquiera serán cargadas por el juego...</translation>
     <message>
         <location line="+19"/>
         <source>Vertex Colors</source>
-        <translation type="unfinished">Color Vértice</translation>
+        <translation>Color Vértice</translation>
     </message>
     <message>
         <location line="+19"/>
         <source>Tangent Dirs</source>
-        <translation type="unfinished">Tangentes</translation>
+        <translation>Tangentes</translation>
     </message>
     <message>
         <source>Rend.Ord:</source>
@@ -1733,7 +1794,7 @@ p, li { white-space: pre-wrap; }
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../main_ImpExp.cpp" line="+19"/>
+        <location filename="../main_ImpExp.cpp" line="+21"/>
         <source>Select Module folder</source>
         <translation>Selecciona una Carpeta de Módulo</translation>
     </message>
@@ -1951,7 +2012,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../mainwindow.ui" line="+14"/>
         <location filename="../main_ImpExp.cpp" line="+30"/>
-        <location filename="../mainwindow.cpp" line="+1146"/>
+        <location filename="../mainwindow.cpp" line="+1148"/>
         <location line="+1"/>
         <source>OpenBRF</source>
         <translation>OpenBRF</translation>
@@ -1987,7 +2048,7 @@ al que añadir un fotograma o cuadro.</translation>
     </message>
     <message>
         <location line="+10"/>
-        <location filename="../mainwindow.cpp" line="+898"/>
+        <location filename="../mainwindow.cpp" line="+951"/>
         <source>Vertex number mismatch... using texture-coord matching instead of vertex-ordering</source>
         <translation>El número de vértices no concuerda... se usarán las coordenadas de textura para ordenarlos.</translation>
     </message>
@@ -2049,7 +2110,7 @@ al que añadir un fotograma o cuadro.</translation>
         <translation>Importado %1 modelo esqueletal%2</translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="+9"/>
+        <location filename="../main_create.cpp" line="+11"/>
         <source>&amp;File</source>
         <translation>&amp;Archivo</translation>
     </message>
@@ -2059,7 +2120,7 @@ al que añadir un fotograma o cuadro.</translation>
         <translation>&amp;Edición</translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+18"/>
         <source>&amp;Import</source>
         <translation>&amp;Importar</translation>
     </message>
@@ -2226,7 +2287,7 @@ al que añadir un fotograma o cuadro.</translation>
     <message>
         <location line="+8"/>
         <source>Sample per vertex (quicker)</source>
-        <translation>Muestras por vértice (Más rápido)</translation>
+        <translation>Muestras por vértice (Mas rápido)</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -2241,7 +2302,7 @@ al que añadir un fotograma o cuadro.</translation>
     <message>
         <location line="+8"/>
         <source>Store in per-vertex Alpha (not RGB)</source>
-        <translation>Almacenar en Alfa por-vértice (no en RGB)</translation>
+        <translation>Almacenar en Alfa por vértice (no en RGB)</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -2284,7 +2345,7 @@ al que añadir un fotograma o cuadro.</translation>
         <translation>Aprender como feminizar armaduras desde los modelos seleccionados.</translation>
     </message>
     <message>
-        <location line="+15"/>
+        <location line="+16"/>
         <source>&amp;New</source>
         <translation>&amp;Nuevo</translation>
     </message>
@@ -2381,17 +2442,17 @@ al que añadir un fotograma o cuadro.</translation>
     <message>
         <location line="+2"/>
         <source>Copy selected objects plus everything used by them.</source>
-        <translation>Copia todos los elementos seleccionados junto con todas las dependencias que usan (incluido material y texturas).</translation>
+        <translation>Copia los objectos seleccionados junto con todas las dependencias que usan (incluido material y texturas).</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Cut complete</source>
-        <translation>Cortar completamente</translation>
+        <translation>Corte completo</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Cut selected objects plus everything used by them.</source>
-        <translation>Corta todos los elementos seleccionados junto con todas las dependencias que usan (incluido material y texturas).</translation>
+        <translation>Corta los objetos seleccionados junto con todas las dependencias que usan (incluido material y texturas).</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -2415,6 +2476,26 @@ al que añadir un fotograma o cuadro.</translation>
     </message>
     <message>
         <location line="+3"/>
+        <source>Paste text coordinates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Copy the texture coordiante from the mesh in the clipboard.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Paste lower parts of animations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Copy lower parts of this ani from the animation in the clipboard.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
         <source>Paste modifications</source>
         <translation>Pegar modificaciones</translation>
     </message>
@@ -2434,7 +2515,7 @@ al que añadir un fotograma o cuadro.</translation>
         <translation>Pega los tiempos de unos cuadros de animación, sean de vértices o esqueletales en otra animación u animaciones.</translation>
     </message>
     <message>
-        <location line="+17"/>
+        <location line="+19"/>
         <source>Save &amp;As...</source>
         <translation>Gu&amp;ardar como...</translation>
     </message>
@@ -2460,6 +2541,16 @@ al que añadir un fotograma o cuadro.</translation>
     </message>
     <message>
         <location line="+3"/>
+        <source>Shaders diagnostics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Tell me about the shader that is being used now.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
         <source>Why the checkerboard pattern?</source>
         <translation>¿Por qué aparecen los cuadros de colores?</translation>
     </message>
@@ -2469,7 +2560,7 @@ al que añadir un fotograma o cuadro.</translation>
         <translation>Diagnosticar la razón de ver un patrón de cuadrados en vez de la textura.</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+6"/>
         <source>About</source>
         <translation>Acerca de...</translation>
     </message>
@@ -2540,7 +2631,7 @@ al que añadir un fotograma o cuadro.</translation>
     </message>
     <message>
         <location line="+1"/>
-        <location filename="../main_info.cpp" line="+14"/>
+        <location filename="../main_info.cpp" line="+16"/>
         <source>Skeleton</source>
         <translation>Esqueleto</translation>
     </message>
@@ -2944,7 +3035,7 @@ al que añadir un fotograma o cuadro.</translation>
         <translation>&lt;p&gt;&amp;nbsp; &amp;nbsp; &lt;b&gt;OpenBRF&lt;/b&gt;&lt;br&gt;&amp;nbsp; &amp;nbsp; por &lt;b&gt;%2&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&amp;nbsp; &amp;nbsp; &lt;b&gt;versión %6&lt;/b&gt;&lt;br&gt;&amp;nbsp; &amp;nbsp; (%1)&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;i&gt;Pruebas, Reporte de errores y Sugerencias por:&lt;/i&gt; %3&lt;/p&gt;&lt;p&gt;&lt;i&gt;Arte Adicional:&lt;/i&gt; %4&lt;/p&gt;&lt;p&gt;&lt;i&gt;Traducciones:&lt;/i&gt; %5&lt;/p&gt;</translation>
     </message>
     <message>
-        <location line="+57"/>
+        <location line="+58"/>
         <source>&lt;b&gt;Activate OpenGL2.0?&lt;/b&gt;&lt;p&gt;OpenGL2.0 is needed to preview&lt;br&gt;bumpmaps, &quot;iron&quot; shader, specular maps...&lt;br&gt;but it has been reported to crash a few computers,&lt;br&gt;with (older?) ATI or Intel graphic cards.&lt;br&gt;&lt;br&gt;%1</source>
         <translation>&lt;b&gt;¿Activar OpenGL2.0?&lt;/b&gt;&lt;p&gt;Se necesita OpenGL2.0 para previsualizar&lt;br&gt;mapas de desplazamiento (bumpmaps), &quot;iron&quot; shader, mapas especulares...&lt;br&gt;pero nos han demostrado que no funciona bien en algunos ordenadores,&lt;br&gt;con gráficas ATI o Intel antiguas.&lt;br&gt;&lt;br&gt;%1</translation>
     </message>
@@ -2952,6 +3043,21 @@ al que añadir un fotograma o cuadro.</translation>
         <location line="+6"/>
         <source>&lt;i&gt;(later you can set this option under [Settings])</source>
         <translation>&lt;i&gt;(puedes ajustarlo más tarde en [Configuración])</translation>
+    </message>
+    <message>
+        <location line="+52"/>
+        <source>&lt;br&gt;- double check DiffuesA texture name of the material&lt;br&gt;- (hint: remember you can navigate with ctrl-left/right)&lt;br&gt;&lt;b&gt;or&lt;/b&gt;&lt;br&gt;&lt;br&gt;- make sure the missing texture file in mod texture folder!&lt;br&gt;- put it there if it is missing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
+        <source>I&apos;m supposed to understand .dds textures of formats DXT1 (maybe), DXT3, and DXT5.&lt;br&gt;But some kinds of DXT1 texture confuse me, and too big textures too.&lt;br&gt;Also, if graphic drivers are not up to date, I might ignore how to intepret DXT formats.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Try updating the drivers. Else, maybe just accept the fact... it should still show the texture in game.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>I&apos;m supposed to understand .dds textures of formats DXT1 (maybe), DXT3, and DXT5.&lt;br&gt;But some kinds of DXT1 texture confuse me, and too big textures too.</source>
@@ -2963,32 +3069,41 @@ al que añadir un fotograma o cuadro.</translation>
         <translation type="obsolete">&lt;p&gt;&amp;nbsp; &amp;nbsp; &lt;b&gt;versión %6&lt;/b&gt;&lt;br&gt;&amp;nbsp; &amp;nbsp; (%1)&lt;br&gt;&lt;/p&gt;&lt;p&gt;&amp;nbsp; &amp;nbsp; por %2&lt;br&gt;&lt;/p&gt;&lt;p&gt;Pruebas,reporte de errores y sugerencias por: %3&lt;/p&gt;&lt;p&gt;Arte adicional: %4&lt;/p&gt;&lt;p&gt;Traduciones por: %5&lt;/p&gt;</translation>
     </message>
     <message>
-        <location line="-33"/>
+        <location line="-98"/>
         <source>additional code and Chinese</source>
         <translation>código adicional y traducción al Chino</translation>
     </message>
     <message>
-        <location line="+72"/>
-        <source>I&apos;m supposed to understand .dds textures of formats DXT1 (maybe), DXT3, and DXT5.&lt;br&gt;But some kinds of DXT1 texture confuse me, and too big textures too.&lt;br&gt;Also, if graphic drivers are not up to date, I might ignore how to intepret DXT formats.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+3"/>
-        <source>Try updating the drivers. Else, maybe just accept the fact... it should still show the texture in game.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+4"/>
         <source>Open-Brf</source>
-        <translation>OpenBRF</translation>
+        <translation type="obsolete">OpenBRF</translation>
     </message>
     <message>
-        <location line="-66"/>
+        <location line="+13"/>
         <source>&lt;b&gt;What is this autofix DXT texture option?&lt;/b&gt;&lt;br&gt;&lt;p&gt;Many DDS texture creation programs/plugins around will output DXT1 textures with a minor error in the header.&lt;/p&gt;&lt;p&gt;This error confuses me (OpenBRF) but not Mount and Blade (or many other programs).&lt;/p&gt;&lt;p&gt;(When I cannot read a texture for this or any other problem, I display a chekerboard pattern instead).&lt;/p&gt;&lt;p&gt;If you want, I can silently fix this error every time I encounter it (I&apos;ll shamelessly write on the texture dss files on disk).&lt;/p&gt;</source>
         <translation>&lt;b&gt;¿Que es la opción de auto-arreglo de textura DXT?&lt;/b&gt;&lt;br&gt;&lt;p&gt;Muchos programas de creación de texturas DDS y extensiones usados habitualmente guardan los archivos con un pequeño error en el encabezado.&lt;/p&gt;&lt;p&gt;Este error me confunde (OpenBRF) pero no a Mount&amp;Blade y muchos otros programas.&lt;/p&gt;&lt;p&gt;(Cuando no puedo leer una textura por culpa de este u otros problemas muestro la cuadricula de colores).&lt;/p&gt;&lt;p&gt;Si quieres puedo arreglar de forma invisible este error cada vez que lo encuentre (y por tantorepararla automáticamente al vuelo guardándola al disco).&lt;/p&gt;</translation>
     </message>
     <message>
-        <location line="+31"/>
+        <location line="+25"/>
+        <source>&lt;br&gt;&lt;p&gt;&lt;i&gt;This info has been copyed to clipboard&lt;/i&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>ok</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
+        <source>&lt;p&gt;&lt;i&gt;Currently used preview Shader:&lt;/i&gt;&lt;br /&gt;%1&lt;/p&gt;&lt;p&gt;&lt;br /&gt;&lt;i&gt;Shader status:&lt;/i&gt;&lt;br /&gt;%2&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>OpenBrf - Preview Shader info</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
         <source>I don&apos;t know what the material &lt;i&gt;&quot;%1&quot;&lt;/i&gt; is.</source>
         <translation>No sé cual es el material &lt;i&gt;&quot;%1&quot;&lt;/i&gt;.</translation>
     </message>
@@ -3013,12 +3128,11 @@ al que añadir un fotograma o cuadro.</translation>
         <translation>He mirado en las carpetas &lt;br&gt;%1&lt;br&gt;, &lt;br&gt;%2&lt;br&gt; y &lt;br&gt;%3&lt;br&gt; pero no estaban ahí  &lt;br&gt; ¿Tal vez sea una textura tiff? (No las entiendo).</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>&lt;br&gt;- double check DiffuesA texture name of the material&lt;br&gt;- (hint: remember you can navigate with ctrl-left/right)&lt;br&gt;&lt;b&gt;or&lt;/b&gt;&lt;br&gt;- make sure the missing texture file in mod texture folder!&lt;br&gt;- put it there if it is missing</source>
-        <translation>&lt;br&gt;- Cerciórate de que DifusaA está bien escrito&lt;br&gt;- (recuerda que puedes navegar con ctrl+izquierda y ctrl+derecha)&lt;br&gt;&lt;b&gt;o&lt;/b&gt;&lt;br&gt;-¡Asegúrate de que la textura se encuentra en la carpeta &quot;textures&quot; del módulo!&lt;br&gt;-Ponla ahí en caso de que falte...</translation>
+        <translation type="obsolete">&lt;br&gt;- Cerciórate de que DifusaA está bien escrito&lt;br&gt;- (recuerda que puedes navegar con ctrl+izquierda y ctrl+derecha)&lt;br&gt;&lt;b&gt;o&lt;/b&gt;&lt;br&gt;-¡Asegúrate de que la textura se encuentra en la carpeta &quot;textures&quot; del módulo!&lt;br&gt;-Ponla ahí en caso de que falte...</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+12"/>
         <source>I cannot understand the texture format of  file &quot;%1&quot;.</source>
         <translation>No entiendo el formato del archivo &quot;%1&quot;</translation>
     </message>
@@ -3036,17 +3150,17 @@ al que añadir un fotograma o cuadro.</translation>
         <translation>&lt;i&gt;No puedo mostrar la textura real porque:&lt;/i&gt;&lt;br&gt;&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;&lt;br&gt;%2&lt;br&gt;&lt;br&gt;&lt;b&gt;Solución: &lt;/b&gt;%3</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="-1975"/>
+        <location filename="../mainwindow.cpp" line="-2028"/>
         <location line="+590"/>
         <location line="+367"/>
-        <location line="+754"/>
+        <location line="+770"/>
         <location line="+11"/>
-        <location line="+412"/>
+        <location line="+449"/>
         <source>OpenBrf</source>
         <translation>OpenBRF</translation>
     </message>
     <message>
-        <location line="-2133"/>
+        <location line="-2186"/>
         <source>%1 been modified.
 Save changes?</source>
         <translation>%1 ha sido modificado.
@@ -3199,12 +3313,12 @@ o discordancia en la vinculación esqueletal).
     <message>
         <location line="+24"/>
         <source>Computed AO%1</source>
-        <translation>Oclusión Ambiental calculada %1</translation>
+        <translation>AO calculado %1</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>(in alpha channel)</source>
-        <translation>(en canal alfa)</translation>
+        <translation>(en el canal alfa)</translation>
     </message>
     <message>
         <location line="+28"/>
@@ -3248,7 +3362,7 @@ Intervalo Nuevo: [%1+k %2+k]
 Seleccionar k:</translation>
     </message>
     <message>
-        <location line="+18"/>
+        <location line="+34"/>
         <source>Extract Interval</source>
         <translation>Extraer Intervalo</translation>
     </message>
@@ -3319,7 +3433,7 @@ Escribe el nuevo aquí:</translation>
         <translation>Añadiendo un</translation>
     </message>
     <message>
-        <location line="+211"/>
+        <location line="+248"/>
         <source>Copy Rigging into another mesh</source>
         <translation>Copiar vinculación esquetal a otro modelo</translation>
     </message>
@@ -3418,19 +3532,19 @@ Escribe el nuevo aquí:</translation>
         <translation>División cancelada.</translation>
     </message>
     <message>
-        <location line="+7"/>
+        <location line="+8"/>
         <source>Nothing to split (or could not split).</source>
         <translation>Nada que dividir (o no es posible).</translation>
     </message>
     <message>
-        <location line="+9"/>
+        <location line="+10"/>
         <source>Animation %2 split in %1 chunks -- new animation.txt file save in &quot;%3&quot;!</source>
         <translation>La animación %2 se ha dividido en %1 trozos -- ¡Nuevo actions.txt guardado en &quot;%3&quot;!</translation>
     </message>
     <message>
         <location line="+896"/>
         <source>Navigate: cannot find &quot;%1&quot; in current module</source>
-        <translation>Navigate:no se puede encontrar &quot;%1&quot; en el módulo actual</translation>
+        <translation>Navegar: no se puede encontrar &quot;%1&quot; en el módulo actual</translation>
     </message>
     <message>
         <source>Open BRF</source>
@@ -3468,8 +3582,8 @@ Are you sure?</source>
 Unfortunately, tangent directions can only be saved in Warband file format.
 Tangent directions will not be saved...</source>
         <translation>Estás intentando guardar mallas con direcciones tangentes en el formato de archivo M&amp;B 1.011.
-Por desgracia, las direcciones tangentes sólo puenden ser guardadas en el formato Warband.
-Las direcciones no se guardarán...</translation>
+Por desgracia, las direcciones tangentes sólo pueden ser guardadas en el formato de archivo Warband.
+Las direcciones tangentes no se guardarán...</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -3606,7 +3720,7 @@ Las direcciones no se guardarán...</translation>
     <message>
         <location line="+39"/>
         <source>Collision objects flags</source>
-        <translation>Insignias de Objetos de Colisión</translation>
+        <translation>Insignias de Obj. de Colisión</translation>
     </message>
     <message>
         <location line="+20"/>
@@ -3648,7 +3762,7 @@ Las direcciones no se guardarán...</translation>
     <message>
         <location line="+5"/>
         <source>Unknown (screen space?)</source>
-        <translation type="unfinished">Desconocido (¿espacio en pantalla?)</translation>
+        <translation type="unfinished">Desconocido (¿screen space?)</translation>
     </message>
     <message>
         <location line="+8"/>
@@ -3841,21 +3955,7 @@ especulares</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+50"/>
-        <source>Alpha test:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location line="+0"/>
-        <source>Alpha testing (for cutouts). Pixels more transparent than a given number will be not drawn.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Alpha test</source>
-        <translation type="obsolete">Test Alfa</translation>
-    </message>
-    <message>
-        <location line="-59"/>
+        <location line="-9"/>
         <source>Uniform lighting</source>
         <translation type="unfinished">Luz Uniforme</translation>
     </message>
@@ -3942,7 +4042,17 @@ Desplazamiento</translation>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+3"/>
+        <source>Alpha test:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Alpha testing (for cutouts). Pixels more transparent than a given number will be not drawn.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
         <source>Material flags</source>
         <translation>Insignias de material</translation>
     </message>
@@ -3950,7 +4060,7 @@ Desplazamiento</translation>
 <context>
     <name>QTextBrowser</name>
     <message>
-        <location filename="../iniData.cpp" line="+127"/>
+        <location filename="../iniData.cpp" line="+129"/>
         <source>cannot open file</source>
         <translation>no se puede abrir el archivo</translation>
     </message>
@@ -4098,7 +4208,7 @@ en la línea %3:
 <context>
     <name>Selector</name>
     <message>
-        <location filename="../selector.cpp" line="+10"/>
+        <location filename="../selector.cpp" line="+12"/>
         <source>&amp;Mesh</source>
         <translation>&amp;Modelo</translation>
     </message>
@@ -4163,6 +4273,11 @@ en la línea %3:
         <translation>Extrae una animación desde un intervalo de tiempos.</translation>
     </message>
     <message>
+        <location line="+3"/>
+        <source>Mirror this animation over the X axis.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location line="+2"/>
         <source>Remove interval...</source>
         <translation>Eliminar intervalo...</translation>
@@ -4184,12 +4299,12 @@ en la línea %3:
     </message>
     <message>
         <location line="+2"/>
-        <location line="+426"/>
+        <location line="+427"/>
         <source>Rename</source>
         <translation>Renombrar</translation>
     </message>
     <message>
-        <location line="-422"/>
+        <location line="-423"/>
         <source>Remove</source>
         <translation>Eliminar</translation>
     </message>
@@ -4424,7 +4539,13 @@ en la línea %3:
         <translation>Copia la vinculación o unión esqueletal de un modelo y se aplica a otro</translation>
     </message>
     <message>
-        <location line="+3"/>
+        <location line="+61"/>
+        <source>Recompute tangent dirs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-190"/>
+        <location line="+132"/>
         <source>Mirror</source>
         <translation>Volteo Simétrico</translation>
     </message>
@@ -4441,19 +4562,14 @@ en la línea %3:
     <message>
         <location line="+1"/>
         <source>Apply a geometric transform.</source>
-        <translation>Aplicar una transformación geométrica.</translation>
-    </message>
-    <message>
-        <location line="+54"/>
-        <source>Recompute tangent dirs</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplicar una transformación sobre el espacio tridimensional.</translation>
     </message>
     <message>
         <source>Apply a gemoetric transform.</source>
         <translation type="obsolete">Aplicar una transformación sobre el espacio tridimensional.</translation>
     </message>
     <message>
-        <location line="-52"/>
+        <location line="+2"/>
         <source>Rescale</source>
         <translation>Re-escalar</translation>
     </message>
@@ -4654,7 +4770,7 @@ en la línea %3:
     <message>
         <location line="+2"/>
         <source>per-vertex color</source>
-        <translation>Color de Vért.</translation>
+        <translation>Color de Vértice</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -4664,7 +4780,7 @@ en la línea %3:
     <message>
         <location line="+1"/>
         <source>tangent directions</source>
-        <translation>direcciones tangentes</translation>
+        <translation>Direcciones tangentes</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -4687,7 +4803,7 @@ en la línea %3:
         <translation>Realizar una modificación del esqueleto del modelo</translation>
     </message>
     <message>
-        <location line="+82"/>
+        <location line="+83"/>
         <source>[Right-Click]: tools for %1. Multiple selections with [Shift]-[Ctrl].</source>
         <translation>[Click Derecho]: Herramientas para %1. Selecciones múltiples con [Máyus]-[Ctrl]</translation>
     </message>
@@ -4717,7 +4833,7 @@ en la línea %3:
         <translation>Descartar</translation>
     </message>
     <message>
-        <location line="+44"/>
+        <location line="+45"/>
         <source>Add to reference skins</source>
         <translation>Añadir a los modelos de referencia:</translation>
     </message>
@@ -4735,7 +4851,7 @@ en la línea %3:
 <context>
     <name>TableModel</name>
     <message>
-        <location filename="../tablemodel.cpp" line="+73"/>
+        <location filename="../tablemodel.cpp" line="+75"/>
         <source>HEADER</source>
         <translation></translation>
     </message>

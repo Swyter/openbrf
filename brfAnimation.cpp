@@ -15,6 +15,7 @@ using namespace vcg;
 Matrix44f BrfAnimationFrame::getRotationMatrix(int i) const{
   vcg::Matrix44f res;
   vcg::Quaternionf qua = rot[i];
+
   qua.ToMatrix(res);
   //res.transposeInPlace();
   return res;
@@ -41,13 +42,65 @@ Matrix44f BrfAnimationFrame::getRotationMatrix(int i) const{
   */
 }
 
+
+
+static vcg::Point4f MirrorRotRoot(vcg::Point4f x){
+
+	vcg::Matrix44f res;
+
+	x=BrfSkeleton::adjustCoordSystHalf(x);
+
+	vcg::Quaternionf(x).ToMatrix(res);
+
+
+	res[1][2]*=-1; res[2][1]*=-1;
+	//res[0][1]*=-1; res[1][0]*=-1;
+	res[0][2]*=-1; res[2][0]*=-1;
+	/*
+	float m[16] = {
+		1,0,0,0,
+		0,1,0,0,
+		0,0,1,0,
+		0,0,0,1,
+	};
+
+	res=//vcg::Matrix44f(m)*
+			res*vcg::Matrix44f(m);
+
+	*/
+	vcg::Quaternionf qua;
+
+	qua.FromMatrix(res);
+	x = qua;
+
+	x=BrfSkeleton::adjustCoordSystHalf(x);
+
+	return x;
+}
+
+static vcg::Point4f MirrorRot(vcg::Point4f x){
+	vcg::Matrix44f res;
+	vcg::Quaternionf(x).ToMatrix(res);
+	res[1][2]*=-1; res[2][1]*=-1;
+	//res[0][1]*=-1; res[1][0]*=-1;
+	res[0][2]*=-1; res[2][0]*=-1;
+
+
+
+	vcg::Quaternionf qua;
+
+	qua.FromMatrix(res);
+	x = qua;
+	return x;
+}
+
 void BrfAnimationFrame::setRotationMatrix(Matrix44f mat, int i){
   vcg::Quaternionf qua;
   qua.FromMatrix(mat);
   rot[i]=qua;
   return;
   /*
-  float dva[] = {-1,0,0,0, 0,0,1,0, 0,1,0,0, 0,0,0,1};
+	float da[] = {-1,0,0,0, 0,0,1,0, 0,1,0,0, 0,0,0,1};
   vcg::Matrix44f swapYZ(dva);
   float dvb[] = {-1,0,0,0, 0,-1,0,0, 0,0,1,0, 0,0,0,1};
   vcg::Matrix44f invertXY(dvb);
@@ -275,6 +328,35 @@ void BrfFrame2TmpBone(const vector<BrfAnimationFrame> &vf,
     c.rot = vf[ fi ].tra;
     if ((!vf[ fi ].wasImplicit[nbones]) || vt.size()==0 ) vt.push_back(c);
   }
+}
+
+
+bool BrfAnimationFrame::Mirror(const BrfAnimationFrame& from, const vector<int>& boneMap){
+	tra = from.tra;
+	int n=rot.size();
+	if ((int)from.rot.size()!=n) return false;
+	if ((int)boneMap.size()!=n) return false;
+
+	rot[0]= MirrorRotRoot( from.rot[0] );
+	tra[0]*=-1;
+
+	for (int i=1; i<n; i++) {
+		int j = boneMap[i];
+		rot[i]= MirrorRot( from.rot[j] );
+		wasImplicit[i]= from.wasImplicit[j];
+	}
+
+	return true;
+}
+
+bool BrfAnimation::Mirror(const BrfAnimation& from, const BrfSkeleton& s){
+	vector<int> bonemap;
+
+	for (int i=0; i<(int)s.bone.size(); i++) bonemap.push_back( s.FindSpecularBoneOf(i) );
+
+	for (unsigned int i=0; i<frame.size(); i++)
+		if (!frame[i].Mirror(from.frame[i%from.frame.size()],bonemap)) return false;
+	return true;
 }
 
 

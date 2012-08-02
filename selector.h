@@ -72,7 +72,8 @@ private:
     *goPrevTabAct,
 
      // tools
-    *aniExtractIntervalAct,
+		*aniMirrorAct,
+		*aniExtractIntervalAct,
     *aniRemoveIntervalAct,
     *aniMergeAct,
 

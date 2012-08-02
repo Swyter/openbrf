@@ -182,7 +182,7 @@ public:
   // reads the n^th int token from last read line
   long long longT(int n) throw (int){
     long long num;
-    int k=sscanf(stringT(n),"%lld",&num);
+		int k=sscanf(stringT(n),"%ld",&num);
     if (k!=1) error(QTextBrowser::tr("expected number istead of '%1' (token %2)").arg(stringT(n)).arg(n));
     return num;
   }
