@@ -62,6 +62,7 @@ int GLWidget::getRefSkeleton() const{
       BrfAnimation *a=&(reference->animation[selRefAnimation]);
       return reference->getOneSkeleton( int(a->nbones ), selRefSkel );
     }
+
   }
   if (displaying == ANIMATION ) {
     if (data)
@@ -382,9 +383,9 @@ int newShaderProgram(const char* prefix, const char* vs, const char* fs) {
 void GLWidget::initFramPrograms(){
 
   fragProgramIron = 0;
-  programNormalMapIron = 0;
-  programNormalMapAlpha = 0;
-  programNormalMapShineMap = 0;
+  for (int k=0; k<NM_MODES; k++)
+    for (int h=0; h<2; h++)
+  programNormalMap[k][h] = 0;
 
   if (!glCreateShader || !glCreateProgram || !glCompileShader
       || !glAttachShader || !glAttachShader || !glShaderSource) return;
@@ -444,7 +445,16 @@ void GLWidget::initFramPrograms(){
 
     void main(){
       vec4 tex = texture( samplRgb,tc);
-      vec3 normt = (texture( samplBump,tc).xyz * 2 ) - vec3(1.0);
+      %1if USE_GREEN_NM%2
+        vec3 normt;
+        normt.xy = +texture( samplBump,tc).ag * 2.0 - vec2(1.0);
+        /*normt.z = 1.0;normalize(normt);*/
+        normt.z = sqrt( 1.0-dot(normt.xy,normt.xy));
+      %1else%2
+        vec3 normt = (texture( samplBump,tc).xyz * 2.0 )- vec3(1.0);
+      %1endif%2
+
+
       normt = normt.z * norm +
               normt.x * tanx +
               normt.y * tany;
@@ -465,7 +475,7 @@ void GLWidget::initFramPrograms(){
       discard(tex.a<0.1);
       gl_FragColor.a = tex.a;
       %1else%2
-      gl_FragColor.a = 1;
+      gl_FragColor.a = 1.0;
       %1endif%2
 
       /*gl_FragColor.rgb = normt;*/
@@ -473,11 +483,20 @@ void GLWidget::initFramPrograms(){
 
   );
 
-  programNormalMapPlain = newShaderProgram("",normalVSource,normalFSource);
-  programNormalMapIron = newShaderProgram("#define SPECULAR_ALPHA 1\n",normalVSource,normalFSource);
-  programNormalMapAlpha = newShaderProgram("#define ALPHA_CUTOUTS 1\n",normalVSource,normalFSource);
-  programNormalMapShineMap = newShaderProgram("#define ALPHA_CUTOUTS 1\n"
-                                              "#define SPECULAR_MAP 1\n",normalVSource,normalFSource);
+  for (int i=0; i<2; i++)
+  for (int k=0; k<NM_MODES; k++){
+
+    QString arg;
+    switch (k) {
+    case NM_PLAIN: arg = ""; break;
+    case NM_ALPHA: arg = "#define ALPHA_CUTOUTS 1\n"; break;
+    case NM_IRON: arg = "#define SPECULAR_ALPHA 1\n"; break;
+    case NM_SHINE: arg = "#define ALPHA_CUTOUTS 1\n#define SPECULAR_MAP 1\n"; break;
+    }
+
+    if (i==1) arg = arg+"#define USE_GREEN_NM 1\n";
+    programNormalMap[k][i] = newShaderProgram(arg.toAscii().data(),normalVSource,normalFSource);
+  }
   fragProgramIron = newShaderProgram("",0,ironFs);
 
 
@@ -523,10 +542,11 @@ void GLWidget::enableMaterial(const BrfMaterial &m){
   if (bumpmapActivated) {
     if (useOpenGL2) {
       int prog;
-      if (mapShine) prog = programNormalMapShineMap;
-      else if (alphaCutout) prog = programNormalMapAlpha;
-      else if (alphaShine) prog = programNormalMapIron;
-      else prog = programNormalMapPlain;
+
+      if (mapShine) prog = programNormalMap[NM_SHINE][bumpmapUsingGreen];
+      else if (alphaCutout) prog = programNormalMap[NM_ALPHA][bumpmapUsingGreen];
+      else if (alphaShine) prog = programNormalMap[NM_IRON][bumpmapUsingGreen];
+      else prog = programNormalMap[NM_PLAIN][bumpmapUsingGreen];
 
       if (glUseProgram) glUseProgram(prog);
       if (glUniform3f)  {
@@ -749,6 +769,7 @@ void GLWidget::setDummyNormTexture(){
   glActiveTexture(GL_TEXTURE1);
   glBindTexture(GL_TEXTURE_2D, dummyNormTexture );
   glActiveTexture(GL_TEXTURE0);
+  bumpmapActivated = true; bumpmapUsingGreen = false;
 }
 
 bool GLWidget::fixTextureFormat(QString st){
@@ -789,6 +810,7 @@ void GLWidget::setTextureName(QString s, int origin, int texUnit){
      setMaterialError(0);
      tw=data.sx;
      th=data.sy;
+     ta=(data.ddxversion>=3);
   } else {
      setMaterialError(3); // format is wrong
      lastMatErr.texName=s;
@@ -835,6 +857,7 @@ void GLWidget::setMaterialName(QString st){
           if (!b.isEmpty()) {
             setTextureName(b, m->bumpLocation ,1 );
             bumpmapActivated = true;
+            bumpmapUsingGreen = ta;
           }
         } else setDummyNormTexture();
         if (useS) {
@@ -1622,11 +1645,11 @@ static Point3f randomUpVector(int, float above){
   return res;
 }
 
-void GLWidget::renderAoOnMeshes(float brightness, float fromAbove){
+void GLWidget::renderAoOnMeshes(float brightness, float fromAbove, bool perface, bool inAlpha){
   if (!data) return;
   if (!viewmodeMult) {
     // ao, combined
-    renderAoOnMeshesAllSelected(brightness, fromAbove);
+    renderAoOnMeshesAllSelected(brightness, fromAbove, perface, inAlpha);
   } else {
     // ao, separated
 
@@ -1639,21 +1662,24 @@ void GLWidget::renderAoOnMeshes(float brightness, float fromAbove){
       assert(i<MAXSEL);
       if (!(selGroupBackup[i])) continue;
       selGroup[i] = true;
-      renderAoOnMeshesAllSelected(brightness, fromAbove);
+      renderAoOnMeshesAllSelected(brightness, fromAbove, perface, inAlpha);
       selGroup[i] = false;
     }
     for (int i=0;i<MAXSEL; i++) selGroup[i] = selGroupBackup[i];
   }
 }
 
-void GLWidget::renderAoOnMeshesAllSelected(float brightness, float howMuchFromAbove){
+void GLWidget::renderAoOnMeshesAllSelected(float brightness, float howMuchFromAbove, bool perFace, bool inAlpha){
   makeCurrent();
   if (!data) return;
 
   std::vector<BrfMesh>& v(data->mesh);
 
   // set color to at all meshes black
-  for (uint i=0; i<v.size(); i++) if (selGroup[i]) v[i].ColorAll(0);
+  for (uint i=0; i<v.size(); i++) if (selGroup[i]) {
+    for (uint j=0; j<v[i].vert.size(); j++) v[i].vert[j].__norm = vcg::Point3f(0,0,0);
+    //v[i].ColorAll(0);
+  }
 
   const int RES = 255;
   const int NPASS = 256;
@@ -1662,8 +1688,6 @@ void GLWidget::renderAoOnMeshesAllSelected(float brightness, float howMuchFromAb
   glPushMatrix(); glLoadIdentity();
   glMatrixMode(GL_MODELVIEW);
   glPushMatrix();
-
-
 
   Box3f bbox;bbox.SetNull();
   for (uint i=0; i<v.size(); i++) if (selGroup[i]) {
@@ -1699,22 +1723,54 @@ void GLWidget::renderAoOnMeshesAllSelected(float brightness, float howMuchFromAb
     float depthbuf[RES*RES];
     glReadPixels(0, 0, RES,RES,GL_DEPTH_COMPONENT, GL_FLOAT, depthbuf);
 
-    for (uint i=0; i<v.size(); i++) if (selGroup[i]) {
-      BrfMesh &m(v[i]);
-      for (uint j=0; j<m.vert.size(); j++) {
-        Point3f p = m.frame[0].pos[ m.vert[j].index ];
-        double rx,ry,rz;
-        gluProject(p.X(),p.Y(),p.Z(),matMV, matPR, VP, &rx,&ry,&rz);
-        float depth = depthbuf[RES*int(ry)+int(rx)];
+    if (perFace) {
+      for (uint i=0; i<v.size(); i++) if (selGroup[i]) {
+        BrfMesh &m(v[i]);
+        for (uint fj=0; fj<m.face.size(); fj++)
+        for (uint wj=0; wj<3; wj++) {
+          int j0 = m.face[fj].index[wj];
+          int j1 = m.face[fj].index[(wj+1)%3];
+          int j2 = m.face[fj].index[(wj+2)%3];
+          Point3f p =
+            m.frame[0].pos[ m.vert[j0].index ] * (4.0/6.0)+
+            m.frame[0].pos[ m.vert[j1].index ] * (1.0/6.0)+
+            m.frame[0].pos[ m.vert[j2].index ] * (1.0/6.0);
+          Point3f n =
+            m.frame[0].norm[ j0 ] * (4.0/6.0)+
+            m.frame[0].norm[ j1 ] * (1.0/6.0)+
+            m.frame[0].norm[ j2 ] * (1.0/6.0);
+          n = n.Normalize();
 
-        if (depth+0.005>rz) {
-          float diff = -ld*m.frame[0].norm[ j ];
-          if (diff<0) diff = 0;
-          m.vert[j].col += uint(diff*255.0);
+          double rx,ry,rz;
+          gluProject(p.X(),p.Y(),p.Z(),matMV, matPR, VP, &rx,&ry,&rz);
+          float depth = depthbuf[RES*int(ry)+int(rx)];
 
+          if (depth+0.005>rz) { \
+            float diff = -ld*n;
+            if (diff<0) diff = 0;
+            m.vert[j0].__norm[0] += diff;
+          }
+          m.vert[j0].__norm[1] += 1;
         }
       }
+    } else {
+      for (uint i=0; i<v.size(); i++) if (selGroup[i]) {
+        BrfMesh &m(v[i]);
+        for (uint j=0; j<m.vert.size(); j++) {
+          Point3f p = m.frame[0].pos[ m.vert[j].index ];
+          Point3f n = m.frame[0].norm[ j ];
+          double rx,ry,rz;
+          gluProject(p.X(),p.Y(),p.Z(),matMV, matPR, VP, &rx,&ry,&rz);
+          float depth = depthbuf[RES*int(ry)+int(rx)];
 
+          if (depth+0.005>rz) {
+            float diff = -ld*n;
+            if (diff<0) diff = 0;
+            m.vert[j].__norm[0] += diff;
+
+          }
+        }
+      }
     }
 
   }
@@ -1724,13 +1780,19 @@ void GLWidget::renderAoOnMeshesAllSelected(float brightness, float howMuchFromAb
     BrfMesh &m(v[i]);
     for (uint j=0; j<m.vert.size(); j++) {
       
-      float ao = m.vert[j].col/(0.95*maxLight*255.0) ; //*3/(NPASS*255.0);
+      float ao =  m.vert[j].__norm[0] /(0.95*maxLight) ;
+      if (perFace) ao *= NPASS/(m.vert[j].__norm[1]) ;
       ao = brightness + ao*(1-brightness);
       int k = (uint)floor(ao*255+0.5);
       if (k>255) k=255;
       if (k<0) k=0;
-      m.vert[j].col = k | k<<8 | k<<16 | 0xFF<<24;
+      if (inAlpha)
+        m.vert[j].col = ( m.vert[j].col & 0x00FFFFFF) | k<<24;
+      else
+        m.vert[j].col = k | k<<8 | k<<16 | (m.vert[j].col & 0xFF000000);
     }
+    m.AdjustNormDuplicates();
+    m.hasVertexColor = true;
   }
 
 

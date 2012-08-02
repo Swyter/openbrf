@@ -491,6 +491,19 @@ void mySetValueMax(QLCDNumber *qlc, int n){
   qlc->display(n);
 }
 
+static void mySetCompositeVal(int &a, bool b){
+  if (a==-1) a=(b)?2:0;
+  else if (a==2) a=(b)?2:1;
+  else if (a==0) a=(b)?1:0;
+}
+static Qt::CheckState myCheckState(int a){
+  switch (a) {
+  case 1:  return Qt::PartiallyChecked;
+  case 2:  return Qt::Checked;
+  default: return Qt::Unchecked;
+  }
+}
+
 void GuiPanel::setSelection(const QModelIndexList &newsel, int k){
   int sel=-1;
   int nsel = (int)newsel.size();
@@ -604,12 +617,13 @@ switch (TokenEnum(k)){
     ui->rbVertexcolor->setEnabled(false);
     ui->viewRefAni->setVisible( false );
 
+    int hasAni=-1,hasCol=-1,hasTan=-1,hasRig=-1;
     for (QModelIndexList::ConstIterator i=newsel.constBegin(); i!=newsel.constEnd(); i++){
       int sel = i->row();
       if (sel<0 || sel>=(int)data->mesh.size())  break;
       BrfMesh *m=&(data->mesh[sel]);
 
-      mySetText(ui->boxFlags, StringH(m->flags) );
+      mySetText(ui->boxFlags, StringH(m->flags & ~(3<<16) ));
       mySetText( ui->boxMaterial ,  m->material );
 
       mySetValueAdd( ui->boxNVerts , m->vert.size());
@@ -617,17 +631,26 @@ switch (TokenEnum(k)){
       mySetValueAdd( ui->boxNPos   , m->frame[0].pos.size());
       mySetValueMax( ui->boxNFrames, m->frame.size());
 
-      if (m->isRigged)  {
-        ui->rbRiggingcolor->setEnabled( true );
-        ui->viewRefAni->setVisible( true );
-      }
-      if (m->hasVertexColor) ui->rbVertexcolor->setEnabled(true);
-      //if (m->)
-      if (m->frame.size()>1) ui->meshDataAni->setVisible(true);
+      mySetCompositeVal(hasAni, m->HasVertexAni());
+      mySetCompositeVal(hasCol, m->hasVertexColor);
+      mySetCompositeVal(hasTan, m->HasTangentField());
+      mySetCompositeVal(hasRig, m->isRigged);
 
       for (unsigned int fi=0; fi < m->frame.size(); fi++)
          frameTime[fi]=m->frame[fi].time;
     }
+
+    if (hasAni>0)  {
+      ui->rbRiggingcolor->setEnabled( true );
+      ui->viewRefAni->setVisible( true );
+    }
+    if (hasCol>0) ui->rbVertexcolor->setEnabled(true);
+    if (hasAni>0) ui->meshDataAni->setVisible(true);
+    ui->cbMeshHasAni->setCheckState(myCheckState(hasAni));
+    ui->cbMeshHasCol->setCheckState(myCheckState(hasCol));
+    ui->cbMeshHasTan->setCheckState(myCheckState(hasTan));
+    ui->cbMeshHasRig->setCheckState(myCheckState(hasRig));
+
     updateMaterial(ui->boxMaterial->text());
     ui->timeOfFrame->setEnabled( newsel.size()==1 );
 

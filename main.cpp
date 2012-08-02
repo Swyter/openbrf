@@ -37,19 +37,25 @@ int main(int argc, char* argv[])
   QStringList arguments = QCoreApplication::arguments();
   app.setApplicationVersion(applVersion);
 
+  bool useAlphaC = false;
+
   if ((arguments.size()>1)&&(arguments[1].startsWith("-"))) {
-    if ((arguments[1] != "--dump")||(arguments.size()!=4)) {
+    if ((arguments[1] == "--dump")&&(arguments.size()==4)) {
+      switch (MainWindow().loadModAndDump(arguments[2],arguments[3])) {
+      case -1: system("echo OpenBRF: invalid module folder & pause"); break;
+      case -2: system("echo OpenBRF: error scanning brf data or ini file & pause"); break;
+      case -3: system("echo OpenBRF: error writing output file & pause"); break;
+      default: return 0;
+      }
+      return -1;
+    } else if ((arguments[1] == "--useAlphaCommands")&&(arguments.size()==2))  {
+      useAlphaC = true;
+      arguments.clear();
+    } else {
       showUsage();
       return -1;
     }
 
-    switch (MainWindow().loadModAndDump(arguments[2],arguments[3])) {
-    case -1: system("echo OpenBRF: invalid module folder & pause"); break;
-    case -2: system("echo OpenBRF: error scanning brf data or ini file & pause"); break;
-    case -3: system("echo OpenBRF: error writing output file & pause"); break;
-    default: return 0;
-    }
-    return -1;
   }
 
   while (1){
@@ -74,6 +80,7 @@ int main(int argc, char* argv[])
     app.installTranslator(&qtTranslator);
 
     MainWindow w;
+    w.setUseAlphaCommands(useAlphaC);
     w.show();
 
     if (arguments.size()>1) w.loadFile(arguments[1]); arguments.clear();

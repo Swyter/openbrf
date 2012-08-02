@@ -1,3 +1,7 @@
+#include <QtGui>
+#include <QDebug>
+#include <algorithm>
+
 #include "brfData.h"
 #include "glwidgets.h"
 #include "selector.h"
@@ -16,9 +20,6 @@
 #include "askIntervalDialog.h"
 #include "askHueSatBriDialog.h"
 #include "askLodOptionsDialog.h"
-#include <QtGui>
-#include <QDebug>
-#include <algorithm>
 
 typedef QPair<int, int> Pair;
 
@@ -623,6 +624,7 @@ void MainWindow::openModuleIniFile(){
 MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),inidata(brfdata)
 {
   usingWarband = true; // until proven otherwise
+  useAlphaCommands = false;
 
   setWindowIcon(QIcon(":/openBrf.ico"));
   QFile f(":/femininizer.morpher");
@@ -1001,11 +1003,17 @@ void MainWindow::objectMergeSelected(vector<BrfType> &v){
 }
 
 void MainWindow::meshComputeAo(){
+  bool inAlpha = optionAoInAlpha->isChecked() && useAlphaCommands;
   glWidget->renderAoOnMeshes(
-      0.33f * currAoBrightnessLevel()/4.0f,
-      0.4+0.6*(1-currAoFromAboveLevel()));
+    0.33f * currAoBrightnessLevel()/4.0f,
+    0.4+0.6*(1-currAoFromAboveLevel()),
+    currAoPerFace(),
+    inAlpha
+  );
   guiPanel->ui->rbVertexcolor->click();
   setModified(true);
+  statusBar()->showMessage(tr("Computed AO%1").arg(inAlpha?tr("(in alpha channel)"):""), 2000);
+
   updateGui();
   updateGl();
 
@@ -1434,6 +1442,18 @@ void MainWindow::meshDiscardCol(){
   updateGui();
   updateGl();
 }
+void MainWindow::meshDiscardTan(){
+  QModelIndexList list= selector->selectedList();
+  for (int j=0; j<list.size(); j++){
+    BrfMesh &m(brfdata.mesh[list[j].row()]);
+    m.DiscardTangentField();
+    setModified(true);
+  }
+  updateGui();
+  updateGl();
+}
+
+
 void MainWindow::meshDiscardAni(){
   QModelIndexList list= selector->selectedList();
   for (int j=0; j<list.size(); j++){
@@ -1730,12 +1750,6 @@ void MainWindow::editCopyFrame(){
   clipboard.mesh[0].KeepOnlyFrame(j);
 
   saveSystemClipboard();
-  /*
-  editPasteAct->setEnabled(true);
-  editPasteFrameAct->setEnabled(true);
-
-  editPasteRiggingAct->setEnabled(m.isRigged);
-  */
 }
 
 void MainWindow::onClipboardChange(){
@@ -1853,8 +1867,6 @@ void MainWindow::loadSystemClipboard(){
 
 void MainWindow::editPasteRigging(){
 
-
-
   QModelIndexList list= selector->selectedList();
   bool allRigged=true;
   for (unsigned int i=0; i<clipboard.mesh.size(); i++)
@@ -1911,8 +1923,36 @@ void MainWindow::editPasteFrame(){
 }
 
 void MainWindow::editCut(){
-  editCopy(true);
+  clipboard.Clear();
+  addSelectedToClipBoard();
   deleteSel();
+  saveSystemClipboard();
+}
+
+void MainWindow::editCopy(){
+  clipboard.Clear();
+  addSelectedToClipBoard();
+  saveSystemClipboard();
+}
+
+void MainWindow::editAddToCopy(){
+  addSelectedToClipBoard();
+  saveSystemClipboard();
+}
+
+void MainWindow::editCopyComplete(){
+  clipboard.Clear();
+  addSelectedToClipBoard();
+  completeClipboard(false);
+  saveSystemClipboard();
+}
+
+void MainWindow::editCutComplete(){
+  clipboard.Clear();
+  addSelectedToClipBoard();
+  completeClipboard(true);
+  deleteSel();
+  saveSystemClipboard();
 }
 
 
@@ -1933,12 +1973,53 @@ void MainWindow::sortEntries(){
   updateGui();
 }
 
-void MainWindow::editAddToCopy(){
-  editCopy(false);
+
+
+void MainWindow::completeClipboard(bool andDelete){
+  std::vector<bool> takeM(brfdata.material.size(),false);
+  std::vector<bool> takeT(brfdata.texture.size(),false);
+  std::vector<bool> takeS(brfdata.shader.size(),false);
+
+  for(uint i=0; i<clipboard.mesh.size(); i++){
+    int k = brfdata.Find(clipboard.mesh[i].material,MATERIAL);
+    if (k>=0) takeM[k]=true;
+  }
+
+  for (int i=takeM.size()-1; i>=0; i--) if (takeM[i]) {
+    qDebug("i = %d",i);
+    clipboard.material.push_back( brfdata.material[i] );
+    if (andDelete) brfdata.material.erase(brfdata.material.begin()+i);
+  }
+
+  for(uint i=0; i<clipboard.material.size(); i++){
+    int k;
+    k = brfdata.FindTextureWithExt(clipboard.material[i].diffuseA);
+    if (k>-1) takeT[k] = true;
+    k = brfdata.FindTextureWithExt(clipboard.material[i].diffuseB);
+    if (k>-1) takeT[k] = true;
+    k = brfdata.FindTextureWithExt(clipboard.material[i].bump);
+    if (k>-1) takeT[k] = true;
+    k = brfdata.FindTextureWithExt(clipboard.material[i].enviro);
+    if (k>-1) takeT[k] = true;
+    k = brfdata.FindTextureWithExt(clipboard.material[i].spec);
+    if (k>-1) takeT[k] = true;
+    k = brfdata.Find(clipboard.material[i].shader,SHADER);
+    if (k>-1) takeS[k] = true;
+  }
+
+  for (int i=takeT.size()-1; i>=0; i--) if (takeT[i]) {
+    clipboard.texture.push_back( brfdata.texture[i] );
+    if (andDelete) brfdata.texture.erase(brfdata.texture.begin()+i);
+  }
+
+  for (int i=takeS.size()-1; i>=0; i--) if (takeS[i]) {
+    clipboard.shader.push_back( brfdata.shader[i] );
+    if (andDelete) brfdata.shader.erase(brfdata.shader.begin()+i);
+  }
+
 }
 
-void MainWindow::editCopy(bool deselect){
-  if (deselect) clipboard.Clear();
+void MainWindow::addSelectedToClipBoard(){
   switch (selector->currentTabName()) {
     case MESH:     _copy(brfdata.mesh,     selector->selectedList(), clipboard.mesh);  break;
     case TEXTURE:  _copy(brfdata.texture,  selector->selectedList(), clipboard.texture); break;
@@ -1949,7 +2030,6 @@ void MainWindow::editCopy(bool deselect){
     case BODY:     _copy(brfdata.body,     selector->selectedList(), clipboard.body); break;
     default: return ; //assert(0);
   }
-  saveSystemClipboard();
 }
 
 void MainWindow::editPasteTimings(){
@@ -2012,12 +2092,12 @@ void MainWindow::editPasteMod(){
 void MainWindow::editPaste(){
   //deleteSel();
   for (int i=0; i<(int)clipboard.body.size(); i++) insert(clipboard.body[i]);
-  for (int i=0; i<(int)clipboard.mesh.size(); i++) insert(clipboard.mesh[i]);
   for (int i=0; i<(int)clipboard.texture.size(); i++) insert(clipboard.texture[i]);
+  for (int i=0; i<(int)clipboard.shader.size(); i++) insert(clipboard.shader[i]);
   for (int i=0; i<(int)clipboard.material.size(); i++) insert(clipboard.material[i]);
+  for (int i=0; i<(int)clipboard.mesh.size(); i++) insert(clipboard.mesh[i]);
   for (int i=0; i<(int)clipboard.skeleton.size(); i++) insert(clipboard.skeleton[i]);
   for (int i=0; i<(int)clipboard.animation.size(); i++) insert(clipboard.animation[i]);
-  for (int i=0; i<(int)clipboard.shader.size(); i++) insert(clipboard.shader[i]);
   //brfdata.Merge(clipboard);
   //selector->updateData(brfdata);
   setModified(true);
@@ -2247,7 +2327,6 @@ void MainWindow::breakAni(int which, bool useIni){
 }
 
 
-
 void MainWindow::dragEnterEvent(QDragEnterEvent *event)
 {
     // accept just text/uri-list mime format
@@ -2285,7 +2364,7 @@ void MainWindow::dropEvent(QDropEvent *event)
         QFileInfo info;
         QString fn = urlList[0].toLocalFile();
         info.setFile( fn ); // information about file
-        if ( info.isFile() ) loadFile( list[0] ); // if is file, setText
+        if ( info.isFile() ) loadFile( fn ); // if is file, setText
       }
     }
   }
@@ -2312,6 +2391,11 @@ int MainWindow::currAoBrightnessLevel() const{
 int MainWindow::currAoFromAboveLevel() const{
   for (int i=0; i<2; i++) if (optionAoFromAbove[i]->isChecked()) return i;
   return 1; // default value
+}
+
+bool MainWindow::currAoPerFace() const{
+  for (int i=0; i<2; i++) if (optionAoPerFace[i]->isChecked()) return i;
+  return 0; // default value
 }
 
 void MainWindow::optionAutoFixTextureUpdated(){
@@ -2367,6 +2451,7 @@ void MainWindow::saveOptions() const {
   settings->setValue("curLanguage",(int)curLanguage);
   settings->setValue("aoBrightness",(int)currAoBrightnessLevel());
   settings->setValue("aoAboveLevel",(int)currAoFromAboveLevel());
+  settings->setValue("aoPerFace",(int)currAoPerFace());
 
   settings->setValue("lod1",lodBuild[0]);
   settings->setValue("lod2",lodBuild[1]);
@@ -2377,6 +2462,8 @@ void MainWindow::saveOptions() const {
   settings->setValue("lod2Perc",lodPercent[1]);
   settings->setValue("lod3Perc",lodPercent[2]);
   settings->setValue("lod4Perc",lodPercent[3]);
+
+  settings->setValue("lodReplace",(lodReplace)?1:0);
 
   settings->setValue("background",background);
 
@@ -2436,6 +2523,11 @@ void MainWindow::setSpecularmap(int k){
   }
 }
 
+void MainWindow::setUseAlphaCommands(bool mode){
+  useAlphaCommands = mode;
+  optionAoInAlpha->setVisible(mode);
+}
+
 void MainWindow::loadOptions(){
   {
   int k=1;
@@ -2465,9 +2557,20 @@ void MainWindow::loadOptions(){
   }
 
   {
+  int k=1;
+  QVariant s =settings->value("assembleAniMode");
+  if (s.isValid()) k = s.toInt();
+  optionAssembleAniMatchVert->setChecked(k==0);
+  optionAssembleAniMatchTc->setChecked(k==1);
+  optionAssembleAniQuiverMode->setChecked(k==2);
+  }
+
+  {
   QVariant s =settings->value("curLanguage");
   if (s.isValid()) curLanguage = s.toInt(); else curLanguage = 0;
   }
+
+
 
   {
   int k=0;
@@ -2527,6 +2630,20 @@ void MainWindow::loadOptions(){
   optionAoFromAbove[h]->setChecked(h==k);
   }
 
+  {
+  int k=1;
+  QVariant s =settings->value("aoPerFace");
+  if (s.isValid()) k = s.toInt();
+  for (int h=0; h<2; h++)
+  optionAoPerFace[h]->setChecked(h==k);
+  }
+
+  {
+  int k=0;
+  QVariant s =settings->value("aoInAlpha");
+  if (s.isValid()) k = s.toInt();
+  optionAoInAlpha->setChecked(k);
+  }
 
   for (int i=0,defaultVal=5000; i<4; i++,defaultVal/=2){
     bool k=true;
@@ -2537,6 +2654,12 @@ void MainWindow::loadOptions(){
     QVariant s2 =settings->value(QString("lod%1Perc").arg(i+1));
     if (s2.isValid()) f = s2.toDouble();
     lodPercent[i]=f;
+  }
+  {
+  int k=1;
+  QVariant s =settings->value("lodReplace");
+  if (s.isValid()) k = s.toInt();
+  lodReplace = k;
   }
 
   {
@@ -2667,6 +2790,12 @@ bool MainWindow::saveFile(const QString &fileName)
       this,"OpenBRF",tr("You are saving a CommonRes file!\n(i.e. not one specific of this module).\n\nAre you sure?"),
       QMessageBox::Ok, QMessageBox::No
     )== QMessageBox::No) return false;
+  }
+  if (brfdata.HasAnyTangentDirs() && brfdata.version==0) {
+    QMessageBox::warning(
+      this,"OpenBRF - Warning",tr("You are trying to save meshes with tangend directions in M&B 1.011 file format.\nUnfortunately, tangent directions can only be saved in Warband file format.\nTangent directions will not be saved..."),
+      QMessageBox::Ok
+    );
   }
   if (!brfdata.Save(fileName.toStdWString().c_str())) {
      QMessageBox::information(this, "OpenBRF",
@@ -2930,7 +3059,7 @@ bool MainWindow::loadIni(int lvl){
 
   bool res = inidata.loadAll(lvl); // if lvl == 2 only tex mat etc
 
-  cancelNavStack();
+  //cancelNavStack();
 
   statusBar()->showMessage( tr("%5 %1 brf files from module.ini of \"%3\"-- %2 msec total [%4 text/mat/shad]").
       arg(inidata.file.size()).arg(qtime.elapsed()).arg(modName).arg(inidata.nRefObjects())
@@ -3003,46 +3132,43 @@ bool MainWindow::goTo(ObjCoord o){
 
 bool MainWindow::navigateLeft(){
 
-  if (navigationStackPos<=0) return false;
-  navigationStackPos--;
+  int stackPos=0;
+  int currTab = selector->currentTabName();
+  if (currTab==MATERIAL) stackPos = 1;
+  if (currTab==SHADER) stackPos = 2;
+  if (currTab==TEXTURE) stackPos = 2;
+  if (!stackPos) return false;
 
-  int nowPos = navigationStackPos;
-  static int num=0; num++;
-  QPair<ObjCoord,QString> p = navigationStack[navigationStackPos];
-  //qDebug()<<"p,first: "<<p.first<<" (on"<<inidata.filename.size() << ")\n";
-  if (p.second.isEmpty()) return false;
-  //if (p.first>=(int)inidata.filename.size()) return false;
+  QPair<ObjCoord,QString> p = navigationStack[stackPos-1];
+
+  if (p.second.isEmpty()) {
+    return false;
+  }
+  qDebug("-1");
+
+  if (p.first.fi==-1) {
+    if (!loadFile( p.second )) return false;
+    curFileIndex = p.first.fi;
+    selectOne(p.first.t,p.first.oi);
+  } else {
+    if (!goTo(p.first)) return false;
+  }
 
 
-  if (p.first.fi!=curFileIndex || p.first.fi==-1)
-    if (!loadFile( //inidata.filename[p.first])
-        p.second )
-        ) return false;
-
-  curFileIndex = p.first.fi;
-
-  int obj=MESH;
-  if (nowPos==1) obj=MATERIAL;
-
-
-  selectOne(obj,p.first.oi);
-  ////selector->currentWidget()->setFocus();
-  guiPanel->setNavigationStackDepth( navigationStackPos = nowPos );
-
+  guiPanel->setNavigationStackDepth( stackPos-1 );
 
   return true;
 }
 
-void MainWindow::cancelNavStack(){
-  navigationStackPos = 0;
-  guiPanel->setNavigationStackDepth( navigationStackPos );
-  for (int i=0; i<3; i++) navigationStack[i]=
-      QPair<ObjCoord, QString>(ObjCoord::Invalid(),"");
-}
+
 
 bool MainWindow::navigateRight(){
-  //int s = selector->onlySelected(MESH);
-  //BrfMesh *m = selectedMesh();
+
+  int currTab = selector->currentTabName();
+
+  if ((currTab!=MESH) && (currTab!=MATERIAL)) {
+    return false;
+  }
 
   inidata.loadAll(2); // ini must be loaded, at least mat and textures
 
@@ -3050,78 +3176,57 @@ bool MainWindow::navigateRight(){
       ObjCoord(curFileIndex,selector->firstSelected(), TokenEnum(selector->currentTabName())),
       curFile);
 
-  if (selector->currentTabName()==MESH) {
+  int nextTab = MATERIAL;
+  QString nextName;
+  int stackPos = -1;
+
+  if (currTab==MESH) {
+
     if (!guiPanel->ui->boxMaterial->hasFrame()) return false;
-
-    QString st = guiPanel->ui->boxMaterial->text();
-    ObjCoord p = inidata.indexOf(st,MATERIAL);
-    if (p.fi==-1) {
-      statusBar()->showMessage( tr("Navigate: cannot find material \"%1\" in current module").arg(st),6000);
-      return false;
-    }
-    if (p.fi!=curFileIndex) {
-      if (!loadFile( inidata.filename[p.fi])) return false;
-    }
-    navigationStackPos = 0;
-
-    navigationStack[navigationStackPos]=old;
-    //qDebug()<<"WRITING pos: "<<old.first<<"\n";
-    curFileIndex = p.fi;
-    if (navigationStackPos<10) navigationStackPos ++;
-    guiPanel->setNavigationStackDepth( navigationStackPos );
-
-
-    // switch to file containing the material
-    selectOne(MATERIAL,p.oi);
-    selector->currentWidget()->setFocus();
-
-
-    return true;
+    stackPos = 0;
+    nextTab = MATERIAL;
+    nextName = guiPanel->ui->boxMaterial->text();
   }
-  if (selector->currentTabName()==MATERIAL) {
+  if (currTab==MATERIAL) {
     QLineEdit *le = guiPanel->materialLeFocus();
-
     if (!le) return false;
-
     if (!le->hasFrame()) return false;
+    nextName = le->text();
+    if (nextName==QString("none")) return false;
 
-    QString st = le->text();
-    if (st==QString("none")) return false;
 
-
-    int ne;
     if (guiPanel->curMaterialFocus==GuiPanel::SHADERNAME){
-      ne = SHADER;
+      nextTab = SHADER;
     } else {
-      ne = TEXTURE;
-      //st = st+".dds";
+      nextTab = TEXTURE;
     }
-    ObjCoord p = inidata.indexOf(st, ne);
+    stackPos = 1;
 
-    if (p.fi==-1) {
-      statusBar()->showMessage( tr("Navigate: cannot find %2 \"%1\" in current module")
-                                .arg(st).arg(IniData::tokenFullName(ne)),6000);
-      return false;
-    }
-    if (p.fi!=curFileIndex) {
-      if (!loadFile( inidata.filename[p.fi])) return false;
-    }
-    navigationStackPos = 1;
-    //navigationStackObj[navigationStackPos]=MATERIAL;
-    navigationStack[navigationStackPos]=old;
-    curFileIndex = p.fi;
-    if (navigationStackPos<10) navigationStackPos ++;
-    guiPanel->setNavigationStackDepth( navigationStackPos );
-    statusBar()->showMessage( tr("Navigate right: pos = %1")
-                              .arg(navigationStackPos),6000);
-
-    // switch to file containing the material
-    selectOne(ne,p.oi);
-    selector->currentWidget()->setFocus();
-    return true;
   }
-  return false;
+
+  ObjCoord p = inidata.indexOf(nextName,nextTab);
+  if (p.fi==-1) {
+    statusBar()->showMessage( tr("Navigate: cannot find \"%1\" in current module").arg(nextName),6000);
+    return false;
+  }
+
+  if (!goTo(p)) return false;
+  navigationStack[stackPos]=old;
+  guiPanel->setNavigationStackDepth( stackPos+1 );
+
+  selector->currentWidget()->setFocus();
+
+  return true;
+
 }
+
+void MainWindow::cancelNavStack(){
+  //navigationStackPos = 0;
+  guiPanel->setNavigationStackDepth( 0 );
+  for (int i=0; i<2; i++) navigationStack[i]=
+      QPair<ObjCoord, QString>(ObjCoord::Invalid(),"");
+}
+
 void  MainWindow::selectOne(int kind, int i){
   selector->selectOne(kind,i);
 }
@@ -3303,9 +3408,9 @@ QString MainWindow::strippedName(const QString &fullFileName)
 
 void MainWindow::optionLodSettings(){
   AskLodOptionsDialog *d = new AskLodOptionsDialog(this);
-  d->setData(lodPercent, lodBuild);
+  d->setData(lodPercent, lodBuild, lodReplace);
   if (d->exec()==QDialog::Accepted){
-    d->getData(lodPercent, lodBuild);
+    d->getData(lodPercent, lodBuild, &lodReplace);
     statusBar()->showMessage(tr("New Lod parameters set"));
   }
   statusBar()->showMessage(tr("Cancelled"));
@@ -3396,6 +3501,87 @@ void MainWindow::setFlagsBody(){
       guiPanel->updateBodyPartData();
     }
     //guiPanel->update(); //setSelection(list,MATERIAL);
+  }
+
+}
+void MainWindow::setFlagsMesh(){
+  unsigned int curfOR=0, curfAND = 0xFFFFFFFF;
+
+
+  QString FlagNameArray[32] = {
+    "Unkonwn",
+    "Unkonwn",
+    "Unkonwn",
+    "Unkonwn",
+    "Unkonwn",
+    "Unkonwn",
+    "Unkonwn",
+    "Unkonwn",
+
+    "Unkonwn",
+    "Unkonwn",
+    "Unkonwn",
+    "Unkonwn",
+    "Unkonwn",
+    "Unkonwn",
+    "Unkonwn",
+    "Unkonwn",
+
+    AskFlagsDialog::tr("Reserved (tangent space)"),
+    AskFlagsDialog::tr("Reserved (warband format)"),
+    "Unkonwn",
+    "Unkonwn",
+    "Unkonwn",
+    "Unkonwn",
+    "Unkonwn",
+    "Unkonwn",
+
+    "Unkonwn",
+    "Unkonwn",
+    "Unkonwn",
+    "Unkonwn",
+    "Unkonwn",
+    "Unkonwn",
+    "Unkonwn",
+    "Unkonwn",
+
+  };
+
+  QModelIndexList list=selector->selectedList();
+
+  for (int i=0; i<(int)list.size(); i++) {
+    int sel = list[i].row();
+    if (sel<0 || sel>=(int)brfdata.mesh.size()) continue;
+
+    BrfMesh &m(brfdata.mesh[sel]);
+
+    curfOR |= m.flags;
+    curfAND &= m.flags;
+
+  }
+
+  //setFlags(curf,ui->leMatFlags->text());
+  QStringList l ;
+  for (int i=0; i<32; i++) l.append(FlagNameArray[i]);
+
+  AskFlagsDialog *d = new AskFlagsDialog(this,curfOR,curfAND, l);
+  d->setWindowTitle(tr("Material flags"));
+  if (d->exec()==QDialog::Accepted) {
+    //ui->leMatFlags->setText(StringH( d->getRes() ));
+    //emit(dataMaterialChanged());
+
+    for (int i=0; i<(int)list.size(); i++) {
+      int sel = list[i].row();
+      if (sel<0 || sel>=(int)brfdata.mesh.size()) continue;
+
+      BrfMesh &m(brfdata.mesh[sel]);
+
+      m.flags |= d->toOne();
+      m.flags &= d->toZero();
+
+    }
+    guiPanel->setSelection(list,MESH);
+    setModified(true);
   }
 
 }

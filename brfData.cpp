@@ -99,6 +99,21 @@ unsigned int BrfData::size(int token) const{
 
 }
 
+int BrfData::FindTextureWithExt(char* name){
+  int k = myfind(texture,name);
+  if (k>=0) return k;
+  char full[1024];
+  sprintf(full,"%s.dds",name);
+  return myfind(texture, full);
+}
+
+bool BrfData::HasAnyTangentDirs() const{
+  for (unsigned int i=0; i<mesh.size(); i++) {
+    if (mesh[i].HasTangentField()) return true;
+  }
+  return false;
+}
+
 int BrfData::Find(char* name, int token){
   switch (token) {
     case MESH: return myfind(mesh,name);
@@ -143,7 +158,8 @@ template<class BrfType> void BrfData::SaveAll(FILE *f, const vector<BrfType> &v)
 int BrfData::getOneSkeleton(int nbones, int after){
 
   for (unsigned int i=0; i<skeleton.size(); i++){
-    if ((int)skeleton[i].bone.size()==nbones) { if (!after)return i; after--; }
+    int j = (i+after)%skeleton.size();
+    if ((int)skeleton[j].bone.size()>=nbones) { return j; }
   }
   return -1;
 }

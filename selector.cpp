@@ -241,6 +241,7 @@ Selector::Selector(QWidget *parent)
 
   discardColAct = new QAction(tr("per-vertex color"), this);
   discardRigAct = new QAction(tr("rigging"), this);
+  discardTanAct = new QAction(tr("tangent directions"), this);
   discardAniAct = new QAction(tr("vertex animation"), this);
   discardAniAct->setStatusTip(tr("Discard vertex animation (keeps only current frame)"));
   //exportAnyBrfAct = new QAction(tr("in a BRF"), this);
@@ -295,6 +296,7 @@ Selector::Selector(QWidget *parent)
   connect(discardAniAct,SIGNAL(triggered()),parent,SLOT(meshDiscardAni()));
   connect(discardColAct,SIGNAL(triggered()),parent,SLOT(meshDiscardCol()));
   connect(discardRigAct,SIGNAL(triggered()),parent,SLOT(meshDiscardRig()));
+  connect(discardTanAct,SIGNAL(triggered()),parent,SLOT(meshDiscardTan()));
 
   connect(exportSkinAct, SIGNAL(triggered()), parent, SLOT(exportSkeletonAndSkin()));
   connect(exportSkinForAnimationAct, SIGNAL(triggered()), parent, SLOT(exportSkeletonAndSkin()));
@@ -585,11 +587,13 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
 
      m = contextMenu->addMenu(tr("Discard"));
      m->addAction(discardAniAct);
-     discardAniAct->setEnabled(mulsel || (mesh.frame.size()>1));
      m->addAction(discardRigAct);
-     discardRigAct->setEnabled(mulsel || mesh.isRigged);
      m->addAction(discardColAct);
+     m->addAction(discardTanAct);
+     discardRigAct->setEnabled(mulsel || mesh.isRigged);
+     discardAniAct->setEnabled(mulsel || mesh.HasVertexAni());
      discardColAct->setEnabled(mulsel || mesh.hasVertexColor);
+     discardTanAct->setEnabled(mulsel || mesh.HasTangentField());
 
      contextMenu->addSeparator();
 

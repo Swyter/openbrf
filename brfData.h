@@ -56,6 +56,8 @@ public:
 
   int getOneSkeleton(int nbones, int after);
   int Find(char* name, int token);
+  int FindTextureWithExt(char* name);
+  bool HasAnyTangentDirs() const;
   void ForgetTextureLocations();
   //const vector<ObjCoord>& GetUsedBy(int i, int token) const;
 

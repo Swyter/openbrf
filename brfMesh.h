@@ -128,6 +128,7 @@ public:
   void ShrinkAroundBones(const BrfSkeleton& s, int nframe);
   void NormalizeRigging();
   void DiscardRigging();
+  void DiscardTangentField();
   bool CopyModification(const BrfMesh& mod);
   void SetDefault();
   void MakeSingleQuad(float x, float y, float dx, float dy);
@@ -181,7 +182,6 @@ public:
   bool Skip(FILE* f);
 
   bool SaveAsPly(int nframe=0, const wchar_t* path=L"") const;
-  bool HasVertexAni() const;
   
   void Flip();
   void PaintAll(int r, int g, int b);
@@ -201,6 +201,9 @@ public:
   void RemoveSeamsFromNormals(double crease);
   void AfterLoad();
   bool hasVertexColor;
+  bool HasTangentField() const;
+  bool HasVertexAni() const;
+
 
   bool Merge(const BrfMesh &brf);
   bool AddFrameDirect(const BrfMesh &brf);

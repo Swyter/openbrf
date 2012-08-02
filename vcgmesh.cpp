@@ -343,7 +343,7 @@ bool VcgMesh::save(char* filename){
 }
 
 static Color4b Int2Col(unsigned int h){
-  return Color4b((h>>0)&255, (h>>8)&255, (h>>16)&255, (h>>24)&255);
+  return Color4b((h>>16)&255, (h>>8)&255, (h>>0)&255, (h>>24)&255);
 }
 
 static unsigned int Col2Int(const Color4b & c){
@@ -647,9 +647,10 @@ BrfMesh VcgMesh::toBrfMesh(){
     k++;
   }
 
+  /*
   if (mustUseWT()) qDebug("Using WT");
   if (mustUseVT()) qDebug("Using VT");
-
+  */
   k=0;
   for (CMesh::VertexIterator v=mesh.vert.begin();v!=mesh.vert.end(); v++) if (!v->IsD()) {
           //int vi = f->V(h)-&mesh.vert[0];

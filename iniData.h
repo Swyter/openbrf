@@ -75,7 +75,7 @@ public:
   bool saveLists(const QString &fn);
 
   int findFile(const QString &fn,bool onlyModFolder=false); // returns index of a given file
-  bool findTexture(const QString &fn);
+  BrfTexture* findTexture(const QString &fn);
 
   // returns: index of file, of object inside file
   ObjCoord indexOf(const QString &name, int kind);

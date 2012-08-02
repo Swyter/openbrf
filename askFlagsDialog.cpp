@@ -43,8 +43,9 @@ AskFlagsDialog::AskFlagsDialog(QWidget *parent, unsigned int ones, unsigned int 
 
       if (!isOne && !isZero) cb[i]->setVisible(false);
     }
-    if (l[i]==QString("R")) {
-      cb[i]->setText(tr("reserved"));
+    if ((l[i]==QString("R")) || (l[i].startsWith("Reserved "))) {
+      if ((l[i]==QString("R"))) cb[i]->setText(tr("reserved"));
+      else cb[i]->setText(l[i]);
       cb[i]->setEnabled(false);
       QFont f = cb[i]->font();
       f.setItalic(true);

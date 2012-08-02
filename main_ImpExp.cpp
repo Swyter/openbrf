@@ -26,6 +26,11 @@ void MainWindow::moduleSelect(){
 }
 
 
+template <class T> int _findByName( const vector<T> &v, const QString &s){
+  for (unsigned int i=0; i<v.size(); i++)
+    if (QString::compare(v[i].name,s,Qt::CaseInsensitive)==0) return i;
+  return -1;
+}
 
 void MainWindow::meshComputeLod(){
   if (selector->currentTabName()!=MESH) return;
@@ -47,13 +52,13 @@ void MainWindow::meshComputeLod(){
     //m.UnifyPos();
     //m.UnifyVert(false,0);
 
-    std::vector<BrfMesh> mvec; mvec.push_back(m);
     //float  amount = 1;
 
     // find correct name
     QString st(m.name);
     QString partname = st;
     QString partnumber = st;
+    if (st.contains(".lod")) continue; // don't relod
     int k = st.lastIndexOf('.');
     if (k!=-1) {
       partname.truncate(k);
@@ -76,7 +81,10 @@ void MainWindow::meshComputeLod(){
       VcgMesh::simplify((int)amount);
 
       BrfMesh res = VcgMesh::toBrfMesh();
-      if (m.isRigged) res.TransferRigging(mvec,0,0); else res.rigging.clear();
+      if (m.isRigged) {
+        std::vector<BrfMesh> mvec; mvec.push_back(m);
+        res.TransferRigging(mvec,0,0);
+      } else res.rigging.clear();
       res.isRigged = m.isRigged;
       res.flags = m.flags;
       sprintf(res.material,"%s", m.material);
@@ -88,8 +96,18 @@ void MainWindow::meshComputeLod(){
       res.ComputeTangents();
       resvec.push_back(res);
     }
-    for (uint ii=0; ii<resvec.size(); ii++){
-      brfdata.mesh.insert(brfdata.mesh.begin()+i+ii+1,resvec[ii]);
+    for (uint ii=0,jj=0; ii<resvec.size(); ii++){
+      int replaceAt = -1;
+      if (lodReplace) {
+        replaceAt = _findByName(brfdata.mesh,resvec[ii].name);
+      }
+      if (replaceAt==-1) {
+        brfdata.mesh.insert(brfdata.mesh.begin()+i+jj+1,resvec[ii]);
+        jj++;
+      }
+      else {
+        brfdata.mesh[replaceAt] = resvec[ii];
+      }
     }
     inidataChanged();
     setModified(true);

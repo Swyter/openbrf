@@ -999,12 +999,12 @@ BrfMaterial* IniData::findMaterial(const QString &name,ObjCoord ) {
   return NULL;
 }
 
-bool IniData::findTexture(const QString &fn){
+BrfTexture* IniData::findTexture(const QString &fn){
   for (unsigned int i=0; i<filename.size(); i++)
   for (unsigned int j=0; j<file[i].texture.size();j++ ){
-    if (fn.compare(file[i].texture[j].name),Qt::CaseInsensitive) return true;
+    if (fn.compare(file[i].texture[j].name),Qt::CaseInsensitive) return &(file[i].texture[j]);
   }
-  return false;
+  return NULL;
 
 }
 

@@ -14,8 +14,8 @@ class AskLodOptionsDialog : public QDialog {
 public:
     AskLodOptionsDialog(QWidget *parent = 0);
     ~AskLodOptionsDialog();
-    void getData(float* perc, bool* yesno) const;
-    void setData(const float* perc, const bool* yesno);
+    void getData(float* perc, bool* yesno, bool *overRide) const;
+    void setData(const float* perc, const bool* yesno, bool overRide);
 
 protected:
     void changeEvent(QEvent *e);
