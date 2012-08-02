@@ -57,6 +57,9 @@ Selector::Selector(QWidget *parent)
   aniExtractIntervalAct = new QAction(tr("Extract interval..."), this);
   aniExtractIntervalAct->setStatusTip(tr("Extract an animation from an interval of times."));
 
+	aniMirrorAct = new QAction(tr("Mirror"), this);
+	aniMirrorAct->setStatusTip(tr("Mirror this animation over the X axis."));
+
   aniRemoveIntervalAct = new QAction(tr("Remove interval..."), this);
   aniRemoveIntervalAct->setStatusTip(tr("Remove an interval of times from the animation."));
 
@@ -268,7 +271,8 @@ Selector::Selector(QWidget *parent)
   connect(aniExtractIntervalAct, SIGNAL(triggered()),parent,SLOT(aniExtractInterval()));
   connect(aniRemoveIntervalAct, SIGNAL(triggered()),parent,SLOT(aniRemoveInterval()));
   connect(aniMergeAct, SIGNAL(triggered()),parent,SLOT(aniMerge()));
-  connect(breakAniWithIniAct, SIGNAL(triggered()),this,SLOT(onBreakAniWithIni()));
+	connect(aniMirrorAct, SIGNAL(triggered()),parent,SLOT(aniMirror()));
+	connect(breakAniWithIniAct, SIGNAL(triggered()),this,SLOT(onBreakAniWithIni()));
   connect(meshRecolorAct,SIGNAL(triggered()),parent,SLOT(meshRecolor()));
   connect(meshTuneColorAct,SIGNAL(triggered()),parent,SLOT(meshTuneColor()));
   connect(meshComputeAoAct, SIGNAL(triggered()), parent, SLOT(meshComputeAo()));
@@ -629,9 +633,10 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
      contextMenu->addAction(bodyMakeQuadDominantAct);
    }
    if (t==ANIMATION) {
-     if (onesel) {
+		 contextMenu->addAction(aniMirrorAct);
+		 if (onesel) {
        if (!sep) contextMenu->addSeparator(); sep=true;
-       contextMenu->addAction(breakAniAct);
+			 contextMenu->addAction(breakAniAct);
        contextMenu->addAction(breakAniWithIniAct);
        contextMenu->addAction(shiftAniAct);
        contextMenu->addAction(aniExtractIntervalAct);

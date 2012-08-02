@@ -134,7 +134,7 @@ void BrfMesh::SubdivideIntoConnectedComponents(std::vector<BrfMesh> &res){
 	int nvert = vert.size();
 	int nface = face.size();
 	int nframe = frame.size();
-	assert(map.size() == npos);
+	assert((int)map.size() == npos);
 
 	for (uint i=0; i<res.size(); i++) {
 		sprintf(res[i].name, "%s.%d", name,i);
@@ -168,7 +168,7 @@ void BrfMesh::SubdivideIntoConnectedComponents(std::vector<BrfMesh> &res){
 			res[mi].frame[fi].pos.push_back( frame[fi].pos[i]);
 		}
 		if (rigging.size()>0) {
-			assert(i<rigging.size());
+			assert(i<(int)rigging.size());
 			res[mi].rigging.push_back(rigging[i]);
 		}
 
@@ -183,7 +183,7 @@ void BrfMesh::SubdivideIntoConnectedComponents(std::vector<BrfMesh> &res){
 		res[mi].vert.push_back( v );
 
 		for (int fi=0; fi<nframe; fi++) {
-			assert(i<frame[fi].norm.size());
+			assert(i<(int)frame[fi].norm.size());
 			res[mi].frame[fi].norm.push_back( frame[fi].norm[i]);
 		}
 
@@ -198,9 +198,9 @@ void BrfMesh::SubdivideIntoConnectedComponents(std::vector<BrfMesh> &res){
 		f.index[0] = vertMap[ f.index[0] ];
 		f.index[1] = vertMap[ f.index[1] ];
 		f.index[2] = vertMap[ f.index[2] ];
-		assert( f.index[0] < res[mi].vert.size() );
-		assert( f.index[1] < res[mi].vert.size() );
-		assert( f.index[2] < res[mi].vert.size() );
+		assert( f.index[0] < (int)res[mi].vert.size() );
+		assert( f.index[1] < (int)res[mi].vert.size() );
+		assert( f.index[2] < (int)	res[mi].vert.size() );
 		res[mi].face.push_back( f );
 	}
 
@@ -1454,6 +1454,7 @@ bool BrfMesh::CopyTextcoords(const BrfMesh& b){
 		vert[ face[i].index[w] ].ta = vert[ face[i].index[w] ].tb = b.vert[ b.face[mini].index[minw] ].ta;
 
 	}
+	return true;
 }
 
 void BrfMesh::CopyTextcoord(const BrfMesh &brf, const BrfMesh &newbrf, int fi){

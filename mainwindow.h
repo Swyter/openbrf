@@ -64,7 +64,8 @@ private:
     void registerExtension();
 
     void aniExtractInterval();
-    void aniRemoveInterval();
+		void aniMirror();
+		void aniRemoveInterval();
     void aniMerge();
 
 
@@ -433,7 +434,7 @@ private:
     void dropEvent(QDropEvent *event);
 
     bool maybeSave();
-    void setModified(bool mod);
+		void setModified(bool mod, bool repeateble = true);
     void updateTitle();
     bool isModified;
     QString lastImpExpFormat;

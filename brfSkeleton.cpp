@@ -80,6 +80,19 @@ float BrfSkeleton::BoneSizeX(){return 0.12;}
 float BrfSkeleton::BoneSizeY(){return 0.06;}
 float BrfSkeleton::BoneSizeZ(){return 0.04;}
 
+int BrfSkeleton::FindSpecularBoneOf(int i) const{
+	char boneName[255];
+	sprintf(boneName, "%s", bone[i].name );
+	int l = strlen(boneName)-1;
+	if (l<1) return i;
+	if (boneName[l-1]!='.') return i;
+	if (boneName[l]=='L') boneName[l]='R';
+	else if (boneName[l]=='R') boneName[l]='L';
+	else if (boneName[l]=='l') boneName[l]='r';
+	else if (boneName[l]=='r') boneName[l]='l';
+	else return i;
+	return FindBoneByName(boneName);
+}
 
 void BrfSkeleton::BuildDefaultMesh(BrfMesh & m) const{ // builds a mesh with just an octa x bone...
   int nb = bone.size();

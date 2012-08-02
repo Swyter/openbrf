@@ -5,7 +5,7 @@
 
 #include <QtGui>
 
-const char* applVersion = "0.0.66";
+const char* applVersion = "0.0.67";
 QString IniData::tokenFullName(int k){
 
   switch (k){
@@ -67,8 +67,8 @@ void MainWindow::about()
 									 "[Fafhrd], [fedeita], [Fei Dao], [foxyman], [Freddex], [FrisianDude], "
                    "[Geroj], [GetAssista], [giles], [Gothic Knight], [Hatonastick], "
                    "[havarez], "
-									 "[Highelf], [Highlander], [HokieBT], [iLag], [Jai], [killkhergit], "
-                   "[Konar], [Llew], [Lord_Cheap], "
+									 "[Highelf], [Highlander], [HokieBT], [Ikaguia], [iLag], [Jai], [killkhergit], "
+									 "[Konar], [Llew], [Lord_Cheap], [Lord Kinlar], "
 									 "[LordRaglan], [Lumos], [MadocComadrin], [MadVader], [Mandible], [Mekelan], "
                    "[Merlkir], [mr.master], "
                    "[mysstick], [N0body], [newaxekub], "

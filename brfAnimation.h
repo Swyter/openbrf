@@ -19,6 +19,7 @@ public:
 
   bool Reskeletonize(const BrfSkeleton& from, const BrfSkeleton& to);
 	bool CopyLowerParts(const BrfAnimationFrame& from);
+	bool Mirror(const BrfAnimationFrame& from, const std::vector<int>& boneMap);
 
 };
 
@@ -41,6 +42,7 @@ public:
   // to dysplay the animation...
   bool IsAnimable() const{return true;}
 	bool CopyLowerParts(const BrfAnimation& from);
+	bool Mirror(const BrfAnimation& from, const BrfSkeleton& s);
 
 
   static Box3f bbox;
