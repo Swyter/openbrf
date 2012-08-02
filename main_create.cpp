@@ -109,6 +109,9 @@ void MainWindow::createMenus()
     toolMenu->addAction(invertSelectionAct);
     toolMenu->addAction(selectAllAct);
     toolMenu->addSeparator();
+    toolMenu->addAction(activateRulerAct);
+    toolMenu->addAction(activateFloatingProbeAct);
+    toolMenu->addSeparator();
     toolMenu->addAction(repeatLastCommandAct);
 
     connect(selectedMenu,SIGNAL(aboutToShow()),this,SLOT(updateSelectedMenu()));
@@ -558,6 +561,16 @@ void MainWindow::createActions()
     selectAllAct->setShortcut(QKeySequence("ctrl+a"));
     connect(selectAllAct, SIGNAL(triggered()), selector, SLOT(selectAll()));
 
+    activateRulerAct = new QAction(tr("Measure with ruler"), this);
+    activateRulerAct->setStatusTip(tr("Use a ruler to measure object lenghts"));
+    activateRulerAct->setCheckable(true);
+    connect(activateRulerAct, SIGNAL(triggered(bool)), this, SLOT(activateRuler(bool)));
+
+    activateFloatingProbeAct = new QAction(tr("Measure with Floating Probe"), this);
+    activateFloatingProbeAct->setStatusTip(tr("Use the Floating Probe -- click on the 3D object rendering to position it"));
+    activateFloatingProbeAct->setCheckable(true);
+    connect(activateFloatingProbeAct, SIGNAL(triggered(bool)), this, SLOT(activateFloatingProbe(bool)));
+
     importStaticMeshAct = new QAction(tr("Static mesh..."), this);
     importStaticMeshAct->setStatusTip(tr("Import a static Mesh"));
     importRiggedMeshAct = new QAction(tr("Rigged mesh..."), this);
@@ -929,9 +942,15 @@ void MainWindow::createConnections(){
   connect(guiPanel->ui->frameNumber,SIGNAL(valueChanged(int)),glWidget,SLOT(setFrameNumber(int)));
   connect(glWidget,SIGNAL(signalFrameNumber(int)),guiPanel,SLOT(updateFrameNumber(int)));
   connect(glWidget,SIGNAL(notifyCheckboardChanged()),this,SLOT(notifyCheckboardChanged()));
+  connect(glWidget,SIGNAL(notifySelectedPoint(float,float,float)),this,SLOT(onSelectedPoint(float, float, float)));
 
   connect( selector,SIGNAL(setSelection(QModelIndexList,int)) ,
            guiPanel,  SLOT(setSelection(QModelIndexList,int)) );
+
+  connect( guiPanel, SIGNAL(notifyFloatingProbePos(float,float,float)),
+           glWidget, SLOT(setFloatingProbePos(float,float,float)));
+  connect( glWidget, SIGNAL(notifySelectedPoint(float,float,float)),
+           guiPanel, SLOT(setFloatingProbePos(float,float,float)));
 
   connect( selector,SIGNAL(setSelection(QModelIndexList,int)) ,
            this ,  SLOT(setSelection(QModelIndexList,int)) );

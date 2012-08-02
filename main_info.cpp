@@ -5,7 +5,7 @@
 
 #include <QtGui>
 
-const char* applVersion = "0.0.74";
+const char* applVersion = "0.0.75";
 QString IniData::tokenFullName(int k){
 
   switch (k){
@@ -168,9 +168,12 @@ void MainWindow::aboutCheckboard(){
     break;
   case 2:
     mot = QString(tr("I cannot find the file \"%1\" on disk.")).arg(glWidget->lastMatErr.texName);
-    longmot = QString(tr("I've looked in folders <br>%1<br> and <br>%2<br> and <br>%3<br> but it wasn't there...<br>"
-                      "Maybe it is was tiff texture? (I don't understand them).")).arg(
-        glWidget->texturePath[0]).arg(glWidget->texturePath[1]).arg(glWidget->texturePath[2]);
+    longmot = QString(
+      tr("I've looked in folders <br>%1<br> and <br>%2<br> and <br>%3<br> but it wasn't there...<br>"
+         "Maybe it is was tiff texture? (I don't understand them).")
+      ).arg(
+        glWidget->texturePath[0]).arg(glWidget->texturePath[1]).arg(glWidget->texturePath[2]
+      );
     cure = QString(tr("<br>- double check DiffuesA texture name of the material<br>"
                    "- (hint: remember you can navigate with ctrl-left/right)<br>"
 									 "<b>or</b><br>"

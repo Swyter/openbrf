@@ -19,6 +19,116 @@
 #include <wrap/gl/space.h>
 
 
+
+GLWidget::GLWidget(QWidget *parent, IniData &_inidata)
+    : QGLWidget(parent), inidata(_inidata)
+{
+  //grabKeyboard ();
+  selectNone();
+  phi=theta=0;
+  dist = 3.9;
+  zoom = 1;
+  cx = cy = 0;
+  currViewmodeHelmet=currViewmodeInterior=viewmode=0;
+  avatP.SetZero();
+  avatV.SetZero();
+  displaying = NONE;
+  timer = new QTimer();
+  timer->setInterval(1000/60);
+  timer->setSingleShot(false);
+  timer->start();
+
+  lastCenter.SetZero();
+  lastScale = 1;
+  closingUp = 0;
+  subsel = -1;
+
+  lastUsedShader = SHADER_FIXEDFUNC;
+  lastUsedShaderBumpgreen = 0;
+
+  floatingProbePulseColor = 0;
+
+  applyExtraMatrixToAll = true;
+  lastSelected = -1;
+
+  keys[0]=keys[1]=keys[2]=keys[3]=keys[4]=false;
+
+  for (int j=0; j<2; j++)
+  for (int i=0; i<SHADER_MODES; i++) {
+    shaderTried[i][j] = false;
+    shaderProgram[i][j] = new QGLShaderProgram();
+  }
+
+
+  useNormalmap = true;
+  useSpecularmap = true;
+
+  useTexture=true; useWireframe=false; useLighting=useFloor=true; useRuler=false; useHitboxes=false;
+  useFloatingProbe = false;
+  useComparisonMesh = false;
+  openGL2ready=false;
+
+  bumpmapActivated = false;
+  rulerLenght = 100;
+  ghostMode = false;
+  curMaterialTexture = DIFFUSEA;
+
+  colorMode=1;
+  selRefAnimation = -1;
+  selRefSkin = -1;
+  selFrameN = 0;
+  selRefSkel = 0;
+  showAlpha=NOALPHA;
+  commonBBox = false;
+  inferMaterial = true;
+  useOpenGL2 = false;
+
+  relTime=0;
+  runningState = STOP;
+  defaultRunningState = PLAY; // when visualizing animations
+  runningSpeed = 1/75.0f;
+
+  clearExtraMatrix();
+
+  tw=th=1;
+  currentCustomShader = NULL;
+
+  picking = true;
+  selPointIndex = -1;
+  floatingProbe.SetZero();
+
+  //connect(this, SIGNAL(), this, SLOT(mouseClickEvent(QMouseEvent*)) );
+  connect(timer,SIGNAL(timeout()),this,SLOT(onTimer()));
+}
+
+bool GlCamera::getCurrent(){
+  glGetIntegerv(GL_VIEWPORT,vp);
+  glGetDoublev(GL_MODELVIEW_MATRIX,mv);
+  glGetDoublev(GL_PROJECTION_MATRIX,pr);
+  return true;
+}
+
+GlCamera::GlCamera(){}
+
+GlCamera GlCamera::currentCamera(int i){
+  GlCamera c;
+  c.getCurrent();
+  c.targetIndex = i;
+  return c;
+}
+
+bool GlCamera::isInViewport(int x, int y) const{
+  return (x>=vp[0]) && (y>vp[1]) && (x<=vp[0]+vp[2]) && (y<=vp[1]+vp[3]);
+}
+
+vcg::Point3f GlCamera::unproject(int x, int y) const{
+  double rx,ry,rz;
+  float z = 0;
+  glReadPixels(x,y,1,1,GL_DEPTH_COMPONENT, GL_FLOAT,(void*)&z);
+  gluUnProject(x,y,z,mv,pr,vp,&rx,&ry,&rz);
+  return vcg::Point3f(float(rx),float(ry),float(rz));
+}
+
 void GLWidget::setFrameNumber(int i){
   if (i<0) return;
   if (selFrameN==i) return;
@@ -142,6 +252,28 @@ void GLWidget::renderRuler(){
   glColor4f( 1,1,1,1 );
 }
 
+void GLWidget::renderFloatingProbe(){
+  //if (selPointIndex>=0)
+  {
+    glDisable(GL_LIGHTING);
+    glDisable(GL_TEXTURE_2D);
+
+    float k = sin(floatingProbePulseColor/150.0);
+    glColor4f(1,k,k,0.25);
+    glPointSize(8);
+
+    glDisable(GL_DEPTH_TEST); glEnable(GL_BLEND);
+    glBegin(GL_POINTS);
+      glVertex3fv( floatingProbe.V() );
+    glEnd();
+
+    glEnable(GL_DEPTH_TEST); glDisable(GL_BLEND);
+    glBegin(GL_POINTS);
+      glVertex3fv( floatingProbe.V() );
+    glEnd();
+  }
+}
+
 void GLWidget::renderFloor(){
   this->setWireframeLightingMode(false,false,false);
 
@@ -255,8 +387,8 @@ void GLWidget::renderTexture(const char* name, bool addExtension){
 
   float w=1,h=1;
   if (tw*th) {
-    if (tw>th) h = th/float(tw);
-    if (tw<th) w = tw/float(th);
+    if (tw>th) glScalef(1,th/float(tw),1);// h = th/float(tw);
+    if (tw<th) glScalef(tw/float(th),1,1); //w = tw/float(th);
   }
   if (showAlpha==PURPLEALPHA) {
     glDisable(GL_TEXTURE_2D);
@@ -594,9 +726,8 @@ void GLWidget::renderBrfItem (const BrfBody& b){
 void GLWidget::renderBrfItem (const BrfAnimation& a){
   float fi = floatMod( relTime*runningSpeed , a.frame.size() );
   int fii = int(fi);
-  static int lastFii = -1;
-  if (fii!=lastFii) emit(signalFrameNumber(fii+1));
-  lastFii = fii;
+  if (selFrameN!=fii) emit(signalFrameNumber(fii+1));
+  selFrameN = fii;
 
   //if (runningState==STOP) fi=a.frame.size()-1;
   if (!reference) return;
@@ -928,6 +1059,9 @@ void GLWidget::setWireframe(int i){
 void GLWidget::setRuler(int i){
   useRuler = i; update();
 }
+void GLWidget::setFloatingProbe(int i){
+  useFloatingProbe = i; update();
+}
 void GLWidget::setHitboxes(int i){
   useHitboxes = i; update();
 }
@@ -953,24 +1087,24 @@ void GLWidget::setFloor(int i){
   useFloor = i; update();
 }
 void GLWidget::setPlay(){
-  runningState=PLAY;
+  defaultRunningState = runningState = PLAY;
   update();
 }
 void GLWidget::setPause(int i){
   if (i!=-1) {
     relTime = (int)((i-1+runningSpeed/2)/runningSpeed);
   }
-  runningState=PAUSE;
+  defaultRunningState = runningState = PAUSE;
   update();
 }
 void GLWidget::setStepon(){
   relTime=relTime+int(1.0/runningSpeed);
-  runningState=PAUSE;
+  defaultRunningState = runningState = PAUSE;
   update();
 }
 void GLWidget::setStepback(){
   relTime=relTime-int(1.0/runningSpeed);
-  runningState=PAUSE;
+  defaultRunningState = runningState = PAUSE;
   selFrameN--;
   update();
 }
@@ -979,7 +1113,7 @@ void GLWidget::clearExtraMatrix(){
 }
 
 void GLWidget::setStop(){
-  runningState=STOP;
+  defaultRunningState = runningState = STOP;
   relTime=0;
   if (!skeletalAnimation()) {
     selFrameN = 1;
@@ -1012,8 +1146,9 @@ void GLWidget::setSelection(const QModelIndexList &newsel, int k){
     selected = i->row();
   }
   if (k==ANIMATION) {
-    runningState= PLAY;
-    relTime=0;
+    runningState = defaultRunningState;
+    if (runningState!=PAUSE) relTime=0;
+    selFrameN = -1; // so to resend frame changed next frame
   }
 
   update();
@@ -1049,82 +1184,10 @@ QString GLWidget::getCurrentShaderLog() const{
 
 }
 
-GLWidget::GLWidget(QWidget *parent, IniData &_inidata)
-    : QGLWidget(parent), inidata(_inidata)
-{
-  //grabKeyboard ();
-  selectNone();
-  phi=theta=0;
-  dist = 3.9;
-  zoom = 1;
-  cx = cy = 0;
-  currViewmodeHelmet=currViewmodeInterior=viewmode=0;
-  avatP.SetZero();
-  avatV.SetZero();
-  displaying = NONE;
-  timer = new QTimer();
-  timer->setInterval(1000/60);
-  timer->setSingleShot(false);
-  timer->start();
-
-  lastCenter.SetZero();
-  lastScale = 1;
-  closingUp = 0;
-  subsel = -1;
-
-  lastUsedShader = SHADER_FIXEDFUNC;
-  lastUsedShaderBumpgreen = 0;
-
-  applyExtraMatrixToAll = true;
-  lastSelected = -1;
-
-  keys[0]=keys[1]=keys[2]=keys[3]=keys[4]=false;
-
-	for (int j=0; j<2; j++)
-	for (int i=0; i<SHADER_MODES; i++) {
-		shaderTried[i][j] = false;
-		shaderProgram[i][j] = new QGLShaderProgram();
-	}
-
-
-  useNormalmap = true;
-  useSpecularmap = true;
-
-  useTexture=true; useWireframe=false; useLighting=useFloor=true; useRuler=false; useHitboxes=false;
-  useComparisonMesh = false;
-  openGL2ready=false;
-
-  bumpmapActivated = false;
-  rulerLenght = 100;
-  ghostMode = false;
-  curMaterialTexture = DIFFUSEA;
-
-  colorMode=1;
-  selRefAnimation = -1;
-  selRefSkin = -1;
-  selFrameN = 0;
-  selRefSkel = 0;
-  showAlpha=NOALPHA;
-  commonBBox = false;
-  inferMaterial = true;
-  useOpenGL2 = false;
-
-  relTime=0;
-  runningState = STOP;
-  runningSpeed = 1/75.0f;
-
-  clearExtraMatrix();
-
-  connect(timer, SIGNAL(timeout()), this, SLOT(onTimer()));
-
-  tw=th=1;
-  currentCustomShader = NULL;
-
-}
 
 GLWidget::~GLWidget()
 {
-    makeCurrent();
+    //makeCurrent();
     //glDeleteLists(object, 1);
 }
 
@@ -1170,9 +1233,13 @@ void GLWidget::onTimer(){
 	}
   lasttime=time;
 
-
-  //BrfAnimation::curFrame = BrfMesh::curFrame = time;
   bool needUpdate=false;
+
+  if (useFloatingProbe) {
+    floatingProbePulseColor += elapsed;
+    needUpdate = true;
+  }
+  //BrfAnimation::curFrame = BrfMesh::curFrame = time;
   if (animating && runningState==PLAY) {
     relTime += elapsed;
     needUpdate=true;
@@ -1778,8 +1845,10 @@ void GLWidget::renderBody(const BrfBody& b){
   for (int pass=0; pass<2; pass++) {
     setWireframeLightingMode(false,true,false);
     if (pass==0) {
+      if (!useFloatingProbe) {
         glEnable(GL_BLEND);
-        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_DEPTH_TEST); // when using floathing probe, needs depth test
+      }
     } else {
         glDisable(GL_BLEND);
         glEnable(GL_DEPTH_TEST);
@@ -1860,7 +1929,7 @@ void GLWidget::renderBodyPart(const BrfBodyPart &b) const{
     }
 
     glEnable(GL_BLEND);
-    glDisable(GL_DEPTH_TEST);
+    if (!useFloatingProbe) glDisable(GL_DEPTH_TEST);
     glBlendFunc(GL_ONE,GL_ONE);
     glEnable(GL_CULL_FACE);
     glPolygonMode(GL_FRONT,GL_FILL);
@@ -1971,6 +2040,21 @@ void GLWidget::renderAoOnMeshes(float brightness, float fromAbove, bool perface,
       selGroup[i] = false;
     }
     for (int i=0;i<MAXSEL; i++) selGroup[i] = selGroupBackup[i];
+  }
+}
+
+void GLWidget::renderTextureColorOnMeshes(){
+  makeCurrent();
+  if (!data) return;
+  std::vector<BrfMesh>& v(data->mesh);
+  for (uint i=0; i<v.size(); i++) if (selGroup[i]) {
+
+    for (uint j=0; j<v[i].vert.size(); j++) v[i].vert[j].col = 0x00FF00FF;
+    //v[i].ColorAll(0);
+
+    setMaterialName(v[i].material);
+
+    v[i].hasVertexColor = true;
   }
 }
 
@@ -2127,6 +2211,8 @@ void GLWidget::renderSelected(const std::vector<BrfType>& v){
     glRotatef(-90*currViewmodeHelmet,1,0,0);
   }
 
+  bool captureViews = (useFloatingProbe);
+
   glTranslate(-avatP *currViewmodeInterior);
 
 
@@ -2152,13 +2238,14 @@ void GLWidget::renderSelected(const std::vector<BrfType>& v){
 
   }
 
-
   bool _viewmodeMult = viewmodeMult;
   if (displaying==TEXTURE || displaying==MATERIAL) _viewmodeMult=true;
 
   int ncol=1, nrow=1;
   _subdivideScreen(nsel,w,h, &ncol, &nrow);
-  //tmpHack = 0;
+
+  if (captureViews) camera.resize(0);
+
   for (int i=0,seli=0; i<max; i++) if (selGroup[i]) {
     glPushMatrix();
 		if ( (i==lastSelected) || applyExtraMatrixToAll ) glMultMatrixf(extraMatrix);
@@ -2180,7 +2267,13 @@ void GLWidget::renderSelected(const std::vector<BrfType>& v){
       }
     }
 
+    //if (i==selPointIndex)
+
     renderBrfItem(v[i]);
+    if (captureViews) camera.push_back( GlCamera::currentCamera(i) );
+
+    if (useFloatingProbe) renderFloatingProbe();
+
     glPopMatrix();
     if (v[i].IsAnimable()) animating=true;
     if ( displaying==SKELETON && selRefAnimation>=0 ) animating=true;
@@ -2245,6 +2338,10 @@ void GLWidget::mySetViewport(int x,int y,int w,int h){
   glMatrixMode(GL_MODELVIEW);
 }
 
+bool GLWidget::viewIs2D() const{
+  return (displaying==TEXTURE) || (displaying==MATERIAL);
+}
+
 void GLWidget::paintGL()
 {
   if (!isValid ()) return;
@@ -2253,7 +2350,7 @@ void GLWidget::paintGL()
   glClearColor(currBgColor.redF(),currBgColor.greenF(),currBgColor.blueF(),1);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  if (displaying==TEXTURE || displaying==MATERIAL) {
+  if (viewIs2D()) {
     if (showAlpha==TRANSALPHA) glClearCheckBoard();
     currViewmodeInterior=0;
   }
@@ -2262,8 +2359,8 @@ void GLWidget::paintGL()
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  if (displaying==TEXTURE || displaying==MATERIAL) {
-    glScalef(zoom, zoom, zoom);
+  if (viewIs2D()) {
+    glScalef(zoom, zoom, 1);
     float x=cx,y=cy;
     float lim = 1-1/zoom;
     if (x<-lim) x=-lim;
@@ -2311,10 +2408,6 @@ void GLWidget::resizeGL(int width, int height)
   h = height;
 }
 
-void GLWidget::mousePressEvent(QMouseEvent *event)
-{
-    lastPos = event->pos();
-}
 
 
 
@@ -2346,13 +2439,77 @@ void GLWidget::showAlphaTransparent(){ showAlpha = TRANSALPHA; update();}
 void GLWidget::showAlphaPurple(){ showAlpha = PURPLEALPHA; update();}
 void GLWidget::showAlphaNo(){showAlpha = NOALPHA; update();}
 
+
+void GLWidget::mouseDoubleClickEvent(QMouseEvent *){
+
+}
+
+void GLWidget::setFloatingProbePos(float x, float y, float z){
+  if (viewIs2D()) {
+    floatingProbe.X()=(x*2-1);
+    floatingProbe.Y()=(y*2-1);
+    floatingProbe.Z()=0;
+  } else {
+    floatingProbe.X()=x/100.0;
+    floatingProbe.Y()=z/100.0;
+    floatingProbe.Z()=y/100.0;
+  }
+  update();
+}
+
+//void GLWidget::set
+void GLWidget::mouseClickEvent(QMouseEvent *e){
+  int x = e->x();
+  int y = height()-1-e->y();
+  if (!useFloatingProbe) return;
+  for (int i=0; i<(int)camera.size(); i++){
+    GlCamera &c(camera[i]);
+    //if (c.targetIndex==selPointIndex)
+    if (c.isInViewport(x,y))  {
+      makeCurrent();
+      floatingProbe = c.unproject(x,y);
+      if (floatingProbe.X()!=-666.0) {
+        selPointIndex = c.targetIndex;
+
+        if (viewIs2D()) {
+          emit notifySelectedPoint(
+            (floatingProbe.X()+1)/2,
+            (floatingProbe.Y()+1)/2,
+            NAN
+          );
+        } else {
+          emit notifySelectedPoint(
+            floatingProbe.X()*100.0,
+            floatingProbe.Z()*100.0,
+            floatingProbe.Y()*100.0
+          );
+        }
+        update();
+      }
+    }
+  }
+}
+
+void GLWidget::mousePressEvent(QMouseEvent *event)
+{
+   lastPos = event->pos();
+   mouseMoved = false;
+}
+
+void GLWidget::mouseReleaseEvent(QMouseEvent *event){
+  QPoint nowPos = event->pos();
+  if (!mouseMoved) mouseClickEvent(event);
+}
+
+
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
     int dx = event->x() - lastPos.x();
     int dy = event->y() - lastPos.y();
 
+    if (dx*dx+dy*dy>0) mouseMoved = true;
 		if (event->modifiers()&Qt::ShiftModifier) {
-			if (displaying==TEXTURE || displaying==MATERIAL)
+      if (viewIs2D())
 				zoom*=(1.0+dy*0.02);
 			else dist*=(1.0+dy*0.01);
 
@@ -2361,21 +2518,21 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 			if (dist>18.0) dist=18.0;
 			if (dist<0.5) dist=0.5;
 		} else {
-    if (displaying==TEXTURE || displaying==MATERIAL) {
-      cx += 1/zoom*dx*0.01;
-      cy += 1/zoom*dy*0.01;
-      if (cx<-1.0) cx=-1.0;
-      if (cx>1.0) cx=1.0;
-      if (cy<-1.0) cy=-1.0;
-      if (cy>1.0) cy=1.0;
-    } else {
-      float sensib = 0.75;
-      if(viewmode==2) sensib*=0.15;
-      phi += dx*2.0*sensib;
-      theta += dy*1.0*sensib;
-      if (theta>90) theta=90;
-      if (theta<-90) theta=-90;
-    }
+      if (viewIs2D()) {
+        cx += 1/zoom*dx*0.01;
+        cy += 1/zoom*dy*0.01;
+        if (cx<-1.0) cx=-1.0;
+        if (cx>1.0) cx=1.0;
+        if (cy<-1.0) cy=-1.0;
+        if (cy>1.0) cy=1.0;
+      } else {
+        float sensib = 0.75;
+        if(viewmode==2) sensib*=0.15;
+        phi += dx*2.0*sensib;
+        theta += dy*1.0*sensib;
+        if (theta>90) theta=90;
+        if (theta<-90) theta=-90;
+      }
 		}
     lastPos = event->pos();
     this->update();
@@ -2409,13 +2566,13 @@ void GLWidget::keyReleaseEvent( QKeyEvent * e ){
 void GLWidget::wheelEvent(QWheelEvent *event)
 {
 	if (event->delta()>0) {
-		if (displaying==TEXTURE || displaying==MATERIAL) zoom/=1.2; else {
+    if (viewIs2D()) zoom/=1.2; else {
 			if(viewmode==2) avatP[1]+=0.2;
 			else dist*=1.1;
 
 		}
 	} else {
-		if (displaying==TEXTURE || displaying==MATERIAL) zoom*=1.2; else {
+    if (viewIs2D()) zoom*=1.2; else {
 			if(viewmode==2) avatP[1]-=0.2;
 			else dist/=1.1;
 		}
