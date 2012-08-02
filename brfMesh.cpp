@@ -14,6 +14,7 @@ using namespace vcg;
 
 #include "BrfMesh.h"
 #include "BrfSkeleton.h"
+#include "BrfBody.h"
 
 #include "saveLoad.h"
 typedef vcg::Point3f Pos;
@@ -28,6 +29,20 @@ void BrfMesh::TowardZero(float x,float y, float z){
       frame[f].pos[i][2]+=(frame[f].pos[i][2]<0)?z:-z;
     }
   }
+}
+
+void BrfMesh::AddToBody(BrfBodyPart &dest){
+  dest.type = BrfBodyPart::MANIFOLD;
+  int k = dest.pos.size();
+  for (unsigned int i=0; i<frame[0].pos.size(); i++) dest.pos.push_back(frame[0].pos[i]);
+  for (unsigned int i=0; i<face.size(); i++) {
+    std::vector<int> v(3);
+    v[0]=vert[face[i].index[0]].index+k;
+    v[1]=vert[face[i].index[1]].index+k;
+    v[2]=vert[face[i].index[2]].index+k;
+    dest.face.push_back(v);
+  }
+  dest.ori = -1;
 }
 
 void BrfMesh::SetDefault(){

@@ -316,11 +316,13 @@ void GLWidget::enableMaterial(const BrfMaterial &m){
 
   // try to guess what the shader will do using flags
   bool alphaCutout = false;
-  bool alphaShine = true;
   //if (m.flags & (1<<4)) alphaShine = true;
   if (m.flags & ((7<<12) | (1<<6) ) )  alphaCutout = true;
+
+  bool alphaShine = QString(m.shader).contains("iron",Qt::CaseInsensitive);
+
   //if (!alphaShine && !alphaCutout) alphaShine = true;
-  //if (alphaShine && alphaCutout) alphaShine = false;
+  if (alphaShine && alphaCutout) alphaShine = false;
 
   if (alphaCutout) {
     //glEnable(GL_BLEND);

@@ -66,11 +66,11 @@ void MainWindow::about()
                    "[LordRaglan], [Lumos], [MadVader], [Mekelan], [Merlkir], [mysstick], "
                    "[octoburn], [pagan], [Percus], [RATMdude92], [Red River],"
                    "[Septa Scarabae], [Silesian], [Shik], [Silver Wolf], [Swyter], "
-                   "[Triglav], [Tul], [Ursca], [Vornne], [yellowmosquito], [Yoshiboy], [xenoargh]")
+                   "[Triglav], [Tul], [Ursca], [Vornne], [WilliamBerne], [yellowmosquito], [Yoshiboy], [xenoargh]")
               .arg("<br>[amade], [Swyter]!")
               .arg(QString("<br> [foxyman] <i>(%1)</i><br>"
                            " [Swyter] <i>(Español)</i>").arg(tr("additional code and Chinese")))
-              .arg("0.0.48")
+              .arg("0.0.49d")
             ,QMessageBox::Ok, this);
     msg.setLocale(QLocale::system());
   //msg.layout()->addWidget(&lab);

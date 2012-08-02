@@ -82,8 +82,8 @@ public:
   bool ImportOBJ(const wchar_t *fn);
   void MakeQuadDominant();
 
-private:
   void UpdateBBox();
+private:
 };
 
 #endif // BRFBODY_H

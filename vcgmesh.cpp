@@ -134,8 +134,8 @@ void Mesh2BodyPart(CMesh  &m, BrfBodyPart &bp  ){
 void BrfBodyPart::MakeQuadDominant(){
   CMesh m;
   BodyPart2Mesh(*this,m);
-  vcg::tri::BitQuadCreation<CMesh>::MakeDominant(m,1);
-  vcg::tri::BitQuadCreation<CMesh>::SplitNonFlatQuads(m,5 );
+  vcg::tri::BitQuadCreation<CMesh>::MakeDominant(m,2);
+  vcg::tri::BitQuadCreation<CMesh>::SplitNonFlatQuads(m,9 );
   Mesh2BodyPart(m,*this);
 }
 

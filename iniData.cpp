@@ -123,7 +123,7 @@ public:
     }
     qf.setFileName(QString("%1/%2").arg(path).arg(filename));
     if (!qf.open(QIODevice::ReadOnly)) {
-      error(tr("cannot open file"));
+      error(QTextBrowser::tr("cannot open file"));
     }
   }
   void expectLine(char* st) throw (int){
@@ -131,11 +131,11 @@ public:
     line++;
     QString dataS = QString(data).remove(QChar('\n'), Qt::CaseSensitive);
     if (!dataS.startsWith(QString(st))) {
-      error(tr("expected '%1',\ngot '%2'").arg(st).arg(dataS));
+      error(QTextBrowser::tr("expected '%1',\ngot '%2'").arg(st).arg(dataS));
     }
   }
   void nextLine() throw (int){
-    if (qf.readLine(data,4023)==-1) error(tr("unexpected end of file"));
+    if (qf.readLine(data,4023)==-1) error(QTextBrowser::tr("unexpected end of file"));
     line++;
   }
   void skipLines(int n) throw (int){
@@ -165,22 +165,22 @@ public:
       to[0xE0],to[0xE1],to[0xE2],to[0xE3],to[0xE4],to[0xE5],to[0xE6],to[0xE7],to[0xE8],to[0xE9],to[0xEA],to[0xEB],to[0xEC],to[0xED],to[0xEE],to[0xEF],
       to[0xF0],to[0xF1],to[0xF2],to[0xF3],to[0xF4],to[0xF5],to[0xF6],to[0xF7],to[0xF8],to[0xF9],to[0xFA],to[0xFB],to[0xFC],to[0xFD],to[0xFE],to[0xFF]
     );
-    if (k!=n) error(tr("cannot read token n. %1 from:\n '%2'").arg(n).arg(data));
+    if (k!=n) error(QTextBrowser::tr("cannot read token n. %1 from:\n '%2'").arg(n).arg(data));
     return to[n-1];
   }
   // reads the n^th int token from last read line
   int intT(int n, int min=0, int max=10000) throw (int){
     int num;
     int k=sscanf(stringT(n),"%d",&num);
-    if (k!=1) error(tr("expected number istead of '%1' (token %2)").arg(stringT(n)).arg(n));
-    if (num<min || num>max ) error(tr("wrong number : %1 (not in [%2, %3]) (token %4)").arg(num).arg(min).arg(max).arg(n));
+    if (k!=1) error(QTextBrowser::tr("expected number istead of '%1' (token %2)").arg(stringT(n)).arg(n));
+    if (num<min || num>max ) error(QTextBrowser::tr("wrong number : %1 (not in [%2, %3]) (token %4)").arg(num).arg(min).arg(max).arg(n));
     return num;
   }
   // reads the n^th int token from last read line
   long long longT(int n) throw (int){
     long long num;
     int k=sscanf(stringT(n),"%lld",&num);
-    if (k!=1) error(tr("expected number istead of '%1' (token %2)").arg(stringT(n)).arg(n));
+    if (k!=1) error(QTextBrowser::tr("expected number istead of '%1' (token %2)").arg(stringT(n)).arg(n));
     return num;
   }
   void close(){
@@ -190,7 +190,7 @@ public:
 private:
   void error(QString s) throw (int){
     errorString =  QString(
-        tr("Error reading file '%1',\nat line %3:\n%2\n").arg(qf.fileName()).arg(s).arg(line)
+        QTextBrowser::tr("Error reading file '%1',\nat line %3:\n%2\n").arg(qf.fileName()).arg(s).arg(line)
     );
     throw 1;
   }
@@ -201,13 +201,13 @@ private:
     format[h]=0;
   }
 
-  QString tr(char* s){return QTextBrowser::tr(s);}
+  //QString tr(char* s){return qApp->QTextBrowser::tr(s);}
 
 
 
 };
 
-QString IniData::tr(char* s) {return QTextBrowser::tr(s);}
+//QString IniData::QTextBrowser::tr(char* s) {return qApp->QTextBrowser::tr(s);}
 
 IniData::ModuleTxtNameList::ModuleTxtNameList(int _tok, int _txtF):brfToken(_tok),txtIndex(_txtF){
   name.clear();
@@ -215,12 +215,21 @@ IniData::ModuleTxtNameList::ModuleTxtNameList(int _tok, int _txtF):brfToken(_tok
 void IniData::ModuleTxtNameList::append(const QString &s){
   name.append(s);
 }
+void IniData::ModuleTxtNameList::appendLRx(const QString &s){
+  name.append(s);
+  if (s.endsWith("_L")) {
+    QString s2(s);
+    s2.chop(2);
+    name.append(s2+"_R");
+  }
+}
+
 void IniData::ModuleTxtNameList::appendNon0(const QString &s){
   if (s!="0") name.append(s);
 }
 
 QString IniData::ModuleTxtNameList::test(){
-  return QString(tr("%1 %2 from '%3' <font size=-1>('%4', '%5', '%6'...)</font>\n\n"))
+  return QString(QTextBrowser::tr("%1 %2 from '%3' <font size=-1>('%4', '%5', '%6'...)</font>\n\n"))
       .arg(name.size())
       .arg(IniData::tokenFullName(brfToken))
       .arg(txtFileName[txtIndex])
@@ -245,6 +254,7 @@ bool IniData::readModuleTxts(const QString &pathMod, const QString& pathData){
 
   try {
   {
+    // READING ITEMS.TXT
     int txtFile = TXTFILE_ITEM;
 
     tf.open(txtFileName[txtFile]);
@@ -260,7 +270,7 @@ bool IniData::readModuleTxts(const QString &pathMod, const QString& pathData){
       tf.nextLine();
       int tmp = tf.intT(4,0,10);
       for (int j=0; j<tmp; j++)
-        list.append( QString(tf.stringT(5+j*2)) );
+        list.appendLRx( QString(tf.stringT(5+j*2)) );
       if (ver == 3) {
         tf.nextLine();
         if (tf.intT(1)!=0) tf.nextLine();
@@ -332,13 +342,14 @@ bool IniData::readModuleTxts(const QString &pathMod, const QString& pathData){
 
         tf.nextLine(); // empty line
 
+        // materials for hair, beard: seems game uses only 1st one?
         tf.nextLine();
         tmp = tf.intT(1,0,30);
-        for (int j=0; j<tmp; j++) listMa.append( tf.stringT(j+2) ); // hair mat
+        for (int j=0; j<tmp; j++) if (j==0) listMa.append( tf.stringT(j+2) ); // hair mat
 
         tf.nextLine();
         tmp = tf.intT(1,0,30);
-        for (int j=0; j<tmp; j++) listMa.append( tf.stringT(j+2) ); // beard mat
+        for (int j=0; j<tmp; j++) if (j==0) listMa.append( tf.stringT(j+2) ); // beard mat
 
         tf.nextLine();
         tmp = tf.intT(1,0,40);
@@ -637,7 +648,7 @@ void IniData::checkFile(int i, int j, int kind, char* usedFile, QDir *d0, QDir *
 
   if (!res)
     errorList.push_back(
-      tr("<b>File-not-found:</b> can't find texture file for %1.")
+      QTextBrowser::tr("<b>File-not-found:</b> can't find texture file for %1.")
       .arg(link(i,j,kind))
     );
 
@@ -656,7 +667,7 @@ bool IniData::checkDuplicated(std::vector<T> &v, int j, int maxErr){
     } else
     if (d.fi!=j || d.oi!=(int)i) {
       errorList.push_back(
-          tr("<b>Duplicate:</b> %1 was already defined in file %2")
+          QTextBrowser::QTextBrowser::tr("<b>Duplicate:</b> %1 was already defined in file %2")
           .arg(link(j,i,kind)).arg(linkShort(d.fi,d.oi,kind))
       );
     }
@@ -683,13 +694,13 @@ void IniData::checkUses(int i, int j, int kind, char* usedName, int usedKind){
   ObjCoord d = indexOf( usedName, usedKind );
   if (d.fi==-1) {
     errorList.push_back(
-      tr("<b>Missing:</b> %1 uses unknown %2 <u>%3</u>")
+      QTextBrowser::tr("<b>Missing:</b> %1 uses unknown %2 <u>%3</u>")
       .arg(link(i,j,kind)).arg(tokenFullName(usedKind)).arg(usedName)
     );
   } else
   if (d.fi>i) {
     errorList.push_back(
-      tr("<b>Ordering problem:</b> %1 uses %2, which appears later in <i>module.ini</i>")
+      QTextBrowser::tr("<b>Ordering problem:</b> %1 uses %2, which appears later in <i>module.ini</i>")
       .arg(link(i,j,kind)).arg(link(d.fi,d.oi,usedKind))
     );
   }
@@ -712,15 +723,15 @@ unsigned int IniData::getSize(ObjCoord o){
 
 QString IniData::stats() {
   QString res;
-  res.append(tr("<h1>Module <b>%1</b></h1>").arg(name()));
+  res.append(QTextBrowser::tr("<h1>Module <b>%1</b></h1>").arg(name()));
   bool once = true;
   res.append("<p><br></p><table border=0><tr>");
   for (int mod=1; mod>=0; mod--){
     res.append("<td>");
     if (mod==1)
-      res.append(tr("<h2>Original BRF files: %1</h2>").arg(totFiles(mod)));
+      res.append(QTextBrowser::tr("<h2>Original BRF files: %1</h2>").arg(totFiles(mod)));
     else
-      res.append(tr("<h2>CommonRes BRF files: %1</h2>").arg(totFiles(mod)));
+      res.append(QTextBrowser::tr("<h2>CommonRes BRF files: %1</h2>").arg(totFiles(mod)));
     for (int t=0; t<N_TOKEN; t++){
       int tot = totSize(t,mod);
       if (updated>=4) {
@@ -728,14 +739,14 @@ QString IniData::stats() {
         res.append(QString("%1: %2 (%3+%4)").arg(tokenPlurName(t)).arg(tot).arg(u).arg(tot-u));
       } else
         res.append(QString("%1: %2").arg(tokenPlurName(t)).arg(tot));
-      if (once)res.append(tr("<i>(used+unused)</i>")); once=false;
-      res.append(tr("<br>"));
+      if (once)res.append(QTextBrowser::tr("<i>(used+unused)</i>")); once=false;
+      res.append(QTextBrowser::tr("<br>"));
     }
     res.append("</td>");
   }
   res.append("</tr></table>");
 
-  res.append(tr("<h2>Txt data:</h2>"));
+  res.append(QTextBrowser::tr("<h2>Txt data:</h2>"));
   for (unsigned i=0; i<txtNameList.size(); i++){
     res.append(txtNameList[i].test());
     res.append("<br>");
@@ -954,7 +965,7 @@ BrfMaterial* IniData::findMaterial(const QString &name,ObjCoord ) {
 bool IniData::findTexture(const QString &fn){
   for (unsigned int i=0; i<filename.size(); i++)
   for (unsigned int j=0; j<file[i].texture.size();j++ ){
-    if (fn == file[i].texture[j].name) return true;
+    if (fn.compare(file[i].texture[j].name),Qt::CaseInsensitive) return true;
   }
   return false;
 
@@ -1122,13 +1133,20 @@ void IniData::updateUsedIn(){
 
           for (unsigned int k=0; k<file[oc.fi].size(oc.t); k++){
 
-          if (noDot(file[oc.fi].GetName(k,oc.t))==nameDot)
-            usedIn(ObjCoord(oc.fi,k,oc.t)).direct |= bitMask( list.txtIndex );
+            QString objname = noDot(file[oc.fi].GetName(k,oc.t));
+            // special2: in item, if there is a _L (or _R), then also _Lx (or _Rx)
+            if ((list.brfToken==MESH)&&(list.txtIndex==TXTFILE_ITEM)){
+              if (objname.endsWith("_Lx")||objname.endsWith("_Rx")) objname.chop(1);
+            }
+
+            if (objname==nameDot)
+              usedIn(ObjCoord(oc.fi,k,oc.t)).direct |= bitMask( list.txtIndex );
           }
+
         }
       } else {
         errorListOnLoad.push_back(
-          tr("<b>Missing in txt:</b> cannot find %1 <u>%2</u>, defined in '%3'")
+          QTextBrowser::tr("<b>Missing in txt:</b> cannot find %1 <u>%2</u>, referred in '%3'")
           .arg(tokenFullName(list.brfToken)).arg(list.name[j]).arg(txtFileName[list.txtIndex])
         );
 
@@ -1148,7 +1166,7 @@ void IniData::updateUsedIn(){
   }
 }
 
-void IniData::updateBeacuseBrfDataChanged(){
+void IniData::updateBeacuseBrfDataSaved(){
   if (updated>=1) {
     updateLists();
   }
@@ -1205,10 +1223,10 @@ bool IniData::addBrfFile(const char* name, Origin ori, int howFast){
     if (!d.LoadFast(brfFn.toStdWString().c_str(),onlyMatAndTextures)) {
       // ERROR!!
       if (!QDir(brfPath).exists( QString("%1.brf").arg(name)))
-      errorListOnLoad.push_back(tr("<b>File-Not-Found:</b> could not read brf file <u>%1</u>, listed in module.ini file")
+      errorListOnLoad.push_back(QTextBrowser::tr("<b>File-Not-Found:</b> could not read brf file <u>%1</u>, listed in module.ini file")
          .arg(shortFileName(file.size()-1)));
       else
-      errorListOnLoad.push_back(tr("<b>File-Format Error:</b> could not read brf file <u>%1</u>")
+      errorListOnLoad.push_back(QTextBrowser::tr("<b>File-Format Error:</b> could not read brf file <u>%1</u>")
          .arg(shortFileName(file.size()-1)));
 
       //file.pop_back();

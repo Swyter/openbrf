@@ -41,7 +41,14 @@ void BrfShader::SetDefault(){
   requires = 0;
   sprintf(technique,name);
   fallback[0]=0;
+  flags = 0;
+  BrfShaderOpt o;
+  o.map = 0;
+  o.flags = 0;
+  o.alphaOp = 1;
+  o.colorOp = 2;
   opt.clear();
+  opt.push_back(o);
 }
 
 bool BrfShader::Skip(FILE*f){

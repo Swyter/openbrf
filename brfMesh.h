@@ -9,6 +9,7 @@ template <class T> class Matrix44;
 }
 
 class BrfSkeleton;
+class BrfBodyPart;
 
 class BrfVert{
 public:
@@ -112,6 +113,7 @@ public:
   bool CopyModification(const BrfMesh& mod);
   void SetDefault();
   void MakeSingleQuad(float x, float y, float dx, float dy);
+  void AddToBody(BrfBodyPart &dest);
 
 
   BrfMesh(){}

@@ -9,7 +9,7 @@ AskTexturenameDialog::AskTexturenameDialog(QWidget *parent, bool letAlsoAdd) :
     m_ui(new Ui::askTexturenameDialog)
 {
     m_ui->setupUi(this);
-    m_ui->buttonBox->setVisible(false);
+    m_ui->pushButton->setVisible(false);
     m_ui->checkBox->setChecked(lastAlsoAdd);
     m_ui->checkBox->setVisible(letAlsoAdd);
 }
@@ -41,7 +41,7 @@ void AskTexturenameDialog::setLabel(QString s){
 
 void AskTexturenameDialog::setBrowsable(QString s){
   path = s;
-  m_ui->buttonBox->setVisible(true);
+  m_ui->pushButton->setVisible(true);
 }
 void AskTexturenameDialog::changeEvent(QEvent *e)
 {

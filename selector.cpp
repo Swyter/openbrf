@@ -36,6 +36,8 @@ Selector::Selector(QWidget *parent)
     tab[i]=NULL;
     //tabIndex[i]=-1;
   }
+  iniDataWaitsSaving = false;
+
   connect(this, SIGNAL(currentChanged(int)),
           this, SLOT(onChanged()) );
 
@@ -124,8 +126,10 @@ Selector::Selector(QWidget *parent)
   usedInCoreAct[1] = new QAction(tr("<core engine> (indirectly)"),this);
   usedInCoreAct[1]->setFont(fontIta);
 
-  usedInNotInModule = new QAction(tr("<not in module.ini>"),this);
-  usedInNotInModule->setFont(fontIta);
+  usedIn_NotInModule = new QAction(tr("<not in module.ini>"),this);
+  usedIn_NotInModule->setFont(fontIta);
+  usedIn_SaveFirst = new QAction(tr("<save file to find out>"),this);
+  usedIn_SaveFirst->setFont(fontIta);
 
   usedByComputeAct = new QAction(tr("(not computed: compute now)"),this);
   connect(usedByComputeAct, SIGNAL(triggered()),parent, SLOT(computeUsedBy()));
@@ -192,6 +196,9 @@ Selector::Selector(QWidget *parent)
   meshMerge = new QAction(tr("Combine meshes"), this);
   meshMerge->setStatusTip(tr("Make a combined mesh unifying these meshes."));
 
+  meshToBody = new QAction(tr("Make a collision object"), this);
+  meshToBody->setStatusTip(tr("Turn this mesh(es) into a combined Collision object."));
+
   meshMountOnBone = new QAction(tr("Mount on one bone"), this);
   meshMountOnBone->setStatusTip(tr("Put this mesh on top of a single skeleton bone."));
 
@@ -221,6 +228,7 @@ Selector::Selector(QWidget *parent)
   connect(meshUnify,  SIGNAL(triggered()),parent,SLOT(meshUnify()));
   connect(meshMerge,  SIGNAL(triggered()),parent,SLOT(meshMerge()));
   connect(bodyMerge,  SIGNAL(triggered()),parent,SLOT(bodyMerge()));
+  connect(meshToBody,SIGNAL(triggered()),parent,SLOT(meshToBody()));
   connect(meshMountOnBone,SIGNAL(triggered()),parent,SLOT(meshMountOnBone()));
   connect(meshRemoveBackfacing,SIGNAL(triggered()),parent,SLOT(meshRemoveBack()));
   connect(meshAddBackfacing,SIGNAL(triggered()),parent,SLOT(meshAddBack()));
@@ -440,8 +448,12 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
 
       //menu.addSeparator();
       QMenu *m = menu.addMenu(tr("Used by..."));
+      if (iniDataWaitsSaving)
+        m->addAction(usedIn_SaveFirst);
+      else
       if (!iniData) {
-        m->addAction(usedInNotInModule);
+          m->addAction(usedIn_NotInModule);
+
       } else {
         if (iniData->updated<4) {
           m->addAction( usedByComputeAct );
@@ -478,7 +490,7 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
        menu.addAction(exportStaticMeshAct);
        if (data->mesh[ seli ].isRigged)
          menu.addAction(exportRiggedMeshAct);
-       if (data->mesh[ seli ].frame.size()>0)
+       if (data->mesh[ seli ].frame.size()>1)
           menu.addAction(exportMovingMeshAct);
      }
 
@@ -520,7 +532,8 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
      //menu.addAction(scaleAct);
      menu.addAction(meshRecomputeNormalsAndUnify);
      menu.addAction(meshUnify);
-     if (!onesel && !nosel) { menu.addAction(meshMerge); }
+     if (!nosel)  menu.addAction(meshToBody);
+     if (!onesel && !nosel)  menu.addAction(meshMerge);
      menu.addAction(meshMountOnBone);
      QMenu *m = menu.addMenu(tr("Backfacing faces"));
      m->addAction(meshRemoveBackfacing);
@@ -608,7 +621,7 @@ void Selector::addBrfTab(const vector<BrfType>  &v){
       tableModel[ti]->vec.push_back( QString( v[k].name ) );
 
     }
-    if (iniData && (iniData->updated>=4)) {
+    if (iniData && (iniData->updated>=4) && (!iniDataWaitsSaving)) {
       for (unsigned int k=0; k<v.size(); k++) {
         ObjCoord oc(iniFileIndex,k,ti);
         int h=-1;
