@@ -438,9 +438,9 @@ int BrfAnimation::Break(vector<BrfAnimation> &vect, const wchar_t* fn, wchar_t *
   float speed;
 
 
-  char* formatHeaderMab = " %s %u  %d\n";
-  char* formatHeaderWb = " %s %u %u %d\n";
-  char* formatAni = "%f %s %d %d %u %u %f %f %f  %f \n";
+  const char* formatHeaderMab = " %s %u  %d\n";
+  const char* formatHeaderWb = " %s %u %u %d\n";
+  const char* formatAni = "%f %s %d %d %u %u %f %f %f  %f \n";
 
   for (int i=0; i<n; i++){
     char line[1024];

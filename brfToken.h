@@ -44,9 +44,9 @@ typedef enum{
 } FileTxtEnum;
 
 inline static unsigned int bitMask(int txt){return 1<<txt;}
-extern char * txtFileName[N_TXTFILES];
+extern const char * txtFileName[N_TXTFILES];
 
 
-extern char * tokenBrfName[N_TOKEN];
+extern const char * tokenBrfName[N_TOKEN];
 
 #endif // BRFTOKEN_H

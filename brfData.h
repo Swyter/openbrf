@@ -55,8 +55,8 @@ public:
   const char* GetFirstObjectName() const; // returns name of first object
 
   int getOneSkeleton(int nbones, int after);
-  int Find(char* name, int token);
-  int FindTextureWithExt(char* name);
+  int Find(const char* name, int token);
+  int FindTextureWithExt(const char* name);
   bool HasAnyTangentDirs() const;
   void ForgetTextureLocations();
   //const vector<ObjCoord>& GetUsedBy(int i, int token) const;

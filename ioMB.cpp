@@ -60,7 +60,7 @@ static QString token(){
   return res;
 }
 
-static bool expect(char* st){
+static bool expect(const char* st){
   QString t = token();
   if (t!=st) {
     lastErr= QString("expected '%1' got '%2'").arg(st).arg(t);
@@ -69,7 +69,7 @@ static bool expect(char* st){
   return true;
 }
 
-static int oneOf(char* st1, char* st2){
+static int oneOf(const char* st1, const char* st2){
   QString t = token();
   if (t==st1) return 1;
   else if (t==st2) return 2;
@@ -79,7 +79,7 @@ static int oneOf(char* st1, char* st2){
   }
 }
 
-static bool expectType(char* st){
+static bool expectType(const char* st){
   if (!expect("-type")) return false;
   char s[512];
   sprintf(s,"\"%s\"",st);
@@ -233,7 +233,7 @@ static vcg::Point3f readPointRot(){
 }
 
 static char lastIntervalName[255];
-static bool readInterval(QString s, char* token, int*a, int *b){
+static bool readInterval(QString s, const char* token, int*a, int *b){
   QString t = QString("\"%1[").arg(token);
   sprintf(lastIntervalName, "%s", token);
   if (s.startsWith(t)) {
@@ -244,7 +244,7 @@ static bool readInterval(QString s, char* token, int*a, int *b){
   return false;
 }
 
-static bool readInterval(QString s, char* tokenA, int *n, char* tokenB, int*a, int *b){
+static bool readInterval(QString s, const char* tokenA, int *n, const char* tokenB, int*a, int *b){
   QString t = QString("\"%1[").arg(tokenA);
   sprintf(lastIntervalName, "%s...%s", tokenA,tokenB);
   if (s.startsWith(t)) {

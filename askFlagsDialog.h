@@ -21,7 +21,7 @@ public:
     unsigned int toZero() const;
 
     void setBitCombo(QString name, QString tip, int a, int b, int*  options, int zeroIndex = 0);
-    void setBitCombo(QString name, QString tip, int a, int b, char** options, int zeroIndex = 0);
+    void setBitCombo(QString name, QString tip, int a, int b, const char** options, int zeroIndex = 0);
 protected:
     void changeEvent(QEvent *e);
     void comboboxes2checkboxes();
@@ -43,7 +43,7 @@ private:
     std::vector<int> bcA; // (A-B): interval
     std::vector<int> bcB;
     std::vector<int> bcZeroIndex;
-    void _setBitCombo(QString name, QString tip, int a, int b, int* optionsInt, char** optionsChars, int zeroIndex);
+    void _setBitCombo(QString name, QString tip, int a, int b, int* optionsInt, const char** optionsChars, int zeroIndex);
 
 public slots:
     int exec();

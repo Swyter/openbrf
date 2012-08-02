@@ -64,6 +64,8 @@ public:
   float WeightOf(int i) const;
   void Normalize();
   void Add(int index, float w);
+	bool MaybeAdd(int index, float w);
+	bool MaybeAdd(BrfRigging &b);
 };
 
 class BrfFrame{
@@ -142,6 +144,11 @@ public:
   void FreezeFrame(const BrfSkeleton& s, const BrfAnimation& a, float frame);
 
   void ResizeTextCoords(Point2f min, Point2f max );
+  void paintAlphaAsZ(float min, float max);
+
+	int DivideIntoSeparateChunks(std::vector<int> &map);
+	void FixRigidObjectsInRigging();
+	void SubdivideIntoConnectedComponents(std::vector<BrfMesh> &res);
 
   BrfMesh(){}
   BrfMesh(FILE *f){ Load(f);}

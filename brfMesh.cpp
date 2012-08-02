@@ -79,6 +79,161 @@ void MeshMorpher::FinishLearning(){
   }
 }
 
+int BrfMesh::DivideIntoSeparateChunks(std::vector<int> &map){
+	int framei = 0;
+	int npos = frame[framei].pos.size();
+	map.resize(npos);
+
+	std::vector<int> depth(npos,0);
+
+	for (int i=0; i<npos; i++) map[i]=i;
+
+	for (uint i=0; i<face.size(); i++) for (int w=0; w<3; w++) {
+		int a = vert[ face[i].index[w]       ].index;
+		int b = vert[ face[i].index[(w+1)%3] ].index;
+
+		int finda = map[a];
+		while (finda!=map[finda]) { int k = finda; finda = map[finda]; map[k]=finda; }
+		int findb = map[b];
+		while (findb!=map[findb]) { int k = findb; findb = map[findb]; map[k]=findb; }
+
+		if (finda!=findb) {
+			// union a,b
+			if (depth[finda]>depth[findb]) {
+				map[finda] = findb;
+			} else {
+				map[findb] = finda;
+				if (depth[finda]==depth[findb]) depth[finda]++;
+			}
+		}
+	}
+	int res=0;
+	for (int i=0; i<npos; i++) if (map[i]==i) {res++; map[i]=-res;}
+
+	for (int i=0; i<npos; i++) {
+		int find = map[i];
+		while (find>=0) { int k = find; find = map[find]; map[k]=find; }
+		map[i] = find;
+	}
+	for (int i=0; i<npos; i++) {
+		map[i] = -map[i] - 1;
+	}
+	return res;
+
+}
+
+void BrfMesh::SubdivideIntoConnectedComponents(std::vector<BrfMesh> &res){
+	std::vector<int> map;
+	int k = DivideIntoSeparateChunks(map);
+	if (k==1) return;
+	res.resize(k);
+
+	int npos = frame[0].pos.size();
+	int nvert = vert.size();
+	int nface = face.size();
+	int nframe = frame.size();
+	assert(map.size() == npos);
+
+	for (uint i=0; i<res.size(); i++) {
+		sprintf(res[i].name, "%s.%d", name,i);
+		sprintf(res[i].material, "%s", material);
+		res[i].frame.resize(nframe);
+		for (int fi=0; fi<nframe; fi++) {
+			res[i].frame[fi].time = frame[fi].time;
+			res[i].frame[fi].pos.clear();
+			res[i].frame[fi].norm.clear();
+		}
+		res[i].hasVertexColor = hasVertexColor;
+		res[i].bbox = bbox;
+		res[i].maxBone = maxBone;
+
+		res[i].rigging.clear();
+		res[i].flags = flags;
+		res[i].vert.clear();
+		res[i].face.clear();
+	}
+
+	std::vector<int> posMap(npos);
+	std::vector<int> vertMap(nvert);
+
+
+	for (int i=0; i<npos; i++) {
+		int mi = map[i];
+		assert(mi<k);
+		posMap[i] = res[mi].frame[0].pos.size();
+
+		for (int fi=0; fi<nframe; fi++) {
+			res[mi].frame[fi].pos.push_back( frame[fi].pos[i]);
+		}
+		if (rigging.size()>0) {
+			assert(i<rigging.size());
+			res[mi].rigging.push_back(rigging[i]);
+		}
+
+	}
+
+	for (int i=0; i<nvert; i++) {
+		int mi = map[ vert[i].index ];
+		assert(mi<k);
+		vertMap[i] = res[mi].vert.size();
+		BrfVert v = vert[i];
+		v.index = posMap[ v.index ];
+		res[mi].vert.push_back( v );
+
+		for (int fi=0; fi<nframe; fi++) {
+			assert(i<frame[fi].norm.size());
+			res[mi].frame[fi].norm.push_back( frame[fi].norm[i]);
+		}
+
+	}
+
+	for (int i=0; i<nface; i++) {
+		int mi = map[ vert[ face[i].index[0]].index ];
+		assert(mi<k);
+		assert(mi == map[ vert[ face[i].index[1]].index ]);
+		assert(mi == map[ vert[ face[i].index[2]].index ]);
+		BrfFace f = face[i];
+		f.index[0] = vertMap[ f.index[0] ];
+		f.index[1] = vertMap[ f.index[1] ];
+		f.index[2] = vertMap[ f.index[2] ];
+		assert( f.index[0] < res[mi].vert.size() );
+		assert( f.index[1] < res[mi].vert.size() );
+		assert( f.index[2] < res[mi].vert.size() );
+		res[mi].face.push_back( f );
+	}
+
+}
+
+void BrfMesh::FixRigidObjectsInRigging(){
+
+
+	// divide the mesh in separate objects
+	std::vector<int> uf;
+	int k = DivideIntoSeparateChunks(uf);
+
+	//std::vector< unsigned int > col(k);
+	//for (int i=0; i<k; i++) col[i]=rand();
+	//for (uint i=0; i<vert.size(); i++) vert[i].col = col[uf[ vert[i].index ]];
+
+	int npos = frame[0].pos.size();
+
+	std::vector< BrfRigging > rig(k);
+	std::vector< bool > isOk(k,true);
+	for (int i=0; i<k; i++) rig[i]=BrfRigging();
+
+	for (int i=0; i<npos; i++) {
+		int j = uf[ i ];
+		if (isOk[j]) { isOk[j] = rig[ j ].MaybeAdd(rigging[i]) ; }
+	}
+
+	for (int i=0; i<k; i++) if (isOk[i]) rig[i].Normalize();
+
+	for (int i=0; i<npos; i++) {
+		int j = uf[i];
+		if (isOk[j]) rigging[i] = rig[j];
+	}
+}
+
 void BrfMesh::FreezeFrame(const BrfSkeleton& s, const BrfAnimation& a, float frameN){
 
   int fv = 0;
@@ -90,7 +245,7 @@ void BrfMesh::FreezeFrame(const BrfSkeleton& s, const BrfAnimation& a, float fra
   int fi= (int)frameN;
 
   if (fi<0) assert(0);
-  if (fi>=a.frame.size()) assert(0);
+  if (fi>=(int)a.frame.size()) assert(0);
 
   std::vector<Matrix44f> bonepos = s.GetBoneMatrices( a.frame[fi] );
 
@@ -1502,6 +1657,27 @@ void BrfRigging::Add(int bi, float w){
   if (overflow) Normalize();
 }
 
+bool BrfRigging::MaybeAdd(int bi, float w){
+	if (bi<0) return true;
+	if (w<=0.01) return true;
+
+	int k=0;
+	for (k=0; k<4; k++) {
+		if (boneIndex[k] == -1) boneIndex[k] = bi;
+		if (boneIndex[k] == bi) {
+			boneWeight[k] += w;
+			return true;
+		}
+	}
+	return false;
+
+}
+
+bool BrfRigging::MaybeAdd(BrfRigging& w){
+	for (int k=0; k<4; k++) if (!MaybeAdd(w.boneIndex[k],w.boneWeight[k])) return false;
+	return true;
+}
+
 int TmpRigging2Rigging(const vector<TmpRigging>& v, vector<BrfRigging>&vert){
   int max=0;
 
@@ -2512,6 +2688,21 @@ void BrfMesh::ColorAll(unsigned int newcol){
     vert[i].col = newcol;
   }
   hasVertexColor = (newcol != 0xFFFFFFFF);
+}
+
+
+void BrfMesh::paintAlphaAsZ(float min, float max){
+    for (int i=0; i<(int)vert.size(); i++){
+      float z = frame[0].pos[ vert[i].index ][1];
+
+      int a;
+      if (z<min) a=0; else if (z>max) a=255; else a=(int)round(255.0*(z-min)/(max-min));
+      //unsigned int newcol =  a | (a<<8) | (a<<16) | (a<<24);
+
+      vert[i].col = ((vert[i].col)&(~(0xFF<<24)))|(a<<24);
+    }
+    hasVertexColor = true;
+
 }
 
 

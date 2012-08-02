@@ -89,7 +89,7 @@ public:
   static float BoneSizeX();
   static float BoneSizeY();
   static float BoneSizeZ();
-  int FindBoneByName(char * name) const;
+  int FindBoneByName(const char * name) const;
 
 private:
 

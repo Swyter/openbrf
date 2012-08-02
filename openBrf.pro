@@ -115,7 +115,11 @@ win32 {
 INCLUDEPATH += "C:\projects\libraries\include"
 DEFINES += GLEW_STATIC
 SOURCES += "C:\projects\libraries\sources\glew-1.5.3\src\glew.c"
-LIBS += -L"C:\projects\libraries\lib" \
-    -lglew32
+#LIBS += -L"C:\projects\libraries\lib" \
+#   % -lglew32
 MOC_DIR = tmp
 UI_DIR = tmp
+
+OTHER_FILES += shaders/bump_fragment.cpp
+OTHER_FILES += shaders/bump_vertex.cpp
+OTHER_FILES += shaders/iron_fragment.cpp

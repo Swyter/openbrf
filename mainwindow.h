@@ -143,7 +143,9 @@ private:
     void meshRecomputeNormalsAndUnify_onCheckbox(bool i);
     void meshRecomputeNormalsAndUnify();
     void meshUnify();
-    void meshMerge();
+		void meshFixRiggingRigidParts();
+		void meshSubdivideIntoComponents();
+		void meshMerge();
     void meshToBody();
     void meshMountOnBone();
     void meshRemoveBack();
@@ -194,6 +196,7 @@ private:
     void tld2mabHead();
     void mab2tldArmor();
     void tld2mabArmor();
+    void tldGrassAlphaPaint();
     void tldHead(float verse);
     void tldMakeDwarfSlim();
     void tldMakeDwarfBoots();
@@ -361,6 +364,7 @@ private:
     QAction *mab2tldArmorAct;
     QAction *tld2mabArmorAct;
     QAction *tldMakeDwarfSlimAct;
+    QAction *tldGrassAlphaPaintAct;
     QAction *tldShrinkAroundBonesAct;
 
     QAction *checkIniAct;

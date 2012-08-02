@@ -6,7 +6,7 @@
 #include "iniData.h"
 #include "tablemodel.h"
 
-char * tokenTabName[N_TOKEN] = {
+const char * tokenTabName[N_TOKEN] = {
  QT_TRANSLATE_NOOP("Selector", "&Mesh"),
  QT_TRANSLATE_NOOP("Selector", "Te&xture"),
  QT_TRANSLATE_NOOP("Selector", "&Shader"),
@@ -207,7 +207,13 @@ Selector::Selector(QWidget *parent)
   meshUnify = new QAction(tr("Unify vertices"), this);
   meshUnify->setStatusTip(tr("Unify identical vertices and pos."));
 
-  meshMerge = new QAction(tr("Combine meshes"), this);
+	meshFixRiggingRigidParts = new QAction(tr("Quick fix rigging of rigid-parts"), this);
+	meshFixRiggingRigidParts->setStatusTip(tr("Attempts to fix rigging of small-parts, making them rigid"));
+
+	meshSubdivideIntoComponents = new QAction(tr("Split into connected sub-meshes"), this);
+	meshSubdivideIntoComponents->setStatusTip(tr("Create a separate mesh for each connected component of this mesh."));
+
+	meshMerge = new QAction(tr("Combine meshes"), this);
   meshMerge->setStatusTip(tr("Make a combined mesh unifying these meshes."));
 
   meshToBody = new QAction(tr("Make a collision object"), this);
@@ -236,7 +242,7 @@ Selector::Selector(QWidget *parent)
   meshRecolorAct = new QAction(tr("Color uniform"), this);
   meshRecolorAct->setStatusTip(tr("Set per vertex color as a uniform color"));
 
-  meshRecomputeTangentsAct = new QAction(tr("Recmopute tangent dirs"), this);
+	meshRecomputeTangentsAct = new QAction(tr("Recompute tangent dirs"), this);
   meshRecomputeTangentsAct->setStatusTip(tr("(Tangent dirs are needed for bump-mapping)"));
 
   meshTuneColorAct = new QAction(tr("Tune colors HSB"), this);
@@ -265,9 +271,11 @@ Selector::Selector(QWidget *parent)
   connect(meshTuneColorAct,SIGNAL(triggered()),parent,SLOT(meshTuneColor()));
   connect(meshComputeAoAct, SIGNAL(triggered()), parent, SLOT(meshComputeAo()));
   connect(meshComputeLodAct, SIGNAL(triggered()), parent, SLOT(meshComputeLod()));
-  connect(meshFemininizeAct,SIGNAL(triggered()),parent,SLOT(meshFemininize()));
+	connect(meshFixRiggingRigidParts, SIGNAL(triggered()), parent, SLOT(meshFixRiggingRigidParts()));
+	connect(meshFemininizeAct,SIGNAL(triggered()),parent,SLOT(meshFemininize()));
   connect(meshRecomputeNormalsAndUnify,  SIGNAL(triggered()),parent,SLOT(meshRecomputeNormalsAndUnify()));
-  connect(meshUnify,  SIGNAL(triggered()),parent,SLOT(meshUnify()));
+	connect(meshSubdivideIntoComponents,  SIGNAL(triggered()),parent,SLOT(meshSubdivideIntoComponents()));
+	connect(meshUnify,  SIGNAL(triggered()),parent,SLOT(meshUnify()));
   connect(meshMerge,  SIGNAL(triggered()),parent,SLOT(meshMerge()));
   connect(bodyMerge,  SIGNAL(triggered()),parent,SLOT(bodyMerge()));
   connect(meshToBody,SIGNAL(triggered()),parent,SLOT(meshToBody()));
@@ -569,11 +577,13 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
        if (!sep) contextMenu->addSeparator(); sep=true;
        contextMenu->addAction(reskeletonizeAct);
        contextMenu->addAction(meshFemininizeAct);
+			 contextMenu->addAction(meshFixRiggingRigidParts);
      }
      //contextMenu->addAction(transferRiggingAct);
 
      if (!sep) contextMenu->addSeparator(); sep=true;
-     contextMenu->addAction(flipAct);
+		 if (onesel)  contextMenu->addAction(meshSubdivideIntoComponents);
+		 contextMenu->addAction(flipAct);
      contextMenu->addAction(transformAct);
      //contextMenu->addAction(scaleAct);
      contextMenu->addAction(meshRecomputeNormalsAndUnify);
@@ -582,7 +592,7 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
      contextMenu->addAction(meshComputeLodAct);
 
      contextMenu->addAction(meshToBody);
-     if (!onesel)  contextMenu->addAction(meshMerge);
+		 if (!onesel) contextMenu->addAction(meshMerge);
      contextMenu->addAction(meshMountOnBone);
      QMenu *m = contextMenu->addMenu(tr("Backfacing faces"));
      m->addAction(meshRemoveBackfacing);
