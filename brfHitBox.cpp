@@ -34,6 +34,7 @@ static bool qDomElement_to_BrfBodyPart(const QDomElement & n, BrfBodyPart & p){
       p.dir.Z() = n.attribute("pos2_x").toDouble(&res); ok &=res;
       p.dir.X() = n.attribute("pos2_y").toDouble(&res); ok &=res;
       p.dir.Y() = -n.attribute("pos2_z").toDouble(&res); ok &=res;
+      if (n.attribute("for_ragdoll_only","0").toInt()==1) p.flags = 1;
       //p.dir -= p.center;
       //p.center -= p.dir;
       //if (!ok) qDebug("WRONG (%s)", n.attribute("radius").toAscii().data());
@@ -45,7 +46,7 @@ static bool qDomElement_to_BrfBodyPart(const QDomElement & n, BrfBodyPart & p){
   }
 }
 
-static bool BrfBodyPart_to_qDomElement(const BrfBodyPart & p, QDomElement & n){
+static bool BrfBodyPart_to_qDomElement(const BrfBodyPart & p, QDomElement & n, QDomDocument &mainDoc){
 
   if (p.IsEmpty()) {
     n.clear();
@@ -53,25 +54,37 @@ static bool BrfBodyPart_to_qDomElement(const BrfBodyPart & p, QDomElement & n){
   }
 
   if (p.type!=BrfBodyPart::CAPSULE) {
-      //qDebug("not a capslule: %d",p.type);
+      //qDebug("not a capsule: %d",p.type);
       BrfData::LastHitBoxesLoadSaveError("Hitboxes can be capsules only");
       return false;
   }
 
-  //n.toAttr();
-  n.setAttribute("type",QString("capsule"));
-  n.setAttribute("pos_x", p.center.Z());
-  n.setAttribute("pos_y", p.center.X());
-  n.setAttribute("pos_z", -p.center.Y());
-  n.setAttribute("pos2_x", p.dir.Z());
-  n.setAttribute("pos2_y", p.dir.X());
-  n.setAttribute("pos2_z", -p.dir.Y());
-  n.setAttribute("radius", p.radius);
+  n = mainDoc.createElement("Bodies");
+  QDomElement n2 = mainDoc.createElement("body");
+
+
+  n2.setAttribute("type",QString("capsule"));
+  n2.setAttribute("pos_x", p.center.Z());
+  n2.setAttribute("pos_y", p.center.X());
+  n2.setAttribute("pos_z", -p.center.Y());
+  n2.setAttribute("pos2_x", p.dir.Z());
+  n2.setAttribute("pos2_y", p.dir.X());
+  n2.setAttribute("pos2_z", -p.dir.Y());
+  n2.setAttribute("radius", p.radius);
+
+  if (p.flags&1) n2.setAttribute("for_ragdoll_only","1");
+
+  if (n.appendChild(n2).isNull()) {
+    BrfData::LastHitBoxesLoadSaveError("Connot append <body> into <bodies>");
+    return false;
+  }
+
   return true;
 }
 
 static bool BrfBody_to_qDomElement(const BrfBody & b, QDomElement &skelNode, QDomDocument &mainDoc){
 
+    skelNode.setAttribute("name",b.name);
 
     wchar_t filename[1]; filename[0] = 0;
 
@@ -99,61 +112,26 @@ static bool BrfBody_to_qDomElement(const BrfBody & b, QDomElement &skelNode, QDo
           return false;
       }
 
-      QDomElement bodiesEl=boneNode.firstChildElement("Bodies");
+      QDomElement oldBodiesEl=boneNode.firstChildElement("Bodies");
+      QDomElement newBodiesEl;
 
-      if (bodiesEl.isNull()) {
-        bodiesEl = mainDoc.createElement("Bodies");
-        bodiesEl = boneNode.appendChild( bodiesEl ).toElement();
-        if (bodiesEl.isNull()) {
-          BrfData::LastHitBoxesLoadSaveError("Cannot find <Bodies> DOM element.");
+      if (!BrfBodyPart_to_qDomElement( b.part[k], newBodiesEl, mainDoc )) return false;
+
+      if (!oldBodiesEl.isNull() && !newBodiesEl.isNull() ) {
+        if (boneNode.replaceChild( newBodiesEl, oldBodiesEl).isNull()) {
+          BrfData::LastHitBoxesLoadSaveError("Error replacing <Bodies> in <Bone>");
           return 0;
         }
-      }
-
-      QDomElement oldBodyEl=bodiesEl.firstChildElement("body");
-      QDomElement newBodyEl=mainDoc.createElement("body");
-      if (newBodyEl.isNull()) {
-        BrfData::LastHitBoxesLoadSaveError("Error creating new <body> element.");
-        return 0;
-      }
-
-      if (!BrfBodyPart_to_qDomElement( b.part[k], newBodyEl )) return false;
-
-
-      if (oldBodyEl.isNull()) {
-          if (!b.part[k].IsEmpty()) {
-            if (bodiesEl.appendChild( newBodyEl ).isNull()) {
-              BrfData::LastHitBoxesLoadSaveError("Error appending <body> into <Bodies>");
-              return 0;
-            }
-          }
-      } else {
-          if (b.part[k].IsEmpty()) {
-             if (bodiesEl.removeChild(oldBodyEl).isNull()) {
-               BrfData::LastHitBoxesLoadSaveError("Error removing <body> from <Bodies>");
-               return 0;
-             }
-          }
-          else {
-            if (bodiesEl.replaceChild( newBodyEl, oldBodyEl).isNull()) {
-              BrfData::LastHitBoxesLoadSaveError("Error replacing <body> in <Bodies>");
-              return 0;
-            }
-
-          }
-      }
-
-      // remove any 2nd or more "body" element from the bone
-      QDomElement bodyNode=boneNode.firstChildElement("body");
-      while (1) {
-        bodyNode=bodyNode.nextSiblingElement("body");
-        if (bodyNode.isNull()) break;
-
-        if (boneNode.removeChild(bodyNode).isNull()) {
-          BrfData::LastHitBoxesLoadSaveError("Error removing extra bodies from Bone!");
+      } else if (!oldBodiesEl.isNull()) {
+        if (boneNode.removeChild(oldBodiesEl).isNull()) {
+          BrfData::LastHitBoxesLoadSaveError("Error removing <Bodies> from <Bone>");
           return 0;
         }
-        bodyNode=boneNode.firstChildElement("body");
+      } else if (!newBodiesEl.isNull()) {
+         if (boneNode.appendChild( newBodiesEl ).isNull()) {
+           BrfData::LastHitBoxesLoadSaveError("Error adding <Bodies> in <Bone>");
+           return 0;
+         }
       }
 
       boneNode = boneNode.nextSiblingElement("Bone"); // next bone in xml...
@@ -226,7 +204,7 @@ int BrfData::SaveHitBoxesToXml(const wchar_t *fin, const wchar_t *fout) {
         QDomElement skelOld = skelSetOld.firstChildElement("Skeleton");
         char *baseSkelName = body[i].GetOriginalSkeletonName();
         while (!skelOld.isNull()) {
-            if  (skelOld.toElement().attribute("name")==baseSkelName) {
+            if  (skelOld.attribute("name")==baseSkelName) {
               skelNew = skelOld.cloneNode().toElement();
               break;
             }
@@ -315,7 +293,9 @@ int BrfData::LoadHitBoxesFromXml(const wchar_t *filename) {
 
         BrfBodyPart part;
         part.SetAsDefaultHitbox();
+        part.SetHitboxFlags(0);
         part.SetEmpty();
+
 
         while (!n2.isNull()) {
             qDomElement_to_BrfBodyPart(n2.toElement(),part);
@@ -330,7 +310,11 @@ int BrfData::LoadHitBoxesFromXml(const wchar_t *filename) {
 
       if (newBody.part.size()>0) {
           sprintf(newBody.name, "%s",skelName.toAscii().data());
-          newBody.SetOriginalSkeletonName(newBody.name); // remember I was originated from by-self
+          newBody.SetOriginalSkeletonName(newBody.name); // remember I was originated from myself
+
+          //qDebug("Saving string: '%s'",newBody.name);
+          //qDebug("Saved string: '%s'",newBody.GetOriginalSkeletonName());
+          //qDebug("saved '%s', stored '%s'",newBody.name, newBody.GetOriginalSkeletonName());
           newBody.UpdateBBox();
           body.push_back(newBody);
       }

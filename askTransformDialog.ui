@@ -41,7 +41,7 @@
    <property name="title">
     <string>Rotation</string>
    </property>
-   <widget class="QDoubleSpinBox" name="rotx">
+   <widget class="MyDoubleSpinBox" name="rotx">
     <property name="geometry">
      <rect>
       <x>22</x>
@@ -63,7 +63,7 @@
      <double>15.000000000000000</double>
     </property>
    </widget>
-   <widget class="QDoubleSpinBox" name="roty">
+   <widget class="MyDoubleSpinBox" name="roty">
     <property name="geometry">
      <rect>
       <x>22</x>
@@ -85,7 +85,7 @@
      <double>15.000000000000000</double>
     </property>
    </widget>
-   <widget class="QDoubleSpinBox" name="rotz">
+   <widget class="MyDoubleSpinBox" name="rotz">
     <property name="geometry">
      <rect>
       <x>22</x>
@@ -168,7 +168,7 @@
    <property name="title">
     <string>Translation</string>
    </property>
-   <widget class="QDoubleSpinBox" name="trax">
+   <widget class="MyDoubleSpinBox" name="trax">
     <property name="geometry">
      <rect>
       <x>22</x>
@@ -193,7 +193,7 @@
      <double>0.250000000000000</double>
     </property>
    </widget>
-   <widget class="QDoubleSpinBox" name="tray">
+   <widget class="MyDoubleSpinBox" name="tray">
     <property name="geometry">
      <rect>
       <x>22</x>
@@ -218,7 +218,7 @@
      <double>0.250000000000000</double>
     </property>
    </widget>
-   <widget class="QDoubleSpinBox" name="traz">
+   <widget class="MyDoubleSpinBox" name="traz">
     <property name="geometry">
      <rect>
       <x>22</x>
@@ -595,7 +595,7 @@
    <property name="title">
     <string>Scale %</string>
    </property>
-   <widget class="QDoubleSpinBox" name="scx">
+   <widget class="MyDoubleSpinBox" name="scx">
     <property name="geometry">
      <rect>
       <x>22</x>
@@ -617,7 +617,7 @@
      <double>100.000000000000000</double>
     </property>
    </widget>
-   <widget class="QDoubleSpinBox" name="scy">
+   <widget class="MyDoubleSpinBox" name="scy">
     <property name="enabled">
      <bool>false</bool>
     </property>
@@ -642,7 +642,7 @@
      <double>100.000000000000000</double>
     </property>
    </widget>
-   <widget class="QDoubleSpinBox" name="scz">
+   <widget class="MyDoubleSpinBox" name="scz">
     <property name="enabled">
      <bool>false</bool>
     </property>
@@ -747,6 +747,13 @@ object only</string>
    </property>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>MyDoubleSpinBox</class>
+   <extends>QDoubleSpinBox</extends>
+   <header>../tablemodel.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="resource.qrc"/>
  </resources>

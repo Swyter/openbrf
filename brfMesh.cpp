@@ -467,6 +467,10 @@ void BrfMesh::SetDefault(){
   rigging.resize(0);
 }
 
+bool BrfMesh::IsRigged() const{
+  return rigging.size()>0;
+}
+
 void BrfMesh::MakeSingleQuad(float x, float y, float dx, float dy){
   frame.resize(1);
   frame[0].pos.resize(4);
@@ -500,7 +504,6 @@ void BrfMesh::MakeSingleQuad(float x, float y, float dx, float dy){
   face[1].index[0]=0;
 
   UpdateBBox();
-  isRigged = false;
 
 }
 
@@ -799,6 +802,26 @@ void BrfMesh::ShrinkAroundBones(const BrfSkeleton& s, int nframe){
   }
 }
 
+bool BrfMesh::UniformizeWith(const BrfMesh& target){
+  bool doneSomething = false;
+  if (target.frame.size()!=frame.size()) {
+    frame.resize( target.frame.size() , frame[0] );
+    doneSomething = true;
+  }
+
+  if (target.HasTangentField() && !HasTangentField()) {
+    ComputeTangents();
+    doneSomething = true;
+  }
+
+  if (target.IsRigged() && !IsRigged()){
+    SetUniformRig(0);
+    doneSomething = true;
+  }
+
+  return doneSomething;
+}
+
 void BrfMesh::Unskeletonize(const BrfSkeleton& from){
 
   vector<Matrix44f> mat = from.GetBoneMatrices();
@@ -980,9 +1003,10 @@ void BrfMesh::Apply(Matrix44<float> m){
 }
 
 void BrfMesh::SetUniformRig(int nbone){
-  isRigged=true;
+
   int psize = (int)frame[0].pos.size();
   rigging.resize(psize);
+  maxBone = nbone;
   for (int i=0; i<psize; i++)
     for (int j=0; j<4; j++){
       rigging[i].boneIndex[j]=(j)?-1:nbone;
@@ -1649,7 +1673,6 @@ void BrfMesh::TransferRigging(const std::vector<BrfMesh>& from, int nf, int nfb)
         rigging[i]=from[h].rigging[j];
     }
   }
-  isRigged = true;
   UpdateMaxBone();
 }
 
@@ -1888,28 +1911,32 @@ bool BrfMesh::HasTangentField() const{
 
 
 // quick hack: true if name ends with ".LOD<n>[.<m>]", <n> and <m> being 1 or 2 digits
-bool BrfMesh::IsNamedAsLOD() const{
+int BrfMesh::IsNamedAsLOD() const{
   int x = strlen(name);
+  char lastDigit;
 
-  if (--x<0) return false;
-  if (!isdigit(name[x])) return false; // last digit
-  if (--x<0) return false;
-  if (isdigit(name[x])) if (--x<0) return false; // possible 2nd digit
+  if (--x<0) return 0;
+  if (!isdigit(name[x])) return 0; // last digit
+  lastDigit=name[x];
+
+  if (--x<0) return 0;
+  if (isdigit(name[x])) if (--x<0) return 0;
 
   if (name[x]=='.') {
-      if (--x<0) return false;
-      if (!isdigit(name[x])) return false;
-      if (--x<0) return false;
-      if (isdigit(name[x])) if (--x<0) return false; // possible 2nd digit
+      if (--x<0) return 0;
+      if (!isdigit(name[x])) return 0;
+      lastDigit=name[x];
+      if (--x<0) return 0;
+      if (isdigit(name[x])) if (--x<0) return 0; // possible 2nd digit
   }
-  if (name[x]!='D' && name[x]!='d') return false;
-  if (--x<0) return false;
-  if (name[x]!='O' && name[x]!='o') return false;
-  if (--x<0) return false;
-  if (name[x]!='L' && name[x]!='l') return false;
-  if (--x<0) return false;
-  if (name[x]!='.') return false;
-  return true;
+  if (name[x]!='D' && name[x]!='d') return 0;
+  if (--x<0) return 0;
+  if (name[x]!='O' && name[x]!='o') return 0;
+  if (--x<0) return 0;
+  if (name[x]!='L' && name[x]!='l') return 0;
+  if (--x<0) return 0;
+  if (name[x]!='.') return 0;
+  return lastDigit-'0';
 }
 
 bool BrfMesh::IsNamedAsBody(const char * bodyname) const{
@@ -2040,6 +2067,16 @@ bool BrfMesh::SaveAsPly(int frameIndex, const wchar_t* path) const{
   }
   fclose(f);
   return true;
+}
+
+void BrfMesh::TransformUv(float su, float sv, float tu, float tv){
+  for (int i=0;i<(int)vert.size(); i++) {
+    BrfVert& v(vert[i]);
+    v.ta[0] = v.ta[0]*sv + tv;
+    v.ta[1] = v.ta[1]*su + tu;
+    v.tb[1] = v.ta[1]*su + tu;
+    v.tb[1] = v.ta[1]*su + tu;
+  }
 }
 
 void BrfMesh::AdaptToRes(const BrfMesh& ref){
@@ -2537,7 +2574,6 @@ bool BrfMesh::Skip(FILE* f){
 
 void BrfMesh::DiscardRigging(){
   rigging.clear();
-  isRigged = false;
 }
 
 
@@ -2592,18 +2628,21 @@ bool BrfMesh::Load(FILE*f){
   for (unsigned int i=0; i<vert.size(); i++) {
     frame[0].norm[i]=vert[i].__norm;
   }
-  
-  isRigged = tmpRig.size()>0;
-  rigging.resize(frame[0].pos.size());
-  maxBone = TmpRigging2Rigging(tmpRig, rigging);
-  NormalizeRigging();
+
+
+  if (tmpRig.size()>0) {
+    rigging.resize(frame[0].pos.size());
+    maxBone = TmpRigging2Rigging(tmpRig, rigging);
+    //NormalizeRigging();
+  } else rigging.clear();
+
 
   AfterLoad();
   return true;
 }
 
 bool BrfMesh::IsAnimable() const{
-  return (frame.size()>1) || isRigged;
+  return (frame.size()>1) || IsRigged();
 }
 
 void BrfMesh::CopyTimesFrom(const BrfMesh &b){
@@ -2779,6 +2818,8 @@ bool BrfMesh::Merge(const BrfMesh &b)
   for (unsigned int i=0; i<b.face.size(); i++) {
     face.push_back(b.face[i] + nvert);
   }
+
+  if (b.maxBone>maxBone) maxBone = b.maxBone;
   /*
   for (unsigned int i=0; i<b.selected.size(); i++) {
     selected.push_back(b.selected[i]);

@@ -25,8 +25,14 @@ public:
 
   bool IsEmpty() const;
   void SetEmpty();
+
+  // uses only the last byte of flags
+  unsigned char GetHitboxFlags() const;
+  void SetHitboxFlags(unsigned char flags);
+
   void SetAsDefaultHitbox();
-  void SymmetrizeCapsule(); // makes capsule simmetric w.r.t. Z
+  void SymmetrizeCapsule(); // makes this capsule simmetric to self(w.r.t. Z)
+  void SymmetrizeCapsule(const BrfBodyPart& p); // makes this capsule simmetric to p (w.r.t. Z)
 
   // for capsule / spheres
   Point3f center;

@@ -174,7 +174,7 @@ protected:
     void renderTexture(const char* name, bool addExtension = true);
     void renderSphereWire() const;
     void renderCylWire(float rad, float h) const;
-    void renderOcta() const;
+    void renderOcta(int brightness) const;
     void renderFloor();
     void renderFloorMaybe();
     void renderRuler();

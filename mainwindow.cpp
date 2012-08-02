@@ -15,15 +15,24 @@
 #include "askTexturenameDialog.h"
 #include "askModErrorDialog.h"
 #include "askTransformDialog.h"
+#include "askUvTransformDialog.h"
 #include "askCreaseDialog.h"
 #include "askNewUiPictureDialog.h"
 #include "askUnrefTextureDialog.h"
 #include "askSelectBrfDialog.h"
+#include "askSkelPairDialog.h"
 #include "askIntervalDialog.h"
 #include "askHueSatBriDialog.h"
 #include "askLodOptionsDialog.h"
 
 typedef QPair<int, int> Pair;
+
+int MainWindow::getNumSelected() const{
+  return selector->selectedList().size();
+}
+int MainWindow::getSelectedIndex(int n) const{
+  return selector->selectedList()[n].row();
+}
 
 int MainWindow::loadModAndDump(QString modpath, QString file){
   modpath = modpath.replace('/','\\');
@@ -54,6 +63,7 @@ void MainWindow::onActionTriggered(QAction *q){
 
 
 void MainWindow::repeatLastCommand(){
+  executingRepeatedCommand = true;
   if ((repeatableAction) && (tokenOfRepeatableAction == selector->currentTabName()))
     repeatableAction->trigger();
 }
@@ -115,9 +125,13 @@ bool MainWindow::maybeSaveHitboxes()
 bool MainWindow::saveHitboxes(){
     QString allnames;
     int nb = (int)hitboxSet.body.size();
-    //if (nb==0) QMessageBox::war(this, "OpenBrf", tr("There are no hitboxes to save..."));
+    //if (nb==0) QMessageBox::war(this, "OpenBrf", tr("<br>  <br>  <b>There are no hitboxes to save?!?</b>"));
     for (int i=0; i<nb; i++) {
-        allnames= allnames +"<br>   <b>"+hitboxSet.body[i].name+"</b>";
+      BrfBody &b(hitboxSet.body[i]);
+      allnames= allnames +"<br> -  <b>"+b.name+"</b>";
+      if (strcmp(b.name,b.GetOriginalSkeletonName())!=0) {
+        allnames += QString(" <font size=-1>(get rest of metadata from '%1' in XML file)</font>").arg(b.GetOriginalSkeletonName());
+      }
     }
 
     if (!QFile(modPath()+"/Data").exists()) {
@@ -137,9 +151,9 @@ bool MainWindow::saveHitboxes(){
     } while (QFile(backupFn).exists());
     QMessageBox::StandardButton ret;
     ret = QMessageBox::question(this, "OpenBrf",
-      tr("There are %1 hitboxes set, for skeletons:").arg(nb)
+      tr("There are %1 sets of hitboxes, for skeletons:").arg(nb)
       +allnames
-      +tr("<br />Save them inside %2?").arg(fn)
+      +tr("<br /><br />Save them inside %2?").arg(fn)
       +((backupN)?tr("<br /><br />A backup will be saved in %2").arg(backupFn):QString(""))
       +hitboxExplaination(),QMessageBox::Ok|QMessageBox::Cancel
 
@@ -728,8 +742,38 @@ void MainWindow::openModuleIniFile(){
   QDesktopServices::openUrl(QUrl::fromLocalFile(modPath()+"/module.ini"));
 }
 
+QString MainWindow::referenceFilename(bool modSpecific) const
+{
+  if (!modSpecific) return QCoreApplication::applicationDirPath()+"/reference.brf";
+  else return  modPath()+"/reference.brf";
+}
+
+void MainWindow::refreshReference(){
+  bool loaded = false;
+  if (usingModReference()) {
+    // attempt to use module spcific folder
+    QString fn = referenceFilename(1);
+    qDebug("Trying to load '%s'",fn.toAscii().data());
+    if (reference.Load(fn.toStdWString().c_str())) {
+       loadedModReference = true;
+       loaded = true;
+    }
+  }
+  if (!loaded) {
+    loadedModReference = false;
+    QString fn = referenceFilename(0);
+    qDebug("Trying to standard load '%s'",fn.toAscii().data());
+    if (reference.Load(fn.toStdWString().c_str()))  loaded = true;
+  }
+  if (loaded) {
+    guiPanel->setReference(&reference);
+    updateGui();
+  }
+}
+
 MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),inidata(brfdata)
 {
+
 
   setWindowIcon(QIcon(":/openBrf.ico"));
 
@@ -749,14 +793,15 @@ MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),inidata(brfdata)
 
   isModified=false;
   isModifiedHitboxes=false;
-
+  executingRepeatedCommand = false;
   createMiniViewOptions();
   createActions();
   createMenus();
-  setEditingRef(false);
 
   QSplitter* main = new QSplitter();
   guiPanel = new GuiPanel( this, inidata);
+  loadOptions();
+  setEditingRef(false);
 
   main->addWidget(selector);
   main->addWidget(guiPanel);
@@ -766,7 +811,6 @@ MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),inidata(brfdata)
 
   createConnections();
 
-  reference.Load(QString("%1/%2").arg(QCoreApplication::applicationDirPath()).arg("reference.brf").toStdWString().c_str());
   setCentralWidget(main);
 
   updateTitle();
@@ -776,20 +820,21 @@ MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),inidata(brfdata)
   glWidget->reference = &reference;
   glWidget->hitBoxes = &hitboxSet;
 
-  guiPanel->setReference(&reference);
+  refreshReference();
+
   guiPanel->hitBoxes = &hitboxSet;
 
   //tryLoadMaterials();
 
   this->setAcceptDrops(true);
 
-  loadOptions();
-
-  if (optionFeminizerUseDefault->isChecked()) optionFemininzationUseDefault();
-  else optionFemininzationUseCustom();
 
   updatePaths();
   setLocale(QLocale::system());
+
+
+  if (optionFeminizerUseDefault->isChecked()) optionFemininzationUseDefault();
+  else optionFemininzationUseCustom();
 
   setLanguage( curLanguage );
 
@@ -803,6 +848,8 @@ MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),inidata(brfdata)
   askTransformDialog->setApplyToAllLoc( &( glWidget->applyExtraMatrixToAll ) );
   connect(askTransformDialog,SIGNAL(changed()),glWidget,SLOT(update()));
 
+  askUvTransformDialog = new AskUvTransformDialog(this);
+  connect(askUvTransformDialog,SIGNAL(changed()),this,SLOT(meshUvTransformDoIt()));
 
 }
 
@@ -1100,6 +1147,7 @@ void MainWindow::meshUnify(){
   statusBar()->showMessage(tr("Vertex unified."), 2000);
 }
 
+
 void MainWindow::meshTellBoundingBox(){
     vcg::Box3f bbox;
     bbox.SetNull();
@@ -1297,7 +1345,7 @@ bool MainWindow::hitboxToBody(){
   BrfBody &b ( hitboxSet.body[bi] );
   BrfBody res;
 
-  if (!s.DisposeHitboxes(b,res,false)) {
+  if (!s.LayoutHitboxes(b,res,false)) {
       QMessageBox::warning(this,"OpenBRF",
         tr("Num of bones and num of body-parts mismatch!")
       );
@@ -1321,7 +1369,7 @@ bool MainWindow::bodyToHitbox(){
   BrfSkeleton &s ( brfdata.skeleton[si] );
 
   BrfBody res;
-  if (!s.DisposeHitboxes(b,res,true)) {
+  if (!s.LayoutHitboxes(b,res,true)) {
       QMessageBox::warning(this,"OpenBRF",
         tr("Num of bones and num of body-parts mismatch!")
       );
@@ -1360,6 +1408,18 @@ void MainWindow::hitboxEdit(int whichAttrib, int dir){
   updateGl();
 }
 
+void MainWindow::hitboxSetRagdollOnly(bool v){
+  BrfSkeleton &s = getSelected<BrfSkeleton>();
+  if (!&s) return;
+  int b = guiPanel->getCurrentSubpieceIndex(SKELETON);
+  BrfBody *hit = hitboxSet.FindBody(s.name);
+  if (b<0) return;
+  if (!hit) return;
+  if (b>=(int)hit->part.size()) return;
+  hit->part[b].SetHitboxFlags((v)?1:0);
+  setModifiedHitboxes(true);
+}
+
 void MainWindow::hitboxSymmetrize(){
   BrfSkeleton &s = getSelected<BrfSkeleton>();
   if (!&s) return;
@@ -1372,9 +1432,7 @@ void MainWindow::hitboxSymmetrize(){
   int b1 = s.FindSpecularBoneOf(b);
   if (b1!=b) {
     // make other capsule the simmetric of this one
-    hit->part[b1] = hit->part[b];
-    hit->part[b1].center[2]*=-1;
-    hit->part[b1].dir[2]*=-1;
+    hit->part[b1].SymmetrizeCapsule(hit->part[b]);
   } else {
       hit->part[b].SymmetrizeCapsule();
   }
@@ -1597,10 +1655,39 @@ void MainWindow::updateSel(){
 static double _crease = 0.5;
 static bool _keepSeams = true;
 
+void MainWindow::meshUvTransform(){
+
+  brfdataTmp.mesh = brfdata.mesh;
+  int res = askUvTransformDialog->exec();
+
+  if (res==QDialog::Accepted) {
+    setModified(true);
+  } else {
+    brfdata.mesh = brfdataTmp.mesh;
+    updateGl();
+  }
+}
+
+
+void MainWindow::meshUvTransformDoIt(){
+  float su,sv,tu,tv;
+  askUvTransformDialog->getData(su,sv,tu,tv);
+  for (int i=0; i<getNumSelected(); i++) {
+    BrfMesh &m( getSelected<BrfMesh>(i));
+    if (!&m) continue;
+    m = brfdataTmp.mesh[ getSelectedIndex(i)];
+    m.TransformUv(su,sv,tu,tv);
+  }
+  updateGl();
+}
+
 void MainWindow::meshRecomputeNormalsAndUnify_onSlider(int i){
   _crease = 1-i/100.0f*2;
   meshRecomputeNormalsAndUnifyDoIt();
 }
+
+
+
 
 void MainWindow::meshRecomputeNormalsAndUnify_onCheckbox(bool i){
   _keepSeams = i;
@@ -1677,7 +1764,7 @@ void MainWindow::smoothenRigging(){
 	int k=0;
 	for (int j=0; j<list.size(); j++){
 		BrfMesh &m(brfdata.mesh[list[j].row()]);
-		if (m.isRigged) {
+    if (m.IsRigged()) {
 			m.SmoothRigging();
 			k++;
 		}
@@ -1697,7 +1784,7 @@ void MainWindow::stiffenRigging(){
 	int k=0;
 	for (int j=0; j<list.size(); j++){
 		BrfMesh &m(brfdata.mesh[list[j].row()]);
-		if (m.isRigged) {
+    if (m.IsRigged()) {
 			m.StiffenRigging(1.2);
 			k++;
 		}
@@ -1714,8 +1801,22 @@ void MainWindow::flip(){
   switch (selector->currentTabName()) {
   case MESH:
     for (int j=0; j<list.size(); j++){
-       brfdata.mesh[list[j].row()].Flip();
+    //   brfdata.mesh[list[j].row()].Flip();
     }
+    // test
+  /*{
+    std::vector<BrfRigging> &r( brfdata.mesh[list[0].row()].rigging);
+    for (int i=0; i<r.size(); i++) if (r[i].boneIndex[1]==-1) {
+        r[i].boneIndex[1] = r[i].boneIndex[2] = r[i].boneIndex[3] = r[i].boneIndex[0];
+        r[i].boneWeight[0] = r[i].boneWeight[1] = r[i].boneWeight[2] = r[i].boneWeight[3]= 0.25;
+    }
+
+    for (int i=0; i<r.size(); i++) {
+      qDebug("%d %d %d %d %f %f %f %f",
+             r[i].boneIndex[0], r[i].boneIndex[1], r[i].boneIndex[2], r[i].boneIndex[3],
+             r[i].boneWeight[0],r[i].boneWeight[1],r[i].boneWeight[2],r[i].boneWeight[3]);
+    }
+  }*/
     break;
   case BODY:
     for (int j=0; j<list.size(); j++){
@@ -1786,10 +1887,9 @@ void MainWindow::bodyMakeQuadDominant(){
 }
 
 void MainWindow::shiftAni(){
-
   if (selector->currentTabName()!=ANIMATION) return;
   QModelIndexList list= selector->selectedList();
-  for (int i=0; i<list.size(); i++){
+  for (int i=0; i<list.size(); i++){    
     int j = list[i].row();
     bool ok;
     int a=brfdata.animation[j].FirstIndex();
@@ -1801,10 +1901,10 @@ void MainWindow::shiftAni(){
       0,-a,1000,1,&ok);
     if (ok) {
       brfdata.animation[j].ShiftIndexInterval(k);
-      selectOne(ANIMATION,j);
       setModified(true);
     }
   }
+  updateGui();
   updateGl();
 }
 
@@ -1813,13 +1913,21 @@ void MainWindow::aniMirror(){
 	QModelIndexList list= selector->selectedList();
 	for (int i=0; i<list.size(); i++){
 		int j = list[i].row();
+    BrfAnimation &a (brfdata.animation[j]);
 
-		BrfAnimation a = brfdata.animation[j];
-		int si = glWidget->getRefSkeleton();
+    // MEGAHACK
+    //a.AddBoneHack(16);
+    //a.AddBoneHack(17);
+    //setModified(true);
+    //continue;
+
+
+    int si = glWidget->getRefSkeleton();
 		if (si<0) continue;
 		BrfSkeleton s =reference.skeleton[si];
 
-		if (brfdata.animation[j].Mirror(a,s))	setModified(true);
+
+    if (a.Mirror(a,s))	setModified(true);
 	}
 	updateGl();
 }
@@ -1911,13 +2019,62 @@ void MainWindow::meshAniMerge(){
 	insert(res);
 }
 
+void MainWindow::aniReskeletonize(){
+
+  int n = getNumSelected();
+  int nb = -1;
+  bool fail = false;
+  for (int j=0; j<n; j++){
+    BrfAnimation &a( getSelected<BrfAnimation>(j) );
+    if (!&a) continue;
+    if (nb==-1) nb = a.nbones;
+    if (nb!=a.nbones) fail = true;
+  }
+  if (nb==-1) fail = true;
+  if (fail) QMessageBox::warning(this,"OpenBRF",tr("Select one or more animation using same number of bones first"));
+  if (fail) return;
+
+  AskSkelPairDialog *d = new AskSkelPairDialog;
+  d->numBoneInAni = nb;
+
+  fail = true;
+  for (int i=0; i<(int)reference.skeleton.size();i++) {
+    BrfSkeleton &s( reference.skeleton[i] );
+    if ((int)s.bone.size() == nb) fail = false;
+    d->addSkeleton(s.name,s.bone.size(),i);
+  }
+  if (fail) QMessageBox::warning(this,"OpenBRF",tr("Select one or more animation using same number of bones first"));
+  if (fail) return;
+  bool done = false;
+  if (d->exec()==QDialog::Accepted) {
+
+    BrfSkeleton &s1( reference.skeleton[d->skelFrom()] );
+    BrfSkeleton &s2( reference.skeleton[d->skelTo()] );
+    std::vector<int> map = s2.Bone2BoneMap(s1);
+    std::vector<vcg::Point4<float> > boneRot = s2.BoneRotations();
+    qDebug("sizes = %d %d %d",s2.bone.size(),map.size(),boneRot.size());
+    for (int j=0; j<n; j++){
+      BrfAnimation &a( getSelected<BrfAnimation>(j) );
+      if (!&a) continue;
+      a.Shuffle(map,boneRot);
+      done = true;
+    }
+  }
+  if (done) {
+    updateGui();
+    updateGl();
+    setModified(true);
+  }
+
+
+}
 
 void MainWindow::meshFreezeFrame(){
-  QModelIndexList list= selector->selectedList();
-  for (int j=0; j<list.size(); j++){
-    BrfMesh &m(brfdata.mesh[list[j].row()]);
+  for (int j=0; j<getNumSelected(); j++){
+    BrfMesh &m( getSelected<BrfMesh>(j) );
+    if (!&m) continue;
     //m.Unskeletonize(reference.skeleton[9]);//gimmeASkeleton(20)]);
-    if (m.isRigged) {
+    if (m.IsRigged()) {
 
       BrfSkeleton *s = currentDisplaySkeleton();
       BrfAnimation *a = currentDisplayAnimation();
@@ -2114,17 +2271,20 @@ void MainWindow::meshDiscardAni(){
 }
 
 double myRound(double d){
-	double res1=0.00001;
-	int res2=1;
-	while (res1*res2<d) {
-		if (res2==1) res2=5;
-		else if (res2==5) res2=10;
-		else if (res2==10) res2=25;
-		else if (res2==25) res2=50;
-		else { res2=1; res1*=10; }
-	}
-	return res1*res2;
+  if (d<=0) return 0.1;
+  if (d>=1e10) return 1e10;
+  double base = 1;
+  while (d>1.0) { d/=10; base*=10; }
+  while (d<0.1) { d*=10; base/=10; }
+  // now d in 0.1 .. 1.0
+  if (d<0.15) d = 0.1; else
+  if (d<0.23) d = 0.2; else
+  if (d<0.42) d = 0.25; else
+  if (d<0.75) d = 0.5; else
+  d=1.0;
+  return d*base;
 }
+
 
 void MainWindow::transform(){
   QModelIndexList list= selector->selectedList();
@@ -2146,8 +2306,29 @@ void MainWindow::transform(){
 
     AskTransformDialog *d = askTransformDialog;
     d->setMultiObj(list.size()>1);
-    d->setSensitivityOne( 0.01 ) ; //myRound( bboxOne.Diag() / 20 ) );
-    d->setSensitivityAll( 0.05 ) ; // myRound( bboxAll.Diag() / 20 ) );
+    d->setSensitivityOne( myRound( bboxOne.Diag() / 40 ) ) ; // );
+    d->setSensitivityAll( myRound( bboxAll.Diag() / 40 ) );
+
+
+    /*
+    // reset to Indentity when used twice over same selection...
+    static char lastUsedPath[1024]="";
+    static int lastUsedI = -1;
+    static int lastUsedTab = -1;
+    if (
+      (strcmp(lastUsedPath,curFile.toAscii().data())==0) &&
+      (lastUsedI == list[0].row()) &&
+      (lastUsedTab = selector->currentTabName())
+    ) {
+      // applying the same transofrm to the same object:
+      d->reset();
+    }
+    strcpy(lastUsedPath,curFile.toAscii().data());
+    lastUsedI = list[0].row();
+    lastUsedTab = selector->currentTabName();
+    */
+    if (!executingRepeatedCommand) d->reset();
+    executingRepeatedCommand = false;
 
     d->setBoundingBox(bboxAll.min.V(), bboxAll.max.V());
     bool ok = d->exec() == QDialog::Accepted;
@@ -2176,7 +2357,7 @@ void MainWindow::transform(){
 void MainWindow::transferRigging(){
   int i = selector->firstSelected();
   QModelIndexList list= selector->selectedList();
-  if (list.size()<2 || !brfdata.mesh[i].isRigged) {
+  if (list.size()<2 || !brfdata.mesh[i].IsRigged()) {
     QMessageBox::information(this,
       tr("Transfer Rigging"),
       tr("Transfer rigging:\nselect a rigged mesh first,\nthen all target meshes.\n")
@@ -2470,13 +2651,14 @@ void MainWindow::editPasteHitbox(){
   } else if (clipboard.totSize()==1 && clipboard.body.size()==1){
       const BrfBody &b (clipboard.body[0]);
 
-      if (!s2.DisposeHitboxes(b,res,true)) {
+      if (!s2.LayoutHitboxes(b,res,true)) {
           QMessageBox::warning(this,"OpenBRF",
             tr("Wrong number of bones! (%1 in %2 VS %3 in %4). Cannot perform action")
             .arg(b.part.size()).arg(b.name).arg(s2.bone.size()).arg(s2.name)
           );
           return;
       }
+
 
   } else {
       QMessageBox::information(this,"OpenBrf",
@@ -2531,15 +2713,18 @@ void MainWindow::onClipboardChange(){
   editPasteAct->setEnabled( clipboard.totSize() );
 
   editPasteHitboxAct->setEnabled( clipboard.IsOneSkelOneHitbox() ||
-                                  (clipboard.totSize()==1 && clipboard.body.size()==0) );
+                                  (clipboard.totSize()==1 && clipboard.body.size()==1) );
+
+  bool allRigged=true;
+  for (unsigned int i=0; i<clipboard.mesh.size(); i++)
+    if (!clipboard.mesh[i].IsRigged()) allRigged = false;
+
+  editPasteRiggingAct->setEnabled( (allRigged && clipboard.mesh.size()>0) || (clipboard.skeleton.size()==1));
+
 
   if (clipboard.mesh.size()!=0){
     // maybe it was just rigged meshes?
 
-    bool allRigged=true;
-    for (unsigned int i=0; i<clipboard.mesh.size(); i++)
-      if (!clipboard.mesh[i].isRigged) allRigged = false;
-    editPasteRiggingAct->setEnabled(allRigged && clipboard.mesh.size()>0);
 
 
     // maybe it was a single frame mesh?
@@ -2547,18 +2732,19 @@ void MainWindow::onClipboardChange(){
 
 		editPasteTextcoordsAct->setEnabled(clipboard.mesh.size()==1);
 		editPasteVertColorsAct->setEnabled(clipboard.mesh.size()==1);
-        editPasteVertAniAct->setEnabled((clipboard.mesh.size()==1) &&  (clipboard.mesh[0].frame.size()>=1));
-        editPasteModificationAct->setEnabled(true);
+    editPasteVertAniAct->setEnabled((clipboard.mesh.size()==1) &&  (clipboard.mesh[0].frame.size()>=1));
+    editPasteModificationAct->setEnabled(true);
+    editPasteMergeMeshAct->setEnabled(true);
 
   } else {
-    editPasteRiggingAct->setEnabled(false);
+    //editPasteRiggingAct->setEnabled(false);
     editPasteFrameAct->setEnabled(false);
     editPasteModificationAct->setEnabled(false);
 		editPasteFrameAct->setEnabled(false);
 		editPasteTextcoordsAct->setEnabled(false);
 		editPasteVertColorsAct->setEnabled(false);
         editPasteVertAniAct->setEnabled(false);
-    }
+  }
 
 	editPasteAniLowerPartsAct->setEnabled((clipboard.animation.size()==1));
 
@@ -2693,14 +2879,17 @@ void MainWindow::editPasteRigging(){
   QModelIndexList list= selector->selectedList();
   bool allRigged=true;
   for (unsigned int i=0; i<clipboard.mesh.size(); i++)
-    if (!clipboard.mesh[i].isRigged) allRigged = false;
+    if (!clipboard.mesh[i].IsRigged()) allRigged = false;
 
-  if (list.size()<1 || !allRigged || !clipboard.mesh.size() || selector->currentTabName()!=MESH) {
+  bool canPasteFromSkel = clipboard.skeleton.size() == 1;
+  bool canPasteFromMesh = (clipboard.mesh.size()>0) && allRigged;
+
+  if (!list.size() || (selector->currentTabName()!=MESH) || (!canPasteFromSkel && !canPasteFromMesh)) {
     QMessageBox::information(this,
       tr("Copy Rigging into another mesh"),
       tr("Copy Rigging into another mesh:\n"
-         "- select one or more sample rigged mesh first,\n"
-         "- copy them (ctrl-C)\n"
+         "- select one or more sample rigged mesh\n"
+         "- copy them (ctrl+C)\n"
          "- then select one or more target meshes (rigged or otherwise),\n"
          "- then paste rigging.\n"
          "\n"
@@ -2709,13 +2898,63 @@ void MainWindow::editPasteRigging(){
     );
 
   } else {
-    for (int j=0; j<list.size(); j++){
-      brfdata.mesh[list[j].row()].TransferRigging(clipboard.mesh,0,0);
+    if (canPasteFromMesh) {
+      for (int j=0; j<list.size(); j++){
+        brfdata.mesh[list[j].row()].TransferRigging(clipboard.mesh,0,0);
+      }
+      statusBar()->showMessage(tr("Transferred rigging into %1 mesh(es) from %2 exemplar mesh(es).").arg(list.size()).arg(clipboard.mesh.size()));
+    } else {
+      std::vector<BrfMesh> tmp(1);
+      //BrfMesh m;
+      //tmp.push_back(m);
+      clipboard.skeleton[0].BuildDefaultMesh(tmp[0]);
+      for (int j=0; j<list.size(); j++){
+        brfdata.mesh[list[j].row()].TransferRigging(tmp,0,0);
+      }
+      statusBar()->showMessage(tr("Transferred rigging into %1 mesh(es) from skeleton '%2'.").arg(list.size()).arg(clipboard.skeleton[0].name));
     }
   }
 
   selector->updateData(brfdata);
   setModified(true);
+}
+
+void MainWindow::editPasteMergeMesh(){
+
+  QModelIndexList list= selector->selectedList();
+
+  bool stDone = false;
+  std::vector<BrfMesh> &vec(clipboard.mesh);
+
+  // match lods or not? do, if clipboard has no LOD and LOD
+  bool hasLodN = false;
+  bool hasLod0 = false;
+  for (int j=0; j<(int)vec.size(); j++) {
+    if (vec[j].IsNamedAsLOD()==0) hasLod0 = true;
+    else hasLodN = true;
+  }
+  bool matchLod = hasLod0 && hasLodN;
+
+  for (int j=0; j<list.size(); j++) {
+    BrfMesh &m(getSelected<BrfMesh>(j));
+    if (!&m) continue;
+    for (int k=0; k<(int)vec.size(); k++){
+      BrfMesh d = vec[k];
+      //qDebug("%s %s (%d %d)",d.name,m.name, d.IsNamedAsLOD(),m.IsNamedAsLOD());
+      if (matchLod && (d.IsNamedAsLOD()!=m.IsNamedAsLOD())) continue;
+      //qDebug("merging");
+      //d.TransformUv(1,1,0.5,0.5);
+      d.UniformizeWith(m);
+      if (!m.Merge(d)) QMessageBox::critical(this,"OpenBRF","Strange error in editPasteMergeMesh!");
+      stDone = true;
+    }
+  }
+
+  if (stDone) {
+    updateGl();
+    updateGui();
+    setModified(true);
+  }
 }
 
 void MainWindow::editPasteFrame(){
@@ -2918,7 +3157,7 @@ void MainWindow::editPaste(){
   if (clipboard.IsOneSkelOneHitbox()) {
      // special paste: produce a hitbox as a body part
      BrfBody res;
-     if (clipboard.skeleton[0].DisposeHitboxes(clipboard.body[0],res,false)) {
+     if (clipboard.skeleton[0].LayoutHitboxes(clipboard.body[0],res,false)) {
        insert(res);
        setModified(true,false);
        return;
@@ -2959,9 +3198,11 @@ void MainWindow::duplicateSel(){
 void MainWindow::addToRef(){
   int i = selector->firstSelected();
   assert(i>=0);
+  bool currModified = isModified;
   switch (selector->currentTabName()){
     case ANIMATION:
       reference.animation.push_back(brfdata.animation[i]);
+
       saveReference();
       break;
     case SKELETON:
@@ -2970,6 +3211,7 @@ void MainWindow::addToRef(){
       break;
     default: assert(0);
   }
+  setModified(currModified,false);
 
 }
 
@@ -3051,21 +3293,28 @@ void MainWindow::meshMountOnBone(){
 
   int k=0;
   for (int j=0; j<selector->selectedList().size(); j++) {
-    int i = selector->selectedList()[j].row();
-    if (i<0 || i>=(int)brfdata.mesh.size()) continue;
-    BrfMesh &m(brfdata.mesh[i]);
+    BrfMesh &m(getSelected<BrfMesh>(j));
+    if (!&m) continue;
+
     //m.ResizeTextCoords(Point2f(0.75,0.75),Point2f(1,1)); return;
+    //m.ResizeTextCoords();
+
+    qDebug("rigging on bone %d out of %d...",p.second,reference.skeleton[p.first].bone.size());
+    m.SetUniformRig(p.second);
+
     if (isOri)
     m.Apply(
       BrfSkeleton::adjustCoordSystHalf(
         reference.skeleton[p.first].GetBoneMatrices()[p.second].transpose()
       ).transpose()
     );
-    m.SetUniformRig(p.second);
+
     k++;
   }
-  if (k>0)
+  if (k>0) {
   setModified(true);
+  updateGl(); updateGui();
+  }
   //selector->setCurrentIndex(2);
 
   statusBar()->showMessage(tr("Mounted %1 mesh%2 on bone %3").arg(k).arg((k>1)?"es":"s").arg(p.second), 8000);
@@ -3078,7 +3327,7 @@ void MainWindow::addToRefMesh(int k){
   assert (selector->currentTabName()==MESH);
   assert(i<(int)brfdata.mesh.size());
   BrfMesh m = brfdata.mesh[i];
-  if (!m.isRigged) {
+  if (!m.IsRigged()) {
     m.KeepOnlyFrame(guiPanel->getCurrentSubpieceIndex(MESH));
     bool isAtOrigin;
     Pair p = askRefBoneInt(true,isAtOrigin);
@@ -3101,7 +3350,10 @@ void MainWindow::addToRefMesh(int k){
   char ch =char('A'+k);
   sprintf(m.name, "Skin%c_%s", ch , brfdata.mesh[i].name);
   reference.mesh.push_back(m);
+  bool currModified = isModified;
   saveReference();
+  setModified(currModified,false);
+
   statusBar()->showMessage(tr("Added mesh %1 to set %2.").arg(m.name).arg(ch), 5000);
 }
 
@@ -3213,6 +3465,10 @@ int MainWindow::afterMeshImport() const{
   return 0;
 }
 
+bool MainWindow::usingModReference() const{
+  return (optionUseModReference->isChecked());
+}
+
 int MainWindow::assembleAniMode() const{
   if (optionAssembleAniMatchVert->isChecked()) return 0;
   if (optionAssembleAniQuiverMode->isChecked()) return 2;
@@ -3275,6 +3531,8 @@ void MainWindow::setLanguage(int k){
 
 }
 
+
+
 void MainWindow::saveOptions() const {
 
   settings->setValue("afterMeshImport",afterMeshImport());
@@ -3306,6 +3564,9 @@ void MainWindow::saveOptions() const {
   settings->setValue("useOpenGl2",(int)optionUseOpenGL2->isChecked());
 
   settings->setValue("useCustomFeminizer", (int)optionFeminizerUseCustom->isChecked());
+
+  settings->setValue("useModReference", (int)usingModReference() );
+
 
 }
 
@@ -3365,7 +3626,9 @@ void MainWindow::setUseAlphaCommands(bool mode){
   optionAoInAlpha->setVisible(mode);
 }
 
+
 void MainWindow::loadOptions(){
+
   {
   int k=1;
   QVariant s =settings->value("afterMeshImport");
@@ -3373,15 +3636,6 @@ void MainWindow::loadOptions(){
   optionAfterMeshLoadRecompute->setChecked(k==2);
   optionAfterMeshLoadMerge->setChecked(k==1);
   optionAfterMeshLoadNothing->setChecked(k==0);
-  }
-
-  {
-  int k=0;
-  QVariant s =settings->value("groupMode");
-  if (s.isValid()) k = s.toInt();
-  glWidget->setViewmodeMult(k);
-  comboViewmodeBG->button(0)->setChecked(k==0);
-  comboViewmodeBG->button(1)->setChecked(k==1);
   }
 
   {
@@ -3514,6 +3768,15 @@ void MainWindow::loadOptions(){
     background = k;
   }
 
+
+  {
+  int k=1;
+  QVariant s =settings->value("useModReference");
+  if (s.isValid()) k = s.toInt();
+  optionUseModReference->setChecked(k==1);
+  optionUseOwnReference->setChecked(k==0);
+  }
+
   modName = settings->value("modName").toString();
   if (modName.isEmpty()) modName = "native";
   mabPath = settings->value("mabPath").toString();
@@ -3539,12 +3802,22 @@ bool MainWindow::saveReference(){
   guiPanel->setReference(&reference);
   if ((int)reference.animation.size()>=glWidget->selRefAnimation) glWidget->selRefAnimation=-1;
   if (reference.GetFirstUnusedLetter()>=glWidget->selRefSkin) glWidget->selRefSkin=-1;
-  QString fn = QString("%1/%2").arg(QCoreApplication::applicationDirPath()).arg("reference.brf");
+
+  if (usingModReference() && !loadedModReference ) {
+    int ans = QMessageBox::question(this,"OpenBRF",tr(
+      "<p>You are saving into the generic OpenBRF reference file <br>\"%1\"</p>"
+      "<p>Would you rather save in the reference file <i>specific</i> for Module %3<br>\"%2\"<br>?</p>"
+    ).arg(referenceFilename(0)).arg(referenceFilename(1)).arg(modName), QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel);
+
+    if (ans==QMessageBox::Cancel) return false;
+    if (ans==QMessageBox::Yes) loadedModReference = true;
+  }
+  QString fn = referenceFilename(loadedModReference);
   //QMessageBox::information(this, "OpenBRF",QString("Saving ref: %1").arg(fn));
+
   if (!reference.Save(fn.toStdWString().c_str()))
   {
-    QMessageBox::information(this, "OpenBRF",
-                              tr("Cannot save reference file!"));
+    QMessageBox::warning(this, "OpenBRF",tr("Cannot save reference file!"));
   }
   setModified(false);
   return true;
@@ -3573,7 +3846,7 @@ bool MainWindow::editRef()
     selector->setIniData(NULL,-1);
     curFileBackup = curFile;
     brfdataBackup = brfdata;
-    curFile = QString("%1/%2").arg(QCoreApplication::applicationDirPath()).arg("reference.brf").toAscii().data();
+    curFile = referenceFilename(loadedModReference);
     brfdata = reference;
     updateSel();
     setEditingRef(true);
@@ -3610,6 +3883,7 @@ bool MainWindow::loadFile(const QString &_fileName)
     //tryLoadMaterials();
     //brfdata.Merge(hitboxSet);
 
+    selector->iniDataWaitsSaving = false;
     setCurrentFile(fileName);
     updateSel();
 
@@ -3617,6 +3891,7 @@ bool MainWindow::loadFile(const QString &_fileName)
     //selector->setCurrentIndex(100); // for some reason, if I set the 0 message is not sent
     int first = brfdata.FirstToken();
     if (first>=0) selectOne(first, 0);
+
 
 
     //scanBrfDataForMaterials(brfdata);
@@ -3850,7 +4125,8 @@ void MainWindow::updateTitle(){
     else
       setWindowTitle(tr("%1 - %2%3%4").arg(tit).arg(curFile).arg(maybestar).arg(notInIni));
   } else
-    setWindowTitle(tr("%1 - editing internal reference data%2").arg(tit).arg(maybestar));
+    setWindowTitle(tr("%1 - editing internal reference data %3 %2").arg(tit).arg(maybestar)
+                   .arg((loadedModReference)?tr("(for [%1] mod)").arg(modName):QString()));
 }
 
 void MainWindow::setModified(bool mod, bool repeatable){
@@ -3918,7 +4194,8 @@ bool MainWindow::guessPaths(QString fn){
   }
 
   updatePaths();
-  inidata.setPath(mabPath,_modPath);
+  if (inidata.setPath(mabPath,_modPath)) refreshReference();
+
 
   loadIni(2);
 
@@ -3992,8 +4269,18 @@ void MainWindow::setCurrentFile(const QString &fileName)
     if (mainWin) mainWin->updateRecentFileActions();
   }
 
+  QString path = QFileInfo(fileName).canonicalPath();
+  if (fileName.endsWith("reference.brf",Qt::CaseInsensitive)) {
+    // see if it is a specific mod file...
+    QDir dir(path);
+    if (dir.cd("Resource")) path = dir.path();
+    qDebug("It was a REFERENCE FILE! testing... '%s'",path.toAscii().data());
+  }
+
   // try to guess mab path and module...
-  guessPaths(QFileInfo(fileName).canonicalPath() );
+  guessPaths( path );
+
+
 
   findCurFileInIni();
 }

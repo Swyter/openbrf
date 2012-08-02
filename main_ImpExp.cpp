@@ -83,11 +83,11 @@ void MainWindow::meshComputeLod(){
       VcgMesh::simplify((int)amount);
 
       BrfMesh res = VcgMesh::toBrfMesh();
-      if (m.isRigged) {
+      if (m.IsRigged()) {
         std::vector<BrfMesh> mvec; mvec.push_back(m);
         res.TransferRigging(mvec,0,0);
       } else res.rigging.clear();
-      res.isRigged = m.isRigged;
+
       res.flags = m.flags;
       sprintf(res.material,"%s", m.material);
       res.hasVertexColor = m.hasVertexColor;

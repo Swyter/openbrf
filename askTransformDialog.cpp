@@ -8,6 +8,7 @@
 #include <vcg/math/matrix44.h>
 
 
+
 void AskTransformDialog::setApplyToAllLoc(bool *loc){
 	applyToAll = loc;
 	ui->applyToLastSel->setChecked(!(*loc));
@@ -29,7 +30,9 @@ AskTransformDialog::AskTransformDialog(QWidget *parent) :
 		applyToAll = NULL;
 
     ui->setupUi(this);
+    //reset();
 
+    //connect(ui->rotx,SIGNAL())
     connect(ui->rotx,SIGNAL(valueChanged(double)),this,SLOT(update()));
     connect(ui->roty,SIGNAL(valueChanged(double)),this,SLOT(update()));
     connect(ui->rotz,SIGNAL(valueChanged(double)),this,SLOT(update()));
@@ -163,7 +166,7 @@ void AskTransformDialog::setSensitivityOne(double sens){
 }
 
 void AskTransformDialog::updateSensitivity(){
-	if (!applyToAll) return;
+  //if (!applyToAll) return;
 	float sens = (applyToAll)? sensitivityAll:sensitivityOne;
 	ui->trax->setSingleStep(sens);
 	ui->tray->setSingleStep(sens);
@@ -204,13 +207,14 @@ void AskTransformDialog::update(){
   ui->scy->setEnabled( !ui->checkBox->isChecked() );
   ui->scz->setEnabled( !ui->checkBox->isChecked() );
 
-  vcg::Matrix44f res;
+  vcg::Matrix44f rot;
   vcg::Matrix44f t;
   vcg::Matrix44f sc;
-  res.FromEulerAngles(toRad( ui->rotx->value() ),toRad( ui->roty->value() ),toRad( ui->rotz->value() ));
+  rot.FromEulerAngles(toRad( ui->rotx->value() ),toRad( ui->roty->value() ),toRad( ui->rotz->value() ));
   t.SetTranslate(ui->trax->value(),ui->tray->value(),ui->traz->value());
   sc.SetScale(vcg::Point3f(ui->scx->value(),ui->scy->value(),ui->scz->value())/100.0f);
-  res = res*sc*t;
+
+  vcg::Matrix44f res = sc*rot*t;
 
 
   for (int i=0,x=0; x<4; x++)

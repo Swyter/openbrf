@@ -81,7 +81,7 @@ int GLWidget::getRefSkeleton() const{
 }
 
 int GLWidget::getRefSkelAni() const{
-  if (displaying == MESH ) {
+  if (displaying == MESH || displaying == SKELETON) {
     return selRefAnimation;
   }
   return -1;
@@ -294,7 +294,7 @@ void GLWidget::renderTexture(const char* name, bool addExtension){
 
 }
 
-void GLWidget::renderBrfItem (const BrfMaterial& t){
+void GLWidget::renderBrfItem(const BrfMaterial& t){
   const char *st;
   switch (curMaterialTexture){
   default:
@@ -307,7 +307,7 @@ void GLWidget::renderBrfItem (const BrfMaterial& t){
   if (!strcmp(st,"none")) st =t.diffuseA;
   renderTexture(st);
 }
-void GLWidget::renderBrfItem (const BrfTexture& t){
+void GLWidget::renderBrfItem(const BrfTexture& t){
   if (t.NFrames()>0) {
     renderTexture(t.FrameName( (int(relTime*runningSpeed))%t.NFrames() ) ,false);
   } else
@@ -333,7 +333,7 @@ void GLWidget::renderBrfItem (const BrfMesh& p){
   BrfAnimation* a=NULL;
   BrfSkeleton* s=NULL;
   BrfBody* b=NULL;
-  if (p.isRigged) {
+  if (p.IsRigged()) {
     if (selRefAnimation>=0) {
       a = &(reference->animation[selRefAnimation]);
       int si = getRefSkeleton();
@@ -571,7 +571,7 @@ void GLWidget::renderBrfItem (const BrfBody& b){
      std::vector<BrfMesh> &v(data->mesh);
      for (unsigned int i=0; i<v.size(); i++) {
        BrfMesh &m( v[i] );
-       if ( m.IsNamedAsBody(b.name) && !m.IsNamedAsLOD() ) renderMesh(m,0);
+       if ( m.IsNamedAsBody(b.name) && (m.IsNamedAsLOD()==0)) renderMesh(m,0);
      }
 
      int si = data->Find(b.name,SKELETON);
@@ -631,27 +631,45 @@ void GLWidget::renderBrfItem (const BrfAnimation& a){
 
 }
 
-void GLWidget::renderBrfItem (const BrfSkeleton& p){
+//int tmpHack;
+
+void GLWidget::renderBrfItem(const BrfSkeleton& p){
   renderFloor();
   BrfBody *b = NULL;
   if (useHitboxes ) {
     int bi = hitBoxes->Find(p.name,BODY);
     if (bi>=0) b = &(hitBoxes->body[bi]);
   }
+
+  BrfAnimation *a =  NULL;
+  if (selRefAnimation>=0) a = &(reference->animation[selRefAnimation]);
+  float frameNum = (!a)?0:floatMod( relTime*runningSpeed , a->frame.size());
+
+  bool skinRendered = false;
+  // draw skin
   if (selRefSkin>=0) {
     if (!b) ghostMode=true;
+    char skinIdeChar =char('A'+selRefSkin);
+    //skinIdeChar = char('A'+tmpHack++);
     for (unsigned int i=0; i<reference->mesh.size(); i++){
-      if (reference->mesh[i].name[4]==char('A'+selRefSkin))
-        renderMesh(reference->mesh[i],0);
+      if (reference->mesh[i].name[4]==skinIdeChar) {
+        if (a) renderRiggedMesh(reference->mesh[i],p,*a,frameNum);
+        else renderMesh(reference->mesh[i],0);
+        skinRendered = true;
+      }
     }
     ghostMode=false;
     if (!b) glClear(GL_DEPTH_BUFFER_BIT);
 
   }
-  renderSkeleton(p);
 
-  if (b) renderBody( *b, p , selRefSkin>=0 );
-
+  if (a) {
+    if (!b) /*|| !skinRendered)*/ renderAnimation(*a,p,frameNum); // render bones?
+    if (b) renderBody( *b, p , *a, frameNum, selRefSkin>=0 );
+  }else {
+    if (!b) /*|| !skinRendered)*/ renderSkeleton(p);
+    if (b) renderBody( *b, p , selRefSkin>=0 );
+  }
 
 }
 
@@ -1381,7 +1399,7 @@ bool GLWidget::skeletalAnimation(){
     if (max>MAXSEL) max=MAXSEL;
 
     for (int i=0; i<max; i++) if (selGroup[i]) {
-      if (data->mesh[i].isRigged) return true;
+      if (data->mesh[i].IsRigged()) return true;
     }
   }
   return false;
@@ -1403,7 +1421,7 @@ void GLWidget::renderRiggedMesh(const BrfMesh& m,  const BrfSkeleton& s, const B
 
   glEnable(GL_COLOR_MATERIAL);
   glColor3f(1,1,1);
-  if ((!m.isRigged && colorMode==2)|| colorMode==0) glDisable(GL_COLOR_MATERIAL);
+  if ((!m.IsRigged() && colorMode==2)|| colorMode==0) glDisable(GL_COLOR_MATERIAL);
 
 
   int fi= (int)frame;
@@ -1485,7 +1503,11 @@ void GLWidget::renderMesh(const BrfMesh &m, float frame){
 
   glEnable(GL_COLOR_MATERIAL);
   glColor3f(1,1,1);
-  if ((!m.isRigged && colorMode==2)|| colorMode==0) glDisable(GL_COLOR_MATERIAL);
+
+  int cm = colorMode;
+  if (!m.IsRigged() && cm==2) cm = 0;
+
+  if (cm==0) glDisable(GL_COLOR_MATERIAL);
 
 
   for (int pass=(useWireframe)?0:1; pass<2; pass++) {
@@ -1494,7 +1516,7 @@ void GLWidget::renderMesh(const BrfMesh &m, float frame){
   glBegin(GL_TRIANGLES);
   for (unsigned int i=0; i<m.face.size(); i++) {
     for (int j=0; j<3; j++) {
-      if (colorMode==2)
+      if (cm==2)
         m.rigging[ m.vert[ m.face[i].index[j] ].index ].SetColorGl();
       else {
         GLubyte* c = (GLubyte*)&m.vert[ m.face[i].index[j] ].col;
@@ -1600,35 +1622,38 @@ void GLWidget::renderSphereWire() const{
     glEnd();
   }
 }
-void GLWidget::renderOcta() const{
+void GLWidget::renderOcta(int brightness) const{
   glBegin(GL_TRIANGLE_FAN);
+
+  glColor3ub(brightness*8/10,235,brightness*8/10);
+  glNormal3f(+1,0,0);
+  glVertex3f(+1,0,0);
+  glColor3ub(brightness,brightness,255);
+  glNormal3f(0,-1,0);
+  glVertex3f(0,-1,0);
   glNormal3f(0,0,+1);
   glVertex3f(0,0,+1);
   glNormal3f(0,+1,0);
   glVertex3f(0,+1,0);
-  glNormal3f(+1,0,0);
-  glVertex3f(+1,0,0);
+  glNormal3f(0,0,-1);
+  glVertex3f(0,0,-1);
   glNormal3f(0,-1,0);
   glVertex3f(0,-1,0);
-  glNormal3f(-1,0,0);
-  glVertex3f(-1,0,0);
-  glNormal3f(0,+1,0);
-  glVertex3f(0,+1,0);
   glEnd();
 
   glBegin(GL_TRIANGLE_FAN);
-  glNormal3f(0,0,-1);
-  glVertex3d(0,0,-1);
-  glNormal3f(0,+1,0);
-  glVertex3d(0,+1,0);
   glNormal3f(-1,0,0);
-  glVertex3d(-1,0,0);
+  glVertex3f(-1,0,0);
   glNormal3f(0,-1,0);
-  glVertex3d(0,-1,0);
-  glNormal3f(+1,0,0);
-  glVertex3d(+1,0,0);
+  glVertex3f(0,-1,0);
+  glNormal3f(0,0,-1);
+  glVertex3f(0,0,-1);
   glNormal3f(0,+1,0);
-  glVertex3d(0,+1,0);
+  glVertex3f(0,+1,0);
+  glNormal3f(0,0,+1);
+  glVertex3f(0,0,+1);
+  glNormal3f(0,-1,0);
+  glVertex3f(0,-1,0);
   glEnd();
 
 }
@@ -1654,7 +1679,9 @@ void GLWidget::renderBodyPart(const BrfBody &p, const BrfSkeleton &s, const BrfA
   Matrix44f mat = a.frame[(int) frame].getRotationMatrix(i);
   glMultMatrixf((const GLfloat *) mat.V());
   //glMultMatrixf(bone[i].mat);
+  if (i==subsel) glLineWidth(2);
   renderBodyPart(p.part[i]);
+  if (i==subsel) glLineWidth(1);
   for (unsigned int k=0; k<s.bone[i].next.size(); k++){
     renderBodyPart(p,s,a,frame,s.bone[i].next[k],lvl+1);
   }
@@ -1670,11 +1697,8 @@ void GLWidget::renderBone(const BrfSkeleton &s, int i, int lvl) const{
   glMultMatrixf((const GLfloat *) mat.V());
   //glMultMatrixf(bone[i].mat);
   glPushMatrix();
-    glColor3ub(255-lvl*30,255-lvl*30,255);
     glScalef(BrfSkeleton::BoneSizeX(),BrfSkeleton::BoneSizeY(),BrfSkeleton::BoneSizeZ());
-
-
-    renderOcta();
+    renderOcta(255-lvl*30);
   glPopMatrix();
   for (unsigned int k=0; k<s.bone[i].next.size(); k++){
     renderBone(s,s.bone[i].next[k],lvl+1);
@@ -1694,9 +1718,8 @@ void GLWidget::renderBone(const BrfAnimation &a,const BrfSkeleton &s, float fram
   if (lvl!=0); glMultMatrixf((const GLfloat *) mat.V());
 
   glPushMatrix();
-    glColor3ub(255-lvl*30,255-lvl*30,255);
     glScalef(BrfSkeleton::BoneSizeX(),BrfSkeleton::BoneSizeY(),BrfSkeleton::BoneSizeZ());
-    renderOcta();
+    renderOcta(255-lvl*30);
   glPopMatrix();
   for (unsigned int k=0; k<s.bone[i].next.size(); k++){
     renderBone(a,s,  frame,  s.bone[i].next[k],lvl+1);
@@ -1751,6 +1774,7 @@ void GLWidget::renderBody(const BrfBody& b,const BrfSkeleton& s,const BrfAnimati
 }
 
 void GLWidget::renderBody(const BrfBody& b){
+  glEnable(GL_COLOR_MATERIAL);
   for (int pass=0; pass<2; pass++) {
     setWireframeLightingMode(false,true,false);
     if (pass==0) {
@@ -2134,6 +2158,7 @@ void GLWidget::renderSelected(const std::vector<BrfType>& v){
 
   int ncol=1, nrow=1;
   _subdivideScreen(nsel,w,h, &ncol, &nrow);
+  //tmpHack = 0;
   for (int i=0,seli=0; i<max; i++) if (selGroup[i]) {
     glPushMatrix();
 		if ( (i==lastSelected) || applyExtraMatrixToAll ) glMultMatrixf(extraMatrix);
@@ -2154,9 +2179,11 @@ void GLWidget::renderSelected(const std::vector<BrfType>& v){
         mySetViewport(0,0,this->size().width(),this->size().height());
       }
     }
+
     renderBrfItem(v[i]);
     glPopMatrix();
     if (v[i].IsAnimable()) animating=true;
+    if ( displaying==SKELETON && selRefAnimation>=0 ) animating=true;
 
     if (_viewmodeMult) renderFloorMaybe();
   }

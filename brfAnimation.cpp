@@ -11,6 +11,61 @@ using namespace vcg;
 #include "brfSkeleton.h"
 #include "brfAnimation.h"
 
+void BrfAnimationFrame::AddBoneHack(int copyfrom){
+  /*int i=copyfrom;
+  rot.push_back(rot[i]);
+  wasImplicit.push_back(wasImplicit[i]);*/
+
+  vcg::Quaternionf qa = rot[20];
+  vcg::Quaternionf qb = rot[21];
+  vcg::Quaternionf q1 = rot[7]; // spine
+  vcg::Quaternionf q2 = rot[8]; // torax
+  rot[20] = q2*q2*q1*qa;
+  rot[21] = q2*q2*q1*qb;
+
+  wasImplicit[20] = false;
+
+  //rot.pu
+}
+
+
+void BrfAnimation::AddBoneHack(int copyfrom){
+  for (int i=0; i<(int)frame.size(); i++) frame[i].AddBoneHack(copyfrom);
+  //nbones++;
+
+
+
+}
+
+BrfAnimationFrame BrfAnimationFrame::Shuffle( std::vector<int> &map, std::vector<vcg::Point4<float> > &fallback){
+  BrfAnimationFrame res;
+  assert(rot.size()==wasImplicit.size()-1);
+  assert(map.size()==fallback.size());
+
+  for (int i=0; i<(int)map.size(); i++) {
+    if (map[i]>=0) {
+      res.rot.push_back( rot[map[i]]);
+      res.wasImplicit.push_back( wasImplicit[map[i]]);
+    } else {
+      res.rot.push_back( fallback[i]);
+      res.wasImplicit.push_back( false );
+    }
+  }
+  res.tra = tra;
+  res.wasImplicit.push_back(wasImplicit[rot.size()]); // for the translation
+  res.index = index;
+
+  return res;
+
+
+}
+
+void BrfAnimation::Shuffle( std::vector<int> &map, std::vector<vcg::Point4<float> > &fallback){
+  for (int i=0; i<(int)frame.size(); i++) frame[i] = frame[i].Shuffle(map,fallback);
+  nbones = map.size();
+  assert(map.size()==frame[0].rot.size());
+}
+
 
 Matrix44f BrfAnimationFrame::getRotationMatrix(int i) const{
   vcg::Matrix44f res;
@@ -331,7 +386,6 @@ void BrfFrame2TmpBone(const vector<BrfAnimationFrame> &vf,
   }
 }
 
-
 bool BrfAnimationFrame::Mirror(const BrfAnimationFrame& from, const vector<int>& boneMap){
 	tra = from.tra;
 	int n=rot.size();
@@ -346,6 +400,7 @@ bool BrfAnimationFrame::Mirror(const BrfAnimationFrame& from, const vector<int>&
 		rot[i]= MirrorRot( from.rot[j] );
 		wasImplicit[i]= from.wasImplicit[j];
 	}
+  wasImplicit[n]= from.wasImplicit[n];
 
 	return true;
 }
@@ -368,6 +423,7 @@ bool BrfAnimationFrame::CopyLowerParts(const BrfAnimationFrame& from){
 	for (int i=0; i<7; i++) rot[i]= from.rot[i];
 	for (int i=0; i<7; i++) wasImplicit[i]= from.wasImplicit[i];
 	return true;
+  wasImplicit[rot.size()]= from.wasImplicit[from.rot.size()]; // for the tranlsation
 }
 
 bool BrfAnimation::CopyLowerParts(const BrfAnimation& from){
