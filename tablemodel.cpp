@@ -38,6 +38,10 @@ int TableModel::columnCount(const QModelIndex &parent) const
     return 1;
 }
 
+Qt::DropActions TableModel::supportedDropActions() const{
+    return Qt::CopyAction | Qt::MoveAction;
+}
+
 QVariant TableModel::data(const QModelIndex &index, int role) const
 {
   static QFont alternate;

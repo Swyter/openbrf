@@ -38,6 +38,10 @@ int main(int argc, char* argv[])
   QApplication app(argc_2,argv_2); //argc, argv);
   QStringList arguments = QCoreApplication::arguments();
   app.setApplicationVersion(applVersion);
+  app.setApplicationName("OpenBrf");
+  app.setOrganizationName("Marco Tarini");
+  app.setOrganizationDomain("Marco Tarini");
+
 
   bool useAlphaC = false;
 

@@ -11,7 +11,6 @@ namespace vcg{
   template<typename T> class Matrix44;
 }
 
-class BrfBody;
 
 class BrfBone
 {
@@ -38,12 +37,12 @@ public:
   vcg::Matrix44<float> getRotationMatrix() const;
   void  setRotationMatrix(vcg::Matrix44<float>);
 
-  BrfBody *hitBox; // array of hitboxes
   std::vector<int> next;
 };
 
 class BrfAnimationFrame;
 class BrfMesh;
+class BrfBody;
 
 class BrfSkeleton
 {      
@@ -65,11 +64,11 @@ public:
   bool IsAnimable() const{return false;}
   vcg::Box3f bbox;
 
-  void LoadHitBox(char * filename);
   bool SaveSMD(FILE *f) const;
   bool LoadSMD(FILE *f);
   std::vector<vcg::Matrix44<float> >  GetBoneMatrices(const BrfAnimationFrame &fr) const;
   std::vector<vcg::Matrix44<float> >  GetBoneMatrices() const;
+  std::vector<vcg::Matrix44<float> >  GetBoneMatricesInverse() const;
 
   void BuildDefaultMesh(BrfMesh & output) const; // builds a mesh with just an octa x bone...
   vcg::Matrix44<float> getRotationMatrix(int i) const {return bone[i].getRotationMatrix();}
@@ -92,7 +91,10 @@ public:
   static float BoneSizeY();
   static float BoneSizeZ();
   int FindBoneByName(const char * name) const;
-	int FindSpecularBoneOf(int bonei) const; /* judges by the name */
+  int FindSpecularBoneOf(int bonei) const; /* judges by the name */
+
+  // dispose a hitbox according to bones position (or does the inverst)
+  bool DisposeHitboxes(const BrfBody &in, BrfBody &out, bool inverse) const;
 
 private:
 
@@ -100,6 +102,8 @@ private:
   void SetBoneMatrices(const BrfAnimationFrame &fr, int boneIndex,
                        std::vector<vcg::Matrix44<float> > &boneMatrV, const vcg::Matrix44<float>  &curr) const;
   void SetBoneMatrices(int boneIndex,
+                       std::vector<vcg::Matrix44<float> > &boneMatrV, const vcg::Matrix44<float>  &curr) const;
+  void SetBoneMatricesInverse(int boneIndex,
                        std::vector<vcg::Matrix44<float> > &boneMatrV, const vcg::Matrix44<float>  &curr) const;
 };
 

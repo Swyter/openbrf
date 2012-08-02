@@ -14,17 +14,21 @@ void MainWindow::createMenus()
     fileMenu->addAction(saveAct);
     fileMenu->addAction(saveAsAct);
     separatorAct = fileMenu->addSeparator();
+
     for (int i = 0; i < MaxRecentFiles; ++i)
         fileMenu->addAction(recentFileActs[i]);
+
     fileMenu->addSeparator();
     fileMenu->addAction(exitAct);
     updateRecentFileActions();
+    updateRecentModActions();
 
     //menuBar()->addSeparator();
     QMenu *editMenu = menuBar()->addMenu(tr("&Edit"));
     editMenu->addAction(editCopyAct);
     editMenu->addAction(editCopyFrameAct);
     editMenu->addAction(editCopyCompleteAct);
+    editMenu->addAction(editCopyHitboxAct);
     editMenu->addAction(editAddToCopyAct);
     editMenu->addSeparator();
     editMenu->addAction(editCutAct);
@@ -40,6 +44,7 @@ void MainWindow::createMenus()
     editMenu->addAction(editPasteVertColorsAct);
     editMenu->addAction(editPasteVertAniAct);
     editMenu->addAction(editPasteAniLowerPartsAct);
+    editMenu->addAction(editPasteHitboxAct);
 
     QMenu* importMenu=menuBar()->addMenu(tr("&Import"));
 
@@ -60,12 +65,26 @@ void MainWindow::createMenus()
     importMenu->addSeparator();
     importMenu->addAction(importBrfAct);
 
-    QMenu* moduleMenu=menuBar()->addMenu(tr("Module"));
+    selectedMenu = menuBar()->addMenu(tr("&Selected"));
+
+    QMenu* moduleMenu=menuBar()->addMenu(tr("&Module"));
     moduleMenu->addAction(moduleSelectAct);
+    recentModsMenu = moduleMenu->addMenu("Recent Modules");
+
+    for (int i = 0; i < MaxRecentFiles; ++i)
+        recentModsMenu->addAction(recentModActs[i]);
+
+    moduleMenu->addAction(moduleOpenFolderAct);
+
     moduleMenu->addSeparator();
     moduleMenu->addAction(refreshIniAct);
     moduleMenu->addAction(computeUsedByAct);
+
     moduleMenu->addAction(selectBrfDataAct);
+
+    moduleMenu->addAction(openNextInModAct);
+    moduleMenu->addAction(openPrevInModAct);
+
     moduleMenu->addAction(showModuleStatsAct);
     moduleMenu->addSeparator();
     moduleMenu->addAction(checkIniAct);
@@ -80,6 +99,8 @@ void MainWindow::createMenus()
     navMenu->addAction(navigateLeftAct);
     //navMenu->addAction(navigateDownAct);
     //navMenu->addAction(navigateUpAct);
+    moduleMenu->addSeparator();
+    moduleMenu->addAction(saveHitboxAct);
 
     QMenu* toolMenu = menuBar()->addMenu(tr("&Tools"));
     toolMenu->addAction(sortEntriesAct);
@@ -89,7 +110,9 @@ void MainWindow::createMenus()
     toolMenu->addSeparator();
     toolMenu->addAction(repeatLastCommandAct);
 
-    QMenu* optionMenu=menuBar()->addMenu(tr("&Settings"));
+    connect(selectedMenu,SIGNAL(aboutToShow()),this,SLOT(updateSelectedMenu()));
+
+    optionMenu=menuBar()->addMenu(tr("Setti&ngs"));
 
 
 		/* VIEW OPTIONS */
@@ -284,13 +307,40 @@ void MainWindow::createMenus()
     onAssemble->addActions(group2->actions());
 
     optionLodSettingsAct = new QAction(tr("On building LOD pyramids..."),this);
-		optionLodSettingsAct->setStatusTip(tr("Set the way OpenBRF build LODs pyramids"));
+    optionLodSettingsAct->setStatusTip(tr("Set the way OpenBRF build LODs pyramids"));
     connect(optionLodSettingsAct, SIGNAL(triggered()), this, SLOT(optionLodSettings()));
     optionMenu->addAction(optionLodSettingsAct);
 
 
+    // OPTION TO LEARN NEW FEMININIZTION
+    autoFemMenu = optionMenu->addMenu(tr("On armour auto-feminization"));
+    QActionGroup* group8=new QActionGroup(this);
+    optionFeminizerUseDefault = new QAction(tr("use default settings"),this);
+    optionFeminizerUseDefault->setToolTip("Use built-in options to auto-feminize armours.");
+    optionFeminizerUseDefault->setCheckable(true);
+    optionFeminizerUseCustom = new QAction(tr("use custom settings"),this);
+    optionFeminizerUseCustom->setToolTip("Use built-in options to auto-feminize armours.");
+    optionFeminizerUseCustom->setCheckable(true);
+    group8->addAction(optionFeminizerUseDefault);
+    group8->addAction(optionFeminizerUseCustom);
+    group8->setExclusive(true);
+
+    optionLearnFeminization= new QAction(tr("Learn custom setting from selected meshes..."),this);
+    optionLearnFeminization->setToolTip(tr("Use currently selected armours as examples to learn how to auto-feminize armours"));
+    connect(optionLearnFeminization,  SIGNAL(triggered()), this, SLOT(learnFemininzation()));
+    connect(optionFeminizerUseDefault,SIGNAL(triggered()), this, SLOT(optionFemininzationUseDefault()));
+    connect(optionFeminizerUseCustom, SIGNAL(triggered()), this, SLOT(optionFemininzationUseCustom()));
+
+
+    autoFemMenu->addActions(group8->actions());
+    autoFemMenu->addSeparator();
+    autoFemMenu-> addAction(optionLearnFeminization);
+
+
+
     optionMenu->addAction(editRefAct);
     optionMenu->addSeparator();    
+
 
 		/* SISTEM OPTIONS*/
 
@@ -314,12 +364,6 @@ void MainWindow::createMenus()
     connect(optionLanguage[4],SIGNAL(triggered()), this, SLOT(optionLanguageSet4()));
     connect(optionLanguageCustom,SIGNAL(triggered()), this, SLOT(optionLanguageSetCustom()));
 
-    // HIDE OPTION TO LEARN NEW FEMININIZTION
-    if (0) {
-      optionLearnFeminization= new QAction(tr("Learn how to femininize armours from current meshes."),this);
-      optionMenu-> addAction(optionLearnFeminization);
-      connect(optionLearnFeminization, SIGNAL(triggered()), this, SLOT(learnFemininzation()));
-    }
 
 
 	 // optionMenu-> addSeparator();
@@ -369,6 +413,9 @@ void MainWindow::createActions()
     editCopyCompleteAct->setShortcut(QString("Ctrl+Shift+C"));
     editCopyCompleteAct->setStatusTip(tr("Copy selected objects plus everything used by them."));
 
+    editCopyHitboxAct = new QAction(tr("Copy hit-boxes"), this);
+    editCopyHitboxAct->setStatusTip(tr("Copy hitboxes of current skeleton, as defined in XML file."));
+
     editCutCompleteAct = new QAction(tr("Cut complete"), this);
     editCutCompleteAct->setShortcut(QString("Ctrl+Shift+X"));
     editCutCompleteAct->setStatusTip(tr("Cut selected objects plus everything used by them."));
@@ -405,15 +452,21 @@ void MainWindow::createActions()
     editPasteTimingsAct->setStatusTip(tr("Paste timings of vertex or skeletal animation in clipboard into other animation(s)."));
     editPasteTimingsAct->setEnabled(false);
 
+    editPasteHitboxAct = new QAction(tr("Paste hit-boxes"), this);
+    editPasteHitboxAct->setStatusTip(tr("Paste hit-boxes into current skeleton."));
+    editPasteHitboxAct->setEnabled(false);
+
     connect(editCutAct, SIGNAL(triggered()), this, SLOT(editCut()));
     connect(editCopyAct, SIGNAL(triggered()), this, SLOT(editCopy()));
+    connect(editCopyFrameAct, SIGNAL(triggered()), this, SLOT(editCopyFrame()));
+    connect(editCopyHitboxAct, SIGNAL(triggered()), this, SLOT(editCopyHitbox()));
     connect(editPasteAct, SIGNAL(triggered()), this, SLOT(editPaste()));
     connect(editCopyCompleteAct, SIGNAL(triggered()), this, SLOT(editCopyComplete()));
     connect(editCutCompleteAct, SIGNAL(triggered()), this, SLOT(editCutComplete()));
     connect(editAddToCopyAct, SIGNAL(triggered()), this, SLOT(editAddToCopy()));
+    connect(editPasteHitboxAct, SIGNAL(triggered()), this, SLOT(editPasteHitbox()));
 
     connect(editCutFrameAct, SIGNAL(triggered()), this, SLOT(editCutFrame()));
-    connect(editCopyFrameAct, SIGNAL(triggered()), this, SLOT(editCopyFrame()));
     connect(editPasteFrameAct, SIGNAL(triggered()), this, SLOT(editPasteFrame()));
     connect(editPasteRiggingAct, SIGNAL(triggered()), this, SLOT(editPasteRigging()));
     connect(editPasteModificationAct, SIGNAL(triggered()), this, SLOT(editPasteMod()));
@@ -428,11 +481,17 @@ void MainWindow::createActions()
     saveAsAct->setStatusTip(tr("Save the document under a new name"));
     connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveAs()));
 
+    saveHitboxAct = new QAction(tr("Save module hitbox-sets for all skeletons")+"...", this);
+    connect(saveHitboxAct, SIGNAL(triggered()), this, SLOT(saveHitboxes()));
+
     for (int i = 0; i < MaxRecentFiles; ++i) {
         recentFileActs[i] = new QAction(this);
         recentFileActs[i]->setVisible(false);
-        connect(recentFileActs[i], SIGNAL(triggered()),
-                this, SLOT(openRecentFile()));
+        connect(recentFileActs[i], SIGNAL(triggered()), this, SLOT(openRecentFile()));
+
+        recentModActs[i] = new QAction(this);
+        recentModActs[i]->setVisible(false);
+        connect(recentModActs[i], SIGNAL(triggered()), this, SLOT(openRecentMod()));
     }
 
     exitAct = new QAction(tr("E&xit"), this);
@@ -472,46 +531,45 @@ void MainWindow::createActions()
     selectAllAct->setShortcut(QKeySequence("ctrl+a"));
     connect(selectAllAct, SIGNAL(triggered()), selector, SLOT(selectAll()));
 
-    importStaticMeshAct = new QAction(tr("Static mesh"), this);
+    importStaticMeshAct = new QAction(tr("Static mesh..."), this);
     importStaticMeshAct->setStatusTip(tr("Import a static Mesh"));
-    importRiggedMeshAct = new QAction(tr("Rigged mesh"), this);
+    importRiggedMeshAct = new QAction(tr("Rigged mesh..."), this);
     importRiggedMeshAct->setStatusTip(tr("Import rigged (skeletal animable) Mesh"));
-    importMovingMeshFrameAct = new QAction(tr("Frame of vertex-animated mesh"), this);
+    importMovingMeshFrameAct = new QAction(tr("Frame of vertex-animated mesh..."), this);
     importMovingMeshFrameAct->setStatusTip(tr("Import a static mesh and add it as a vertex-animation frame of current Mesh"));
-    importMovingMeshAct = new QAction(tr("Vertex-animated mesh"), this);
+    importMovingMeshAct = new QAction(tr("Vertex-animated mesh..."), this);
     importMovingMeshFrameAct->setStatusTip(tr("Import a vertex animated mesh from a MD3 file"));
-    importSkeletonAct = new QAction(tr("Skeleton"), this);
+    importSkeletonAct = new QAction(tr("Skeleton..."), this);
     importSkeletonAct->setStatusTip(tr("Import a Skeleton"));
 
 
 
-    importAnimationAct = new QAction(tr("Skeletal animation"), this);
+    importAnimationAct = new QAction(tr("Skeletal animation..."), this);
     importAnimationAct->setStatusTip(tr("Import a skeletal Animation"));
-    importBodyAct = new QAction(tr("Collision body"),this);
+    importBodyAct = new QAction(tr("Collision body..."),this);
     importBodyAct->setStatusTip(tr("Import an (multi-object) OBJ mesh as a Collision object."));
-    importBrfAct = new QAction(tr("Anything from a BRF"),this);
+    importBrfAct = new QAction(tr("Anything from a BRF..."),this);
     importBrfAct->setStatusTip(tr("Import all content form another BRF file into current one."));
-    addNewMaterialAct = new QAction(tr("New Material"),this);
+    addNewMaterialAct = new QAction(tr("New Material..."),this);
     addNewMaterialAct->setStatusTip(tr("Make a new Material object."));
-    addNewTextureAct = new QAction(tr("New Texture"),this);
+    addNewTextureAct = new QAction(tr("New Texture..."),this);
     addNewTextureAct->setStatusTip(tr("Make a new Texture object from a dds texture"));
-    addNewShaderAct = new QAction(tr("New Shader"),this);
+    addNewShaderAct = new QAction(tr("New Shader..."),this);
     addNewShaderAct->setStatusTip(tr("Enlist a new Shader"));
 
-    addNewUiPictureAct = new QAction(tr("New Menu Background"),this);
+    addNewUiPictureAct = new QAction(tr("New Menu Background..."),this);
     addNewUiPictureAct->setStatusTip(tr("Add a Menu Background (Mesh, Material, and Texture)"));
 
-
     navigateRightAct = new QAction(tr("follow link"),this);
-    navigateRightAct->setShortcut(tr("ctrl+right"));
+    navigateRightAct->setShortcut(tr("shift+right"));
     navigateRightAct->setStatusTip(tr("Go from a mesh to used material; go from a material to used textures/shader"));
     navigateRightAct->setShortcutContext(Qt::ApplicationShortcut);
     navigateLeftAct = new QAction(tr("follow back-link"),this);
-    navigateLeftAct->setShortcut(tr("ctrl+left"));
+    navigateLeftAct->setShortcut(QKeySequence("shift+left"));
     navigateLeftAct->setStatusTip(tr("Go back to the mesh (from a material) or material (from texture or shaders)."));
     navigateDownAct = new QAction(tr("next back-link"),this);
     navigateUpAct = new QAction(tr("prev back-link"),this);
-    searchBrfAct = new QAction(tr("Find"),this);
+    searchBrfAct = new QAction(tr("Find..."),this);
     searchBrfAct->setShortcut(tr("ctrl+F"));
     refreshIniAct = new QAction(tr("Refresh"),this);
     refreshIniAct->setStatusTip(tr("Reload ini files, brf files inside it, and dds textures"));
@@ -519,10 +577,22 @@ void MainWindow::createActions()
     computeUsedByAct = new QAction(tr("Scan module for usages"),this);
     computeUsedByAct->setStatusTip(tr("Scans module content and txt files, to compute what uses what"));
     computeUsedByAct->setShortcut(tr("F3"));
-    moduleSelectAct = new QAction(tr("Change current Module"),this);
+    moduleSelectAct = new QAction(tr("Change current Module..."),this);
     moduleSelectAct->setStatusTip(tr("Choose the current module"));
 
-    exportNamesAct = new QAction(tr("Export names"),this);
+    moduleOpenFolderAct = new QAction(tr("Open Module folder..."),this);
+    moduleOpenFolderAct->setStatusTip(tr("Open Module folder in file explorer"));
+
+    openNextInModAct = new QAction(tr("Next BRF in module"),this);
+    openNextInModAct->setStatusTip(tr("Open next BRF file as defined in module.ini"));
+    openNextInModAct->setShortcut(QKeySequence("ctrl+right"));
+    openPrevInModAct = new QAction(tr("Prev BRF in module"),this);
+    openPrevInModAct->setStatusTip(tr("Open previous BRF file as defined in module.ini"));
+    openPrevInModAct->setShortcut(QKeySequence("ctrl+left"));
+    connect(openPrevInModAct, SIGNAL(triggered()), this, SLOT(openPrevInMod()));
+    connect(openNextInModAct, SIGNAL(triggered()), this, SLOT(openNextInMod()));
+
+    exportNamesAct = new QAction(tr("Export names..."),this);
     exportNamesAct->setStatusTip(tr("Export al the contnt in a txt file"));
 
     checkIniAct = new QAction(tr("Scan module for errors"),this);
@@ -538,7 +608,6 @@ void MainWindow::createActions()
     selectBrfDataAct->setShortcut(tr("F7"));
     showUnrefTexturesAct = new QAction(tr("Show unreferenced texture files"),this);
     showUnrefTexturesAct->setStatusTip(tr("Show texture files non referenced in any brf"));
-
 
     showModuleStatsAct = new QAction(tr("Show module stats"),this);
     showModuleStatsAct->setStatusTip(tr("Show statistics for current Module"));
@@ -556,6 +625,7 @@ void MainWindow::createActions()
     connect(showUnrefTexturesAct, SIGNAL(triggered()), this, SLOT(showUnrefTextures()));
     connect(showModuleStatsAct, SIGNAL(triggered()), this, SLOT(showModuleStats()));
     connect(moduleSelectAct,SIGNAL(triggered()), this, SLOT(moduleSelect()));
+    connect(moduleOpenFolderAct,SIGNAL(triggered()), this, SLOT(moduleOpenFolder()));
     connect(exportNamesAct, SIGNAL(triggered()), this, SLOT(exportNames()));
 
     repeatLastCommandAct = new QAction(tr("&Repeat last command"),this);
@@ -696,8 +766,11 @@ void MainWindow::createConnections(){
   connect(guiPanel->ui->cbNormalmap       ,SIGNAL(stateChanged(int)),this,SLOT(setNormalmap(int)));
   connect(guiPanel->ui->cbSpecularmap     ,SIGNAL(stateChanged(int)),this,SLOT(setSpecularmap(int)));
   connect(guiPanel->ui->cbFloor           ,SIGNAL(stateChanged(int)),glWidget,SLOT(setFloor(int)));
+  connect(guiPanel->ui->cbComparisonMesh  ,SIGNAL(stateChanged(int)),glWidget,SLOT(setComparisonMesh(int)));
+  connect(guiPanel->ui->cbComparisonMesh  ,SIGNAL(stateChanged(int)),guiPanel,SLOT(updateVisibility()));
   connect(guiPanel->ui->cbWireframe       ,SIGNAL(stateChanged(int)),glWidget,SLOT(setWireframe(int)));
   connect(guiPanel->ui->cbRuler           ,SIGNAL(stateChanged(int)),glWidget,SLOT(setRuler(int)));
+  connect(guiPanel->ui->cbHitboxes        ,SIGNAL(stateChanged(int)),glWidget,SLOT(setHitboxes(int)));
   connect(guiPanel->ui->rbNocolor         ,SIGNAL(clicked(bool)),glWidget,SLOT(setColorPerWhite()));
   connect(guiPanel->ui->rbRiggingcolor    ,SIGNAL(clicked(bool)),glWidget,SLOT(setColorPerRig()));
   connect(guiPanel->ui->rbVertexcolor     ,SIGNAL(clicked(bool)),glWidget,SLOT(setColorPerVert()));
@@ -736,6 +809,7 @@ void MainWindow::createConnections(){
   connect(guiPanel->ui->leMatSpec,SIGNAL(textChanged(QString)), this, SLOT(updateDataMaterial()));
   connect(guiPanel->ui->leMatFlags,SIGNAL(textEdited(QString)), this, SLOT(updateDataMaterial()));
   //connect(guiPanel->ui->leMatRendOrd,SIGNAL(editingFinished()), this, SLOT(updateDataMaterial()));
+  connect(guiPanel,SIGNAL(selectedSubPiece(int)), glWidget, SLOT(setSubSelected(int)) );
 
 
   //connect(guiPanel, SIGNAL(dataMaterialChanged()), this, SLOT(updateDataMaterial()));
@@ -785,6 +859,11 @@ void MainWindow::createConnections(){
   connect(guiPanel->ui->leBodyRad,SIGNAL(textEdited(QString)), this, SLOT(updateDataBody()));
   connect(guiPanel->ui->leBodyFlags,SIGNAL(textEdited(QString)), this, SLOT(updateDataBody()));
   connect(guiPanel->ui->leBodySign,SIGNAL(textEdited(QString)), this, SLOT(updateDataBody()));
+
+  connect(guiPanel, SIGNAL(editHitbox(int,int)), this, SLOT(hitboxEdit(int,int)));
+  connect(guiPanel->ui->editHitBoxReset, SIGNAL(clicked()),this,SLOT(hitboxReset()));
+  connect(guiPanel->ui->editHitBoxSymmetric, SIGNAL(clicked()),this,SLOT(hitboxSymmetrize()));
+  connect(guiPanel->ui->editHbActive, SIGNAL(clicked(bool)),this,SLOT(hitboxActivate(bool)));
 
   // edit shader
   connect(guiPanel->ui->leShaderFlags,SIGNAL(textEdited(QString)), this, SLOT(updateDataShader()));

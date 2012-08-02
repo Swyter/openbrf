@@ -5,7 +5,7 @@
 
 #include <QtGui>
 
-const char* applVersion = "0.0.69b";
+const char* applVersion = "0.0.72";
 QString IniData::tokenFullName(int k){
 
   switch (k){
@@ -60,21 +60,20 @@ void MainWindow::about()
                "<p><i>Translations by:</i> %5</p>")
              ).arg(__DATE__)
               .arg("[mtarini] --- Marco Tarini")
-							.arg(" <br>[Abhuva], [amade], [Andrde Cuyne], [Barf], [Bilwit], [Bolkonsky], [Brutus], [Caba`drin], "
-                                     "[captain lust], [cdvader], [Chel], [captain lust], [Computica], [cmpxchg8b], [Crazy-Q], [DaBlade], [Dain Ironfoot], "
+              .arg(" <br>[Abhuva], [amade], [Andrde Cuyne], [Barf], [Bilwit], [Bolkonsky], [Brutus], [Caba`drin], "
+                   "[captain lust], [cdvader], [Chel], [captain lust], [Computica], [cmpxchg8b], [Crazy-Q], [DaBlade], [Dain Ironfoot], "
                    "[Darwin], [dreamterror], [dunde], [ealabor], [eierkopf], "
                    "[EvolutiveBrain], "
-									 "[Fafhrd], [fedeita], [Fei Dao], [foxyman], [Freddex], [FrisianDude], "
+                   "[Fafhrd], [fedeita], [Fei Dao], [foxyman], [Freddex], [FrisianDude], "
                    "[Geroj], [GetAssista], [giles], [Gothic Knight], [Hatonastick], "
-                   "[havarez], "
-									 "[Highelf], [Highlander], [HokieBT], [Ikaguia], [iLag], [Jai], [killkhergit], "
-									 "[Konar], [Llew], [Lord_Cheap], [Lord Kinlar], "
-									 "[LordRaglan], [Lumos], [MadocComadrin], [MadVader], [Mandible], [Mekelan], "
+                   "[havarez], [Highelf], [Highlander], [HokieBT], [Ikaguia], [iLag], [Jai], [killkhergit], "
+                   "[Konar], [Llew], [Lord_Cheap], [Lord Kinlar], [lord_olafson], "
+                   "[LordRaglan], [Lumos], [MadocComadrin], [MadVader], [Mandible], [Mekelan], "
                    "[Merlkir], [mr.master], "
                    "[mysstick], [N0body], [newaxekub], "
                    "[octoburn], [pagan], [Percus], [qlithe], [Rath0s], [RATMdude92], [Red River], "
-									 "[rgcotl], [Romainoir], [Septa Scarabae], [Sayd Ûthman], [Silesian], [Shik], "
-                                     "[Silver Wolf], [Somebody], [SonKidd], [Spak], [Specialist], [Stefano], [Sunnetci_Dede], [Swyter], "
+                   "[rgcotl], [Romainoir], [Septa Scarabae], [Sayd Ûthman], [Silesian], [Shik], "
+                   "[Silver Wolf], [Somebody], [SonKidd], [Spak], [Specialist], [Stefano], [Sunnetci_Dede], [Swyter], "
                    "[Triglav], [Tul], [Ursca], [Vincenzo], [Vlejundo], [Vornne], [WilliamBerne], "
                    "[yellowmosquito], [Yoshiboy], [xenoargh]")
               .arg("<br>[amade], [Swyter]!")
@@ -140,6 +139,10 @@ void MainWindow::aboutCurrentShader(){
 	);
 
 
+}
+
+QString MainWindow::hitboxExplaination(){
+  return tr("<i><br/><br/>(info: skeleton metadata, including hitboxes, are kept in the separate file \"data/skeleton_bodies.xml\")</i>");
 }
 
 void MainWindow::aboutCheckboard(){

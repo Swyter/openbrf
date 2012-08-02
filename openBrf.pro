@@ -124,3 +124,6 @@ UI_DIR = tmp
 OTHER_FILES += shaders/bump_fragment.cpp
 OTHER_FILES += shaders/bump_vertex.cpp
 OTHER_FILES += shaders/iron_fragment.cpp
+OTHER_FILES += femininizer.morpher
+
+

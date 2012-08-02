@@ -10,5 +10,8 @@
         <file>shaders/iron_fragment.cpp</file>
         <file>shaders/bump_vertex.cpp</file>
         <file>shaders/bump_fragment.cpp</file>
+        <file>icons/ico_left.png</file>
+        <file>icons/ico_mid.png</file>
+        <file>icons/ico_right.png</file>
     </qresource>
 </RCC>

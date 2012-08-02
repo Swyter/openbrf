@@ -25,16 +25,18 @@ public:
     BrfData* data;
     BrfData* reference; // for things that needs to be present to see other things...
                        // e.g. skeletons for animations
+    BrfData* hitBoxes; // extra data for skeletons
     IniData &inidata;
 
     int selected;
+    int subsel; // subpiece selected
     int selRefAnimation; // animation selected to view rigged mesh
     int selRefSkin; // rigged mesh
     int selRefSkel; // current skeleton
     int selFrameN; // current selected frame of vertex ani
 
-		int lastSelected;
-		bool applyExtraMatrixToAll;
+    int lastSelected;
+    bool applyExtraMatrixToAll;
     float extraMatrix[16]; // matric for temp transforms
     void clearExtraMatrix();
 
@@ -57,6 +59,7 @@ private slots:
 
 public slots:
    void setSelection(const QModelIndexList &, int k);
+   void setSubSelected(int k);
    void setRefAnimation(int i);
    void setRefSkin(int i);
    void setViewmode(int i);
@@ -71,8 +74,10 @@ public slots:
    void setTexture(int i);
    void setNormalmap(int i);
    void setSpecularmap(int i);
+   void setComparisonMesh(int i);
    void setFloor(int i);
    void setRuler(int i);
+   void setHitboxes(int i);
    void setRulerLenght(int i);
    void setPlay();
    void setStop();
@@ -105,7 +110,8 @@ public slots:
    void setUseOpenGL2(bool mode);
 public:
 
-bool useWireframe, useLighting, useTexture , useNormalmap, useFloor, useRuler, useSpecularmap;
+bool useWireframe, useLighting, useTexture , useNormalmap, useFloor;
+bool useRuler, useSpecularmap, useHitboxes, useComparisonMesh;
 bool ghostMode;
 bool fixTexturesOnSight;
 int colorMode, rulerLenght;
@@ -153,15 +159,21 @@ protected:
     void renderSkeleton(const BrfSkeleton& p);
     void renderAnimation(const BrfAnimation& p, const BrfSkeleton& s, float frame);
     void renderBody(const BrfBody& p);
+    void renderBody(const BrfBody& p, const BrfSkeleton& s, bool ghost); // renders hitboxes p around sketons s
+    void renderBody(const BrfBody& p, const BrfSkeleton& s, const BrfAnimation& a, float frame, bool ghost);
+
 
     void renderBone(const BrfAnimation& p, const BrfSkeleton& s,  float frame, int i, int lvl)const; // recursive
     void renderBone(const BrfSkeleton& p, int i, int lvl) const; // recursive
     void renderBodyPart(const BrfBodyPart &b) const;
+    void renderBodyPart(const BrfBody &b, const BrfSkeleton& s, int i, int lvl) const; // recursive! (hitboxes)
+    void renderBodyPart(const BrfBody &b, const BrfSkeleton& s, const BrfAnimation& a, float frame, int i, int lvl) const; // recursive! (hitboxes)
+
 
 
     void renderTexture(const char* name, bool addExtension = true);
     void renderSphereWire() const;
-    void renderCylWire() const;
+    void renderCylWire(float rad, float h) const;
     void renderOcta() const;
     void renderFloor();
     void renderFloorMaybe();

@@ -7,7 +7,7 @@
 #include "brfData.h"
 #include "iniData.h"
 
-const char* txtFileName[N_TXTFILES] = {
+const char* txtFileName[TXTFILE_NONE+1] = {
   "actions.txt",          // TXTFILE_ACTIONS,
   "skins.txt",            // TXTFILE_SKIN,
   "item_kinds1.txt",      // TXTFILE_ITEM,
@@ -20,6 +20,10 @@ const char* txtFileName[N_TXTFILES] = {
   "ground_specs.txt",     // TXTFILE_GROUND_SPECS,
   "skyboxes.txt",         // TXTFILE_SKYBOXES,
   "scenes.txt",           // TXTFILE_SCENES,
+  "[ERROR]",              // N_TXTFILES,
+  "[core system]",        // TXTFILE_CORE,
+  "[ERROR]",        //TXTFILE_NONE,
+
 };
 
 template <class T> int _findByName( const vector<T> &v, const QString &s){
@@ -257,6 +261,28 @@ bool IniData::readModuleTxts(const QString &pathMod, const QString& pathData){
 
   txtNameList.clear();
 
+  // add default things used by the system
+  {
+    ModuleTxtNameList list(MESH, TXTFILE_CORE);
+    list.append("sample_flare");
+    list.append("sun");
+    list.append("flying_missile");
+    list.append("battle_icon");
+    list.append("battle_track");
+    list.append("track");
+    list.append("compass");
+    txtNameList.push_back(list);
+  }
+  {
+    ModuleTxtNameList list(TEXTURE, TXTFILE_CORE);
+    list.append("cursor.dds");
+    txtNameList.push_back(list);
+  }
+  {
+    ModuleTxtNameList list(SHADER, TXTFILE_CORE);
+    list.append("def_shader");
+    txtNameList.push_back(list);
+  }
 
   try {
   {
@@ -379,7 +405,7 @@ bool IniData::readModuleTxts(const QString &pathMod, const QString& pathData){
 
       }
 
-      listSk.append("skel_horse"); // bonus!
+      //listSk.append("skel_horse"); // bonus!
       
       //errorStringOnScan = list.test(); return false;
       txtNameList.push_back(listMa);
@@ -668,18 +694,25 @@ QString IniData::link(int i, int j, int kind) const {
   return res;
 }
 
-void IniData::checkFile(int i, int j, int kind, char* usedFile, QDir *d0, QDir *d1){
+void IniData::checkFile(int i, int j, int kind, char* usedFile, QDir *d0, QDir *d1, bool forFrame){
 
-  //if (errorList.size()>MAX_ERR) return;
   bool res = false;
   if (d0) if (d0->exists(usedFile)) res = true;
   if (!res) if (d1) if (d1->exists(usedFile)) res = true;
 
-  if (!res)
-    errorList.push_back(
-      QTextBrowser::tr("<b>File-not-found:</b> can't find texture file for %1.")
-      .arg(link(i,j,kind))
-    );
+  if (!res) {
+    if (!forFrame) {
+      errorList.push_back(
+        QTextBrowser::tr("<b>File-not-found:</b> can't find image file for %1.")
+                .arg(link(i,j,kind))
+      );
+    } else {
+        errorList.push_back(
+          QTextBrowser::tr("<b>File-not-found:</b> can't find frame \"%2\" for %1.")
+                 .arg(link(i,j,kind)).arg(usedFile)
+        );
+    }
+  }
 
 }
 
@@ -924,8 +957,17 @@ bool IniData::findErrors(int maxErr){
     QDir d1(this->modPath); d1.cd("Textures");
     for (unsigned int j=0; j<file[i].texture.size(); j++) {
       if (errorList.size()>maxErr) break;
-      if (QString(file[i].texture[j].name)!="waterbump") // waterbumb hack
-      checkFile(i,j,TEXTURE, file[i].texture[j].name , &d0, &d1);
+      //if (QString(file[i].texture[j].name)!="waterbump") // waterbumb hack
+      BrfTexture &tex(file[i].texture[j]);
+      if (tex.NFrames()==0) {
+        checkFile(i,j,TEXTURE, tex.name , &d0, &d1, false);
+      } else {
+        for (int ti=0; ti<tex.NFrames(); ti++) {
+          char fullname[255];
+          sprintf(fullname,"%s_%d.dds",tex.name,ti);
+          checkFile(i,j,TEXTURE, fullname , &d0, &d1, true);
+        }
+      }
     }
   }
   if (errorList.size()>maxErr) {
@@ -1011,8 +1053,18 @@ BrfTexture* IniData::findTexture(const QString &fn){
 
   for (unsigned int i=0; i<file.size(); i++)
   for (unsigned int j=0; j<file[i].texture.size();j++ ){
-    if (!(fn.compare(file[i].texture[j].name,Qt::CaseInsensitive))) {
-      return &(file[i].texture[j]);
+
+    const BrfTexture &t(file[i].texture[j]);
+
+    if (t.NFrames()==0) {
+      if (!(fn.compare(t.name,Qt::CaseInsensitive))) {
+        return &(file[i].texture[j]);
+     }
+    } else {
+        for (int fi=0; fi<t.NFrames(); fi++)
+          if (!(fn.compare(QString("%1_%2.dds").arg(t.name).arg(fi),Qt::CaseInsensitive))) {
+              return &(file[i].texture[j]);
+          }
     }
   }
   return NULL;
@@ -1136,12 +1188,17 @@ bool IniData::loadAll(int howFast){
     lineN ++;
     s = s.trimmed(); // removal of spaces
     if (s[0]=='#') continue; // skip all comments
-    char com1[512], com2[512];
-    if (sscanf(s.toAscii().data(),"%s = %s",com1, com2)==2) {
+    QString com1, com2;
+    //char com1[512], com2[512];
+    QStringList p = s.split('=');
+    //if (sscanf(s.toAscii().data(),"%s = %s",com1, com2)==2)
+    if (p.size()==2){
+      com1 = p[0].trimmed();
+      com2 = p[1].trimmed();
       bool loadRes = QString(com1)=="load_resource";
       bool loadMod = ((QString(com1)=="load_mod_resource") || (QString(com1)=="load_module_resource"));
       if (loadRes || loadMod) {
-        if (!addBrfFile(com2,(loadMod)?MODULE_RES:COMMON_RES,lineN,howFast)) res=false;
+        if (!addBrfFile(com2.toAscii().data(),(loadMod)?MODULE_RES:COMMON_RES,lineN,howFast)) res=false;
       }
 
     }
@@ -1382,6 +1439,7 @@ void IniData::updateAllLists(){
   //namelist[TEXTURE].append("none");
 
   for (int i=0; i<N_TOKEN; i++) {
+    // for safety, replace bad characters with underscores
     namelist[i] = namelist[i].replaceInStrings(" " , "_");
     namelist[i] = namelist[i].replaceInStrings("," , "_");
     namelist[i].sort();
@@ -1420,7 +1478,6 @@ void IniData::updateNeededLists(){
     //_updateList( namelist[SKELETON], file[i].skeleton);
   }
   namelist[TEXTURE].append("none");
-  //namelist[SHADER].append("prova");
 
   // clear indexing
   for (int i=0; i<N_TOKEN+1; i++) indexing[i].clear();

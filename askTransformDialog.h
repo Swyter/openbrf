@@ -10,28 +10,52 @@ namespace Ui {
     class AskTransformDialog;
 }
 
+class QAbstractButton;
+
 class AskTransformDialog : public QDialog {
     Q_OBJECT
 public:
-		AskTransformDialog(QWidget *parent = 0, bool multObj=false);
+    AskTransformDialog(QWidget *parent = 0);
     ~AskTransformDialog();
 
     float* matrix;
-		bool* applyToAll;
+    bool* applyToAll;
 
-		void setApplyToAllLoc(bool *loc);
-		void setSensitivityOne(double sens);
-		void setSensitivityAll(double sens);
+    void setApplyToAllLoc(bool *loc);
+    void setSensitivityOne(double sens); // sets sensibility of transform when moving a single object
+    void setSensitivityAll(double sens); // ... or when moving multiple objects
+    void setMultiObj(bool);
+
+    void applyAlignments();
+    void setBoundingBox(float* minv, float * maxv);
+
 protected:
     void changeEvent(QEvent *e);
+    float bb_min[3], bb_max[3];
+
+public slots:
+    int exec();
 
 private:
     Ui::AskTransformDialog *ui;
-		double sensitivityOne, sensitivityAll;
+    double sensitivityOne, sensitivityAll;
 private slots:
     void update();
     void reset();
-		void updateSensitivity();
+    void updateSensitivity();
+    void onAlignmentLX(bool);
+    void onAlignmentLY(bool);
+    void onAlignmentLZ(bool);
+    void onAlignmentMX(bool);
+    void onAlignmentMY(bool);
+    void onAlignmentMZ(bool);
+    void onAlignmentRX(bool);
+    void onAlignmentRY(bool);
+    void onAlignmentRZ(bool);
+    void disableAlignX();
+    void disableAlignY();
+    void disableAlignZ();
+    void onButton(QAbstractButton*);
 signals:
     void changed();
 

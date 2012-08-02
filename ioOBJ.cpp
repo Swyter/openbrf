@@ -12,6 +12,7 @@ using namespace std;
 using namespace vcg;
 
 #include "brfMesh.h"
+#include "brfBody.h"
 #include "brfSkeleton.h"
 
 #include <QString>
@@ -52,6 +53,12 @@ bool BrfMesh::SaveOBJ(char* fn, int nframe) const{
   if (! IoOBJ::writeMesh(f,*this, nframe)) return false;
   f.close();
   return true;
+}
+
+void IoOBJ::writeHitbox(QFile &f, const BrfBody& b, const BrfSkeleton& s){
+  assert(b.part.size()==s.bone.size());
+  std::vector<vcg::Matrix44f> v = s.GetBoneMatrices();
+  //s.getRotationMatrix(0)
 }
 
 bool IoOBJ::writeMesh(QFile &f, const BrfMesh& m, int fr){
@@ -116,9 +123,9 @@ public:
 };
 
 typedef QPair<QString,QString> MatMesh; // pairs Material(Name)-(mesh)Name
-std::map<MatMesh,int> matMeshMap; //
-std::vector<MatMesh> matMeshVec; //
-std::vector<int> matMeshIndex; // parallel vector: material index for each face
+static std::map<MatMesh,int> matMeshMap; //
+static std::vector<MatMesh> matMeshVec; //
+static std::vector<int> matMeshIndex; // parallel vector: material index for each face
 
 
 bool IoOBJ::wasMultpileMat(){

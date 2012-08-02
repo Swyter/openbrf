@@ -33,3 +33,17 @@ void BrfTexture::SetDefault(){
   sprintf(name, "%s.dds" ,name);
   flags=0x00000000;
 }
+
+int BrfTexture::NFrames() const{
+  return ( (flags>>24) & 0xF ) * 4;
+}
+
+bool BrfTexture::IsAnimable() const {
+  return NFrames()>0;
+}
+
+char* BrfTexture::FrameName(int i) const{
+  static char res[1024];
+  sprintf(res,"%s_%d.dds",name,i);
+  return res;
+}

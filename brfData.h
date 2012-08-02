@@ -27,6 +27,7 @@ using namespace vcg;
 #include <vector>
 using namespace std;
 
+class BrfHitBoxSet;
 
 class BrfData {
 public:
@@ -42,6 +43,11 @@ public:
   vector<BrfBody> body;
   bool Load(FILE*f,int verbose=0, int imposeVers = -1);
   bool Load(const wchar_t*filename,int verbose=1, int imposeVers = -1);
+
+  int LoadHitBoxesFromXml(const wchar_t*filename); // loads all hitboxes as collision meshes form skeleton_data.xml
+  int SaveHitBoxesToXml(const wchar_t *fin, const wchar_t *fout);
+  static char* LastHitBoxesLoadSaveError(const char* st=NULL,const wchar_t* subst1=NULL,const char* subst2=NULL,const char* subst3=NULL); // sets or reads the error
+
   bool LoadFast(const wchar_t*filename, bool ultrafast); // skips most data
   bool LoadMat(FILE *f);
   void Clear();
@@ -57,7 +63,11 @@ public:
   const char* GetFirstObjectName() const; // returns name of first object
 
   int getOneSkeleton(int nbones, int after);
-  int Find(const char* name, int token);
+  int Find(const char* name, int token) const;
+
+  BrfBody* FindBody(const char* name);
+  BrfMesh* FindMesh(const char* name);
+
   int FindTextureWithExt(const char* name);
   bool HasAnyTangentDirs() const;
   void ForgetTextureLocations();
@@ -68,6 +78,9 @@ public:
 
   template<class BrfType> vector<BrfType>& Vector();
 
+  //bool AddExtraSkelData(const BrfHitBoxSet &s);
+
+  bool IsOneSkelOneHitbox() const;
   int version;
 private:
   //template<class BrfType> bool LoadAll(FILE *f, vector<BrfType> &v, int k);
@@ -77,20 +90,13 @@ private:
 
 };
 
-
-template<class BrfType> vector<BrfType>& BrfData::Vector(){
-  switch (BrfType::tokenIndex()){
-  case MESH: return mesh;
-  case MATERIAL: return material;
-  case SHADER: return shader;
-  case TEXTURE: return texture;
-  case BODY: return body;
-  case SKELETON: return skeleton;
-  case ANIMATION: return animation;
-  }
-  assert(0);
-  static vector<BrfType> v(0);
-  return v;
-}
+template<class BrfType> static vector<BrfType     > & VectorOf(BrfData& d);
+template<> vector<BrfMesh     > & VectorOf<BrfMesh     >(BrfData& d){ return d.mesh;      }
+template<> vector<BrfTexture  > & VectorOf<BrfTexture  >(BrfData& d){ return d.texture;   }
+template<> vector<BrfShader   > & VectorOf<BrfShader   >(BrfData& d){ return d.shader;    }
+template<> vector<BrfMaterial > & VectorOf<BrfMaterial >(BrfData& d){ return d.material;  }
+template<> vector<BrfSkeleton > & VectorOf<BrfSkeleton >(BrfData& d){ return d.skeleton;  }
+template<> vector<BrfAnimation> & VectorOf<BrfAnimation>(BrfData& d){ return d.animation; }
+template<> vector<BrfBody     > & VectorOf<BrfBody     >(BrfData& d){ return d.body;      }
 
 #endif

@@ -6,21 +6,22 @@
 #include<QtGui>
 #include<assert.h>
 
-AskFlagsDialog::AskFlagsDialog(QWidget *parent, unsigned int ones, unsigned int zeros, QStringList l, QStringList tips) :
+AskFlagsDialog::AskFlagsDialog(QWidget *parent, QString title, unsigned int ones, unsigned int zeros, QString *names) :
     QDialog(parent),
     m_ui(new Ui::AskFlagsDialog)
 {
 
 
   myStatusBar = 0;
-  assert (l.size()==32);
-  assert (tips.size()==32);
+  //assert (l.size()==32);
+  //assert (tips.size()==32);
   m_ui->setupUi(this);
 
   myStatusBar = new QStatusBar;
   this->layout()->addWidget(myStatusBar);
   myStatusBar->showMessage("");
 
+  setWindowTitle(title);
 
   m_ui->widget->setLayout(new QVBoxLayout(m_ui->widget));
   m_ui->widget_2->setLayout(new QVBoxLayout(m_ui->widget_2));
@@ -28,7 +29,8 @@ AskFlagsDialog::AskFlagsDialog(QWidget *parent, unsigned int ones, unsigned int 
   m_ui->widget_4->setLayout(new QVBoxLayout(m_ui->widget_4));
 
   for (unsigned int i=0; i<32; i++) {
-    cb[i]=new QCheckBox(l[i], this);
+    cb[i]=new QCheckBox(names[i*2], this);
+    cb[i]->setStatusTip(names[i*2+1]);
     QWidget *w;
     if (i<8) w=m_ui->widget;
     else if (i<16) w=m_ui->widget_2;
@@ -36,7 +38,6 @@ AskFlagsDialog::AskFlagsDialog(QWidget *parent, unsigned int ones, unsigned int 
     else w=m_ui->widget_4;
 
     w->layout()->addWidget(cb[i]);
-    cb[i]->setStatusTip(tips[i]);
 
     unsigned int one = 1;
     bool isOne = ones & (one<<i);
@@ -53,7 +54,7 @@ AskFlagsDialog::AskFlagsDialog(QWidget *parent, unsigned int ones, unsigned int 
     
     status[i] = _NORMAL;
 
-    if (l[i].isEmpty()) {
+    if (names[i*2].isEmpty()) {
       cb[i]->setText(tr("unused (?)"));
       cb[i]->setStatusTip(tr("This seems to be unused."));
       QFont f = cb[i]->font();
@@ -63,8 +64,8 @@ AskFlagsDialog::AskFlagsDialog(QWidget *parent, unsigned int ones, unsigned int 
 
       //if (!isOne && !isZero) cb[i]->setVisible(false);
     }
-    if (l[i].startsWith("R:")) {
-      QString t = l[i];
+    if (names[i*2].startsWith("R:")) {
+      QString t = names[i*2];
       t.replace("R:",tr("reserved"));
 
       cb[i]->setText(t);
@@ -74,7 +75,7 @@ AskFlagsDialog::AskFlagsDialog(QWidget *parent, unsigned int ones, unsigned int 
       cb[i]->setFont(f);
       status[i] = _RESERVED;
     }
-    if (l[i].startsWith("B:")) {
+    if (names[i*2].startsWith("B:")) {
       status[i] = _BIT;
     }
 

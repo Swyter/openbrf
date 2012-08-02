@@ -11,7 +11,10 @@
 #include "glwidgets.h"
 #include "selector.h"
 #include "guipanel.h"
+#include "brfHitBox.h"
 
+
+class AskTransformDialog;
 //namespace Ui
 //{
 //    class MainWindow;
@@ -41,16 +44,18 @@ private:
     BrfData brfdataBackup;
     IniData inidata;
     MeshMorpher femininizer;
+    BrfData hitboxSet;
 
     bool editingRef;
     template<class BrfType> bool addNewGeneral(QStringList def);
 
     bool useAlphaCommands;
 
+    AskTransformDialog* askTransformDialog;
+
  private slots:
 
     void notifyCheckboardChanged();
-    void notifyDataChanged();
     bool setEditingRef(bool mode);
 
     void closeEvent(QCloseEvent *event);
@@ -58,21 +63,23 @@ private:
     bool open();
     bool save();
     bool saveAs();
+    bool saveHitboxes();
     bool openRecentFile();
+    bool openRecentMod();
     bool editRef();
 
     void registerExtension();
 
     void aniExtractInterval();
-		void aniMirror();
-		void aniRemoveInterval();
+    void aniMirror();
+    void aniRemoveInterval();
     void aniMerge();
 
 
     void about();
     void aboutCheckboard();
-		void aboutCurrentShader();
-		void breakAni(int which, bool useIni);
+    void aboutCurrentShader();
+    void breakAni(int which, bool useIni);
     void shiftAni();
     void bodyMakeQuadDominant();
     void bodyMerge();
@@ -81,19 +88,26 @@ private:
     void flip();
     void scale();
     void transform();
-		void smoothenRigging();
-		void stiffenRigging();
+    void smoothenRigging();
+    void stiffenRigging();
     void onChangeMeshMaterial(QString newName);
     void onChangeFlags(QString flags); // of any object
     void onChangeTimeOfFrame(QString flags);
 
-    void setSelection(const QModelIndexList &l,int);
+    //bool hitboxToBody();
+    //bool bodyToHitbox();
+    void hitboxEdit(int whichAttrib, int dir);
+    void hitboxSymmetrize();
+    void hitboxActivate(bool);
+    void hitboxReset();
 
+    void setSelection(const QModelIndexList &l,int);
 
 
     void updateDataMaterial();
     void updateDataShader();
     void updateDataBody();
+
 
     void updateTextureAccessDup();
     void updateTextureAccessDel();
@@ -139,6 +153,7 @@ private:
     void editCutFrame();
     void editCopyFrame();
     void editCopyComplete();
+    void editCopyHitbox();
     void editCutComplete();
     void editPasteFrame();
     void editPasteRigging();
@@ -148,6 +163,7 @@ private:
     void editPasteTextcoords();
     void editPasteVertColors();
     void editPasteVertAni();
+    void editPasteHitbox();
     void sortEntries();
     void meshRecomputeNormalsAndUnifyDoIt();
     void meshRecomputeNormalsAndUnify_onSlider(int i);
@@ -178,6 +194,8 @@ private:
     void meshAniSplit();
     void meshTellBoundingBox();
     void learnFemininzation(); // from current selection
+    void optionFemininzationUseDefault();
+    void optionFemininzationUseCustom();
 
     void setFlagsShader();
     void setFlagsShaderRequires();
@@ -196,7 +214,13 @@ private:
     bool refreshIni();
     bool checkIni();
     bool searchIni();
+    bool refreshSkeletonBodiesXml();
+    //bool saveSkeletonBodiesXml();
+    void skeletonDiscardHitbox();
+
     void openModuleIniFile();
+    bool openNextInMod();
+    bool openPrevInMod();
     void optionAutoFixTextureUpdated();
     void optionAutoFixTextureShowInfo();
 
@@ -225,13 +249,16 @@ private:
     void showUnrefTextures();
     void showModuleStats();
     void moduleSelect();
+    void moduleOpenFolder();
     void exportNames();
+
 
     void onActionTriggered(QAction* q);
     void repeatLastCommand();
     void setUseOpenGL2(bool);
     void setNormalmap(int);
     void setSpecularmap(int);
+    void updateSelectedMenu();
 
 public slots:
     void displayInfo(QString st, int howlong);
@@ -250,6 +277,7 @@ private:
     bool loadIni(int lvl);
     QString mabPath;
     QString modName;
+    QString lastSkeletonBodiesXmlPath;
     QString modPath() const;
     QString lastSearchString;
     bool usingWarband;
@@ -271,6 +299,14 @@ private:
     bool saveReference();
     void setCurrentFile(const QString &fileName);
     void updateRecentFileActions();
+    void updateRecentModActions();
+
+    // sets, gets, all bitflags of selected objects
+    void getAllRequires(const vector<BrfShader> &v, unsigned int &orr, unsigned int &andd);
+    bool setAllRequires(vector<BrfShader> &v, unsigned int toZero, unsigned int toOne);
+    template<class BrfType> void getAllFlags(const vector<BrfType> &v, unsigned int &orr, unsigned int &andd);
+    template<class BrfType> bool setAllFlags(vector<BrfType> &v, unsigned int toZero, unsigned int toOne);
+
     QString askExportFilename(QString, QString ext );
     QString askImportFilename(QString ext);
     QStringList askImportFilenames(QString ext);
@@ -298,14 +334,17 @@ private:
     void insertOrReplace(const BrfMaterial &m);
     void insertOrReplace(const BrfShader &s);
     void insertOrReplace(const BrfBody &s);
+    template<class BrfType> void insert( vector<BrfType> &v, const BrfType &o);
+    template<class BrfType> void insertOrReplace( vector<BrfType> &v, const BrfType &o);
+    template<class BrfType> BrfType& getSelected(int n=0);
+    template<class BrfType> BrfType& getUniqueSelected();
     void selectOne(int kind, int i);
+
+    template<class BrfType> void objectMergeSelected(vector<BrfType> &v);
 
     void loadSystemClipboard();
     void saveSystemClipboard();
 
-    template<class BrfType> void insert( vector<BrfType> &v, const BrfType &o);
-    template<class BrfType> void insertOrReplace( vector<BrfType> &v, const BrfType &o);
-    template<class BrfType> void objectMergeSelected(vector<BrfType> &v);
     void saveOptions() const;
     void loadOptions();
 
@@ -338,12 +377,14 @@ private:
     QButtonGroup *comboViewmodeBG;
     QMenu *fileMenu;
     QMenu *helpMenu;
-    QMenu *recentFilesMenu;
+    QMenu *recentModsMenu;
+    QMenu *selectedMenu;
     QAction *newAct;
     QAction *registerMime;
     QAction *openAct;
     QAction *saveAct;
     QAction *saveAsAct;
+    QAction *saveHitboxAct;
     QAction *exitAct;
     QAction *sortEntriesAct;
     QAction *invertSelectionAct;
@@ -357,18 +398,23 @@ private:
     QAction *editCutCompleteAct;
     QAction *editCopyAct;
     QAction *editCopyCompleteAct;
+    QAction *editCopyHitboxAct;
     QAction *editAddToCopyAct;
     QAction *editPasteAct;
     QAction *editPasteRiggingAct;
     QAction *editPasteTimingsAct;
     QAction *editPasteAniLowerPartsAct;
     QAction *editPasteModificationAct;
+    QAction *editPasteHitboxAct;
     QAction *editCutFrameAct;
     QAction *editCopyFrameAct;
     QAction *editPasteFrameAct;
     QAction *editPasteTextcoordsAct;
     QAction *editPasteVertColorsAct;
     QAction *editPasteVertAniAct;
+
+    QAction *openNextInModAct;
+    QAction *openPrevInModAct;
 
     QAction *searchBrfAct;
     QAction *navigateLeftAct;
@@ -381,6 +427,7 @@ private:
     QAction *showUnrefTexturesAct;
     QAction *showModuleStatsAct;
     QAction *moduleSelectAct;
+    QAction *moduleOpenFolderAct;
     QAction *exportNamesAct;
 
     QAction *mab2tldHeadAct;
@@ -422,9 +469,11 @@ private:
     QAction *optionAoFromAbove[2];
     QAction *optionAoPerFace[2];
     QAction *optionAoInAlpha;
-    QAction *optionLearnFeminization;
     QAction *optionBgColor;
     QAction *optionLodSettingsAct;
+
+    QAction *optionFeminizerUseCustom, *optionFeminizerUseDefault;
+    QAction *optionLearnFeminization;
 
     QAction *tldMenuAction;
 
@@ -442,16 +491,20 @@ private:
       *addNewTextureAct,
       *addNewUiPictureAct;
 
-    enum { MaxRecentFiles = 10 };
+    enum { MaxRecentFiles = 20 };
     QAction *recentFileActs[MaxRecentFiles];
+    QAction *recentModActs[MaxRecentFiles];
 
     void dragEnterEvent(QDragEnterEvent *event);
     void dropEvent(QDropEvent *event);
 
     bool maybeSave();
-		void setModified(bool mod, bool repeateble = true);
+    bool maybeSaveHitboxes();
+    void setModified(bool mod, bool repeateble = true);
+    void setModifiedHitboxes(bool mod);
     void updateTitle();
     bool isModified;
+    bool isModifiedHitboxes;
     QString lastImpExpFormat;
     // parameters for lodding
 
@@ -468,6 +521,12 @@ private:
 
     bool easterTLD; // if true, use easteregg
     bool _importStaticMesh(QString s, vector<BrfMesh> &m, vector<bool> &wasMultiple);
+
+    QMenu* optionMenu;
+    QMenu* autoFemMenu;
+
+    static QString hitboxExplaination();
+    QString senderText() const; // just a hack: returns the text of command being exectued:
 
 };
 

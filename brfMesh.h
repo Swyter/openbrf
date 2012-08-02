@@ -138,11 +138,15 @@ public:
   void NormalizeRigging();
   void DiscardRigging();
   void DiscardTangentField();
-	bool CopyModification(const BrfMesh& mod);
-	bool CopyTextcoords(const BrfMesh& b);
-	bool CopyVertColors(const BrfMesh& b);
-	bool CopyVertAni(const BrfMesh& b);
-	void SetDefault();
+
+  bool IsNamedAsLOD() const; // does it follow the M&B convention for LOD meshes?
+  bool IsNamedAsBody(const char * bodyName) const; // is it the M&B conventional rule for Collision body? ("bo_"+name)
+
+  bool CopyModification(const BrfMesh& mod);
+  bool CopyTextcoords(const BrfMesh& b);
+  bool CopyVertColors(const BrfMesh& b);
+  bool CopyVertAni(const BrfMesh& b);
+  void SetDefault();
   void MakeSingleQuad(float x, float y, float dx, float dy);
   void AddToBody(BrfBodyPart &dest);
 
