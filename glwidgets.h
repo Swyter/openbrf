@@ -77,6 +77,8 @@ public slots:
    void setColorPerWhite();
    void setFrameNumber(int);
 
+   void browseTexture();
+
    int  getFrameNumber() const;
    void showMaterialDiffuseA();
    void showMaterialDiffuseB();
@@ -157,7 +159,7 @@ protected:
     // rendering mode (just changes of openGL status):
     void setShadowMode(bool on) const;
     void setWireframeLightingMode(bool on, bool light, bool text) const;
-    void setTextureName(QString st);
+    void setTextureName(QString st, int origin);
     static bool fixTextureFormat(QString st);
     void setMaterialName(QString st);
     void setCheckboard();
@@ -169,7 +171,7 @@ protected:
 public:
 
     QString texturePath[3];
-    QString locateOnDisk(QString nome, const char*ext, BrfMaterial::Location *loc = NULL);
+    QString locateOnDisk(QString nome, const char*ext, BrfMaterial::Location *loc);
     void forgetChachedTextures();
     enum{MAXSEL=2000};
     bool selGroup[MAXSEL];
@@ -196,6 +198,9 @@ private:
     vcg::Point3f lastCenter;
     float lastScale;
     float closingUp;
+    QString renderedTexture;
+    unsigned int fragProgramIron;
+    void initFramProgramIron();
 };
 
 #endif // GLWIDGETS_H

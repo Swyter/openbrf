@@ -1258,11 +1258,14 @@ void BrfMesh::Save(FILE*f) const{
   CheckAssert();
 
   SaveString(f, name);  
-  SaveUint(f , flags);
+
+  unsigned int mask = (globVersion != 0)?1<<17:0; // extra warband bit
+
+  SaveUint(f , flags|mask);
   SaveString(f, material); // material used
 
   if (globVersion != 0) {
-    if (flags>>16 == 2) globVersion = 2; else globVersion = 1;
+    if (flags & (1<<16)) globVersion = 1; else globVersion = 2;
   }
 
   SaveVector(f, frame[0].pos);
@@ -1821,11 +1824,12 @@ bool BrfMesh::Skip(FILE* f){
   //printf(" -skipping \"%s\"...\n",name);
   //SkipString(f);
   //::Skip<int>(f); // flags
-  unsigned int _flags;
-  LoadUint(f,_flags);
+
+  LoadUint(f,flags);
   if (globVersion != 0) {
-    if (_flags>>16 == 2) globVersion = 2; else globVersion = 1;
+    if (flags & (1<<16)) globVersion = 1; else globVersion = 2;
   }
+
 
   if (!LoadString(f, material)) return false;
   SkipVectorB< Point3f >(f); // pos
@@ -1865,7 +1869,7 @@ bool BrfMesh::Load(FILE*f){
   frame[0].time =0;
 
   if (globVersion != 0) {
-    if (flags>>16 == 2) globVersion = 2; else globVersion = 1;
+    if (flags & (1<<16)) globVersion = 1; else globVersion = 2;
   }
 
   if (!LoadVector(f, frame[0].pos)) return false;

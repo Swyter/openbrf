@@ -349,18 +349,79 @@ void BrfAnimation::ShiftIndexInterval(int d){
   for (unsigned int i=0; i<frame.size(); i++) frame[i].index+=d;
 }
 
+int BrfAnimation::ExtractIndexInterval(BrfAnimation &res, int a, int b){
+  sprintf(res.name, "%s_%d_%d", name, a,b);
+  res.nbones = nbones;
+  res.bbox = bbox;
+  res.frame.clear();
+  int c = 0;
+  for (unsigned int i=0; i<frame.size(); i++) {
+    if ((frame[i].index>=a) && (frame[i].index<=b)) {
+      res.frame.push_back(frame[i]);
+      c++;
+    }
+  }
+  return c;
+}
+
+int BrfAnimation::RemoveIndexInterval(int a, int b){
+  unsigned int i = 0;
+  int c=0;
+  for (unsigned int j=0; j<frame.size(); j++) {
+    if ((frame[j].index>=a) && (frame[j].index<=b)) {
+      frame[i++]=frame[j];
+    } else {
+      c++;
+    }
+  }
+  frame.resize(i);
+  return c;
+}
+
+bool BrfAnimation::Merge(const BrfAnimation& a, const BrfAnimation& b){
+  if (a.nbones!=b.nbones) return false;
+  sprintf(name, "%s", a.name);
+  nbones = a.nbones;
+  bbox = a.bbox;
+  frame.clear();
+  unsigned int ia=0, ib=0;
+  int cf = -1;
+  while (ia<a.frame.size() || ib<b.frame.size() ) {
+    bool froma = true;
+    if (ia>=a.frame.size()) froma=false; else
+    if (ib>=b.frame.size()) froma=true; else
+    froma = (a.frame[ia].index<b.frame[ib].index);
+    if (froma) {
+      if (a.frame[ia].index>cf) {
+        cf = a.frame[ia].index;
+        frame.push_back(a.frame[ia]);
+      }
+      ia++;
+    } else {
+      if (b.frame[ib].index>cf) {
+        cf = b.frame[ib].index;
+        frame.push_back(b.frame[ib]);
+      }
+      ib++;
+    }
+  }
+  return true;
+
+}
+
+
 int BrfAnimation::Break(vector<BrfAnimation> &vect, const wchar_t* fn, wchar_t *fn2) const{
 
   int res=0;
   FILE *fin=_wfopen(fn,L"rt");
   //static char fn2[1024];
-  swprintf(fn2,L"%ls [after splitting %s].txt",fn,name);
-  FILE *fout=_wfopen(fn2,L"wt");
+  //swprintf(fn2,L"%ls [after splitting %s].txt",fn,name);
+  //FILE *fout=_wfopen(fn2,L"wt");
   if (!fin) return -1;
-  if (!fout) return -2;
+  //if (!fout) return -2;
   int n=0;
   fscanf(fin,"%d ",&n);
-  fprintf(fout,"%d \n",n);
+  //fprintf(fout,"%d \n",n);
 
   char aniName[255];
   char aniSubName[255];
@@ -374,7 +435,7 @@ int BrfAnimation::Break(vector<BrfAnimation> &vect, const wchar_t* fn, wchar_t *
 
   for (int i=0; i<n; i++){
     fscanf (fin, formatHeader,aniName, &v00, &nparts);
-    fprintf(fout,formatHeader,aniName,  v00,  nparts);
+    // fprintf(fout,formatHeader,aniName,  v00,  nparts);
     unsigned int v0; float v1, v2, v3, v4;
     int ia, ib; unsigned int flags;
 
@@ -396,16 +457,16 @@ int BrfAnimation::Break(vector<BrfAnimation> &vect, const wchar_t* fn, wchar_t *
       }
       if (ani.frame.size()>0) {
         vect.push_back(ani);
-        fprintf(fout,formatAni, speed, ani.name , ia, ib, flags, v0, v1, v2, v3, v4);
+        //fprintf(fout,formatAni, speed, ani.name , ia, ib, flags, v0, v1, v2, v3, v4);
         /*ani.FirstIndex(),ani.LastIndex(),*/
         res++;
-      } else
-      fprintf(fout,formatAni, speed,aniSubName, ia, ib, flags, v0, v1, v2, v3, v4);
+      } //else
+      //fprintf(fout,formatAni, speed,aniSubName, ia, ib, flags, v0, v1, v2, v3, v4);
 
     }
   }
   fclose(fin);
-  fclose(fout);
+  //fclose(fout);
   return res;
 }
 int BrfAnimation::Break(vector<BrfAnimation> &vect) const{

@@ -9,7 +9,7 @@ namespace Ui {
 }
 
 class QModelIndex;
-
+class QPushButton;
 class AskSelectBRFDialog : public QDialog {
     Q_OBJECT
 public:
@@ -18,6 +18,8 @@ public:
     void addName(int k, QString name, QString path);
     QString loadMe;
     int doExec();
+    QPushButton* openModuleIniButton();
+
 private slots:
     void clickedOnList(QModelIndex q);
     void countUsed();

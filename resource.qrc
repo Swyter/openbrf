@@ -5,5 +5,6 @@
         <file>translations/openbrf_es.qm</file>
         <file>translations/qt_es.qm</file>
         <file>translations/qt_zh_CN.qm</file>
+        <file>translations/openbrf_de.qm</file>
     </qresource>
 </RCC>

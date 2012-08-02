@@ -46,6 +46,10 @@ public:
   bool SaveSMD(FILE *f) const;
   bool LoadSMD(FILE *f);
 
+  int ExtractIndexInterval(BrfAnimation&res, int a, int b);
+  int RemoveIndexInterval(int a, int b);
+  bool Merge(const BrfAnimation& a, const BrfAnimation& b);
+
   int FirstIndex() const;
   int LastIndex() const;
 

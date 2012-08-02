@@ -17,7 +17,11 @@ public:
 
 public slots:
     void resetFullScreen();
-    void resetCenter();
+    void resetNE(); void resetN(); void resetNW();
+    void resetE();  void resetC(); void resetW();
+    void resetSE(); void resetS(); void resetSW();
+
+
     void resetActualPixels();
     void updateMeasure();
     void browse();
@@ -37,6 +41,7 @@ private:
 
     void accept();
     void showSizeAndPos();
+    void center(float relposX, float relposY);
 
     QString path;
 

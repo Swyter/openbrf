@@ -57,20 +57,22 @@ void MainWindow::about()
                "<p><i>Translations by:</i> %5</p>")
              ).arg(__DATE__)
               .arg("[mtarini] --- Marco Tarini")
-              .arg(" <br>[amade], [Andrde Cuyne], [Barf], [Brutus],"
+              .arg(" <br>[amade], [Andrde Cuyne], [Barf], [Brutus], [Caba`drin],"
                    "[captain lust], [cdvader], [Chel], [DaBlade], [Dain Ironfoot], "
                    "[Darwin], [dreamterror], [ealabor], [eierkopf], [EvolutiveBrain],"
-                   "[Fei Dao], [foxyman], [Freddex], [FrisianDude], "
-                   "[Geroj], [GetAssista], [giles], [Gothic Knight], [havarez], "
-                   "[Highelf], [HokieBT], [Jai], [killkhergit], [Konar], [Llew], "
-                   "[LordRaglan], [Lumos], [MadVader], [Mekelan], [Merlkir], [mysstick], "
-                   "[octoburn], [pagan], [Percus], [RATMdude92], [Red River],"
+                   "[fedeita], [Fafhrd], [Fei Dao], [foxyman], [Freddex], [FrisianDude], "
+                   "[Geroj], [GetAssista], [giles], [Gothic Knight], [Hatonastick], [havarez], "
+                   "[Highelf], [Highlander], [HokieBT], [Jai], [killkhergit], [Konar], [Llew], "
+                   "[LordRaglan], [Lumos], [MadVader], [Mandible], [Mekelan], [Merlkir], [mr.master], "
+                   "[mysstick], "
+                   "[octoburn], [pagan], [Percus], [qlithe], [RATMdude92], [Red River],"
                    "[Septa Scarabae], [Silesian], [Shik], [Silver Wolf], [Swyter], "
-                   "[Triglav], [Tul], [Ursca], [Vornne], [WilliamBerne], [yellowmosquito], [Yoshiboy], [xenoargh]")
+                   "[Triglav], [Tul], [Ursca], [Vlejundo], [Vornne], [WilliamBerne], [yellowmosquito], [Yoshiboy], [xenoargh]")
               .arg("<br>[amade], [Swyter]!")
               .arg(QString("<br> [foxyman] <i>(%1)</i><br>"
-                           " [Swyter] <i>(Español)</i>").arg(tr("additional code and Chinese")))
-              .arg("0.0.49d")
+                           " [Swyter] <i>(Español)</i><br>"
+                           " [Vlejundo] <i>(Deutsche)</i><").arg(tr("additional code and Chinese")))
+              .arg("0.0.52b")
             ,QMessageBox::Ok, this);
     msg.setLocale(QLocale::system());
   //msg.layout()->addWidget(&lab);
@@ -78,6 +80,7 @@ void MainWindow::about()
   msg.setIconPixmap( windowIcon().pixmap(128,128) );
   msg.exec();
 }
+
 
 void MainWindow::optionAutoFixTextureShowInfo(){
    QMessageBox::about(this, "OpenBRF",

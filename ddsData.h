@@ -8,6 +8,7 @@ typedef struct {
   int mipmap;
   int filesize;
   int ddxversion;
+  int location;
 } DdsData;
 
 #endif // DDSDATA_H

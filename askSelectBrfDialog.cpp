@@ -47,6 +47,10 @@ void AskSelectBRFDialog::refresh(){
   close();
 }
 
+QPushButton* AskSelectBRFDialog::openModuleIniButton(){
+  return ui->openModuleIni;
+}
+
 void AskSelectBRFDialog::clickedOnList(QModelIndex i){
   QObject* s = sender();
   if (s) {

@@ -129,12 +129,20 @@ void GuiPanel::setTextureData(DdsData d){
       ui->boxTextureMipmap->display(d.mipmap);
       ui->boxTextureResX->display(d.sx);
       ui->boxTextureResY->display(d.sy);
+      switch (d.location) {
+        //UNKNOWN, NOWHERE, COMMON, MODULE, LOCAL
+        default: ui->boxOrigin->setText(tr("unknown")); break;
+        case 1: ui->boxOrigin->setText(tr("not-found")); break;
+        case 2: ui->boxOrigin->setText(tr("common")); break;
+        case 3: ui->boxOrigin->setText(tr("module")); break;
+        case 4: ui->boxOrigin->setText(tr("local")); break;
+      }
 
       switch (d.ddxversion) {
-        case 1: ui->boxTextureFormat->setText("DXT 1 (1bit alpha)"); break;
-        case 3: ui->boxTextureFormat->setText("DXT 3 (sharp alpha)"); break;
-        case 5: ui->boxTextureFormat->setText("DXT 5 (smooth alpha)"); break;
-        default: ui->boxTextureFormat->setText("Unknown"); break;
+        case 1: ui->boxTextureFormat->setText(tr("DXT 1 (1bit alpha)")); break;
+        case 3: ui->boxTextureFormat->setText(tr("DXT 3 (sharp alpha)")); break;
+        case 5: ui->boxTextureFormat->setText(tr("DXT 5 (smooth alpha)")); break;
+        default: ui->boxTextureFormat->setText(tr("unknown")); break;
       }
     }
     /*
@@ -146,6 +154,7 @@ void GuiPanel::setTextureData(DdsData d){
 
 void GuiPanel::updateHighlight(){
 }
+
 GuiPanel::GuiPanel(QWidget *parent, IniData &id) :
     QWidget(parent),
     inidata(id),

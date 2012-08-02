@@ -27,6 +27,7 @@ int main(int argc, char* argv[])
     case 1: loc = QString("en");break;
     case 2: loc = QString("zh_CN");break;
     case 3: loc = QString("es");break;
+    case 4: loc = QString("de");break;
     }
     translator.load(QString(":/translations/openbrf_%1.qm").arg(loc));
     qtTranslator.load(QString(":/translations/qt_%1.qm").arg(loc));

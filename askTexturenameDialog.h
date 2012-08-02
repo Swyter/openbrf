@@ -10,12 +10,13 @@ namespace Ui {
 class AskTexturenameDialog : public QDialog {
     Q_OBJECT
 public:
-    AskTexturenameDialog(QWidget *parent , bool letAlsoAdd);
+    AskTexturenameDialog(QWidget *parent , QString letAlsoAdd);
     ~AskTexturenameDialog();
 
     void setDef(QString s);
     void setLabel(QString s);
     void setBrowsable(QString s);
+    void setRes(QStringList &);
     QStringList getRes() const;
     bool alsoAdd();
 protected:

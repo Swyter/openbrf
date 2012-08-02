@@ -37,7 +37,7 @@ private:
     IniData inidata;
 
     bool editingRef;
-    template<class BrfType> bool addNewGeneral();
+    template<class BrfType> bool addNewGeneral(QStringList def);
 
  private slots:
 
@@ -55,6 +55,11 @@ private:
 
     void registerExtension();
 
+    void aniExtractInterval();
+    void aniRemoveInterval();
+    void aniMerge();
+
+
     void about();
     void aboutCheckboard();
     void breakAni(int which, bool useIni);
@@ -71,6 +76,8 @@ private:
     void onChangeTimeOfFrame(QString flags);
 
     void setSelection(const QModelIndexList &l,int);
+
+
 
     void updateDataMaterial();
     void updateDataShader();
@@ -136,8 +143,11 @@ private:
     void meshDiscardRig();
     void meshDiscardCol();
     void meshDiscardAni();
+    void meshRecolor();
 
     void setFlagsMaterial();
+
+    void onClipboardChange();
 
     bool navigateLeft();
     bool navigateRight();
@@ -147,6 +157,7 @@ private:
     bool refreshIni();
     bool checkIni();
     bool searchIni();
+    void openModuleIniFile();
     void optionAutoFixTextureUpdated();
     void optionAutoFixTextureShowInfo();
 
@@ -154,6 +165,7 @@ private:
     void optionLanguageSet1();
     void optionLanguageSet2();
     void optionLanguageSet3();
+    void optionLanguageSet4();
     void optionLanguageSetCustom();
 
     void mab2tldHead();
@@ -235,6 +247,9 @@ private:
     void insertOrReplace(const BrfShader &s);
     void insertOrReplace(const BrfBody &s);
     void selectOne(int kind, int i);
+
+    void loadSystemClipboard();
+    void saveSystemClipboard();
 
     template<class BrfType> void insert( vector<BrfType> &v, const BrfType &o);
     template<class BrfType> void insertOrReplace( vector<BrfType> &v, const BrfType &o);
@@ -326,7 +341,7 @@ private:
     QAction *optionAutoFixTextureInfo;
     QAction *optionAutoZoomUseGlobal;
     QAction *optionAutoZoomUseSelected;
-    QAction *optionLanguage[4];
+    QAction *optionLanguage[6];
     QAction *optionLanguageCustom;
     QAction *optionInferMaterialOn;
     QAction *optionInferMaterialOff;

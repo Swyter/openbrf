@@ -21,6 +21,7 @@ public:
   IniData(BrfData &currentBrf);
   std::vector<BrfData> file;
   std::vector<QString> filename; // full path included
+  std::vector<int> iniLine; // at which line of moudle.ini
   std::vector<Origin> origin;
 
   bool isWarband;
@@ -65,7 +66,7 @@ public:
   int nRefObjects() const;
   int nObjects() const;
 
-  bool addBrfFile(const char* name, Origin origin, int howFast);
+  bool addBrfFile(const char* name, Origin origin, int line, int howFast);
   void setPath(QString mabPath, QString modPath);
 
   QStringList namelist[N_TOKEN];
