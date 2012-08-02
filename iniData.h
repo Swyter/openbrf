@@ -77,13 +77,14 @@ public:
   bool saveLists(const QString &fn);
 
   int findFile(const QString &fn,bool onlyModFolder=false); // returns index of a given file
-  BrfTexture* findTexture(const QString &fn);
 
   // returns: index of file, of object inside file
   ObjCoord indexOf(const QString &name, int kind);
   // as above, bust strong matching (no ".")
   ObjCoord indexOfStrict(const QString &name, int kind);
 
+  BrfShader* findShader(const QString &fn);
+  BrfTexture* findTexture(const QString &fn);
   BrfMaterial* findMaterial(const QString &name, ObjCoord startFrom=ObjCoord() );
 
   QStringList errorList; // list all error strings when scanning module

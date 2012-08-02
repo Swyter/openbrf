@@ -1002,6 +1002,7 @@ int MainWindow::currentDisplaySkelAniFrame(){
 
 void MainWindow::meshUnify(){
 
+  bool mod = false;
   for (int k=0; k<selector->selectedList().size(); k++) {
     int i= selector->selectedList()[k].row();
     if (i<0) continue;
@@ -1009,16 +1010,50 @@ void MainWindow::meshUnify(){
 
 
     BrfMesh &m (brfdata.mesh[i]);
-    m.UnifyPos();
-    m.UnifyVert(true,0.95);
+    if (m.RemoveUnreferenced()) mod=true;
+    if (m.UnifyPos()) mod=true;
+    if (m.UnifyVert(true,0.95)) mod=true;
 
   }
   updateGui();
   updateGl();
 
 
-  setModified(true);
+  if (mod) setModified(true);
   statusBar()->showMessage(tr("Vertex unified."), 2000);
+}
+
+void MainWindow::meshTellBoundingBox(){
+    vcg::Box3f bbox;
+    bbox.SetNull();
+    QString objname;
+    int objnum = 0;
+    for (int k=0; k<selector->selectedList().size(); k++) {
+        int i= selector->selectedList()[k].row();
+        if (i<0) continue;
+        if (i>(int)brfdata.mesh.size()) continue;
+        BrfMesh &m (brfdata.mesh[i]);
+        m.UpdateBBox();
+        bbox.Add(m.bbox);
+        objnum++;
+        if (objnum==1)
+            objname = QString(tr("object '%1'")).arg(m.name);
+        else
+            objname = QString(tr("%1 objects")).arg(objnum);
+    }
+    QString s = QString("(%1,%2),(%3,%4),(%5,%6)")
+       .arg(bbox.min[0]).arg(bbox.max[0])
+       .arg(bbox.min[2]).arg(bbox.max[2])
+       .arg(bbox.min[1]).arg(bbox.max[1])
+    ;
+    QApplication::clipboard()->setText(s);
+    QString msg = QString(tr("Spatial extension of %7:\n\nin X=%1 to %2\nin Y=%3 to %4\nin Z=%5 to %6\n\n(data copied to clipboard)"))
+       .arg(bbox.min[0]).arg(bbox.max[0])
+       .arg(bbox.min[2]).arg(bbox.max[2])
+       .arg(bbox.min[1]).arg(bbox.max[1])
+       .arg(objname)
+    ;
+    QMessageBox::information(this,"OpenBRF",msg);
 }
 
 void MainWindow::meshAniSplit(){
@@ -1717,6 +1752,18 @@ void MainWindow::meshDiscardTan(){
   updateGl();
 }
 
+
+void MainWindow::meshDiscardNor(){
+    QModelIndexList list= selector->selectedList();
+    for (int j=0; j<list.size(); j++){
+      BrfMesh &m(brfdata.mesh[list[j].row()]);
+      m.UnifyPos();
+      m.UnifyVert(false);
+      setModified(true);
+    }
+    updateGui();
+    updateGl();
+}
 
 void MainWindow::meshDiscardAni(){
   QModelIndexList list= selector->selectedList();
@@ -3612,6 +3659,7 @@ bool MainWindow::refreshIni(){
   inidata.updated=0; // force reload all
   brfdata.ForgetTextureLocations();
   glWidget->forgetChachedTextures();
+  glWidget->readCustomShaders();
 
   bool res = loadIni(tmp);
   updateGl();

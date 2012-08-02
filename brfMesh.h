@@ -192,7 +192,7 @@ public:
   void UpdateBBox();
   void SetUniformRig(int nbone);
   void SplitFaces(const std::vector<int> &matIndex);
-  void RemoveUnreferenced();
+  bool RemoveUnreferenced();
   void ColorAll(unsigned int newcol);
  
   void AdjustNormDuplicates(); // copys normals
@@ -216,8 +216,8 @@ public:
 
   void ComputeTangents();
 
-  void UnifyPos();
-  void UnifyVert(bool careForNormals, float crease=0);
+  bool UnifyPos();
+  bool UnifyVert(bool careForNormals, float crease=0);
   void UnifyVertNormPerPos(bool careForNormals, float crease=0);
   void DivideVert();
   void RemoveSeamsFromNormals(double crease);

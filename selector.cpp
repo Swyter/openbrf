@@ -217,8 +217,8 @@ Selector::Selector(QWidget *parent)
   meshRecomputeNormalsAndUnify = new QAction(tr("Recompute normals"), this);
   meshRecomputeNormalsAndUnify->setStatusTip(tr("Recompute normals for this model, and unify pos and vertices"));
 
-  meshUnify = new QAction(tr("Unify vertices"), this);
-  meshUnify->setStatusTip(tr("Unify identical vertices and pos."));
+  meshUnify = new QAction(tr("Clean redundant vert/pos"), this);
+  meshUnify->setStatusTip(tr("Removes any unused vertices or positions and merge identical ones"));
 
 	meshFixRiggingRigidParts = new QAction(tr("Quick fix rigging of rigid-parts"), this);
 	meshFixRiggingRigidParts->setStatusTip(tr("Attempts to fix rigging of small-parts, making them rigid"));
@@ -249,8 +249,11 @@ Selector::Selector(QWidget *parent)
   meshComputeLodAct = new QAction(tr("Compute LODs"), this);
   meshComputeLodAct->setStatusTip(tr("Tries to compute a LOD pyramid"));
 
+  meshTellBoundingBoxAct = new QAction(tr("Get dimensions"), this);
+  meshTellBoundingBoxAct->setStatusTip(tr("Tell me the dimension of selected object(s)"));
+
   meshFreezeFrameAct = new QAction(tr("rigging (keep current pose)"), this);
-  meshFreezeFrameAct->setStatusTip(tr("Discard rigging, but keep current pose"));
+  meshFreezeFrameAct->setStatusTip(tr("Discard rigging, but freeze mesh in its current pose"));
 
 	meshAniMergeAct = new QAction(tr("Merge as frames in a vertex ani"), this);
 	meshAniMergeAct->setStatusTip(tr("Merge these meshes, in their current order, as frames in a mesh ani"));
@@ -268,10 +271,15 @@ Selector::Selector(QWidget *parent)
   meshTuneColorAct->setStatusTip(tr("Then Hue Saturation and Brightness of per-vertex colors"));
 
   discardColAct = new QAction(tr("per-vertex color"), this);
+  discardColAct->setStatusTip(tr("Reset per-vertex coloring (i.e. turn all full-white)"));
   discardRigAct = new QAction(tr("rigging"), this);
+  discardRigAct->setStatusTip(tr("Remove rigging (per-verex bone attachments)"));
   discardTanAct = new QAction(tr("tangent directions"), this);
+  discardTanAct->setStatusTip(tr("Remove tangent directions (saves space, they are needed mainly for bumbmapping)"));
+  discardNorAct = new QAction(tr("normals"), this);
+  discardNorAct->setStatusTip(tr("Disregard normals, so to merge more vertices (and use less of them)"));
   discardAniAct = new QAction(tr("vertex animation"), this);
-  discardAniAct->setStatusTip(tr("Discard vertex animation (keeps only current frame)"));
+  discardAniAct->setStatusTip(tr("Discard vertex animation (keep only current frame)"));
   //exportAnyBrfAct = new QAction(tr("in a BRF"), this);
   //exportAnyBrfAct->setStatusTip(tr("Export this object in a BRF file."));
 
@@ -288,6 +296,7 @@ Selector::Selector(QWidget *parent)
 	connect(aniMirrorAct, SIGNAL(triggered()),parent,SLOT(aniMirror()));
 	connect(breakAniWithIniAct, SIGNAL(triggered()),this,SLOT(onBreakAniWithIni()));
   connect(meshRecolorAct,SIGNAL(triggered()),parent,SLOT(meshRecolor()));
+  connect(meshTellBoundingBoxAct,SIGNAL(triggered()),parent,SLOT(meshTellBoundingBox()));
   connect(meshTuneColorAct,SIGNAL(triggered()),parent,SLOT(meshTuneColor()));
   connect(meshComputeAoAct, SIGNAL(triggered()), parent, SLOT(meshComputeAo()));
   connect(meshComputeLodAct, SIGNAL(triggered()), parent, SLOT(meshComputeLod()));
@@ -332,6 +341,7 @@ Selector::Selector(QWidget *parent)
 
   connect(discardAniAct,SIGNAL(triggered()),parent,SLOT(meshDiscardAni()));
   connect(discardColAct,SIGNAL(triggered()),parent,SLOT(meshDiscardCol()));
+  connect(discardNorAct,SIGNAL(triggered()),parent,SLOT(meshDiscardNor()));
   connect(discardRigAct,SIGNAL(triggered()),parent,SLOT(meshDiscardRig()));
   connect(discardTanAct,SIGNAL(triggered()),parent,SLOT(meshDiscardTan()));
   connect(meshFreezeFrameAct,SIGNAL(triggered()),parent,SLOT(meshFreezeFrame()));
@@ -440,6 +450,35 @@ void Selector::updateData(const BrfData &data){
 
   setup(data);
 
+}
+
+
+void Selector::selectAll(){
+    int kind = currentTabName();
+    assert(kind>=0 && kind<N_TOKEN);
+    QListView* c=tab[kind];
+    TableModel* m = tableModel[kind];
+
+    if (c) {
+      QModelIndex li0 = m->pleaseCreateIndex(0,0);
+      QModelIndex li1 = m->pleaseCreateIndex(m->size()-1,0);
+      c->selectionModel()->select(QItemSelection(li0,li1), QItemSelectionModel::Select);
+    }
+    onChanged();
+}
+
+void Selector::invertSelection(){
+  int kind = currentTabName();
+  assert(kind>=0 && kind<N_TOKEN);
+  QListView* c=tab[kind];
+  TableModel* m = tableModel[kind];
+
+  if (c) {
+    QModelIndex li0 = m->pleaseCreateIndex(0,0);
+    QModelIndex li1 = m->pleaseCreateIndex(m->size()-1,0);
+    c->selectionModel()->select(QItemSelection(li0,li1), QItemSelectionModel::Toggle);
+  }
+  onChanged();
 }
 
 void Selector::selectOne(int kind, int i){
@@ -616,21 +655,22 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
 		 contextMenu->addSeparator(); sep=true;
 
      contextMenu->addAction(transformAct);
-		 contextMenu->addAction(flipAct);
-		 //contextMenu->addAction(scaleAct);
+     contextMenu->addAction(flipAct);
+     //contextMenu->addAction(scaleAct);
      contextMenu->addAction(meshRecomputeNormalsAndUnify);
      contextMenu->addAction(meshRecomputeTangentsAct);
      contextMenu->addAction(meshUnify);
-		 if (onesel)  {
-			 contextMenu->addAction(meshSubdivideIntoComponents);
-			 contextMenu->addAction(meshAniSplitAct);
-		 }
-		 if (!onesel) {
-			 contextMenu->addAction(meshMerge);
-			 contextMenu->addAction(meshAniMergeAct);
-		 }
-		 contextMenu->addAction(meshComputeLodAct);
-		 contextMenu->addAction(meshToBody);
+     if (onesel)  {
+         contextMenu->addAction(meshSubdivideIntoComponents);
+         contextMenu->addAction(meshAniSplitAct);
+     }
+     if (!onesel) {
+         contextMenu->addAction(meshMerge);
+         contextMenu->addAction(meshAniMergeAct);
+     }
+     contextMenu->addAction(meshComputeLodAct);
+     contextMenu->addAction(meshToBody);
+     contextMenu->addAction(meshTellBoundingBoxAct);
 
      QMenu *m = contextMenu->addMenu(tr("Backfacing faces"));
      m->addAction(meshRemoveBackfacing);
@@ -641,12 +681,14 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
      m->addAction(discardColAct);
      m->addAction(discardTanAct);
      m->addAction(discardAniAct);
+     m->addAction(discardNorAct);
      m->addAction(discardRigAct);
      m->addAction(meshFreezeFrameAct);
      discardRigAct->setEnabled(mulsel || mesh.isRigged);
      discardAniAct->setEnabled(mulsel || mesh.HasVertexAni());
      meshFreezeFrameAct->setEnabled(mulsel || mesh.isRigged);
      discardColAct->setEnabled(mulsel || mesh.hasVertexColor);
+     discardNorAct->setEnabled( true );
      discardTanAct->setEnabled(mulsel || mesh.HasTangentField());
 
      contextMenu->addSeparator();

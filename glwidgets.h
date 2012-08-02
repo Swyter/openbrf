@@ -202,6 +202,8 @@ public:
 		enum{MAXSEL=2000};
     bool selGroup[MAXSEL];
     int selIndex() const;
+    int readCustomShaders();
+
 
     int lastSkelAniFrameUsed;
 
@@ -233,7 +235,7 @@ private:
     float closingUp;
     QString renderedTexture;
     // fragment programs
-		enum { NM_PLAIN = 0, NM_ALPHA, NM_IRON, NM_SHINE, SHADER_IRON, SHADER_MODES, SHADER_FIXEDFUNC };
+        enum { NM_PLAIN = 0, NM_ALPHA, NM_IRON, NM_SHINE, SHADER_IRON, SHADER_MODES, SHADER_FIXEDFUNC , SHADER_CUSTOM };
 		//unsigned int
 		QGLShaderProgram* shaderProgram[SHADER_MODES][SHADER_MODES];
 		bool shaderTried[SHADER_MODES][SHADER_MODES];
@@ -244,6 +246,9 @@ private:
 		//void newShaderProgram(QGLShaderProgram& s, const QStirng prefix, const QStirng vs, const QStirng fs);
 
 		QGLShaderProgram* initFramPrograms(int mode, bool green);
+
+        QMap<QString, QGLShaderProgram*> customShaders;
+        QGLShaderProgram* currentCustomShader;
 
 
 };

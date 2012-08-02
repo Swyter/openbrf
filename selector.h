@@ -34,9 +34,13 @@ public:
   const IniData* iniData;
   bool iniDataWaitsSaving;
   int iniFileIndex;
-  void selectOne(int kind, int i);
+  void selectOne(int kind, int i);  
   QMenu *contextMenu;
 
+
+public slots:
+  void selectAll();
+  void invertSelection();
 
 private slots:
   void onChanged();
@@ -94,11 +98,11 @@ private:
     *meshComputeAoAct,
     *meshFemininizeAct,
     *meshComputeLodAct,
+    *meshTellBoundingBoxAct,
     *meshFreezeFrameAct,
 
-		*meshAniMergeAct,
-		*meshAniSplitAct,
-
+    *meshAniMergeAct,
+    *meshAniSplitAct,
 
     *renameAct,
     *removeAct,
@@ -106,6 +110,7 @@ private:
     *moveDownAct,
     *duplicateAct,
     *discardColAct,
+    *discardNorAct,
     *discardRigAct,
     *discardTanAct,
     *discardAniAct,

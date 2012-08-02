@@ -2,6 +2,7 @@
 
 #include <GL/glew.h>
 #include <QtGui>
+#include <QDomDocument>
 #include <QtOpenGL>
 #include <QGLShaderProgram>
 
@@ -486,34 +487,45 @@ void GLWidget::enableMaterial(const BrfMaterial &m){
 
   if (QString(m.spec)!="none") alphaShine = false;
 
+  currentCustomShader = NULL;
+  if (useOpenGL2) {
 
-  if (bumpmapActivated) {
+    BrfShader *bs = inidata.findShader( m.shader ) ;
+    if (bs!=NULL) {
+      if (customShaders.find( bs->technique ) != customShaders.end()) {
+          currentCustomShader  = customShaders[ bs->technique ];
+      }
+    }
+    if (currentCustomShader) {
 
-    if (useOpenGL2) {
+        currentCustomShader->bind();
+        currentCustomShader->setUniformValue("samplRgb",0);
+        currentCustomShader->setUniformValue("samplBump",1);
+        currentCustomShader->setUniformValue("samplSpec",2);
+        currentCustomShader->setUniformValue("spec_col",m.r,m.g,m.b);
+        currentCustomShader->setUniformValue("spec_exp",m.specular);
+
+        currentCustomShader->setUniformValue("usePerVertColor", (colorMode==0)?GLfloat(-1):GLfloat(1));
+        usingProgram = true;
+    }
+    else if (bumpmapActivated) {
 
       int w;
-			if (mapShine) w=NM_SHINE ; //prog = programNormalMap[w=NM_SHINE][bumpmapUsingGreen];
-			else if (alphaCutout) w=NM_ALPHA; // prog = programNormalMap[w=NM_ALPHA][bumpmapUsingGreen];
-			else if (alphaShine) w=NM_IRON; //prog = programNormalMap[w=NM_IRON][bumpmapUsingGreen];
-			else w=NM_PLAIN; //prog = programNormalMap[w=NM_PLAIN][bumpmapUsingGreen];
+      if (mapShine) w=NM_SHINE ; //prog = programNormalMap[w=NM_SHINE][bumpmapUsingGreen];
+      else if (alphaCutout) w=NM_ALPHA; // prog = programNormalMap[w=NM_ALPHA][bumpmapUsingGreen];
+      else if (alphaShine) w=NM_IRON; //prog = programNormalMap[w=NM_IRON][bumpmapUsingGreen];
+      else w=NM_PLAIN; //prog = programNormalMap[w=NM_PLAIN][bumpmapUsingGreen];
 
-
-			QGLShaderProgram* p = initFramPrograms(w, bumpmapUsingGreen);
-
-			if (p)  {
-				p->setUniformValue("usePerVertColor", (colorMode==0)?GLfloat(-1):GLfloat(1));
-				p->setUniformValue("spec_col",m.r,m.g,m.b);
-				p->setUniformValue("spec_exp",m.specular);
-				p->setUniformValue("samplRgb",0);
-				p->setUniformValue("samplBump",1);
-				p->setUniformValue("samplSpec",2);
-
-			}
-    }
-  } else {
-
-    if (useOpenGL2) {
-
+      QGLShaderProgram* p = initFramPrograms(w, bumpmapUsingGreen);
+      if (p)  {
+        p->setUniformValue("usePerVertColor", (colorMode==0)?GLfloat(-1):GLfloat(1));
+        p->setUniformValue("spec_col",m.r,m.g,m.b);
+        p->setUniformValue("spec_exp",m.specular);
+        p->setUniformValue("samplRgb",0);
+        p->setUniformValue("samplBump",1);
+        p->setUniformValue("samplSpec",2);
+      }
+    } else {
       // disable bump texture
       glActiveTexture(GL_TEXTURE1); glDisable(GL_TEXTURE_2D);
       glActiveTexture(GL_TEXTURE2); glDisable(GL_TEXTURE_2D);
@@ -526,14 +538,14 @@ void GLWidget::enableMaterial(const BrfMaterial &m){
         glLightfv(GL_LIGHT0,GL_SPECULAR, ones);
         glMateriali(GL_FRONT_AND_BACK,GL_SHININESS, (int)m.specular);
 
-				QGLShaderProgram* p = initFramPrograms(SHADER_IRON, false);
-
-				if (p) {
-					p->setUniformValue("spec_col",m.r,m.g,m.b);
-					p->setUniformValue("samplRgb",0);
-				}
+        QGLShaderProgram* p = initFramPrograms(SHADER_IRON, false);
+        if (p) {
+            p->setUniformValue("spec_col",m.r,m.g,m.b);
+            p->setUniformValue("samplRgb",0);
+        }
       }
-		}
+
+    }
 
 
   }
@@ -800,7 +812,7 @@ void GLWidget::setMaterialName(QString st){
       setDummyRgbTexture();
     }
 
-		lastUsedShader = SHADER_FIXEDFUNC;
+    lastUsedShader = SHADER_FIXEDFUNC;
     if (useOpenGL2 && inferMaterial && glMultiTexCoord3fv) {
       bool useN = useNormalmap && m->HasBump();
       bool useS = useSpecularmap && m->HasSpec();
@@ -921,6 +933,10 @@ void GLWidget::setSelection(const QModelIndexList &newsel, int k){
 
 QString GLWidget::getCurrentShaderDescriptor() const{
 	QString st =  (lastUsedShaderBumpgreen)?tr("\"green\" NM"):tr("\"blue\" NM");
+    if (currentCustomShader!=NULL) {
+
+        return QString(tr("Custom User Shader"));
+    } else
 	switch (lastUsedShader) {
 	case SHADER_FIXEDFUNC: return tr("Deafult (fixed functionality)");
 	case SHADER_IRON: return tr("Alpha to Shininess");
@@ -933,6 +949,10 @@ QString GLWidget::getCurrentShaderDescriptor() const{
 }
 QString GLWidget::getCurrentShaderLog() const{
 
+    if (currentCustomShader!=NULL) {
+        QString res = currentCustomShader->log();
+        return res.replace("\n","<br />");
+    } else
 	switch (lastUsedShader) {
 	case SHADER_FIXEDFUNC: return "";
 	default: return shaderLog[lastUsedShader][lastUsedShaderBumpgreen] ;
@@ -1009,6 +1029,8 @@ GLWidget::GLWidget(QWidget *parent, IniData &_inidata)
   connect(timer, SIGNAL(timeout()), this, SLOT(onTimer()));
 
   tw=th=1;
+  currentCustomShader = NULL;
+
 }
 
 GLWidget::~GLWidget()
@@ -1131,12 +1153,102 @@ QSize GLWidget::sizeHint() const
 }
 
 
+int GLWidget::readCustomShaders(){
+
+
+  //WIP:
+
+  customShaders.clear();
+
+  QDomDocument doc( "CustomPreviewShaders" );
+
+  QString filename("customPreviewShaders.xml");
+  QFile file( filename );
+  if( !file.open( QIODevice::ReadOnly ) ) {
+      //QMessageBox::information( this, QString("test"),QString("FILE NOT FOUND"));
+      return -1;
+  }
+  if( !doc.setContent( &file ) ) { file.close();
+      QMessageBox::information( this, QString("openBRF"),tr("Error parsing %1:\n\nmaybe the problem is that a shader uses the sign (<) or (>) or (&)?\n\n(it's xml: must use &lt; or &gt; or &amp; instead!)").arg(filename));
+      return -2; }
+  file.close();
+
+  QDomElement root = doc.documentElement();
+
+  QDomNode n = root.firstChild();
+
+  while( !n.isNull() ){
+    QDomElement e = n.toElement();
+    if ( e.isNull() ) continue;
+
+    if( e.tagName() == "previewShader" ) {
+        QDomNode n1 = n.firstChild();
+        QString tech="(default)",vert,frag;
+
+        while( !n1.isNull() ){
+            QDomElement e1 = n1.toElement();
+
+
+            if ( e1.isNull() ) continue;
+
+            if ( e1.tagName() == "techniques" ) tech = e1.text();
+            else if ( e1.tagName() == "vertexProgram" ) vert = e1.text();
+            else if ( e1.tagName() == "fragmentProgram" ) frag = e1.text();
+            else {
+                QMessageBox::information( this, "OpenBRF",
+                  QString("Unknown tag in customShader file:\n%1\n").arg(e1.tagName())
+                );
+                return -1;
+            }
+            n1 = n1.nextSibling();
+
+        }
+        n = n.nextSibling();
+
+        QGLShaderProgram *s = new QGLShaderProgram();
+
+        QStringList techList = tech.split(",",QString::SkipEmptyParts );
+
+        bool ok = false;
+        if (s->addShaderFromSourceCode(QGLShader::Vertex,vert))
+        if (s->addShaderFromSourceCode(QGLShader::Fragment,frag))
+        if (s->link()) {
+            for (int i=0; i<techList.size(); i++) {
+                customShaders[techList[i].trimmed() ] = s;
+                //qDebug("Adding '%s'...",techList[i].trimmed().toAscii().data());
+            }
+            ok = true;
+        }
+        if (!ok)
+            QMessageBox::warning( this, "OpenBRF",
+              QString("Error reading custom shader:\n%1\n").arg(s->log())
+            );
+
+
+
+
+        /*QMessageBox::information(
+          this, QString("test"),
+          QString("Techniques:\n%1\n\nvert:\n%2\n\nfrag:\n%3\n").arg(tech).arg(vert).arg(frag)
+        );*/
+    }
+
+
+  }
+
+  return 1;
+
+}
+
 void GLWidget::initOpenGL2(){
   if (openGL2ready) return;
   glewInit();
 	//initFramPrograms();
 	qDebug("Init glew!");
   openGL2ready = true;
+
+  readCustomShaders();
+
 }
 
 void GLWidget::initializeGL()

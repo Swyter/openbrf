@@ -5,7 +5,7 @@
 
 #include <QtGui>
 
-const char* applVersion = "0.0.68";
+const char* applVersion = "0.0.69b";
 QString IniData::tokenFullName(int k){
 
   switch (k){
@@ -75,7 +75,7 @@ void MainWindow::about()
                    "[octoburn], [pagan], [Percus], [qlithe], [Rath0s], [RATMdude92], [Red River], "
 									 "[rgcotl], [Romainoir], [Septa Scarabae], [Sayd Ûthman], [Silesian], [Shik], "
                                      "[Silver Wolf], [Somebody], [SonKidd], [Spak], [Specialist], [Stefano], [Sunnetci_Dede], [Swyter], "
-                   "[Triglav], [Tul], [Ursca], [Vlejundo], [Vornne], [WilliamBerne], "
+                   "[Triglav], [Tul], [Ursca], [Vincenzo], [Vlejundo], [Vornne], [WilliamBerne], "
                    "[yellowmosquito], [Yoshiboy], [xenoargh]")
               .arg("<br>[amade], [Swyter]!")
               .arg(QString("<br> [foxyman] <i>(%1)</i><br>"
