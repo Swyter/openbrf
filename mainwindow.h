@@ -19,24 +19,25 @@ public:
     ~MainWindow();
 
     BrfData brfdata;
+    BrfData reference;
 
  private slots:
     //void newFile();
     void open();
-    //void save();
-    //void saveAs();
+    void save();
+    void saveAs();
     void openRecentFile();
     void about();
 
 private:
     GLWidget *glWidget;
     Selector *selector;
-    QString saveLoadPath;
+    QSettings *settings;
 
     void createActions();
     void createMenus();
     void loadFile(const QString &fileName);
-    //void saveFile(const QString &fileName);
+    void saveFile(const QString &fileName);
     void setCurrentFile(const QString &fileName);
     void updateRecentFileActions();
     QString strippedName(const QString &fullFileName);
@@ -47,8 +48,8 @@ private:
     QMenu *helpMenu;
     QMenu *recentFilesMenu;
     QAction *openAct;
-    //QAction *saveAct;
-    //QAction *saveAsAct;
+    QAction *saveAct;
+    QAction *saveAsAct;
     QAction *exitAct;
     QAction *aboutAct;
     //QAction *aboutQtAct;

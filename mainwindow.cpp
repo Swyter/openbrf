@@ -10,16 +10,24 @@ MainWindow::MainWindow(QWidget *parent)
     :QMainWindow(parent)
    // : QWidget(parent)//, ui(new Ui::MainWindow)
 {
+
+    settings = new QSettings("mtarini", "OpenBRF");
+
     printf("LET'S GO...\n");
 
     glWidget = new GLWidget;
     selector = new Selector(this);
 
+    /*
     connect(selector,SIGNAL(selectionChanged(QItemSelection, QItemSelection)),
             glWidget,SLOT(selectionChanged(QItemSelection, QItemSelection)));
 
+
     connect(selector, SIGNAL(tabChanged(int)),
             glWidget, SLOT(tabChanged(int)) );
+            */
+    connect( selector,SIGNAL(setSelection(QModelIndexList,int)) ,
+             glWidget,  SLOT(setSelection(QModelIndexList,int)) );
 
     //selector->glw = glWidget;
 
@@ -27,19 +35,14 @@ MainWindow::MainWindow(QWidget *parent)
 
     QHBoxLayout *mainLayout = new QHBoxLayout;
 
-    saveLoadPath = tr("C:\\games\\Mount&Blade1011\\CommonRes");
-    //FILE* f = fopen("C:\\games\\Mount&Blade1011\\CommonRes\\helmets_b.brf","rb");
-    //FILE* f = fopen("C:\\games\\Mount&Blade1011\\CommonRes\\core_shaders.brf","rb");
-    //if (!f) return;
-    //BrfData brfdata;
-    //brfdata.Load(f);
-    //selector->setup(brfdata);
-
     QWidget* main = new QWidget();
     mainLayout->addWidget(selector);
     mainLayout->addWidget(glWidget);
     main->setLayout(mainLayout);
 
+    //reference.Load("skeletons.brf",0,SKELETON);
+    //reference.Merge(  BrfData("horse_skeleton.brf",0,SKELETON) );
+    reference.Load("reference.brf");
 
     setCentralWidget(main);
 
@@ -50,6 +53,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     glWidget->selected=1;
     glWidget->data = &brfdata;
+    glWidget->reference = &reference;
 
     this->setAcceptDrops(true);
 
@@ -69,7 +73,7 @@ void MainWindow::about()
 {
 
    QMessageBox::about(this, tr("Open-Brf"),
-            tr("<b>ver 0.0.1 pre-pre-alpha</b><br>"
+            tr("<b>ver 0.0.3 pre-alpha</b><br>"
                "(%1)<br>"
                "by mtarini --- Marco Tarini ").arg(__DATE__) );
 }
@@ -99,8 +103,8 @@ void MainWindow::createMenus()
     fileMenu = menuBar()->addMenu(tr("&File"));
     //fileMenu->addAction(newAct);
     fileMenu->addAction(openAct);
-    //fileMenu->addAction(saveAct);
-    //fileMenu->addAction(saveAsAct);
+    fileMenu->addAction(saveAct);
+    fileMenu->addAction(saveAsAct);
     separatorAct = fileMenu->addSeparator();
     for (int i = 0; i < MaxRecentFiles; ++i)
         fileMenu->addAction(recentFileActs[i]);
@@ -117,30 +121,65 @@ void MainWindow::createMenus()
 
 void MainWindow::loadFile(const QString &fileName)
 {
-
+  setCurrentFile(fileName);
   if (!brfdata.Load(fileName.toAscii().data())) {
         QMessageBox::information(this, tr("Open BRF"),
                                  tr("Cannot load %1.").arg(fileName));
-        return;
-  } else  {
+
+  }   {
     selector->setup(brfdata);
-    glWidget->selectNone();
-    setCurrentFile(fileName);
-    statusBar()->showMessage(tr("File loaded"), 2000);
+    //glWidget->selectNone();
+    selector->setCurrentIndex(100); // for some reason, if I set the 0 message is not sent
+
+    //setCurrentFile(fileName);
+    statusBar()->showMessage(tr("File loaded!"), 2000);
   }
 }
 
+void MainWindow::saveFile(const QString &fileName)
+{
+  setCurrentFile(fileName);
+  if (!brfdata.Save(fileName.toAscii().data())) {
+        QMessageBox::information(this, tr("Open BRF"),
+                                 tr("Cannot write file %1.").arg(fileName));
+
+  }
+  statusBar()->showMessage(tr("File saved!"), 2000);
+}
+
+
 void MainWindow::open()
 {
-    QSettings settings("mtarini", "OpenBRF");
     QString fileName = QFileDialog::getOpenFileName(
         this,
         tr("Open File") ,
-        settings.value("LastOpenPath").toString()
+        settings->value("LastOpenPath").toString(),
+        tr("Resource (*.brf)")
      );
        // QDir::currentPath());
 
     if (!fileName.isEmpty()) loadFile(fileName);
+}
+
+void MainWindow::save()
+{
+    if (curFile.isEmpty())
+        saveAs();
+    else
+        saveFile(curFile);
+}
+
+void MainWindow::saveAs()
+{
+    QString fileName = QFileDialog::getSaveFileName(this,
+         tr("Open File") ,
+        settings->value("LastOpenPath").toString(),
+        tr("Resource (*.brf)")
+    );
+    if (fileName.isEmpty())
+        return;
+
+    saveFile(fileName);
 }
 
 void MainWindow::setCurrentFile(const QString &fileName)
@@ -152,15 +191,14 @@ void MainWindow::setCurrentFile(const QString &fileName)
         setWindowTitle(tr("%2 - %1").arg(curFile)
                                     .arg(tr("OpenBrf")));
 
-    QSettings settings("mtarini", "OpenBRF");
-    QStringList files = settings.value("recentFileList").toStringList();
+    QStringList files = settings->value("recentFileList").toStringList();
     files.removeAll(fileName);
     files.prepend(fileName);
     while (files.size() > MaxRecentFiles)
         files.removeLast();
 
-    settings.setValue("recentFileList", files);
-    settings.setValue("lastOpenPath",QFileInfo(fileName).absolutePath());
+    settings->setValue("recentFileList", files);
+    settings->setValue("lastOpenPath",QFileInfo(fileName).absolutePath());
 
     foreach (QWidget *widget, QApplication::topLevelWidgets()) {
         MainWindow *mainWin = qobject_cast<MainWindow *>(widget);
@@ -187,15 +225,15 @@ void MainWindow::createActions()
     openAct->setStatusTip(tr("Open an existing file"));
     connect(openAct, SIGNAL(triggered()), this, SLOT(open()));
 
-    //saveAct = new QAction(tr("&Save"), this);
-    //saveAct->setShortcuts(QKeySequence::Save);
-    //saveAct->setStatusTip(tr("Save the document to disk"));
-    //connect(saveAct, SIGNAL(triggered()), this, SLOT(save()));
+    saveAct = new QAction(tr("&Save"), this);
+    saveAct->setShortcuts(QKeySequence::Save);
+    saveAct->setStatusTip(tr("Save the document to disk"));
+    connect(saveAct, SIGNAL(triggered()), this, SLOT(save()));
 
-    //saveAsAct = new QAction(tr("Save &As..."), this);
-    //saveAsAct->setShortcuts(QKeySequence::SaveAs);
-    //saveAsAct->setStatusTip(tr("Save the document under a new name"));
-    //connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveAs()));
+    saveAsAct = new QAction(tr("Save &As..."), this);
+    saveAsAct->setShortcuts(QKeySequence::SaveAs);
+    saveAsAct->setStatusTip(tr("Save the document under a new name"));
+    connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveAs()));
 
     for (int i = 0; i < MaxRecentFiles; ++i) {
         recentFileActs[i] = new QAction(this);
@@ -228,8 +266,7 @@ void MainWindow::openRecentFile()
 
 void MainWindow::updateRecentFileActions()
 {
-    QSettings settings("mtarini", "OpenBRF");
-    QStringList files = settings.value("recentFileList").toStringList();
+    QStringList files = settings->value("recentFileList").toStringList();
 
     int numRecentFiles = qMin(files.size(), (int)MaxRecentFiles);
 

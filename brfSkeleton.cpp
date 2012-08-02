@@ -9,10 +9,10 @@ using namespace vcg;
 #include "saveLoad.h"
 
 BrfSkeleton::BrfSkeleton()
-{
+{}
 
-
-}
+BrfBone::BrfBone()
+{}
 
 bool BrfBone::Load(FILE*f, int verbose){
   LoadInt(f, attach);
@@ -25,6 +25,18 @@ bool BrfBone::Load(FILE*f, int verbose){
   LoadPoint(f,t);
 
   return true;
+}
+
+void BrfBone::Save(FILE*f) const{
+  SaveInt(f, attach);
+  SaveString(f, name);
+  SaveInt(f, b);
+
+  SavePoint(f,x);
+  SavePoint(f,z);
+  SavePoint(f,y);
+  SavePoint(f,t);
+
 }
 
 void BrfBone::Export(FILE*f){
@@ -65,20 +77,21 @@ void BrfSkeleton::Export(char* fn){
   fclose(f);
 }
 
+void BrfSkeleton::Save(FILE*f) const{
+  SaveString(f, name);
+  SaveVector(f,bone);
+}
+
 bool BrfSkeleton::Load(FILE*f, int verbose){
   LoadString(f, name);
   if (verbose>0) printf("loading \"%s\"...\n",name);
-  int k;
-  LoadInt(f , k);
-  for (int i=0; i<k; i++) {
-    BrfBone b(f,verbose);
-    bone.push_back(b);
-  }
+
+  LoadVector(f,bone);
 
   BuildTree();
-  Export("tmp.txt");
+  //Export("tmp.txt");
   float h=1.0;
-  bbox.Add( vcg::Point3f(h,h,h));
+  bbox.Add( vcg::Point3f(h,2*h,h));
   bbox.Add(-vcg::Point3f(h,0,h));
   return true;
 }

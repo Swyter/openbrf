@@ -6,13 +6,20 @@
 
 class BrfVert{
 public:
+  BrfVert();
   int index;
   unsigned int col;
-  Point3f n;
+  Point3f __norm; // use normal inside frame instead
   Point2f ta,tb; // texture
   
   BrfVert operator + (const int i) const {BrfVert res = *this; res.index += i; return res;}
+  bool Load(FILE*f,int verbose=1);
+  void Save(FILE*f) const;
+
+
 };
+
+
 
 class BrfFace{
 public:
@@ -24,15 +31,27 @@ public:
     res.index[0] += i; res.index[1] += i; res.index[2] += i; return res;}
   
   void Flip() { int tmp=index[1]; index[1]=index[2]; index[2]=tmp;}
+  bool Load(FILE*f,int verbose=1);
+  void Save(FILE*f) const;
+};
+
+class BrfRigging{
+public:
+  BrfRigging();
+  // rigging
+  int boneIndex[4];
+  float boneWeight[4];
+  void SetColorGl() const;
 };
 
 class BrfFrame{
 public:
   int time;
   vector<Point3f> pos;
-  vector<Point3f> myster; // solved. it is the x frame normals
+  vector<Point3f> norm;
    // must be as many as the number of vertices!!!
-  void Load(FILE*f, int verbose);
+  bool Load(FILE*f, int verbose);
+  void Save(FILE*f) const;
   void LoadV1(FILE*f, int verbose);
   
   BrfFrame Average(BrfFrame& b, float t);
@@ -45,13 +64,16 @@ public:
 
 class BrfMesh{
 private:
-  
+
+
 public:
   int GetFirstSelected(int after=-1) const;
   
   // adds a rope from avg selected pos to To.AvgSelPos
   void AddRope(const BrfMesh &to, int nseg, float width);
   
+  vector<BrfRigging> rigging; // one per pos
+
   void DiminishAni(float t);
   void DiminishAniSelected(float t);
   BrfMesh(){}
@@ -70,13 +92,15 @@ public:
   vector<BrfFace> face;
 
   Box3f bbox;
+
+  bool isRigged; // for convenience
   void UpdateBBox();
  
   // sanity check
   bool CheckAssert() const;
   
-  void Load(FILE*f,int verbose=1);
-  void Save(FILE*f,int verbose=1) const;
+  bool Load(FILE*f,int verbose=1);
+  void Save(FILE*f) const;
   bool SaveAsPly(int nframe=0, char* path="") const;
   
   void Bend(int frame, float range); // bends as if on a cylinder

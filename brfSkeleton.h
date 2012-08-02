@@ -18,6 +18,7 @@ public:
   // 56 bytes of data.... 3x4 matrix, 12 floats + int + int?
   int attach,b;
   bool Load(FILE*f,int verbose=1);
+  void Save(FILE*f) const;
   void Export(FILE*f);
 
   float* fullMatrix() const;
@@ -32,10 +33,10 @@ public:
   char name[255];
   unsigned int flags;
   bool Load(FILE*f,int verbose=1);
-  bool Save(FILE*f,int verbose=1) const;
-  std::vector<BrfBone> bone;
+  void Save(FILE*f) const;
   void Export(char *f);
 
+  std::vector<BrfBone> bone;
   int root;
   void BuildTree();
   void Render(int bone, int lvl) const;

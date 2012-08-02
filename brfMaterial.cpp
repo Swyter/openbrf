@@ -1,4 +1,5 @@
 #include <vector>
+#include <vcg/space/point4.h>
 #include <vcg/space/point3.h>
 #include <vcg/space/point2.h>
 using namespace vcg;
@@ -27,4 +28,19 @@ bool BrfMaterial::Load(FILE*f, int verbose){
   LoadFloat(f,g);
   LoadFloat(f,b);
   return true;
+}
+
+void BrfMaterial::Save(FILE*f) const{
+  SaveString(f, name);
+  SaveUint(f , flags);
+  SaveString(f, shader);
+  SaveString(f, diffuseA);
+  SaveString(f, diffuseB);
+  SaveString(f, bump);
+  SaveString(f, enviro);
+  SaveString(f, spec);
+  SaveUint(f,specular);
+  SaveFloat(f,r);
+  SaveFloat(f,g);
+  SaveFloat(f,b);
 }

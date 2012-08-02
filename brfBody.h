@@ -7,8 +7,32 @@
 
 class BrfBodyPart{
 public:
-  bool Load(FILE*f,int verbose=1);
-  enum {manifold, face, sphere, } type;
+  bool Load(FILE*f,char* firstWord=NULL, int verbose=1);
+  void Save(FILE*f) const;
+  typedef enum {MANIFOLD, FACE, CAPSULE, SPHERE, N_TYPE } Type;
+  Type type;
+  static char* typeName[N_TYPE];
+
+  // for manyfolds
+  std::vector<vcg::Point3f> pos;
+  std::vector< std::vector<int> > face;
+
+
+  // for capsule / spheres
+  Point3f center;
+  float radius;
+
+  Point3f dir; // for capsule
+
+
+  // for faces: four pos
+  unsigned int flags; // for faces, capsules, spheres only
+
+  Box3f bbox;
+  void Render() const;
+private:
+  void UpdateBBox();
+  float* GetRotMatrix() const; // rotation matrix for capsules
 };
 
 class BrfBody
@@ -18,12 +42,10 @@ public:
 
   static int tokenIndex(){return BODY;}
   char name[255];
-  char manifoldName[255];
-  bool Load(FILE*f,int verbose=1);
-  bool Save(FILE*f,int verbose=1) const;
+  bool Load(FILE*f, int verbose=1);
+  void Save(FILE*f) const;
 
-  std::vector<vcg::Point3f> pos;
-  std::vector< std::vector<int> > face;
+  std::vector<BrfBodyPart> part;
 
   void Render() const;
   Box3f bbox;
