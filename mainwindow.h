@@ -24,6 +24,7 @@ public:
     ~MainWindow();
 
     int GetFirstUnusedRefLetter() const;
+    bool loadFile(const QString &fileName);
 private:
     BrfData brfdata;
     BrfData reference;
@@ -36,6 +37,7 @@ private:
 
  private slots:
 
+    void notifyCheckboardChanged();
     void notifyDataChanged();
     bool setEditingRef(bool mode);
 
@@ -50,11 +52,19 @@ private:
     void registerExtension();
 
     void about();
+    void aboutCheckboard();
     void breakAni(int which, bool useIni);
+    void shiftAni();
     void reskeletonize();
+    void transferRigging();
+    void flip();
+    void scale();
+    void transform();
     void onChangeMeshMaterial(QString newName);
     void onChangeFlags(QString flags); // of any object
     void onChangeTimeOfFrame(QString flags);
+
+    void setSelection(const QModelIndexList &l,int);
 
     void updateDataMaterial();
     void updateDataShader();
@@ -64,8 +74,9 @@ private:
     void updateTextureAccessDel();
     void updateTextureAccessAdd();
 
-    bool exportBrf();
+    //bool exportBrf();
     bool exportCollisionBody();
+    bool exportMeshGroup();
     bool exportStaticMesh();
     bool importStaticMesh();
     bool exportRiggedMesh();
@@ -98,8 +109,14 @@ private:
     void editCutFrame();
     void editCopyFrame();
     void editPasteFrame();
+    void editPasteRigging();
+    void meshRecomputeNormalsAndUnify(int crease);
     void meshRecomputeNormalsAndUnify();
     void meshUnify();
+    void meshMerge();
+    void meshMountOnBone();
+    void meshRemoveBack();
+    void meshAddBack();
 
     void setFlagsMaterial();
 
@@ -109,6 +126,17 @@ private:
     bool navigateDown();
     bool searchBrf();
     bool refreshIni();
+    bool checkIni();
+    bool searchIni();
+    void optionAutoFixTextureUpdated();
+    void optionAutoFixTextureShowInfo();
+
+    void mab2tld();
+    void tld2mab();
+    void tldHead(float verse);
+
+public slots:
+    void displayInfo(QString st, int howlong);
 
 private:
     //std::map< std::string, std::string > mapMT;// map material to textures
@@ -120,9 +148,10 @@ private:
     void guessPaths(QString fn);
     void updatePaths();
     bool loadIni();
-    QString defpathTexture;
     QString mabPath;
     QString modName;
+    QString modPath() const;
+    QString lastSearchString;
 
     bool scanBrfForMaterials(const QString fname);
     bool scanIniForMaterials(const QString fname);
@@ -131,20 +160,23 @@ private:
 
     void createActions();
     void createMenus();
-    bool loadFile(const QString &fileName);
+    void createMiniViewOptions();
+    void createConnections();
     bool saveFile(const QString &fileName);
     bool saveReference();
     void setCurrentFile(const QString &fileName);
     void updateRecentFileActions();
     QString askExportFilename(QString, QString ext );
     QString askImportFilename(QString ext);
-    QPair<int, int>  askRefBoneInt(); // ask user to specify a skel and bone
+    QStringList askImportFilenames(QString ext);
+    QPair<int, int>  askRefBoneInt(bool sayNotRigged); // ask user to specify a skel and bone
     QPair<int, int>  askRefSkel(int nbones, bool &asAFrame); // ask user to specify two skel
     int askRefSkin(); //  ask user to specify a skin
     int currentDisplaySkin(); // returns skin currently used as display
     int currentDisplaySkeleton(); // returns skeleton currently used as display
     int currentDisplayFrame(); // return v.a. frame currently used as dispalu
     int gimmeASkeleton(int nbones); // returns index of a skeleton with n bones. Maybe asks for one if more than one.
+    void cancelNavStack();
     void insert(const BrfMesh &m);
     void insert(const BrfSkeleton &s);
     void insert(const BrfAnimation &a);
@@ -173,6 +205,8 @@ private:
     QString curFileBackup;
     int curFileIndex; // in module.ini, or -1
 
+    QWidget *comboViewmodeSelector;
+    QButtonGroup *comboViewmodeBG;
     QMenu *fileMenu;
     QMenu *helpMenu;
     QMenu *recentFilesMenu;
@@ -182,13 +216,14 @@ private:
     QAction *saveAct;
     QAction *saveAsAct;
     QAction *exitAct;
+    QAction *aboutCheckboardAct;
     QAction *aboutAct;
     QAction *editRefAct;
     QAction *separatorAct;
     QAction *editCutAct;
     QAction *editCopyAct;
     QAction *editPasteAct;
-
+    QAction *editPasteRiggingAct;
     QAction *editCutFrameAct;
     QAction *editCopyFrameAct;
     QAction *editPasteFrameAct;
@@ -200,7 +235,14 @@ private:
     QAction *navigateDownAct;
     QAction *refreshIniAct;
 
-    Pair navigationStack[3];
+    QAction *mab2tldAct;
+    QAction *tld2mabAct;
+
+    QAction *checkIniAct;
+    QAction *searchIniAct;
+
+    QPair<Pair , QString > navigationStack[3];
+
     int navigationStackPos;
 
     QAction *optionAfterMeshLoadMerge;
@@ -208,6 +250,11 @@ private:
     QAction *optionAfterMeshLoadNothing;
     QAction *optionAssembleAniMatchVert;
     QAction *optionAssembleAniMatchTc;
+    QAction *optionAutoFixTextureOn;
+    QAction *optionAutoFixTextureOff;
+    QAction *optionAutoFixTextureInfo;
+    QAction *optionAutoZoomUseGlobal;
+    QAction *optionAutoZoomUseSelected;
 
     QAction
       *importStaticMeshAct,
@@ -216,6 +263,7 @@ private:
       *importSkeletonAct,
       *importAnimationAct,
       *importBodyAct,
+      *importBrfAct,
       *addNewMaterialAct,
       *addNewShaderAct,
       *addNewTextureAct;
@@ -234,7 +282,8 @@ private:
 
     QLabel* modStatus; // widget in status bar
 
-    bool _importStaticMesh(QString s, BrfMesh &m);
+    bool easterTLD; // if true, use easteregg
+    bool _importStaticMesh(QString s, vector<BrfMesh> &m, vector<bool> &wasMultiple);
 
 };
 

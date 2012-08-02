@@ -16,7 +16,7 @@ BrfTexture::BrfTexture()
 }
 
 bool BrfTexture::Load(FILE*f, int verbose){
-  LoadString(f, name);
+  if (!LoadString(f, name)) return false;
   if (verbose>0) printf("loading \"%s\"...\n",name);
   LoadUint(f , flags);
   return true;

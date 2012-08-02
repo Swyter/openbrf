@@ -96,7 +96,7 @@
     </font>
    </property>
    <property name="text">
-    <string>This object is not rigged:</string>
+    <string>This mesh is not rigged:</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_4">
@@ -114,7 +114,7 @@
     </font>
    </property>
    <property name="text">
-    <string>Select a skeleton and a bone to attach it to.</string>
+    <string>Select a skeleton and a bone to attach this mesh to.</string>
    </property>
   </widget>
  </widget>

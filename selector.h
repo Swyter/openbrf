@@ -19,6 +19,7 @@ public:
   void updateData(const BrfData &data);
   int currentTabName() const;
   int firstSelected() const;
+  int lastSelected() const;
   int numSelected() const;
   int onlySelected(int kind) const; // return index of only selected object of given kind or -1
   QModelIndexList selectedList() const;
@@ -41,6 +42,8 @@ private slots:
   void addToRefMeshH();
   void addToRefMeshI();
   void addToRefMeshJ();
+  void goNextTab();
+  void goPrevTab();
 
 signals:
   void setSelection(const QModelIndexList & newSel, int newToken);
@@ -54,12 +57,18 @@ private:
   TableModel * tableModel[N_TOKEN];
   void contextMenuEvent(QContextMenuEvent *event);
   QAction
+    *goNextTabAct,
+    *goPrevTabAct,
 
      // tools
     *breakAniAct,
     *breakAniWithIniAct,
     *meshRecomputeNormalsAndUnify,
     *meshUnify,
+    *meshMerge,
+    *meshMountOnBone,
+    *meshRemoveBackfacing,
+    *meshAddBackfacing,
 
     *renameAct,
     *removeAct,
@@ -67,11 +76,13 @@ private:
     *moveDownAct,
     *duplicateAct,
 
+
     // exporter acts
     *exportImportMeshInfoAct,
     *exportStaticMeshAct,
     *exportRiggedMeshAct,
     *exportMovingMeshAct,
+    *exportMeshGroupAct,
     *exportSkeletonModAct,
     *exportSkeletonAct,
     *exportSkinAct,
@@ -80,6 +91,12 @@ private:
     *exportBodyAct,
 
     *reskeletonizeAct,
+    *transferRiggingAct,
+    *flipAct,
+    *transformAct,
+    *scaleAct,
+    *shiftAniAct,
+
 
     // importer acts
     *importSkeletonModAct,

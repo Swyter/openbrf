@@ -29,14 +29,14 @@ void BrfMaterial::SetDefault(){
 
 bool BrfMaterial::Skip(FILE*f
                        ){
-  LoadString(f, name);
+  if (!LoadString(f, name)) return false;
   ::Skip<int>(f);
 
-  LoadString(f, shader);
-  LoadString(f, diffuseA);
-  LoadString(f, diffuseB);
-  LoadString(f, bump);
-  LoadString(f, enviro);
+  if (!LoadString(f, shader)) return false;
+  if (!LoadString(f, diffuseA)) return false;
+  if (!LoadString(f, diffuseB)) return false;
+  if (!LoadString(f, bump)) return false;
+  if (!LoadString(f, enviro)) return false;
   LoadStringMaybe(f, spec,"none");
   ::Skip(f,16);
 
@@ -45,7 +45,7 @@ bool BrfMaterial::Skip(FILE*f
 
 
 bool BrfMaterial::Load(FILE*f, int verbose){
-  LoadString(f, name);
+  if (!LoadString(f, name)) return false;
   //if (verbose>0) printf("loading \"%s\"...\n",name);
   LoadUint(f , flags);
 
@@ -55,11 +55,11 @@ bool BrfMaterial::Load(FILE*f, int verbose){
   assert(renderOrder>=-8 && renderOrder<=7);
   flags &=0xF0FFFFFF;
 
-  LoadString(f, shader);
-  LoadString(f, diffuseA);
-  LoadString(f, diffuseB);
-  LoadString(f, bump);
-  LoadString(f, enviro);
+  if (!LoadString(f, shader)) return false;
+  if (!LoadString(f, diffuseA)) return false;
+  if (!LoadString(f, diffuseB)) return false;
+  if (!LoadString(f, bump)) return false;
+  if (!LoadString(f, enviro)) return false;
   LoadStringMaybe(f, spec,"none");
   LoadFloat(f,specular);
   LoadFloat(f,r);

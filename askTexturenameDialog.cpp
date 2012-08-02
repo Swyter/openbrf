@@ -18,8 +18,13 @@ bool AskTexturenameDialog::alsoAdd(){
   return lastAlsoAdd=m_ui->checkBox->isChecked();
 }
 
-QString AskTexturenameDialog::getRes() const{
-  return m_ui->lineEdit->text();
+QStringList AskTexturenameDialog::getRes() const{
+  QStringList res;
+  res =  m_ui->lineEdit->text().split(",", QString::SkipEmptyParts);
+  for (int i=0; i<res.size(); i++){
+    res[i] = res[i].trimmed().replace("\"","");
+  }
+  return res;
 }
 
 AskTexturenameDialog::~AskTexturenameDialog()
@@ -52,12 +57,17 @@ void AskTexturenameDialog::changeEvent(QEvent *e)
 
 void AskTexturenameDialog::on_pushButton_clicked()
 {
-  QString fileName =QFileDialog::getOpenFileName(
+  QStringList fileName =QFileDialog::getOpenFileNames(
     this,
     tr("Select a texture file") ,
     path,
     QString("Direct Draw Texture (*.dds)")
   );
-  if (!fileName.isEmpty())
-    m_ui->lineEdit->setText( QFileInfo(fileName).baseName() );
+
+  if (!fileName.isEmpty()) {
+    for (int j=0; j<fileName.size(); j++) {
+      fileName[j] = QString("\"%1\"").arg(QFileInfo(fileName[j]).baseName());
+    }
+    m_ui->lineEdit->setText(fileName.join(", ") );
+  }
 }

@@ -16,7 +16,7 @@ public:
     void setDef(QString s);
     void setLabel(QString s);
     void setBrowsable(QString s);
-    QString getRes() const;
+    QStringList getRes() const;
     bool alsoAdd();
 protected:
     QString path;

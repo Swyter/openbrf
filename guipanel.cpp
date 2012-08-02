@@ -14,6 +14,7 @@ static void alignY(QWidget *a, const QWidget *b){
   a->setGeometry(ar);
 }
 
+
 class BodyPartModel : public QAbstractListModel{
 public:
   BodyPartModel(QObject *parent)
@@ -102,8 +103,6 @@ void GuiPanel::setIniData(const IniData &inidata){
 
   QCompleter *e = new QCompleter( inidata.namelist[MATERIAL] );
   ui->boxMaterial->setCompleter(e);
-
-
 }
 
 QLineEdit* GuiPanel::materialLeFocus(){
@@ -116,6 +115,33 @@ QLineEdit* GuiPanel::materialLeFocus(){
   case ENVIRO: return ui->leMatEnv;
   }
   return NULL;
+}
+
+void GuiPanel::setTextureData(DdsData d){
+  if (displaying==TEXTURE) {
+
+
+    //if (_selectedIndex<0) {
+    //  // multiple sel
+    //} else
+    {
+      ui->boxTextureFileSize->display(d.filesize/1024);
+      ui->boxTextureMipmap->display(d.mipmap);
+      ui->boxTextureResX->display(d.sx);
+      ui->boxTextureResY->display(d.sy);
+
+      switch (d.ddxversion) {
+        case 1: ui->boxTextureFormat->setText("DXT 1 (1bit alpha)"); break;
+        case 3: ui->boxTextureFormat->setText("DXT 3 (sharp alpha)"); break;
+        case 5: ui->boxTextureFormat->setText("DXT 5 (smooth alpha)"); break;
+        default: ui->boxTextureFormat->setText("Unknown"); break;
+      }
+    }
+    /*
+    ui->rbAlphaColor->setEnabled(alpha);
+    ui->rbAlphaTransparent->setEnabled(alpha);
+    */
+  }
 }
 
 void GuiPanel::updateHighlight(){
@@ -207,17 +233,20 @@ static QString StringF(float i){
   return QString("%1").arg(i);
 }
 static QString StringH(unsigned int i){
-  return QString("%1").arg(i,0,16);
+  return QString("%1").arg(i,0,16).toUpper();
 }
 
 void GuiPanel::setAnimation(const BrfAnimation* a){
   if (!reference) return;
   if (!ui) return;
   if (!ui->cbRefSkel) return;
+  int n = ui->cbRefSkel->currentIndex();
   ui->cbRefSkel->clear();
   for (unsigned int i=0; i<reference->skeleton.size(); i++)
     if (a->nbones==(int)reference->skeleton[i].bone.size())
       ui->cbRefSkel->addItem(reference->skeleton[i].name);
+  if (n<0 || n>=ui->cbRefSkel->count()) n=0;
+  ui->cbRefSkel->setCurrentIndex(n);
 }
 
 void GuiPanel::updateRefAnimation(){
@@ -418,6 +447,7 @@ void mySetText(QLineEdit *l, QString s){
   else {
     if (s!=old) {
       l->setText("");
+      //qDebug("Was '%s' is '%s'",s.toAscii().data(), old.toAscii().data() );
       l->setBackgroundRole(QPalette::Button);//QPalette::AlternateBase);
       l->setFrame(false);
     }
@@ -513,6 +543,7 @@ void GuiPanel::setSelection(const QModelIndexList &newsel, int k){
   BrfAnimation *ani = NULL;
 */
 _selectedIndex = sel;
+//_nsel =
 switch (TokenEnum(k)){
   case MATERIAL:{
     myClear(ui->leMatBump);
@@ -599,10 +630,13 @@ switch (TokenEnum(k)){
     break;
     }
 
-  case TEXTURE:{
-    BrfTexture *tex=NULL;
-    if (sel>=0 && sel<(int)data->texture.size()) tex=&(data->texture[sel]);
-    ui->boxTextureFlags ->setText( (tex)?StringH(tex->flags):"" );
+  case TEXTURE:
+    myClear(ui->boxTextureFlags);
+
+    for (QModelIndexList::ConstIterator i=newsel.constBegin(); i!=newsel.constEnd(); i++){
+      int j=i->row();
+      if (j>=0 && j<(int)data->texture.size())
+        mySetText(ui->boxTextureFlags,StringH(data->texture[j].flags));
     }
     break;
   case SKELETON:
@@ -619,6 +653,13 @@ switch (TokenEnum(k)){
     ui->boxAniNFrames->display( (ani)?(int)ani->frame.size():0 );
     ui->boxAniMinFrame->display( (ani)?ani->FirstIndex():0 );
     ui->boxAniMaxFrame->display( (ani)?ani->LastIndex():0 );
+
+    if (ani) {
+      for (unsigned int fi=0; fi < ani->frame.size(); fi++)
+       frameTime[fi]=ani->frame[fi].index;
+      ui->frameNumberAni->setMaximum(ani->frame.size());
+      ui->frameNumberAni->setMinimum(1);
+    }
 
     ui->rbRiggingcolor->setEnabled( true ); // quick: just let user edit them
     ui->rbVertexcolor->setEnabled( true );
@@ -683,14 +724,33 @@ void GuiPanel::updateMaterial(QString a){
 
 void GuiPanel::updateFrameNumber(int newFr){
   if (newFr<0) return;
-  if (!ui->meshDataAni->isVisible()) return;
-  if (ui->timeOfFrame->isEnabled()) {
-    int oldFr =ui->frameNumber->value();
-    if (oldFr!=newFr) ui->frameNumber->setValue(newFr);
-    ui->timeOfFrame->setText( QString("%1").arg( frameTime[newFr] ) );
+  if (displaying==MESH) {
+    if (!ui->meshDataAni->isVisible()) return;
+    if (ui->timeOfFrame->isEnabled()) {
+
+      ui->frameNumber->blockSignals(true);
+      ui->frameNumber->setValue(newFr);
+      ui->frameNumber->blockSignals(false);
+
+      ui->timeOfFrame->blockSignals(true);
+      ui->timeOfFrame->setText( QString("%1").arg( frameTime[newFr] ) );
+      ui->timeOfFrame->blockSignals(false);
+    }
+    else {
+      ui->timeOfFrame->blockSignals(true);
+      ui->timeOfFrame->setText( QString("---") );
+      ui->timeOfFrame->blockSignals(false);
+    }
   }
-  else
-    ui->timeOfFrame->setText( QString("---") );
+  if (displaying==ANIMATION) {
+      ui->frameNumberAni->blockSignals(true);
+      ui->frameNumberAni->setValue(newFr);
+      ui->frameNumberAni->blockSignals(false);
+
+      ui->timeOfFrameAni->blockSignals(true);
+      ui->timeOfFrameAni->setText( QString("%1").arg( frameTime[newFr-1] ) );
+      ui->timeOfFrameAni->blockSignals(false);
+  }
 
 }
 
@@ -737,6 +797,12 @@ void GuiPanel::updateVisibility(){
     ui->viewMeshRendering->setVisible(false);
     ui->viewAni->setVisible(false);
   } else if (k==MATERIAL || k==TEXTURE) {
+    ui->viewRefSkin->setVisible(false);
+    ui->viewRefSkel->setVisible(false);
+    ui->viewRefAni->setVisible(false);
+    ui->viewMeshRendering->setVisible(false);
+    ui->viewFloor->setVisible(false);
+    ui->viewAni->setVisible(false);
   } else if (k==SKELETON) {
     ui->viewFloor->setVisible(false);
     ui->viewRefSkin->setVisible(true);
@@ -792,12 +858,18 @@ void GuiPanel::on_lvTextAcc_customContextMenuRequested(QPoint pos)
   //event->accept();
 }
 
-void GuiPanel::showMaterialDiffuseA(){curMaterialFocus = DIFFUSEA; updateHighlight();}
-void GuiPanel::showMaterialDiffuseB(){curMaterialFocus = DIFFUSEB; updateHighlight();}
-void GuiPanel::showMaterialBump(){curMaterialFocus = BUMP; updateHighlight();}
-void GuiPanel::showMaterialEnviro(){curMaterialFocus = ENVIRO; updateHighlight();}
-void GuiPanel::showMaterialSpecular(){curMaterialFocus = SPECULAR; updateHighlight();}
-void GuiPanel::showMaterialShader(){curMaterialFocus = SHADERNAME; updateHighlight();}
+void GuiPanel::showMaterialDiffuseA(){curMaterialFocus = DIFFUSEA; updateHighlight(); emit(followLink());}
+void GuiPanel::showMaterialDiffuseB(){curMaterialFocus = DIFFUSEB; updateHighlight();emit(followLink());}
+void GuiPanel::showMaterialBump(){curMaterialFocus = BUMP; updateHighlight();emit(followLink());}
+void GuiPanel::showMaterialEnviro(){curMaterialFocus = ENVIRO; updateHighlight();emit(followLink());}
+void GuiPanel::showMaterialSpecular(){curMaterialFocus = SPECULAR; updateHighlight();emit(followLink());}
+void GuiPanel::showMaterialShader(){curMaterialFocus = SHADERNAME; updateHighlight();emit(followLink());}
+
+void GuiPanel::setNavigationStackDepth(int i){
+  ui->labBackM->setVisible(i>0);
+  ui->labBackT->setVisible(i>1);
+  ui->labBackS->setVisible(i>1);
+}
 
 void GuiPanel::on_listView_customContextMenuRequested(QPoint pos)
 {

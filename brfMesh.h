@@ -16,10 +16,12 @@ public:
   int index;
   unsigned int col;
   Point3f __norm; // use normal inside frame instead
+  Point3f tang; // tangent dir...
+  unsigned char ti; // texture index
   Point2f ta,tb; // texture
   
   BrfVert operator + (const int i) const {BrfVert res = *this; res.index += i; return res;}
-  bool Load(FILE*f,int verbose=1);
+  bool Load(FILE*f);
   void Save(FILE*f) const;
 
   static unsigned int SizeOnDisk();
@@ -37,7 +39,7 @@ public:
     res.index[0] += i; res.index[1] += i; res.index[2] += i; return res;}
   
   void Flip() { int tmp=index[1]; index[1]=index[2]; index[2]=tmp;}
-  bool Load(FILE*f,int verbose=1);
+  bool Load(FILE*f);
   void Save(FILE*f) const;
 
   static unsigned int SizeOnDisk();
@@ -55,7 +57,9 @@ public:
   bool operator == (const BrfRigging &b) const;
   int FirstEmpty() const;
   int LeastIndex() const; // index with the smallest weight
+  float WeightOf(int i) const;
   void Normalize();
+  void Add(int index, float w);
 };
 
 class BrfFrame{
@@ -63,11 +67,11 @@ public:
   int time;
   vector<Point3f> pos;
   vector<Point3f> norm;
+  vector<Point3f> tang;
    // must be as many as the number of vertices!!!
-  bool Load(FILE*f, int verbose);
+  bool Load(FILE*f);
   void Save(FILE*f) const;
-  void LoadV1(FILE*f, int verbose);
-  static void Skip(FILE*f);
+  static bool Skip(FILE*f);
   
   BrfFrame Average(BrfFrame& b, float t);
   BrfFrame Average(BrfFrame& b, float t, const vector<bool> &sel);
@@ -75,7 +79,7 @@ public:
   Point3f MinPos();
   Point3f MaxPos();
   void Apply(Matrix44<float> m);
-
+  int FindClosestPoint(Point3f to, float* maxdist)const;
 };
 
 class BrfMesh{
@@ -95,9 +99,11 @@ public:
   void DiminishAniSelected(float t);
 
   void Reskeletonize(const BrfSkeleton& from, const BrfSkeleton& to);
+  void TransferRigging(const std::vector<BrfMesh>& from, int nf, int nfb);
+  void NormalizeRigging();
 
   BrfMesh(){}
-  BrfMesh(FILE *f, int verbose=1){ Load(f,verbose);}
+  BrfMesh(FILE *f){ Load(f);}
   unsigned int flags;
   
   char name[255];
@@ -126,14 +132,16 @@ public:
   bool isRigged; // for convenience
   void UpdateBBox();
   void SetUniformRig(int nbone);
+  void SplitFaces(const std::vector<int> &matIndex);
+  void RemoveUnreferenced();
  
   void AdjustNormDuplicates(); // copys normals
   // sanity check
   bool CheckAssert() const;
   
-  bool Load(FILE*f,int verbose=1);
+  bool Load(FILE*f);
   void Save(FILE*f) const;
-  void Skip(FILE* f);
+  bool Skip(FILE* f);
 
   bool SaveAsPly(int nframe=0, char* path="") const;
   bool HasVertexAni() const;
@@ -146,18 +154,28 @@ public:
   bool IsAnimable() const;
   void ComputeNormals();
   void UnifyPos();
-  void UnifyVert(bool careForNormals);
+  void UnifyVert(bool careForNormals, float crease=0);
+  void DivideVert();
   void AfterLoad();
   bool hasVertexColor;
 
-  void Merge(const BrfMesh &brf);
+  bool Merge(const BrfMesh &brf);
   bool AddFrameDirect(const BrfMesh &brf);
   bool AddFrameMatchVert(const BrfMesh &brf, int k);
   bool AddFrameMatchTc(const BrfMesh &brf, int k);
+
+  void Scale(float f);
+  void Transform(float * m);
+  void Translate(Point3f p);
+
+  void RemoveBackfacingFaces();
+  void AddBackfacingFaces();
+
 private:
   void CopyTimesFrom(const BrfMesh &brf);
   void Average(const BrfMesh &brf);
   void MergeMirror(const BrfMesh &brf);
+  void UpdateMaxBone();
   
   void CollapseBetweenFrames(int fi, int fj);
   void DuplicateFrames(const BrfMesh &brf);
@@ -178,8 +196,7 @@ private:
   
   float GetTopPos(int frame, int axis=1) const;
     
-  void Translate(Point3f p);
-  void Scale(float f);
+  //void Scale(float f);
   void TranslateSelected(Point3f p);
   void CycleFrame(int i);
 
@@ -204,6 +221,8 @@ private:
   
   void SetName(char* st);
   void AdaptToRes(const BrfMesh& ref);
+
+
   //BrfMesh& operator = (const BrfMesh &brf);
   
   static void AlignToTop(BrfMesh& a, BrfMesh& b);

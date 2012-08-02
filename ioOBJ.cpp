@@ -14,6 +14,10 @@ using namespace vcg;
 
 #include <QString>
 #include <QFile>
+#include <QPair>
+
+#include "IoOBJ.h"
+
 
 // defined in vcgmesh.cpp
 void setGotNormals(bool b);
@@ -21,51 +25,79 @@ void setGotMaterialName(bool b);
 void setGotTexture(bool b);
 void setGotColor(bool b);
 
-bool BrfMesh::SaveOBJ(char* fn, int nframe) const{
-  QFile f(fn);
-  QString s;
+
+static int cv, cp; // cumulated vert, cumulated pos
+
+
+void IoOBJ::reset(){
+  cv = cp = 0;
+}
+
+bool IoOBJ::open(QFile &f, QString fn){
+  f.setFileName(fn);
 
   if (!f.open(QIODevice::WriteOnly|QIODevice::Text)) return false;
-  int fr=nframe;
+  //int fr=nframe;
   f.write("#\n# Exported by OpenBRF -- marco tarini\n#\n");
+  return true;
+}
 
-  s = QString("s %1\n").arg(name);
+
+bool BrfMesh::SaveOBJ(char* fn, int nframe) const{
+  QFile f;
+  IoOBJ::reset();
+  if (! IoOBJ::open(f,fn)) return false;
+  if (! IoOBJ::writeMesh(f,*this, nframe)) return false;
+  f.close();
+  return true;
+}
+
+bool IoOBJ::writeMesh(QFile &f, const BrfMesh& m, int fr){
+
+//bool BrfMesh::SaveOBJ(char* fn, int nframe) const{
+  QString s;
+  s = QString("s %1\n").arg(m.name);
   f.write(s.toAscii());
-  s = QString("newmtl %1\nusemtl %1\n").arg(material);
+  s = QString("newmtl %1\nusemtl %1\n").arg(m.material);
   f.write(s.toAscii());
 
 
-  for (unsigned int i=0; i<frame[fr].pos.size(); i++) {
+  int np = 0, nv =0;
+  for (unsigned int i=0; i<m.frame[fr].pos.size(); i++) {
     s = QString("v %1 %2 %3\n")
-      .arg(-frame[fr].pos[i].X())
-      .arg(frame[fr].pos[i].Y())
-      .arg(frame[fr].pos[i].Z());
+      .arg(-m.frame[fr].pos[i].X())
+      .arg(m.frame[fr].pos[i].Y())
+      .arg(m.frame[fr].pos[i].Z());
     f.write(s.toAscii());
+    np++;
   }
-  for (unsigned int i=0; i<vert.size(); i++) {
+  for (unsigned int i=0; i<m.vert.size(); i++) {
     s = QString("vn %1 %2 %3\n")
-      .arg(-frame[fr].norm[i].X())
-      .arg(frame[fr].norm[i].Y())
-      .arg(frame[fr].norm[i].Z());
+      .arg(-m.frame[fr].norm[i].X())
+      .arg(m.frame[fr].norm[i].Y())
+      .arg(m.frame[fr].norm[i].Z());
     f.write(s.toAscii().data());
     s = QString("vt %1 %2\n")
-      .arg(vert[i].ta.X())
-      .arg(1.0f-vert[i].ta.Y());
+      .arg(m.vert[i].ta.X())
+      .arg(1.0f-m.vert[i].ta.Y());
     f.write(s.toAscii());
+    nv++;
   }
 
 
-  for (unsigned int i=0; i<face.size(); i++) {
+  for (unsigned int i=0; i<m.face.size(); i++) {
     f.write("f");
     for (int w=0; w<3; w++) {;
       s = QString(" %1/%2/%2")
-        .arg(vert[face[i].index[w]].index +1)
-        .arg(face[i].index[w] +1);
+        .arg(m.vert[m.face[i].index[w]].index +1 + cp)
+        .arg(m.face[i].index[w] +1 +cv);
       f.write(s.toAscii());
     }
     f.write("\n");
   }
-  f.close();
+
+  cp += np;
+  cv += nv;
   return true;
 }
 
@@ -80,6 +112,40 @@ public:
   }
 };
 
+typedef QPair<QString,QString> MatMesh; // pairs Material(Name)-(mesh)Name
+std::map<MatMesh,int> matMeshMap; //
+std::vector<MatMesh> matMeshVec; //
+std::vector<int> matMeshIndex; // parallel vector: material index for each face
+
+
+bool IoOBJ::wasMultpileMat(){
+  return matMeshVec.size()>1;
+}
+
+void IoOBJ::subdivideLast(const BrfMesh& m, std::vector<BrfMesh> &res){
+  assert(m.face.size()==matMeshIndex.size());
+  int nmat = (int) matMeshVec.size();
+  res.resize(nmat);
+  for (int i=0; i<nmat; i++){
+    res[i] = m;
+    res[i].face.clear();
+    sprintf(res[i].material,"%s",matMeshVec[i].second.toAscii().data());
+    if (i>0)
+      sprintf(res[i].name,"%s.%d",m.name,i);
+    else
+      sprintf(res[i].name,"%s",m.name);
+  }
+  for (unsigned int i=0; i<m.face.size(); i++) {
+    int j = matMeshIndex[i];
+    assert(j<nmat);
+    res[j].face.push_back(m.face[i]);
+  }
+  for (int i=0; i<nmat; i++){
+    res[i].RemoveUnreferenced();
+  }
+
+}
+
 bool BrfMesh::LoadOBJ(char* fn){
   name[0]=0;
   frame.resize(1);
@@ -91,6 +157,14 @@ bool BrfMesh::LoadOBJ(char* fn){
   std::vector<Point3f> norm;
   std::vector<Point2f> ta;
   std::map<Triple,int> map;
+
+  matMeshMap.clear();
+  matMeshVec.clear();
+  matMeshIndex.clear();
+
+  MatMesh curMM("","");
+  int curMMi = 0;
+  bool newMM = false;
 
   setGotColor(false);
   setGotNormals(false);
@@ -106,6 +180,8 @@ bool BrfMesh::LoadOBJ(char* fn){
     if (s.startsWith("usemtl ")) {
       char* cp = s.toAscii().data();
       sscanf( cp, "usemtl %s", material);
+      curMM.second=QString("%1").arg(material);
+      newMM= true;
       setGotMaterialName(true);
     }
     else if (s.startsWith("v ")) {
@@ -128,10 +204,24 @@ bool BrfMesh::LoadOBJ(char* fn){
     }
     else if (s.startsWith("s ")) {
       char* cp = s.toAscii().data();
-      sscanf( cp, "s %s", name);
+      char meshName[4096];
+      sscanf( cp, "s %s", meshName);
+      curMM.first=QString("%1").arg(meshName);
+      newMM= true;
     }
     else if (s.startsWith("f ")) {
       char* cp = s.toAscii().data();
+
+
+      if (newMM) {
+        //std::map<MatName,int>::iterator ite = ;
+        if (matMeshMap.find(curMM)==matMeshMap.end() ) {
+          curMMi= matMeshMap[curMM] = matMeshVec.size();
+          matMeshVec.push_back(curMM);
+        } else curMMi = matMeshMap[curMM];
+        newMM=false;
+      }
+
       char st[100][100];
       int res=sscanf(cp, "f %s %s %s %s %s %s",st[0],st[1],st[2],st[3],st[4],st[5]);
       int remap[6];
@@ -171,6 +261,7 @@ bool BrfMesh::LoadOBJ(char* fn){
         f.index[1]=remap[w-1];
         f.index[2]=remap[w];
         face.push_back(f);
+        matMeshIndex.push_back(curMMi);
       }
 
     }

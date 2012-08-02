@@ -24,6 +24,13 @@ INPUT(
 ./debug\askFlagsDialog.o
 ./debug\iniData.o
 ./debug\ioOBJ.o
+./debug\askModErrorDialog.o
+./debug\ioMB.o
+./debug\askTransformDialog.o
+./debug\askCreaseDialog.o
+./debug\main_info.o
+./debug\main_create.o
+./debug\main_ImpExp.o
 ./debug\moc_mainwindow.o
 ./debug\moc_glwidgets.o
 ./debug\moc_selector.o
@@ -33,4 +40,8 @@ INPUT(
 ./debug\moc_askSkelDialog.o
 ./debug\moc_askTexturenameDialog.o
 ./debug\moc_askFlagsDialog.o
+./debug\moc_askModErrorDialog.o
+./debug\moc_askTransformDialog.o
+./debug\moc_askCreaseDialog.o
+./debug\qrc_resource.o
 );

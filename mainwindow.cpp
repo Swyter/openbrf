@@ -4,12 +4,17 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "ui_guipanel.h"
-#include "vcgmesh.h"
 #include "askBoneDialog.h"
 #include "askSkelDialog.h"
 #include "askTexturenameDialog.h"
-#include "ioSMD.h"
+#include "askModErrorDialog.h"
+#include "askTransformDialog.h"
+#include "askCreaseDialog.h"
+
 #include <QtGui>
+#include <QDebug>
+
+typedef QPair<int, int> Pair;
 
 /*
 bool MainWindow::scanBrfDataForMaterials(const BrfData& tmp){
@@ -64,6 +69,14 @@ void MainWindow::tryLoadMaterials(){
 
 void MainWindow::notifyDataChanged(){
   setModified(false);
+}
+
+void MainWindow::notifyCheckboardChanged(){
+  aboutCheckboardAct->setVisible( (glWidget->lastMatErr.type!=0) );
+}
+
+void MainWindow::displayInfo(QString st,int howlong){
+  statusBar()->showMessage(st,howlong);
 }
 
 bool MainWindow::maybeSave()
@@ -131,7 +144,7 @@ static void setString(char* st, QLineEdit *q){
 
 template<class T>
 static void _setFlag(vector<T> &v, int i, QString st){
-  assert (i>0 && i<(int)v.size());
+  assert (i>=0 && i<(int)v.size());
   setFlags(v[i].flags , st);
 }
 
@@ -154,11 +167,15 @@ static bool _dupNN(vector<T> &t, int i){
   return true;
 }
 template< class T >
-static bool _del(vector<T> &t, int i){
-  if (i<0 || i>=(int)t.size()) return false;
 
-  t.erase(t.begin()+i,t.begin()+i+1);
-  return true;
+static unsigned int _del(vector<T> &t, const QModelIndexList &l){
+  for (int k=l.size()-1; k>=0; k--) {
+    int i=l[k].row();
+    if (i<0 || i>=(int)t.size()) continue;
+
+    t.erase(t.begin()+i,t.begin()+i+1);
+  }
+  return t.size();
 }
 template< class T >
 static char* _name(T &t, int i){
@@ -166,16 +183,20 @@ static char* _name(T &t, int i){
   return t[i].name;
 }
 template< class T >
-static bool _copy(vector<T> &t, int i, vector<T> &d){
-  if (i<0 || i>=(int)t.size()) return false;
-  d.push_back(t[i]);
-  QString name(t[i].name);
-  if (T::tokenIndex()==TEXTURE) {
-    // remove ".dds"
-    name.truncate(name.lastIndexOf("."));
-  }
+static bool _copy(vector<T> &t, const QModelIndexList &l, vector<T> &d){
+  for (int k=0; k<l.size(); k++) {
 
-  QApplication::clipboard()->setText(name);
+    int i=l[k].row();
+    if (i<0 || i>=(int)t.size()) continue;
+    d.push_back(t[i]);
+    QString name(t[i].name);
+    if (T::tokenIndex()==TEXTURE) {
+      // remove ".dds"
+      name.truncate(name.lastIndexOf("."));
+    }
+
+    QApplication::clipboard()->setText(name);
+  }
 
   return true;
 }
@@ -194,7 +215,7 @@ void MainWindow::updateTextureAccessDel(){
   int i = selector->firstSelected();
   int j = guiPanel->getCurrentSubpieceIndex(SHADER);
   if (i>=0 && j>=0) {
-    _del( brfdata.shader[i].opt, j );
+    _del( brfdata.shader[i].opt, selector->selectedList() );
     guiPanel->updateShaderTextaccSize();
     setModified(true);
   }
@@ -277,7 +298,7 @@ void MainWindow::onChangeMeshMaterial(QString st){
     n++;
   }
   statusBar()->showMessage( tr("Set %1 mesh materials to \"%2\"")
-                            .arg(n).arg(u->boxMaterial->text()) );
+                            .arg(n).arg(u->boxMaterial->text()),5000 );
   glWidget->update();
   setModified(true);
 }
@@ -315,35 +336,112 @@ void MainWindow::updateDataMaterial(){
 void MainWindow::onChangeTimeOfFrame(QString time){
   if (!glWidget) return;
   if (!selector) return;
-  assert(selector->currentTabName()==MESH);
-  int fl  =  time.toInt();
   int i=selector->firstSelected();
   int j=currentDisplayFrame();
-  if (i>=0 && j>=0 && i<(int)brfdata.mesh.size() && j<(int)brfdata.mesh[i].frame.size()) {
-    brfdata.mesh[i].frame[j].time=fl;
-    statusBar()->showMessage( tr("Set time of frame %1 to %2").arg(j).arg(fl) );
-    guiPanel->frameTime[j]=fl;
+  int fl  =  time.toInt();
+
+  if (selector->currentTabName()==MESH) {
+    if (i>=0 && j>=0 && i<(int)brfdata.mesh.size() && j<(int)brfdata.mesh[i].frame.size()) {
+      brfdata.mesh[i].frame[j].time=fl;
+    }
+  } else if (selector->currentTabName()==ANIMATION) {
+    if (i>=0 && j>=0 && i<(int)brfdata.animation.size() && j<(int)brfdata.animation[i].frame.size()) {
+      brfdata.animation[i].frame[j].index=fl;
+      guiPanel->ui->boxAniMinFrame->display( brfdata.animation[i].FirstIndex() );
+      guiPanel->ui->boxAniMaxFrame->display( brfdata.animation[i].LastIndex() );
+    }
+  } else assert(0);
+  statusBar()->showMessage( tr("Set time of frame %1 to %2").arg(j).arg(fl),3000 );
+  setModified(true);
+  guiPanel->frameTime[j]=fl;
+
+}
+
+
+void  MainWindow::mab2tld(){
+  tldHead(1);
+}
+void  MainWindow::tld2mab(){
+  tldHead(-1);
+}
+void  MainWindow::tldHead(float verse){
+  bool changed = false;
+  //vcg::Point3f tldHead(0,0,0);//0.0370, -0.01);
+  //vcg::Point3f tldOrcHead(0,0.054033, -0.064549); // from horiz neck to straing neck
+  vcg::Point3f tldOrcHead(0,-0.0390, 0.01); // from human to orc... almost halfway OLD
+
+
+  //vcg::Point3f tldOrcHead(0,-0.0490, 0.01); // from human to orc... almost halfway
+  vcg::Point3f tldOrcHeadS(0,tldOrcHead[2], -tldOrcHead[1]);
+  vcg::Point3f zero(0,0,0);
+  //int torax = 8;
+  int head = 9;
+  if (selector->currentTabName()==SKELETON) {
+    int j = selector->firstSelected();
+    if (j<0) return;
+
+
+    //BrfAnimation &a(reference.animation[0]);
+    BrfSkeleton &s(brfdata.skeleton[j]);
+
+    //VcgMesh::add(s);
+    //VcgMesh::moveBoneInSkelMesh(head,vcg::Point3f(0,tldOrcHead[2],tldOrcHead[1]));
+    //VcgMesh::modifyBrfSkeleton(s);
+
+    //Point3f v = tldHead*verse;
+    //if (QString(s.name).contains("orc"));
+    Point3f v= tldOrcHead*verse;
+    //v = BrfSkeleton::adjustCoordSyst(v);
+
+    //Matrix44f mat = (
+    //  BrfSkeleton::adjustCoordSystHalf(
+    //    s.GetBoneMatrices()[torax].transpose()
+    //  ).transpose()
+    //);
+
+    //mat = vcg::Inverse(mat);
+    //mat.transposeInPlace();
+
+    //v = mat*v - mat*zero;
+    v = BrfSkeleton::adjustCoordSyst(v);
+    s.bone[head].t += v;
+    changed=true;
+  }
+  if (selector->currentTabName()==MESH) {
+    for (int j=0; j<selector->selectedList().size(); j++) {
+      int i  =(selector->selectedList()[j]).row();
+      BrfMesh &m(brfdata.mesh[i]);
+      m.Translate(-tldOrcHead*verse);
+      changed=true;
+    }
+  }
+
+  if (changed) {
     setModified(true);
+    glWidget->update();
   }
 
 }
 
 void MainWindow::onChangeFlags(QString st){
   if (!glWidget) return;
-  int n=1;
+  //int n=1;
   //unsigned int fl  =  st.toUInt();
   st.truncate(254);
   int i=selector->firstSelected();
 
   switch(selector->currentTabName()) {
     case MESH:
-      n=0;
-      for (unsigned int j=0; j<GLWidget::MAXSEL; j++) if (glWidget->selGroup[j]) {
-        _setFlag(brfdata.mesh, j, st);
-        n++;
+      for (int j=0; j<selector->selectedList().size(); j++) {
+        _setFlag(brfdata.mesh, (selector->selectedList()[j]).row(), st);
       }
     break;
-    case TEXTURE: _setFlag(brfdata.texture,i,st); break;
+    case TEXTURE:
+      //_setFlag(brfdata.texture,i,st);
+      for (int j=0; j<selector->selectedList().size(); j++) {
+        _setFlag(brfdata.texture, (selector->selectedList()[j]).row(), st);
+      }
+      break;
     case SKELETON: _setFlag(brfdata.skeleton,i,st); break;
     //case ANIMATION: _setFlag(brfdata.animation,i,fl); break;
     default: assert(0);
@@ -352,34 +450,21 @@ void MainWindow::onChangeFlags(QString st){
   setModified(true);
 }
 
-
 MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),inidata(brfdata)
 {
-
-  for (int i=0; i<3; i++) navigationStack[i]=Pair(-1,-1);
-
+  setWindowIcon(QIcon(":/openBrf.ico"));
   settings = new QSettings("mtarini", "OpenBRF");
 
   glWidget = new GLWidget(this,inidata);
   selector = new Selector(this);
   selector->reference=&reference;
 
-  modStatus = new QLabel("Mod",this);
-  statusBar()->addPermanentWidget(modStatus);
-
   isModified=false;
 
+  createMiniViewOptions();
   createActions();
   createMenus();
   setEditingRef(false);
-
-  navigationStackPos = 0;
-
-  connect( selector,SIGNAL(setSelection(QModelIndexList,int)) ,
-           glWidget,  SLOT(setSelection(QModelIndexList,int)) );
-
-  connect( selector, SIGNAL(breakAni(int,bool)),
-           this, SLOT(breakAni(int,bool)));
 
   QSplitter* main = new QSplitter();
   guiPanel = new GuiPanel( this, inidata);
@@ -388,138 +473,12 @@ MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),inidata(brfdata)
   main->addWidget(guiPanel);
   main->addWidget(glWidget);
 
+  cancelNavStack();
 
-  connect(importStaticMeshAct,SIGNAL(triggered()),this,SLOT(importStaticMesh()));
-  connect(importRiggedMeshAct,SIGNAL(triggered()),this,SLOT(importRiggedMesh()));
-  connect(importMovingMeshAct,SIGNAL(triggered()),this,SLOT(importMovingMesh()));
-  connect(importSkeletonAct,  SIGNAL(triggered()),this,SLOT(importSkeleton()));
-  connect(importAnimationAct, SIGNAL(triggered()),this,SLOT(importAnimation()));
-  connect(importBodyAct, SIGNAL(triggered()),this,SLOT(importCollisionBody()));
-  connect(addNewMaterialAct, SIGNAL(triggered()),this,SLOT(addNewMaterial()));
-  connect(addNewShaderAct, SIGNAL(triggered()),this,SLOT(addNewShader()));
-  connect(addNewTextureAct, SIGNAL(triggered()),this,SLOT(addNewTexture()));
-
-  connect(guiPanel->ui->cbLighting        ,SIGNAL(stateChanged(int)),glWidget,SLOT(setLighting(int)));
-  connect(guiPanel->ui->cbTexture         ,SIGNAL(stateChanged(int)),glWidget,SLOT(setTexture(int)));
-  connect(guiPanel->ui->cbFloor           ,SIGNAL(stateChanged(int)),glWidget,SLOT(setFloor(int)));
-  connect(guiPanel->ui->cbWireframe       ,SIGNAL(stateChanged(int)),glWidget,SLOT(setWireframe(int)));
-  connect(guiPanel->ui->cbRuler           ,SIGNAL(stateChanged(int)),glWidget,SLOT(setRuler(int)));
-  connect(guiPanel->ui->rbNocolor         ,SIGNAL(clicked(bool)),glWidget,SLOT(setColorPerWhite()));
-  connect(guiPanel->ui->rbRiggingcolor    ,SIGNAL(clicked(bool)),glWidget,SLOT(setColorPerRig()));
-  connect(guiPanel->ui->rbVertexcolor     ,SIGNAL(clicked(bool)),glWidget,SLOT(setColorPerVert()));
-  connect(guiPanel->ui->buPlay            ,SIGNAL(clicked()),glWidget,SLOT(setPlay()));
-  connect(guiPanel->ui->buPause           ,SIGNAL(clicked()),glWidget,SLOT(setPause()));
-  connect(guiPanel->ui->buStop            ,SIGNAL(clicked()),glWidget,SLOT(setStop()));
-  connect(guiPanel->ui->buStepF           ,SIGNAL(clicked()),glWidget,SLOT(setStepon()));
-  connect(guiPanel->ui->buStepB           ,SIGNAL(clicked()),glWidget,SLOT(setStepback()));
-  connect(guiPanel->ui->rbAlphaColor      ,SIGNAL(clicked()),glWidget,SLOT(showAlphaPurple()));
-  connect(guiPanel->ui->rbAlphaNo         ,SIGNAL(clicked()),glWidget,SLOT(showAlphaNo()));
-  connect(guiPanel->ui->rbAlphaTransparent,SIGNAL(clicked()),glWidget,SLOT(showAlphaTransparent()));
-  connect(guiPanel->ui->boxMaterial    ,SIGNAL(textChanged(QString)),
-          this,SLOT(onChangeMeshMaterial(QString)));
-  connect(guiPanel->ui->boxMaterial    ,SIGNAL(textChanged(QString)),
-          guiPanel,SLOT(updateMaterial(QString)));
-  connect(guiPanel->ui->rulerSlid, SIGNAL(sliderMoved(int)),glWidget,SLOT(setRulerLenght(int)));
-  connect(guiPanel->ui->rulerSpin, SIGNAL(valueChanged(int)),glWidget,SLOT(setRulerLenght(int)));
-
-  // edit material
-  connect(guiPanel->ui->leMatR,SIGNAL(textEdited(QString)), this, SLOT(updateDataMaterial()));
-  connect(guiPanel->ui->leMatG,SIGNAL(textEdited(QString)), this, SLOT(updateDataMaterial()));
-  connect(guiPanel->ui->leMatB,SIGNAL(textEdited(QString)), this, SLOT(updateDataMaterial()));
-  connect(guiPanel->ui->leMatCoeff,SIGNAL(textEdited(QString)), this, SLOT(updateDataMaterial()));
-  connect(guiPanel->ui->leMatBump,SIGNAL(textChanged(QString)), this, SLOT(updateDataMaterial()));
-  connect(guiPanel->ui->leMatDifA,SIGNAL(textChanged(QString)), this, SLOT(updateDataMaterial()));
-  connect(guiPanel->ui->leMatDifB,SIGNAL(textChanged(QString)), this, SLOT(updateDataMaterial()));
-  connect(guiPanel->ui->leMatEnv,SIGNAL(textChanged(QString)), this, SLOT(updateDataMaterial()));
-  connect(guiPanel->ui->leMatShader,SIGNAL(textChanged(QString)), this, SLOT(updateDataMaterial()));
-  connect(guiPanel->ui->leMatSpec,SIGNAL(textChanged(QString)), this, SLOT(updateDataMaterial()));
-  connect(guiPanel->ui->leMatFlags,SIGNAL(textEdited(QString)), this, SLOT(updateDataMaterial()));
-  connect(guiPanel->ui->leMatRendOrd,SIGNAL(editingFinished()), this, SLOT(updateDataMaterial()));
-  //connect(guiPanel, SIGNAL(dataMaterialChanged()), this, SLOT(updateDataMaterial()));
-  connect(guiPanel->ui->buFlagMat, SIGNAL(clicked()), this, SLOT(setFlagsMaterial()));
+  createConnections();
 
 
-  // make material texture selection: select rendererd texture too
-  connect(guiPanel->ui->leMatDifA,SIGNAL(cursorPositionChanged(int,int)), glWidget, SLOT(showMaterialDiffuseA()));
-  connect(guiPanel->ui->leMatDifB,SIGNAL(cursorPositionChanged(int,int)), glWidget, SLOT(showMaterialDiffuseB()));
-  connect(guiPanel->ui->leMatBump,SIGNAL(cursorPositionChanged(int,int)), glWidget, SLOT(showMaterialBump()));
-  connect(guiPanel->ui->leMatSpec,SIGNAL(cursorPositionChanged(int,int)), glWidget, SLOT(showMaterialSpecular()));
-  connect(guiPanel->ui->leMatEnv ,SIGNAL(cursorPositionChanged(int,int)), glWidget, SLOT(showMaterialEnviro()));
-
-  connect(guiPanel->ui->leMatShader,SIGNAL(cursorPositionChanged(int,int)), guiPanel, SLOT(showMaterialShader()));
-  connect(guiPanel->ui->leMatDifA,  SIGNAL(cursorPositionChanged(int,int)), guiPanel, SLOT(showMaterialDiffuseA()));
-  connect(guiPanel->ui->leMatDifB,  SIGNAL(cursorPositionChanged(int,int)), guiPanel, SLOT(showMaterialDiffuseB()));
-  connect(guiPanel->ui->leMatBump,  SIGNAL(cursorPositionChanged(int,int)), guiPanel, SLOT(showMaterialBump()));
-  connect(guiPanel->ui->leMatSpec,  SIGNAL(cursorPositionChanged(int,int)), guiPanel, SLOT(showMaterialSpecular()));
-  connect(guiPanel->ui->leMatEnv ,  SIGNAL(cursorPositionChanged(int,int)), guiPanel, SLOT(showMaterialEnviro()));
-
-  connect(guiPanel->ui->labelShader,  SIGNAL(clicked()), guiPanel, SLOT(showMaterialShader()));
-  connect(guiPanel->ui->labelDiffuseA,SIGNAL(clicked()), guiPanel, SLOT(showMaterialDiffuseA()));
-  connect(guiPanel->ui->labelDiffuseB,SIGNAL(clicked()), guiPanel, SLOT(showMaterialDiffuseB()));
-  connect(guiPanel->ui->labelBump,    SIGNAL(clicked()), guiPanel, SLOT(showMaterialBump()));
-  connect(guiPanel->ui->labelSpecular,SIGNAL(clicked()), guiPanel, SLOT(showMaterialSpecular()));
-  connect(guiPanel->ui->labelEnviro,  SIGNAL(clicked()), guiPanel, SLOT(showMaterialEnviro()));
-
-  connect(guiPanel->ui->labelDiffuseA,SIGNAL(clicked()), glWidget, SLOT(showMaterialDiffuseA()));
-  connect(guiPanel->ui->labelDiffuseB,SIGNAL(clicked()), glWidget, SLOT(showMaterialDiffuseB()));
-  connect(guiPanel->ui->labelBump,    SIGNAL(clicked()), glWidget, SLOT(showMaterialBump()));
-  connect(guiPanel->ui->labelSpecular,SIGNAL(clicked()), glWidget, SLOT(showMaterialSpecular()));
-  connect(guiPanel->ui->labelEnviro,  SIGNAL(clicked()), glWidget, SLOT(showMaterialEnviro()));
-
-  // edit body
-  connect(guiPanel->ui->leBodyAX,SIGNAL(textEdited(QString)), this, SLOT(updateDataBody()));
-  connect(guiPanel->ui->leBodyAY,SIGNAL(textEdited(QString)), this, SLOT(updateDataBody()));
-  connect(guiPanel->ui->leBodyAZ,SIGNAL(textEdited(QString)), this, SLOT(updateDataBody()));
-  connect(guiPanel->ui->leBodyBX,SIGNAL(textEdited(QString)), this, SLOT(updateDataBody()));
-  connect(guiPanel->ui->leBodyBY,SIGNAL(textEdited(QString)), this, SLOT(updateDataBody()));
-  connect(guiPanel->ui->leBodyBZ,SIGNAL(textEdited(QString)), this, SLOT(updateDataBody()));
-  connect(guiPanel->ui->leBodyRad,SIGNAL(textEdited(QString)), this, SLOT(updateDataBody()));
-  connect(guiPanel->ui->leBodyFlags,SIGNAL(textEdited(QString)), this, SLOT(updateDataBody()));
-  connect(guiPanel->ui->leBodySign,SIGNAL(textEdited(QString)), this, SLOT(updateDataBody()));
-
-
-  // edit shader
-  connect(guiPanel->ui->leShaderFlags,SIGNAL(textEdited(QString)), this, SLOT(updateDataShader()));
-  connect(guiPanel->ui->leShaderFallback,SIGNAL(textEdited(QString)), this, SLOT(updateDataShader()));
-  connect(guiPanel->ui->leShaderRequires,SIGNAL(textEdited(QString)), this, SLOT(updateDataShader()));
-  connect(guiPanel->ui->leShaderTechnique,SIGNAL(textEdited(QString)), this, SLOT(updateDataShader()));
-  connect(guiPanel->ui->leShaderTaAlphaOp,SIGNAL(textEdited(QString)), this, SLOT(updateDataShader()));
-  connect(guiPanel->ui->leShaderTaColorOp,SIGNAL(textEdited(QString)), this, SLOT(updateDataShader()));
-  connect(guiPanel->ui->leShaderTaFlags,SIGNAL(textEdited(QString)), this, SLOT(updateDataShader()));
-  connect(guiPanel->ui->leShaderTaMap,SIGNAL(textEdited(QString)), this, SLOT(updateDataShader()));
-
-  // shader texture access data contex meny
-  connect(guiPanel->textureAccessAdd,SIGNAL(triggered()), this, SLOT(updateTextureAccessAdd()));
-  connect(guiPanel->textureAccessDup,SIGNAL(triggered()), this, SLOT(updateTextureAccessDup()));
-  connect(guiPanel->textureAccessDel,SIGNAL(triggered()), this, SLOT(updateTextureAccessDel()));
-
-
-  connect(guiPanel->ui->boxFlags       ,SIGNAL(textEdited(QString)),
-          this,SLOT(onChangeFlags(QString)));
-  connect(guiPanel->ui->timeOfFrame    ,SIGNAL(textEdited(QString)),
-          this,SLOT(onChangeTimeOfFrame(QString)));
-  //connect(guiPanel->ui->boxAnimationFlags,SIGNAL(textEdited(QString)),
-  //        this,SLOT(onChangeFlags(QString)));
-  connect(guiPanel->ui->boxTextureFlags,SIGNAL(textEdited(QString)),
-          this,SLOT(onChangeFlags(QString)));
-  connect(guiPanel->ui->cbRefani,SIGNAL(currentIndexChanged(int)), glWidget, SLOT(setRefAnimation(int)) );
-  connect(guiPanel->ui->cbRefani,SIGNAL(currentIndexChanged(int)), guiPanel, SLOT(setRefAnimation(int)) );
-  connect(guiPanel->ui->cbRefSkel,SIGNAL(currentIndexChanged(int)), glWidget, SLOT(setRefSkeleton(int)) );
-  connect(guiPanel->ui->cbSkin,SIGNAL(currentIndexChanged(int)), glWidget, SLOT(setRefSkin(int)) );
-  connect(guiPanel->ui->frameNumber,SIGNAL(valueChanged(int)),guiPanel,SLOT(updateFrameNumber(int)));
-
-  connect(guiPanel->ui->frameNumber,SIGNAL(valueChanged(int)),glWidget,SLOT(setFrameNumber(int)));
-  connect(glWidget,SIGNAL(signalFrameNumber(int)),guiPanel,SLOT(updateFrameNumber(int)));
-
-  connect( selector,SIGNAL(setSelection(QModelIndexList,int)) ,
-           guiPanel,  SLOT(setSelection(QModelIndexList,int)) );
-
-  //connect( selector,SIGNAL(addToRefMesh(int)) ,
-  //         this    ,  SLOT(addToRefMesh(int)) );
-
-  //main->setLayout(mainLayout);
-
-  reference.Load("reference.brf");
+  reference.Load(QString("%1/%2").arg(QCoreApplication::applicationDirPath()).arg("reference.brf").toAscii().data());
   setCentralWidget(main);
 
   updateTitle();
@@ -537,8 +496,6 @@ MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),inidata(brfdata)
   loadOptions();
 
   updatePaths();
-
-
 }
 
 
@@ -556,23 +513,6 @@ bool MainWindow::setEditingRef(bool mode){
   return true;
 }
 
-bool MainWindow::importBrf(){
-  QString fn = askImportFilename("BRF file (*.brf)");
-  if (fn.isEmpty()) return false;
-  BrfData tmp;
-  if (!tmp.Load(fn.toAscii().data())) {
-    QMessageBox::information(this,
-      tr("Open Brf"),
-      tr("Cannot import file %1\n\n")
-    );
-    return false;
-  }
-  brfdata.Merge(tmp);
-  selector->updateData(brfdata);
-  setModified(true);
-  return true;
-}
-
 void MainWindow::insert(const BrfMesh &o){ insert( brfdata.mesh, o); }
 void MainWindow::insert(const BrfSkeleton &o){ insert( brfdata.skeleton, o); }
 void MainWindow::insert(const BrfAnimation &o){ insert( brfdata.animation, o); }
@@ -587,11 +527,13 @@ template<class BrfType> void MainWindow::insert( vector<BrfType> &v, const BrfTy
     v.push_back(o);
     newpos=v.size()-1;
   } else {
-    int i = selector->firstSelected()+1;
+    int i = selector->lastSelected()+1;
     if (i<0 || i>=(int)v.size()) i=v.size();
+    if (i==(int)v.size()) v.push_back(o); else
     v.insert( v.begin()+i, o);
     newpos=i;
   }
+  selector->updateData(brfdata);
   selectOne(BrfType::tokenIndex(), newpos);
 }
 
@@ -602,34 +544,39 @@ void _setName(char* st, QString s){
 
 
 
+
 template<class T>
 bool MainWindow::addNewGeneral(){
 
 
   int tok = T::tokenIndex();
-  QString newName;
+
   AskTexturenameDialog d(this, tok==MATERIAL);
   if (tok==MATERIAL || tok==TEXTURE)
-    d.setBrowsable(defpathTexture);
+    d.setBrowsable(mabPath+"/Modules/"+modName+"/Textures");
   d.setLabel( "Name:" );
   d.setWindowTitle( QString("New %1").arg(tokenFullName[tok]) );
   d.setDef(QString("new_%1").arg(tokenFullName[tok]).toLower());
   int ok=d.exec();
   if (ok) {
-    newName=d.getRes();
-    T m;
-    _setName(m.name,newName);
-    m.SetDefault();
-    insert(m);
-    if (d.alsoAdd()) {
-      BrfTexture t;
-      _setName(t.name,newName);
-      t.SetDefault();
-      insert(t);
-    }
-    selector->updateData(brfdata);
+    QStringList newName=d.getRes();
+
+    for (int i=0; i<newName.size(); i++) {
+      T m;
+      _setName(m.name,newName[i]);
+      m.SetDefault();
+      insert(m);
+      if (d.alsoAdd()) {
+        BrfTexture t;
+        _setName(t.name,newName[i]);
+        t.SetDefault();
+        insert(t);
+      }
+      //selector->updateData(brfdata);
     setModified(true);
+    }
     return true;
+
   }
 
   return false;
@@ -654,37 +601,11 @@ bool MainWindow::addNewShader(){
   return addNewGeneral<BrfShader>();
 }
 
-bool MainWindow::importCollisionBody(){
-  QString fn = askImportFilename(
-    tr("mesh file (*.obj)")
-  );
-  if (fn.isEmpty()) return false;
-
-  BrfBody b;
-  if (!b.ImportOBJ(fn.toAscii().data())) {
-    QMessageBox::information(this, tr("Open Brf"),
-      tr("Cannot import file %1\n").arg(fn)
-    );
-    return false;
-  }
-
-  QString name=QFileInfo(fn).baseName();
-  name.truncate(254);
-
-  sprintf( b.name, "%s", name.toAscii().data());
-
-  insert( b );
-
-  selector->updateData(brfdata);
-  setModified(true);
-  return true;
-}
-
 void MainWindow::applyAfterMeshImport(BrfMesh &m){
   switch (this->afterMeshImport()) {
     case 1:
       m.UnifyPos();
-      m.UnifyVert(true);
+      m.UnifyVert(true,0.5);
       break;
     case 2:
       m.UnifyPos();
@@ -694,204 +615,8 @@ void MainWindow::applyAfterMeshImport(BrfMesh &m){
   }
 }
 
-bool MainWindow::_importStaticMesh(QString s, BrfMesh &m){
-  QString fn = askImportFilename(
-    tr("mesh file ("
-      "*.obj "
-      "*.ply "
-      "*.off "
-      "*.stl "
-      "*.dae)"
-    )
-  );
-  if (fn.isEmpty()) return false;
-  m.name[0]=0;
-
-  if (QFileInfo(fn).suffix().toLower()== "obj") {
-    if (!m.LoadOBJ( fn.toAscii().data() )) {
-      QMessageBox::information(this,
-        tr("Open Brf"),
-        tr("Cannot import file %1\n")
-      );
-      return false;
-    }
-  } else {
-    if (!VcgMesh::load(fn.toAscii().data())) {
-      QMessageBox::information(this,
-        tr("Open Brf"),
-        tr("Cannot import file %1\n\n"
-           "(error: %2)").arg(fn).arg(VcgMesh::lastErrString()
-        )
-      );
-      return false;
-    }
-    m = VcgMesh::toBrfMesh();
-  }
-  if (m.name[0]==0) {
-    // assign name of the mesh
-    QString meshname=QFileInfo(fn).baseName();
-    meshname.truncate(254);
-    sprintf( m.name, "%s", meshname.toAscii().data());
-  }
-  applyAfterMeshImport(m);
-  return true;
-}
-
-bool MainWindow::importStaticMesh(){
-  BrfMesh m;
-  if (!_importStaticMesh("Import static mesh", m)) return false;
-
-  insert( m );
-
-  selector->updateData(brfdata);
-  setModified(true);
-
-  statusBar()->showMessage(tr("Imported mesh \"%1\"--- normals:%2 colors:%3 texture_coord:%4")
-    .arg( m.name )
-    .arg((VcgMesh::gotNormals()?"[ok]":"[recomputed]"))
-    .arg((VcgMesh::gotColor()?"[ok]":"[NO]"))
-    .arg((VcgMesh::gotTexture()?"[ok]":"[NO]"))
-  );
-  return true;
-}
-
-bool MainWindow::importMovingMesh(){
-  int i = selector->firstSelected();
-  int j = guiPanel->getCurrentSubpieceIndex(MESH);
-  if ((selector->currentTabName()!=MESH) ||
-      (i<0) ||
-      (i>=(int)brfdata.mesh.size())
-  )
-  { QMessageBox::information(this,
-      tr("Import vertex animation frame"),
-      tr("Frist select a mesh\nto add a frame to.")
-    );
-    return false;
-  }
-
-  BrfMesh m;
-  if (!_importStaticMesh("Import a mesh and add it as a frame", m))
-  {
-    statusBar()->showMessage(tr("Import failed"));
-    return false;
-  }
-
-  bool res=false;
-  if (assembleAniMode()==0) {
-    res = brfdata.mesh[i].AddFrameMatchVert(m,j);
-    if (!res) statusBar()->showMessage(tr("Vertex number mismatch... using texture-coord matching instead of vertex-ordering"));
-  }
-  if (!res) brfdata.mesh[i].AddFrameMatchTc(m,j);
-  setModified(true);
-  selector->selectOne(MESH,i);
-
-  statusBar()->showMessage(tr("Added frame %1").arg(j+1));
-  return true;
-}
-
-
-bool MainWindow::importAnimation(){
-  QString brfFormat("Old BrfEdit style SMD (*.SMD)");
-  QString fn = askImportFilename(QString("Studiomdl Data (*.SMD);;")+brfFormat);
-  if (fn.isEmpty()) return false;
-  BrfSkeleton s;
-  BrfAnimation a;
-
-  bool backComp=(lastImpExpFormat==brfFormat);
-  int res = ioSMD::Import(fn.toAscii().data(), a, s);
-  if (res!=0) {
-     QMessageBox::information(this,
-      tr("Open Brf"),
-      tr("Cannot import animation:\n %1\n").arg( ioSMD::LastErrorString() )
-    );
-    return false;
-  }
-
-
-  QString name=QFileInfo(fn).baseName();
-  name.truncate(254);
-  sprintf( a.name, "%s", name.toAscii().data());
-
-
-  if (backComp) {
-    //int j = gimmeASkeleton( s.bone.size() );
-    //if (j>=0)
-    //  a.Reskeletonize( s, reference.skeleton[j] );
-    if (a.frame.size()) a.frame.pop_back(); // remove last frame
-  }
-  insert(a);
-
-  setModified(true);
-  selector->updateData(brfdata);
-
-  return true;
-
-}
-
 int MainWindow::gimmeASkeleton(int bs){
   return reference.getOneSkeleton(bs, glWidget->getRefSkeleton() );
-}
-
-bool MainWindow::importSkeleton(){
-
-  QString fn = askImportFilename("Studiomdl Data (*.SMD)");
-  if (fn.isEmpty()) return false;
-  BrfSkeleton s;
-  BrfMesh m;
-  int res = ioSMD::Import(fn.toAscii().data(), m, s);
-  if (res!=0) {
-     QMessageBox::information(this,
-      tr("Open Brf"),
-      tr("Cannot import skeleton:\n %1\n").arg( ioSMD::LastErrorString() )
-    );
-    return false;
-  }
-
-  QString name=QFileInfo(fn).baseName();
-  name.truncate(254);
-  sprintf( s.name, "%s", name.toAscii().data());
-
-  insert(s);
-  setModified(true);
-  selector->updateData(brfdata);
-
-  statusBar()->showMessage(tr("Imported skeleton \"%1\"--- nbones:%2")
-    .arg( s.name )
-    .arg( s.bone.size() )
-  );
-  return true;
-}
-
-bool MainWindow::importRiggedMesh(){
-  QString fn = askImportFilename("Studiomdl Data (*.SMD)");
-  if (fn.isEmpty()) return false;
-  BrfSkeleton s;
-  BrfMesh m;
-  int res = ioSMD::Import(fn.toAscii().data(), m, s);
-
-  if (res!=0) {
-     QMessageBox::information(this,
-      tr("Open Brf"),
-      tr("Cannot import rigged mesh:\n %1\n").arg( ioSMD::LastErrorString() )
-    );
-    return false;
-  }
-
-  QString name=QFileInfo(fn).baseName();
-  name.truncate(254);
-  sprintf( m.name, "%s", name.toAscii().data());
-
-
-  statusBar()->showMessage(tr("Imported rigged mesh \"%1\"")
-    .arg( m.name )
-  );
-
-  applyAfterMeshImport(m);
-
-  insert(m);
-  selector->updateData(brfdata);
-  setModified(true);
-  return true;
 }
 
 int MainWindow::askRefSkin(){
@@ -925,7 +650,12 @@ int MainWindow::currentDisplaySkeleton(){
   return glWidget->getRefSkeleton();
 }
 int MainWindow::currentDisplayFrame(){
-  return glWidget->getFrameNumber();
+  if (selector->currentTabName()==MESH)
+  return guiPanel->ui->frameNumber->value(); //glWidget->getFrameNumber();
+  if (selector->currentTabName()==ANIMATION)
+  return guiPanel->ui->frameNumberAni->value()-1;
+  assert(0);
+  return 0;
 }
 
 void MainWindow::meshUnify(){
@@ -934,23 +664,170 @@ void MainWindow::meshUnify(){
   if (i>(int)brfdata.mesh.size()) return;
   BrfMesh &m (brfdata.mesh[i]);
   m.UnifyPos();
-  m.UnifyVert(true);
+  m.UnifyVert(true,0.95);
   statusBar()->showMessage(tr("Normals recomputed."), 2000);
   selector->selectOne(MESH,i);
   setModified(true);
+}
+
+void MainWindow::meshMerge(){
+  BrfMesh res;
+  bool first=true;
+  for (int i=0; i<selector->selectedList().size(); i++)
+  {
+    int j=selector->selectedList()[i].row();
+    if (j<0 || j>=(int)brfdata.mesh.size()) continue;
+    if (first) res = brfdata.mesh[j]; else {
+      if (!res.Merge( brfdata.mesh[j] )) {
+        QMessageBox::information(this,
+          tr("Open Brf"),
+          tr("Cannot merge these meshes\n (different number of frames,\n or rigged VS nor rigged).\n")
+        );
+        return;
+      }
+    }
+    first=false;
+  }
+  insert(res);
+  setModified(true);
+}
+
+void MainWindow::meshRecomputeNormalsAndUnify(int crease){
+  //int i = selector->firstSelected();
+
+  for (int k=0; k<selector->selectedList().size(); k++) {
+    int i= selector->selectedList()[k].row();
+    if (i<0) continue;
+    if (i>(int)brfdata.mesh.size()) return;
+
+    BrfMesh &m (brfdata.mesh[i]);
+
+    m.UnifyPos();
+
+    m.DivideVert();
+    //m.UnifyVert(false);
+    m.ComputeNormals();
+    m.UnifyVert(true,1-crease/100.0f*2);
+    m.ComputeNormals();
+  }
+  guiPanel->setSelection( selector->selectedList(),MESH);
+  glWidget->update();
+  statusBar()->showMessage(tr("Normals recomputed with %1% hard edges.").arg(crease), 2000);
 }
 
 void MainWindow::meshRecomputeNormalsAndUnify(){
   int i = selector->firstSelected();
   if (i<0) return;
   if (i>(int)brfdata.mesh.size()) return;
-  BrfMesh &m (brfdata.mesh[i]);
-  m.UnifyPos();
-  m.UnifyVert(false);
-  m.ComputeNormals();
+
+  AskCreaseDialog d(this);
+  connect(d.slider(),SIGNAL(valueChanged(int)),this,SLOT(meshRecomputeNormalsAndUnify(int)));
+  //d.exec();
+  meshRecomputeNormalsAndUnify(d.slider()->value());
+  d.exec();
+  //d.setModal();
+  disconnect(d.slider(),SIGNAL(valueChanged(int)),this,SLOT(meshRecomputeNormalsAndUnify(int)));
+
+  setModified(true);
+}
+
+
+void MainWindow::flip(){
+  int i =  selector->firstSelected();
+  switch (selector->currentTabName()) {
+  case MESH:
+    brfdata.mesh[i].Flip();
+    break;
+  case BODY:
+    brfdata.body[i].Flip();
+    break;
+  default: return;
+  }
   glWidget->update();
-  statusBar()->showMessage(tr("Normals recomputed."), 2000);
-  selector->selectOne(MESH,i);
+  setModified(true);
+}
+
+void MainWindow::scale(){
+  QModelIndexList list= selector->selectedList();
+  if (selector->currentTabName()==MESH && list.size()>0) {
+    float sca;
+    bool ok;
+    sca =  QInputDialog::getInteger(this,"Set Scale Factor","[in %, >100 means larger]",100,1,1000,5,&ok);
+    if (ok) {
+      for (int j=0; j<list.size(); j++){
+        brfdata.mesh[list[j].row()].Scale(sca/100.0);
+      }
+      setModified(true);
+    }
+  }
+  glWidget->update();
+}
+
+
+void MainWindow::shiftAni(){
+  int j = selector->firstSelected();
+  if (selector->currentTabName()==ANIMATION) {
+    bool ok;
+    int a=brfdata.animation[j].FirstIndex();
+    int b=brfdata.animation[j].LastIndex();
+    int k =  QInputDialog::getInteger(this,
+      tr("Shift animation timings"),
+      tr("Current Interval: [%1 %2]\nNew interval: [%1+k %2+k]\n\nSelect k:")
+        .arg(a).arg(b),
+      0,-a,1000,1,&ok);
+    if (ok) {
+      brfdata.animation[j].ShiftIndexInterval(k);
+      selectOne(ANIMATION,j);
+      setModified(true);
+    }
+  }
+  glWidget->update();
+}
+
+
+void MainWindow::transform(){
+  QModelIndexList list= selector->selectedList();
+  if (list.size()>0) {
+
+    AskTransformDialog *d = new AskTransformDialog(this);
+    d->matrix = glWidget->extraMatrix;
+    connect(d,SIGNAL(changed()),glWidget,SLOT(update()));
+    bool ok = d->exec() == QDialog::Accepted;
+
+    if (ok) {
+      if (selector->currentTabName()==MESH)
+      for (int j=0; j<list.size(); j++){
+        brfdata.mesh[list[j].row()].Transform(d->matrix);
+      }
+      if (selector->currentTabName()==BODY)
+      for (int j=0; j<list.size(); j++){
+        brfdata.body[list[j].row()].Transform(d->matrix);
+      }
+      setModified(true);
+    }
+  }
+  glWidget->clearExtraMatrix();
+  glWidget->update();
+}
+
+void MainWindow::transferRigging(){
+  int i = selector->firstSelected();
+  QModelIndexList list= selector->selectedList();
+  if (list.size()<2 || !brfdata.mesh[i].isRigged) {
+    QMessageBox::information(this,
+      tr("Transfer Rigging"),
+      tr("Transfer rigging:\nselect a rigged mesh first,\nthen all target meshes.\n")
+    );
+
+  } else {
+    vector<BrfMesh> mv;
+    mv.push_back(brfdata.mesh[i]);
+    for (int j=1; j<list.size(); j++){
+      brfdata.mesh[list[j].row()].TransferRigging(mv,0,0);
+    }
+  }
+
+  selector->updateData(brfdata);
   setModified(true);
 }
 
@@ -992,267 +869,10 @@ void MainWindow::reskeletonize(){
 
 }
 
-bool MainWindow::exportRiggedMesh(){
-  int i = selector->firstSelected();
-  if (i<0) return false;
-  if (i>(int)brfdata.mesh.size()) return false;
-  int si = currentDisplaySkeleton();
-  if (si<0) {
-    QMessageBox::information(this,
-      tr("Open Brf"),
-      tr("Cannot export animation without a proper skeleton!\n")
-    );
-    return false;
-  }
-  const BrfMesh &m(brfdata.mesh[i]);
-  const BrfSkeleton& s(reference.skeleton[si]);
-
-  QString fn = askExportFilename(brfdata.mesh[ i ].name,"Studiomdl Data rigged mesh (*.SMD)");
-  if (fn.isEmpty()) return false;
-
-  int res = ioSMD::Export(fn.toAscii().data(), m, s, currentDisplayFrame() );
-
-  if (res) {
-    QMessageBox::information(this,
-      tr("Open Brf"),
-      tr("Cannot export rest-pose:\n %1\n").arg( ioSMD::LastErrorString() )
-    );
-    return false;
-  } else {
-    return true;
-  }
-}
-
-bool MainWindow::exportSkeletonAndSkin(){
-
-  BrfSkeleton s;
-  int skinNumber=-1;
-
-  if (selector->currentTabName()==SKELETON) {
-    int i = selector->firstSelected();
-    assert(i>=0 && i<(int)brfdata.skeleton.size());
-    s = brfdata.skeleton[i];
-  }
-  else if (selector->currentTabName()==ANIMATION) {
-    int i = currentDisplaySkeleton();
-    if (i<0) {
-      QMessageBox::information(this,
-        tr("Open Brf"),
-        tr("Cannot export animation without a proper skeleton!\n")
-      );
-      return false;
-    }    
-    assert(i<(int)reference.skeleton.size());
-    s = reference.skeleton[i];
-    skinNumber = currentDisplaySkin();
-  }
-  else assert(0);
-
-
-  if (skinNumber<0) skinNumber = askRefSkin();
-  if (skinNumber<0) return false;
-
-  BrfMesh m = reference.GetCompleteSkin(skinNumber);
-
-  QString fn = askExportFilename(
-    QString(s.name)+"_skin_"+char(skinNumber+'A'),
-    "Studiomdl Data skinned rest-pose (*.SMD)"
-  );
-  if (fn.isEmpty()) return false;
-
-  int res = ioSMD::Export(fn.toAscii().data(), m, s, 0);
-  if (res) {
-    QMessageBox::information(this,
-      tr("Open Brf"),
-      tr("Cannot export rest-pose:\n %1\n").arg( ioSMD::LastErrorString() )
-    );
-    return false;
-  } else {
-    return true;
-  }
-}
-
-bool MainWindow::exportAnimation(){
-  int i = selector->firstSelected();
-  assert(selector->currentTabName()==ANIMATION);
-  assert(i>=0 && i<(int)brfdata.animation.size());
-  BrfAnimation &a(brfdata.animation[ i ]);
-  int si = currentDisplaySkeleton();
-  if (si<0) {
-    QMessageBox::information(this,
-      tr("Open Brf"),
-      tr("Cannot export animation without a proper skeleton!\n")
-    );
-    return false;
-  }
-  BrfSkeleton const &s( reference.skeleton[ si ] );
-
-  QString fn = askExportFilename(brfdata.animation[ i ].name,"Studiomdl Data Animation (*.SMD)");
-  if (fn.isEmpty()) return false;
-
-  int res = ioSMD::Export(fn.toAscii().data(), a, s);
-  if (res) {
-    QMessageBox::information(this,
-      tr("Open Brf"),
-      tr("Cannot export animation:\n %1\n").arg( ioSMD::LastErrorString() )
-    );
-    return false;
-  } else {
-    return true;
-  }
-}
-
-
-
-
-bool MainWindow::exportSkeleton(){
-  int i = selector->firstSelected();
-  assert(selector->currentTabName()==SKELETON);
-  assert(i>=0 && i<(int)brfdata.skeleton.size());
-
-  BrfSkeleton const &s( brfdata.skeleton[ i ] );
-  BrfMesh m;
-
-  int mi = currentDisplaySkin();
-  if (mi<0) s.BuildDefaultMesh(m);
-  else {
-    m = reference.GetCompleteSkin( mi );
-  }
-
-  QString fn = askExportFilename(brfdata.skeleton[ i ].name,"Studiomdl Data Skeleton (*.SMD)");
-  if (fn.isEmpty()) return false;
-
-  BrfData tmp; tmp.mesh.push_back(m); tmp.Save((fn+"_tmp.brf").toAscii().data());
-
-  int res = ioSMD::Export(fn.toAscii().data(), m, s, 0);
-  if (res) {
-    QMessageBox::information(this,
-      tr("Open Brf"),
-      tr("Cannot export skeleton:\n %1\n").arg( ioSMD::LastErrorString() )
-    );
-    return false;
-  } else {
-    return true;
-  }
-
-}
-
-bool MainWindow::exportSkeletonMod(){
-  int i = selector->firstSelected();
-  assert(selector->currentTabName()==SKELETON);
-  assert(i>=0 && i<(int)brfdata.skeleton.size());
-  QString fn = askExportFilename(brfdata.skeleton[ i ].name);
-  if (fn.isEmpty()) return false;
-
-  VcgMesh::add(brfdata.skeleton[ i ]);
-  if (!VcgMesh::save(fn.toAscii().data())){
-    QMessageBox::information(this,
-      tr("Open Brf"),
-      tr("Cannot export control mesh in file \n\"%1\"\n\n").arg(fn)
-    );
-    return false;
-  }
-  return true;
-}
-
-bool MainWindow::importSkeletonMod(){
-  int i = selector->firstSelected();
-  if (i<0) return false;
-  if (i>(int)brfdata.skeleton.size()) return false;
-
-  QString fn = askImportFilename(tr("mesh file ("
-      "*.obj "
-      "*.ply "
-      "*.off "
-      "*.stl "
-      //"*.smf "
-      "*.dae)"
-      //"*.asc "
-      //"*.vmi "
-      //"*.raw "
-      //"*.ptx)"
-    ));
-  if (fn.isEmpty()) return false;
-  //VcgMesh::clear();
-  BrfSkeleton s = brfdata.skeleton[i];
-  if (!VcgMesh::load(fn.toAscii().data())) {
-    QMessageBox::information(this,
-      tr("Open Brf"),
-      tr("Cannot read mesh!")
-    );
-    return false;
-  }
-  if (!VcgMesh::modifyBrfSkeleton(s)) {
-    QMessageBox::information(this,
-      tr("Open Brf"),
-      tr("Modification of skeleton with mesh: fail!")
-    );
-    return false;
-  }
-
-  QString name=QFileInfo(fn).baseName();
-  name.truncate(254);
-  sprintf( s.name, "%s", name.toAscii().data());
-  insert(s);
-  setModified(true);
-  selector->updateData(brfdata);
-  return true;
-}
-
-bool MainWindow::exportMovingMesh(){
-  QMessageBox::information(this,
-    tr("Open Brf"),
-    tr("Export vertex animation:: to do")
-  );
-  return false;
-}
-
-bool MainWindow::exportCollisionBody(){
-  int i = selector->firstSelected();
-  if (i<0) return false;
-  if (i>(int)brfdata.body.size()) return false;
-  if (selector->currentTabName()!=BODY) return false;
-  QString fn = askExportFilename(brfdata.body[ i ].name,"Wavefront Object Files (*.obj)");
-  if (fn.isEmpty()) return false;
-  if (!brfdata.body[i].ExportOBJ(fn.toAscii().data())){
-    QMessageBox::information(this,
-      tr("Open Brf"),
-      tr("Cannot write file?")
-    );
-    return false;
-  }
-  return true;
-}
-
-bool MainWindow::exportStaticMesh(){
-  int i = selector->firstSelected();
-  if (i<0) return false;
-  if (i>(int)brfdata.mesh.size()) return false;
-  
-  QString fn = askExportFilename(brfdata.mesh[ i ].name);
-  if (fn.isEmpty()) return false;
-  switch (selector->currentTabName()) {
-    case MESH:
-      // save mesh as Ply
-      if (fn.isEmpty()) return false;
-      if (QFileInfo(fn).suffix().toLower()== "obj") {
-        return brfdata.mesh[i].SaveOBJ(
-          fn.toAscii().data(),this->currentDisplayFrame()
-        );
-      } else {
-        VcgMesh::add(brfdata.mesh[ i ], this->currentDisplayFrame() );
-        return VcgMesh::save(fn.toAscii().data());
-      }
-    break;
-    default: assert(0); // how was this signal sent?!
-  }
-  return false;
-}
-
 
 void MainWindow::moveUpSel(){
   int i = selector->firstSelected();
-  int j = i-1;
+  int j = i-1; if (j<0) return;
   switch (selector->currentTabName()) {
     case MESH: _swap(brfdata.mesh, i, j); break;
     case TEXTURE: _swap(brfdata.texture, i, j); break;
@@ -1270,60 +890,123 @@ void MainWindow::moveUpSel(){
 void MainWindow::moveDownSel(){
   int i = selector->firstSelected();
   int j = i+1;
+  bool res;
   switch (selector->currentTabName()) {
-    case MESH: _swap(brfdata.mesh, i, j); break;
-    case TEXTURE: _swap(brfdata.texture, i, j); break;
-    case SHADER: _swap(brfdata.shader, i,j); break;
-    case MATERIAL:  _swap(brfdata.material, i,j); break;
-    case SKELETON: _swap(brfdata.skeleton, i,j); break;
-    case ANIMATION: _swap(brfdata.animation, i,j); break;
-    case BODY: _swap(brfdata.body, i,j); break;
+    case MESH: res=_swap(brfdata.mesh, i, j); break;
+    case TEXTURE: res=_swap(brfdata.texture, i, j); break;
+    case SHADER: res=_swap(brfdata.shader, i,j); break;
+    case MATERIAL:  res=_swap(brfdata.material, i,j); break;
+    case SKELETON: res=_swap(brfdata.skeleton, i,j); break;
+    case ANIMATION: res=_swap(brfdata.animation, i,j); break;
+    case BODY: res=_swap(brfdata.body, i,j); break;
     default: assert(0);
   }
-  selector->updateData(brfdata);
-  selector->moveSel(+1);
-  setModified(true);
+  if (res) {
+    selector->updateData(brfdata);
+    selector->moveSel(+1);
+    setModified(true);
+  }
+}
+static void _findCommonPrefix(QString& a, QString b){
+  for (int i=a.size(); i>=0; i--) {
+    QString a0=a;
+    QString b0=b;
+    a0.truncate(i);
+    b0.truncate(i);
+    a = a0;
+    if (a0==b0) break;
+  }
 }
 
 void MainWindow::renameSel(){
-  int i = selector->firstSelected();
-  char* name;
+  QString commonPrefix;
+  int n = 0, max = selector->selectedList().size();
   TokenEnum t=(TokenEnum)selector->currentTabName();
-  switch (t) {
-    case MESH: name=_name(brfdata.mesh,i); break;
-    case TEXTURE: name=_name(brfdata.texture,i); break;
-    case SHADER: name=_name(brfdata.shader,i); break;
-    case MATERIAL:  name=_name(brfdata.material, i ); break;
-    case SKELETON: name=_name(brfdata.skeleton, i); break;
-    case ANIMATION: name=_name(brfdata.animation,i); break;
-    case BODY: name=_name(brfdata.body, i); break;
-    default: assert(0);
+
+  if (!max) return;
+  for (int j=0; j<max; j++) {
+    int i = selector->selectedList()[j].row();
+    char* name=NULL;
+    switch (t) {
+      case MESH: name=_name(brfdata.mesh,i); break;
+      case TEXTURE: name=_name(brfdata.texture,i); break;
+      case SHADER: name=_name(brfdata.shader,i); break;
+      case MATERIAL:  name=_name(brfdata.material, i ); break;
+      case SKELETON: name=_name(brfdata.skeleton, i); break;
+      case ANIMATION: name=_name(brfdata.animation,i); break;
+      case BODY: name=_name(brfdata.body, i); break;
+      default: assert(0);
+    }
+    if (name) {
+      if (!n)  commonPrefix= QString("%1").arg(name);
+      else  _findCommonPrefix( commonPrefix , name);
+      n++;
+    }
   }
-  if (name) {
+
+  if (n>0) {
     bool ok;
-    QString newName = QInputDialog::getText(
-      this, tr("Rename %1").arg(tokenBrfName[t]),
-      tr("New name:"), QLineEdit::Normal,
-      QString(name), &ok
-    );
+    QString newPrefix;
+    if (n==1) {
+      newPrefix = QInputDialog::getText(
+        this,
+        tr("OpenBrf"),
+        tr("Renaming %1...\nnew name:").arg(tokenFullName[t]),
+        QLineEdit::Normal,
+        QString(commonPrefix), &ok
+      );
+    }
+    else {
+      int ps = commonPrefix.size();
+      newPrefix = QInputDialog::getText(
+        this,
+        tr("OpenBrf"),
+        tr("%3 common prefix for %1 %2...\nnew prefix:").arg(n).arg(tokenPlurName[t]).arg((ps)?"Changing the":"Adding a"),
+        QLineEdit::Normal,
+        commonPrefix, &ok
+      );
+    }
     if (ok) {
+      for (int j=0; j<max; j++) {
+      int i = selector->selectedList()[j].row();
+      char* name=NULL;
+
+      switch (t) {
+        case MESH: name=_name(brfdata.mesh,i); break;
+        case TEXTURE: name=_name(brfdata.texture,i); break;
+        case SHADER: name=_name(brfdata.shader,i); break;
+        case MATERIAL:  name=_name(brfdata.material, i ); break;
+        case SKELETON: name=_name(brfdata.skeleton, i); break;
+        case ANIMATION: name=_name(brfdata.animation,i); break;
+        case BODY: name=_name(brfdata.body, i); break;
+        default: assert(0);
+      }
+      QString newName = QString("%1").arg(name);
+      int ps = commonPrefix.size();
+      newName =newPrefix + newName.remove( 0,ps );
       _setName(name,newName);
-      selector->updateData(brfdata);
+      }
       setModified(true);
+      selector->updateData(brfdata);
     }
   }
 }
 void MainWindow::deleteSel(){
-  int i = selector->firstSelected();
+  int i = selector->lastSelected();
+  unsigned int res=0;
   switch (selector->currentTabName()) {
-    case MESH: _del(brfdata.mesh, i); break;
-    case TEXTURE: _del(brfdata.texture, i); break;
-    case SHADER: _del(brfdata.shader, i); break;
-    case MATERIAL:  _del(brfdata.material, i); break;
-    case SKELETON: _del(brfdata.skeleton, i); break;
-    case ANIMATION: _del(brfdata.animation, i); break;
-    case BODY: _del(brfdata.body, i); break;
-    default: assert(0);
+    case MESH: res=_del(brfdata.mesh, selector->selectedList()); break;
+    case TEXTURE: res=_del(brfdata.texture,  selector->selectedList()); break;
+    case SHADER: res=_del(brfdata.shader,  selector->selectedList()); break;
+    case MATERIAL:  res=_del(brfdata.material,  selector->selectedList()); break;
+    case SKELETON: res=_del(brfdata.skeleton,  selector->selectedList()); break;
+    case ANIMATION: res=_del(brfdata.animation,  selector->selectedList()); break;
+    case BODY: res=_del(brfdata.body,  selector->selectedList()); break;
+    default: return; // no selection, no tab
+  }
+  if (res>0) {
+    if (i>=(int)res) i=res-1;
+    selector->selectOne(selector->currentTabName(),i);
   }
   selector->updateData(brfdata);
   setModified(true);
@@ -1363,6 +1046,40 @@ void MainWindow::editCopyFrame(){
 
   editPasteAct->setEnabled(true);
   editPasteFrameAct->setEnabled(true);
+
+  editPasteRiggingAct->setEnabled(m.isRigged);
+
+}
+
+
+void MainWindow::editPasteRigging(){
+
+  QModelIndexList list= selector->selectedList();
+  bool allRigged=true;
+  for (unsigned int i=0; i<clipboard.mesh.size(); i++)
+    if (!clipboard.mesh[i].isRigged) allRigged = false;
+
+  if (list.size()<1 || !allRigged || !clipboard.mesh.size() || selector->currentTabName()!=MESH) {
+    QMessageBox::information(this,
+      tr("Copy Rigging into another mesh"),
+      tr("Copy Rigging into another mesh:\n"
+         "- select one or more sample rigged mesh first,\n"
+         "- copy them (ctrl-C)\n"
+         "- then select one or more target meshes (rigged or otherwise),\n"
+         "- then paste rigging.\n"
+         "\n"
+         "(works best if sample mesh is similar to target meshes)\n"
+       )
+    );
+
+  } else {
+    for (int j=0; j<list.size(); j++){
+      brfdata.mesh[list[j].row()].TransferRigging(clipboard.mesh,0,0);
+    }
+  }
+
+  selector->updateData(brfdata);
+  setModified(true);
 }
 
 void MainWindow::editPasteFrame(){
@@ -1378,10 +1095,10 @@ void MainWindow::editPasteFrame(){
     bool res=false;
     if (assembleAniMode()==0) {
       res = m.AddFrameMatchVert(clipboard.mesh[0],j);
-      if (!res) statusBar()->showMessage(tr("Vertex number mismatch... using texture-coord matching instead of vertex-ordering"));
+      if (!res) statusBar()->showMessage(tr("Vertex number mismatch... using texture-coord matching instead of vertex-ordering"),7000);
     }
     if (!res) m.AddFrameMatchTc(clipboard.mesh[0],j);
-    statusBar()->showMessage(tr("Added frame %1").arg(j+1));
+    statusBar()->showMessage(tr("Added frame %1").arg(j+1),2000);
     setModified(true);
     selector->selectOne(MESH,i);
   }
@@ -1395,26 +1112,35 @@ void MainWindow::editCut(){
 
 void MainWindow::editCopy(bool deselect){
   clipboard.Clear();
-  int i = selector->firstSelected();
-  if (i<0) return;
   editPasteAct->setEnabled(true);
   switch (selector->currentTabName()) {
-    case MESH: _copy(brfdata.mesh, i, clipboard.mesh);  break;
-    case TEXTURE: _copy(brfdata.texture, i, clipboard.texture); break;
-    case SHADER: _copy(brfdata.shader, i, clipboard.shader); break;
-    case MATERIAL:  _copy(brfdata.material, i, clipboard.material); break;
-    case SKELETON: _copy(brfdata.skeleton, i, clipboard.skeleton); break;
-    case ANIMATION: _copy(brfdata.animation, i, clipboard.animation); break;
-    case BODY: _copy(brfdata.body, i, clipboard.body); break;
-    default: assert(0);
+    case MESH:     _copy(brfdata.mesh,     selector->selectedList(), clipboard.mesh);  break;
+    case TEXTURE:  _copy(brfdata.texture,  selector->selectedList(), clipboard.texture); break;
+    case SHADER:   _copy(brfdata.shader,   selector->selectedList(), clipboard.shader); break;
+    case MATERIAL: _copy(brfdata.material, selector->selectedList(), clipboard.material); break;
+    case SKELETON: _copy(brfdata.skeleton, selector->selectedList(), clipboard.skeleton); break;
+    case ANIMATION:_copy(brfdata.animation,selector->selectedList(), clipboard.animation); break;
+    case BODY:     _copy(brfdata.body,     selector->selectedList(), clipboard.body); break;
+    default: return ; //assert(0);
   }
 
-  // maybe it was a single frame mesh?
-  editPasteFrameAct->setEnabled(
-    (selector->currentTabName()==MESH) &&
-    (i<(int)clipboard.mesh.size()) &&
-    (clipboard.mesh[0].frame.size()==1)
-  );
+  if (selector->currentTabName()==MESH) {
+    // maybe it was a rigged mesh?
+    bool allRigged=true;
+    for (unsigned int i=0; i<clipboard.mesh.size(); i++)
+      if (!clipboard.mesh[i].isRigged) allRigged = false;
+    editPasteRiggingAct->setEnabled(allRigged && clipboard.mesh.size()>0);
+
+    // maybe it was a single frame mesh?
+    int i = selector->firstSelected();
+    if (i>=0)
+    editPasteFrameAct->setEnabled(
+      (selector->currentTabName()==MESH) &&
+      (i<(int)clipboard.mesh.size()) &&
+      (clipboard.mesh[0].frame.size()==1)
+    );
+
+  }
 
 
 }
@@ -1429,7 +1155,7 @@ void MainWindow::editPaste(){
   for (int i=0; i<(int)clipboard.animation.size(); i++) insert(clipboard.animation[i]);
   for (int i=0; i<(int)clipboard.shader.size(); i++) insert(clipboard.shader[i]);
   //brfdata.Merge(clipboard);
-  selector->updateData(brfdata);
+  //selector->updateData(brfdata);
   setModified(true);
 }
 
@@ -1467,7 +1193,6 @@ void MainWindow::addToRef(){
 
 }
 
-typedef QPair<int, int> Pair;
 
 Pair MainWindow:: askRefSkel(int nbones, bool &asAFrame){
   if (reference.skeleton.size()<2) return Pair(-1,-1);
@@ -1482,15 +1207,80 @@ Pair MainWindow:: askRefSkel(int nbones, bool &asAFrame){
     return Pair(-1,-1);
 }
 
-Pair MainWindow::askRefBoneInt(){
+Pair MainWindow::askRefBoneInt(bool sayNotRigged){
   if (!reference.skeleton.size()) return Pair(-1,-1);
   AskBoneDialog d(this,reference.skeleton);
+  d.sayNotRigged(sayNotRigged);
   int res=d.exec();
   if (res==QDialog::Accepted) return Pair(d.getSkel(),d.getBone());
   else
   return Pair(-1,-1);
 }
 
+void MainWindow::setSelection(const QModelIndexList &l, int k){
+  comboViewmodeSelector->setVisible(l.size()>1);
+}
+
+void MainWindow::meshRemoveBack(){
+  int k=0;
+  for (int j=0; j<selector->selectedList().size(); j++) {
+    int i = selector->selectedList()[j].row();
+    if (i<0 || i>=(int)brfdata.mesh.size()) continue;
+    BrfMesh &m(brfdata.mesh[i]);
+    m.RemoveBackfacingFaces();
+    k++;
+  }
+  if (k>0) {
+    setModified(true);
+    guiPanel->setSelection(selector->selectedList(),MESH);
+    glWidget->update();
+  }
+}
+
+void MainWindow::meshAddBack(){
+  int k=0;
+  for (int j=0; j<selector->selectedList().size(); j++) {
+    int i = selector->selectedList()[j].row();
+    if (i<0 || i>=(int)brfdata.mesh.size()) continue;
+    BrfMesh &m(brfdata.mesh[i]);
+    m.AddBackfacingFaces();
+    k++;
+  }
+  if (k>0) {
+    setModified(true);
+    guiPanel->setSelection(selector->selectedList(),MESH);
+    glWidget->update();
+  }
+}
+
+void MainWindow::meshMountOnBone(){
+  Pair p = askRefBoneInt(false);
+
+  if (p.first==-1) {
+    statusBar()->showMessage(tr("Canceled."), 2000);
+    return;
+  }
+
+  int k=0;
+  for (int j=0; j<selector->selectedList().size(); j++) {
+    int i = selector->selectedList()[j].row();
+    if (i<0 || i>=(int)brfdata.mesh.size()) continue;
+    BrfMesh &m(brfdata.mesh[i]);
+    m.Apply(
+      BrfSkeleton::adjustCoordSystHalf(
+        reference.skeleton[p.first].GetBoneMatrices()[p.second].transpose()
+      ).transpose()
+    );
+    m.SetUniformRig(p.second);
+    k++;
+  }
+  if (k>0)
+  setModified(true);
+  //selector->setCurrentIndex(2);
+
+  statusBar()->showMessage(tr("Mounted %1 mesh%2 on bone %3").arg(k).arg((k>1)?"es":"s").arg(p.second), 8000);
+
+}
 
 
 void MainWindow::addToRefMesh(int k){
@@ -1499,8 +1289,8 @@ void MainWindow::addToRefMesh(int k){
   assert(i<(int)brfdata.mesh.size());
   BrfMesh m = brfdata.mesh[i];
   if (!m.isRigged) {
-    m.KeepOnlyFrame(m.frame.size()-1); // TODO: if vertex ani, only one frame
-    Pair p = askRefBoneInt();
+    m.KeepOnlyFrame(guiPanel->getCurrentSubpieceIndex(MESH));
+    Pair p = askRefBoneInt(true);
 
     if (p.first==-1) {
       statusBar()->showMessage(tr("Canceled."), 2000);
@@ -1519,108 +1309,13 @@ void MainWindow::addToRefMesh(int k){
   sprintf(m.name, "Skin%c_%s", ch , brfdata.mesh[i].name);
   reference.mesh.push_back(m);
   saveReference();
-  statusBar()->showMessage(tr("Added mesh %1 to set %2.").arg(m.name).arg(ch), 4000);
+  statusBar()->showMessage(tr("Added mesh %1 to set %2.").arg(m.name).arg(ch), 5000);
 }
 
 template <class T> const char* add(vector<T>& v, const vector<T>& t, int i){
   v.push_back(t[i]);
   return t[i].name;
 }
-
-bool MainWindow::exportBrf(){
-  BrfData tmp;
-  int i = selector->firstSelected();
-  const char * objName="";
-  switch (selector->currentTabName()) {
-    case MESH:
-      objName = add(tmp.mesh, brfdata.mesh, i);
-      // todo: multiple mesh?
-      break;
-    case TEXTURE:
-      objName = add(tmp.texture, brfdata.texture, i) ;
-      break;
-    case SHADER:
-      objName = add(tmp.shader, brfdata.shader,i) ;
-      break;
-    case MATERIAL:
-      objName = add(tmp.material, brfdata.material,i) ;
-      break;
-    case SKELETON:
-      objName = add(tmp.skeleton, brfdata.skeleton,i );
-      break;
-    case ANIMATION:
-      objName = add(tmp.animation, brfdata.animation,i );
-      break;
-    case BODY:
-      objName = add(tmp.body, brfdata.body,i) ;
-      break;
-    default: assert(0);
-  }
-
-  QString fileName = askExportFilename(objName,"brf");
-  if (fileName.isEmpty()) return false;
-  if (!tmp.Save(fileName.toAscii().data())){
-    QMessageBox::information(this, tr("Export BRF"),
-                              tr("Cannot save into %1.").arg(fileName));
-    return false;
-  }
-  return true;
-}
-
-QString MainWindow::askImportFilename(QString ext){
-  QString path = settings->value("LastExpImpPath").toString();
-  if (path.isEmpty()) path = QDir::currentPath();
-
-  QString fileName = QFileDialog::getOpenFileName(
-    this,
-    tr("Import file") ,
-    path,
-    ext,
-    &lastImpExpFormat
-   );
-   if (fileName.isEmpty()) {
-     statusBar()->showMessage(tr("Import canceled."), 2000);
-   } else
-   settings->setValue("LastExpImpPath",QFileInfo(fileName).absolutePath());
-   return fileName;
-}
-
-QString MainWindow::askExportFilename(QString filename){
-  return askExportFilename(filename, QString(
-  "Wavefront Object Files (*.obj);;" // e:C n:N
-  "Polygon File Format (*.ply);;" // ok
-  "Collada (*.dae);;"
-  "AutoCad (*.dxf);;"  // n:C n:N
-  "Object File Format (*.off);;" // e:N e:C
-  "Stereolithography 3D system(*.stl);;" // n:C
-  //"3D studio Max (*.3ds);;"
-  //"VRML (*.vrml);;"
-  //"Intermediate Data Text File (*.idtf);;"
-  //"Open Inventor (*.iv);;"
-  //"(*.smf);;"
-  //"Universal 3D (*.u3d);;"
-  //"VMI (*.vmi);;"
-  )
-  );
-}
-
-QString MainWindow::askExportFilename(QString filename,QString ext){
-  QString path = settings->value("LastExpImpPath").toString();
-  if (path.isEmpty()) path = QDir::currentPath();
-
-  QString fileName = QFileDialog::getSaveFileName(
-    this,
-    tr("Export file") ,
-    tr("%1\\%2").arg(path).arg(filename),
-    ext
-   );
-   if (fileName.isEmpty()) {
-     statusBar()->showMessage(tr("Export canceled."), 2000);
-   } else
-   settings->setValue("LastExpImpPath",QFileInfo(fileName).absolutePath());
-   return fileName;
-}
-
 void MainWindow::breakAni(int which, bool useIni){
   if ((int)brfdata.animation.size()>which) {
 
@@ -1638,20 +1333,21 @@ void MainWindow::breakAni(int which, bool useIni){
         statusBar()->showMessage(tr("Animation could be auto-split (frames are too conescutive)"), 10000);
       }
     } else {
-      QString path = settings->value("LastModulePath").toString();
-      if (path.isEmpty()) path = settings->value("LastOpenPath").toString();
+      //QString path = this->modName; //settings->value("LastModulePath").toString();
+      //if (path.isEmpty()) path = settings->value("LastOpenPath").toString();
       QString fileName = QFileDialog::getOpenFileName(
         this,
         tr("Select an \"actions.txt\" file (hint: it's in the module dir)") ,
-        tr("%1\\actions.txt").arg(path),
+        tr("%1\\actions.txt").arg(modPath()),
         tr("Txt file(*.txt)")
       );
       if (fileName.isEmpty()) {
         statusBar()->showMessage(tr("Split canceled."), 2000);
         return;
       }
-      settings->setValue("LastModulePath",QFileInfo(fileName).absolutePath());
-      int res = ani.Break(brfdata.animation, fileName.toAscii().data() );
+      //settings->setValue("LastModulePath",QFileInfo(fileName).absolutePath());
+      char newTxt[2048];
+      int res = ani.Break(brfdata.animation, fileName.toAscii().data(),newTxt );
 
       if (res==0) statusBar()->showMessage(tr("Nothing to split (or could not split)."));
       else {
@@ -1659,7 +1355,7 @@ void MainWindow::breakAni(int which, bool useIni){
         setModified(true);
         //selector->setCurrentIndex(2);
 
-        statusBar()->showMessage(tr("Animation %2 split in %1 chunks!").arg(res).arg(ani.name), 2000);
+        statusBar()->showMessage(tr("Animation %2 split in %1 chunks -- new animation.txt file save in \"%3\"!").arg(res).arg(ani.name).arg(newTxt), 8000);
       }
     }
   }
@@ -1674,14 +1370,6 @@ void MainWindow::dragEnterEvent(QDragEnterEvent *event)
     //{
         event->acceptProposedAction();
     //}
-}
-
-void MainWindow::about()
-{
-   QMessageBox::about(this, tr("Open-Brf"),
-            tr("<b>ver 0.0.18 alpha</b><br>"
-               "(%1)<br>"
-               "by mtarini --- Marco Tarini ").arg(__DATE__) );
 }
 
 void MainWindow::dropEvent(QDropEvent *event)
@@ -1705,104 +1393,6 @@ void MainWindow::dropEvent(QDropEvent *event)
 }
 
 
-void MainWindow::createMenus()
-{
-    fileMenu = menuBar()->addMenu(tr("&File"));
-    fileMenu->addAction(newAct);
-    fileMenu->addAction(openAct);
-    fileMenu->addAction(saveAct);
-    fileMenu->addAction(saveAsAct);
-    separatorAct = fileMenu->addSeparator();
-    for (int i = 0; i < MaxRecentFiles; ++i)
-        fileMenu->addAction(recentFileActs[i]);
-    fileMenu->addSeparator();
-    fileMenu->addAction(exitAct);
-    updateRecentFileActions();
-
-    //menuBar()->addSeparator();
-    QMenu *editMenu = menuBar()->addMenu(tr("&Edit"));
-    editMenu->addAction(editCutAct);
-    editMenu->addAction(editCopyAct);
-    editMenu->addAction(editPasteAct);
-    editMenu->addSeparator();
-    editMenu->addAction(editCutFrameAct);
-    editMenu->addAction(editCopyFrameAct);
-    editMenu->addAction(editPasteFrameAct);
-
-    QMenu* importMenu=menuBar()->addMenu("&Import");
-
-    importMenu->addAction(importStaticMeshAct);
-    importMenu->addAction(importRiggedMeshAct);
-    importMenu->addAction(importMovingMeshAct);
-    importMenu->addSeparator();
-    importMenu->addAction(importAnimationAct);
-    importMenu->addSeparator();
-    importMenu->addAction(importSkeletonAct);
-    importMenu->addSeparator();
-    importMenu->addAction(importBodyAct);
-    importMenu->addSeparator();
-    importMenu->addAction(addNewMaterialAct);
-    importMenu->addAction(addNewTextureAct);
-    importMenu->addAction(addNewShaderAct);
-
-    QMenu* moduleMenu=menuBar()->addMenu("Module");
-    moduleMenu->addAction(refreshIniAct);
-    //moduleMenu->addAction(searchBrfAct);
-    QMenu* navMenu = moduleMenu->addMenu("Navigate");
-    navMenu->addAction(navigateRightAct);
-    navMenu->addAction(navigateLeftAct);
-    //navMenu->addAction(navigateDownAct);
-    //navMenu->addAction(navigateUpAct);
-
-    QMenu* optionMenu=menuBar()->addMenu("&Settings");
-    QMenu* onImport = optionMenu->addMenu("On import meshes");
-
-    QMenu* onAssemble = optionMenu->addMenu("On assemble vertex animations");
-
-
-    optionAfterMeshLoadMerge = new QAction("merge vertices and pos",this);
-    optionAfterMeshLoadMerge->setCheckable(true);
-    optionAfterMeshLoadRecompute = new QAction("recompute normals and merge",this);
-    optionAfterMeshLoadRecompute->setCheckable(true);
-    optionAfterMeshLoadNothing = new QAction("do nothing",this);
-    optionAfterMeshLoadNothing->setCheckable(true);
-
-
-    QActionGroup* group=new QActionGroup(this);
-    group->addAction(optionAfterMeshLoadNothing);
-    group->addAction(optionAfterMeshLoadMerge);
-    group->addAction(optionAfterMeshLoadRecompute);
-    group->setExclusive(true);
-
-    onImport->addActions(group->actions());
-
-
-    optionAssembleAniMatchVert = new QAction("trust vertex order to be the same",this);
-    optionAssembleAniMatchVert->setToolTip("Use this option if you feel lucky and think that vertex order was preserved between the frames of vertex ani.");
-    optionAssembleAniMatchVert->setCheckable(true);
-    optionAssembleAniMatchTc   = new QAction("trust texture coordinates to be unique",this);
-    optionAssembleAniMatchTc->setCheckable(true);
-    optionAssembleAniMatchTc->setToolTip("Use this option if you think that each vertex can be identified uniquely by its texture coords (best option)");
-
-    QActionGroup* group2=new QActionGroup(this);
-    group2->addAction(optionAssembleAniMatchTc);
-    group2->addAction(optionAssembleAniMatchVert);
-    group2->setExclusive(true);
-
-    onAssemble->addActions(group2->actions());
-
-    optionMenu->addAction(editRefAct);
-    optionMenu->addSeparator();
-    optionMenu->addAction(registerMime);
-    optionMenu->addAction(aboutAct);
-}
-
-void MainWindow::saveOptions() const {
-
-  settings->setValue("afterMeshImport",afterMeshImport());
-  settings->setValue("assembleAniMode",assembleAniMode());
-}
-
 int MainWindow::afterMeshImport() const{
   if (optionAfterMeshLoadRecompute->isChecked()) return 2;
   if (optionAfterMeshLoadMerge->isChecked()) return 1;
@@ -1814,35 +1404,83 @@ int MainWindow::assembleAniMode() const{
   return 1;
 }
 
+void MainWindow::optionAutoFixTextureUpdated(){
+  if (glWidget->fixTexturesOnSight  = optionAutoFixTextureOn->isChecked())
+    glWidget->update();
+}
+
+void MainWindow::saveOptions() const {
+
+  settings->setValue("afterMeshImport",afterMeshImport());
+  settings->setValue("assembleAniMode",assembleAniMode());
+  settings->setValue("lastSearchString",lastSearchString);
+  //settings->setValue("autoFixDXT1",(int)(glWidget->fixTexturesOnSight));
+  settings->setValue("autoZoom",(int)(glWidget->commonBBox));
+  settings->setValue("groupMode",(int)(glWidget->getViewmodeMult() ));
+}
+
+QString MainWindow::modPath() const{
+  return mabPath+"/Modules/"+modName;
+}
+
 void MainWindow::loadOptions(){
   {
-  int k = 1;
+  int k=1;
   QVariant s =settings->value("afterMeshImport");
-  if (!s.isNull()) k = s.toInt();
+  if (s.isValid()) k = s.toInt();
   optionAfterMeshLoadRecompute->setChecked(k==2);
   optionAfterMeshLoadMerge->setChecked(k==1);
   optionAfterMeshLoadNothing->setChecked(k==0);
   }
 
   {
-  int k=1;
+  int k=0;
+  QVariant s =settings->value("groupMode");
+  if (s.isValid()) k = s.toInt();
+  glWidget->setViewmodeMult(k);
+  comboViewmodeBG->button(0)->setChecked(k==0);
+  comboViewmodeBG->button(1)->setChecked(k==1);
+  }
+
+  {
+  int k=0;
   QVariant s =settings->value("assembleAniMode");
-  if (!s.isNull()) k = s.toInt();
+  if (s.isValid()) k = s.toInt();
   optionAssembleAniMatchVert->setChecked(k==0);
   optionAssembleAniMatchTc->setChecked(k==1);
+  }
+
+  {
+  int k=0;
+  /*QVariant s =settings->value("autoFixDXT1");
+  if (s.isValid()) k = s.toInt();
+  optionAutoFixTextureOff->setChecked(k==0);
+  optionAutoFixTextureOn->setChecked(k==1);*/
+  glWidget->fixTexturesOnSight = k;
+  }
+
+  {
+  int k=0;
+  QVariant s =settings->value("autoZoom");
+  if (s.isValid()) k = s.toInt();
+  optionAutoZoomUseSelected->setChecked(k==0);
+  optionAutoZoomUseGlobal->setChecked(k==1);
+  glWidget->commonBBox = k;
   }
 
   modName = settings->value("modName").toString();
   if (modName.isEmpty()) modName = "native";
   mabPath = settings->value("mabPath").toString();
   inidata.setPath(mabPath,mabPath+"/Modules/"+modName);
+
+  lastSearchString = settings->value("lastSearchString").toString();
 }
 
 void MainWindow::updatePaths(){
-  modStatus->setText(QString("module:%1").arg(modName) );
+  modStatus->setText(QString("module:[<b>%1</b>]").arg(modName) );
 
   glWidget->texturePath[0]=mabPath+"/Textures";
-  glWidget->texturePath[1]=mabPath+"/Modules/"+modName+"/Textures";
+  glWidget->texturePath[1]=modPath()+"/Textures";
 
   settings->setValue("modName",modName);
   settings->setValue("mabPath",mabPath);
@@ -1855,7 +1493,10 @@ bool MainWindow::saveReference(){
   guiPanel->setReference(&reference);
   if ((int)reference.animation.size()>=glWidget->selRefAnimation) glWidget->selRefAnimation=-1;
   if (reference.GetFirstUnusedLetter()>=glWidget->selRefSkin) glWidget->selRefSkin=-1;
-  if (!reference.Save("reference.brf")) {
+  if (!reference.Save(
+       QString("%1/%2").arg(QCoreApplication::applicationDirPath()).arg("reference.brf").toAscii().data()
+     ))
+  {
     QMessageBox::information(this, tr("Open BRF"),
                               tr("Cannot save reference file!"));
   }
@@ -1870,6 +1511,7 @@ int MainWindow::GetFirstUnusedRefLetter() const{
 bool MainWindow::editRef()
 {
   if (editingRef) {
+    // stop editing refernce file
     reference = brfdata;
     if (!maybeSave()) return false;
     curFile = curFileBackup;
@@ -1883,7 +1525,7 @@ bool MainWindow::editRef()
     if (!maybeSave()) return false;
     curFileBackup = curFile;
     brfdataBackup = brfdata;
-    curFile = QDir::currentPath()+"\\"+QString("reference.brf");
+    curFile = QString("%1/%2").arg(QCoreApplication::applicationDirPath()).arg("reference.brf").toAscii().data();
     brfdata = reference;
     setEditingRef(true);
     selector->setup(brfdata);
@@ -1893,8 +1535,10 @@ bool MainWindow::editRef()
   }
 }
 
-bool MainWindow::loadFile(const QString &fileName)
+bool MainWindow::loadFile(const QString &_fileName)
 {
+  QString fileName = _fileName;
+  fileName.replace("\\","/");
   if (!maybeSave()) return false;
   setEditingRef(false);
   setCurrentFile(fileName);
@@ -1924,6 +1568,7 @@ bool MainWindow::saveFile(const QString &fileName)
 {
   if (curFileIndex!=-1) {
     inidata.file[curFileIndex] = brfdata;
+    inidata.updateLists();
   }
   //setCurrentFile(fileName);
   if (!brfdata.Save(fileName.toAscii().data())) {
@@ -1972,17 +1617,23 @@ bool MainWindow::save()
 
 bool MainWindow::saveAs()
 {
+  QString f0="M&B Resource (*.brf)",f1 = "WarBand Resource v.1 (*.brf)";
+  QString selectedf = (brfdata.version==1)?f1:f0;
   QString fileName = QFileDialog::getSaveFileName(this,
     tr("Save File") ,
     (curFile.isEmpty())?
       settings->value("LastOpenPath").toString():
       curFile,
-    tr("Resource (*.brf)")
+    f0+";;"+f1,
+     &selectedf
   );
+
+
   if (fileName.isEmpty()) return false;
 
   setEditingRef(false);
   setCurrentFile(fileName);
+  brfdata.version=(selectedf==f1)?1:0;
   saveFile(fileName);
   setModified(false);
   return true;
@@ -2009,17 +1660,21 @@ void MainWindow::setModified(bool mod){
 void MainWindow::guessPaths(QString fn){
   fn = QFileInfo(fn).canonicalPath();
 
-  QString modPath;
+
+  QString _modPath;
 
   QDir b(fn);
-  if  (QString::compare(b.dirName(),"resource",Qt::CaseInsensitive)==0)
+  if  (QString::compare(b.dirName(),"Resource",Qt::CaseInsensitive)==0)
   if (b.cdUp())  // go out of "resource"
+
+  glWidget->texturePath[2]=b.absolutePath()+"/Textures";
+
   if (b.exists("module.ini"))
   if (b.cdUp()) // go out of <modName>
   if (QString::compare(b.dirName(),"modules",Qt::CaseInsensitive )==0) {
     QDir a(fn);
     a.cdUp();
-    modPath = a.absolutePath();
+    _modPath = a.absolutePath();
     modName = a.dirName();
     a.cdUp();
     a.cdUp(); // out of "modules"
@@ -2031,15 +1686,15 @@ void MainWindow::guessPaths(QString fn){
   if (a.cdUp()) {
     mabPath = a.absolutePath();
     if (a.cd("modules") && (a.cd(modName)) ) {
-      modPath = a.absolutePath();
+      _modPath = a.absolutePath();
     } else {
       modName = "native";
-      modPath = mabPath + "/modules/" + modName;
+      _modPath = modPath();
     }
   }
 
   updatePaths();
-  inidata.setPath(mabPath,modPath);
+  inidata.setPath(mabPath,_modPath);
 
   loadIni();
 }
@@ -2047,13 +1702,15 @@ void MainWindow::guessPaths(QString fn){
 bool MainWindow::loadIni(){
   QTime qtime;
   qtime.start();
-  if (!inidata.load()) return false;
 
-  for (int i=0; i<3; i++) navigationStack[i]=Pair(-1,-1);
+  bool res = (!inidata.load(true));
+
+  cancelNavStack();
 
   guiPanel->setIniData(inidata);
-  statusBar()->showMessage( tr("scanned %1 brf files from module.ini of \"%3\"-- %2 msec total").
-      arg(inidata.file.size()).arg(qtime.elapsed()).arg(modName));
+  statusBar()->showMessage( tr("%5 %1 brf files from module.ini of \"%3\"-- %2 msec total [%4 text/mat/shad]").
+      arg(inidata.file.size()).arg(qtime.elapsed()).arg(modName).arg(inidata.nRefObjects())
+      .arg((res)?"scanned":"ERRORS found while scanning"),6000);
   return true;
 }
 
@@ -2092,25 +1749,40 @@ bool MainWindow::navigateLeft(){
 
   if (navigationStackPos<=0) return false;
   navigationStackPos--;
-  Pair p = navigationStack[navigationStackPos];
-  if (p.first<0) return false;
-  if (p.first>=(int)inidata.filename.size()) return false;
+  QPair<Pair,QString> p = navigationStack[navigationStackPos];
+  //qDebug()<<"p,first: "<<p.first<<" (on"<<inidata.filename.size() << ")\n";
+  if (p.second.isEmpty()) return false;
+  //if (p.first>=(int)inidata.filename.size()) return false;
 
-  if (p.first!=curFileIndex)
-    if (!loadFile( inidata.filename[p.first])) return false;
-  curFileIndex = p.first;
+  if (p.first.first!=curFileIndex || p.first.first==-1)
+    if (!loadFile( //inidata.filename[p.first])
+        p.second )
+        ) return false;
+
+  curFileIndex = p.first.first;
 
   int obj=MESH;
   if (navigationStackPos==1) obj=MATERIAL;
-  selectOne(obj,p.second);
-  selector->currentWidget()->setFocus();
+  selectOne(obj,p.first.second);
+  //selector->currentWidget()->setFocus();
+  guiPanel->setNavigationStackDepth( navigationStackPos );
   return true;
+}
+
+void MainWindow::cancelNavStack(){
+  navigationStackPos = 0;
+  guiPanel->setNavigationStackDepth( navigationStackPos );
+  for (int i=0; i<3; i++) navigationStack[i]=
+       QPair<Pair, QString>(Pair(-1,-1),"");
 }
 
 bool MainWindow::navigateRight(){
   //int s = selector->onlySelected(MESH);
   //BrfMesh *m = selectedMesh();
-  Pair old(curFileIndex,selector->firstSelected());
+
+  QPair<Pair,QString> old(
+      Pair(curFileIndex,selector->firstSelected()),
+      curFile);
 
   if (selector->currentTabName()==MESH) {
     if (!guiPanel->ui->boxMaterial->hasFrame()) return false;
@@ -2118,7 +1790,7 @@ bool MainWindow::navigateRight(){
     QString st = guiPanel->ui->boxMaterial->text();
     Pair p = inidata.indexOf(st,MATERIAL);
     if (p.first==-1) {
-      statusBar()->showMessage( tr("Navigate: cannot find material \"%1\" in current module").arg(st));
+      statusBar()->showMessage( tr("Navigate: cannot find material \"%1\" in current module").arg(st),6000);
       return false;
     }
     if (p.first!=curFileIndex) {
@@ -2126,14 +1798,17 @@ bool MainWindow::navigateRight(){
     }
     navigationStackPos = 0;
 
-    //navigationStackObj[navigationStackPos]=MESH;
     navigationStack[navigationStackPos]=old;
+    //qDebug()<<"WRITING pos: "<<old.first<<"\n";
     curFileIndex = p.first;
     if (navigationStackPos<10) navigationStackPos ++;
+    guiPanel->setNavigationStackDepth( navigationStackPos );
+
 
     // switch to file containing the material
     selectOne(MATERIAL,p.second);
     selector->currentWidget()->setFocus();
+
 
     return true;
   }
@@ -2153,13 +1828,13 @@ bool MainWindow::navigateRight(){
       ne = SHADER;
     } else {
       ne = TEXTURE;
-      st = st+".dds";
+      //st = st+".dds";
     }
     Pair p = inidata.indexOf(st, ne);
 
     if (p.first==-1) {
       statusBar()->showMessage( tr("Navigate: cannot find %2 \"%1\" in current module")
-                                .arg(st).arg(tokenFullName[ne]));
+                                .arg(st).arg(tokenFullName[ne]),6000);
       return false;
     }
     if (p.first!=curFileIndex) {
@@ -2170,6 +1845,7 @@ bool MainWindow::navigateRight(){
     navigationStack[navigationStackPos]=old;
     curFileIndex = p.first;
     if (navigationStackPos<10) navigationStackPos ++;
+    guiPanel->setNavigationStackDepth( navigationStackPos );
 
     // switch to file containing the material
     selectOne(ne,p.second);
@@ -2192,8 +1868,47 @@ bool MainWindow::searchBrf(){
 }
 bool MainWindow::refreshIni(){  
   inidata.updated=false;
+  brfdata.ForgetTextureLocations();
+  glWidget->forgetChachedTextures();
+  glWidget->update();
   return loadIni();
 }
+
+bool MainWindow::checkIni(){
+
+  if (!maybeSave()) return false;
+
+  AskModErrorDialog *d=new AskModErrorDialog(this, inidata, false, "");
+  d->setup();
+  d->exec();
+  if (d->i>=0) {
+    loadFile(inidata.filename[d->i]);
+    selectOne(d->kind, d->j);
+  }
+  delete d;
+  return true;
+}
+
+bool MainWindow::searchIni(){
+
+  if (!maybeSave()) return false;
+
+  static bool optA = true;
+  static int optB = -1;
+  static QString optC;
+  AskModErrorDialog *d=new AskModErrorDialog(this, inidata, true, lastSearchString );
+  d->setOptions(optA,optB,optC);
+  d->setup();
+  d->exec();
+  if (d->i>=0) {
+    loadFile(inidata.filename[d->i]);
+    selectOne(d->kind, d->j);
+  }
+  d->getOptions(&optA,&optB,&optC);
+  delete d;
+  return true;
+}
+
 void MainWindow::closeEvent(QCloseEvent *event)
 {
   if (maybeSave()) {
@@ -2212,111 +1927,8 @@ void MainWindow::newFile(){
     setEditingRef(false);
     updateTitle();
   }
-
 }
-void MainWindow::createActions()
-{
-    newAct = new QAction(tr("&New"), this);
-    newAct->setShortcuts(QKeySequence::New);
-    newAct->setStatusTip(tr("Create a new file"));
-    connect(newAct, SIGNAL(triggered()), this, SLOT(newFile()));
 
-    openAct = new QAction(tr("&Open..."), this);
-    openAct->setShortcuts(QKeySequence::Open);
-    openAct->setStatusTip(tr("Open an existing file"));
-    connect(openAct, SIGNAL(triggered()), this, SLOT(open()));
-
-    saveAct = new QAction(tr("&Save"), this);
-    saveAct->setShortcuts(QKeySequence::Save);
-    saveAct->setStatusTip(tr("Save the document to disk"));
-    connect(saveAct, SIGNAL(triggered()), this, SLOT(save()));
-
-    editCutAct = new QAction(tr("Cut"), this);
-    editCutAct->setShortcuts(QKeySequence::Cut);
-    editCopyAct = new QAction(tr("Copy"), this);
-    editCopyAct->setShortcuts(QKeySequence::Copy);
-    editPasteAct = new QAction(tr("Paste"), this);
-    editPasteAct->setShortcuts(QKeySequence::Paste);
-    editPasteAct->setEnabled(false);
-
-    editCutFrameAct = new QAction(tr("Cut frame"), this);
-    editCutFrameAct->setShortcut(QString("ctrl+alt+X"));
-    editCopyFrameAct = new QAction(tr("Copy frame"), this);
-    editCopyFrameAct->setShortcut(QString("ctrl+alt+C"));
-    editPasteFrameAct = new QAction(tr("Paste frame"), this);
-    editPasteFrameAct->setShortcut(QString("ctrl+alt+V"));
-    editPasteFrameAct->setEnabled(false);
-
-    connect(editCutAct, SIGNAL(triggered()), this, SLOT(editCut()));
-    connect(editCopyAct, SIGNAL(triggered()), this, SLOT(editCopy()));
-    connect(editPasteAct, SIGNAL(triggered()), this, SLOT(editPaste()));
-
-    connect(editCutFrameAct, SIGNAL(triggered()), this, SLOT(editCutFrame()));
-    connect(editCopyFrameAct, SIGNAL(triggered()), this, SLOT(editCopyFrame()));
-    connect(editPasteFrameAct, SIGNAL(triggered()), this, SLOT(editPasteFrame()));
-
-    saveAsAct = new QAction(tr("Save &As..."), this);
-    saveAsAct->setShortcuts(QKeySequence::SaveAs);
-    saveAsAct->setStatusTip(tr("Save the document under a new name"));
-    connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveAs()));
-
-    for (int i = 0; i < MaxRecentFiles; ++i) {
-        recentFileActs[i] = new QAction(this);
-        recentFileActs[i]->setVisible(false);
-        connect(recentFileActs[i], SIGNAL(triggered()),
-                this, SLOT(openRecentFile()));
-    }
-
-    exitAct = new QAction(tr("E&xit"), this);
-    exitAct->setShortcut(tr("Alt+F4"));
-    exitAct->setStatusTip(tr("Exit the application"));
-    connect(exitAct, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
-
-    aboutAct = new QAction(tr("About"), this);
-    aboutAct->setShortcut(tr("F1"));
-    aboutAct->setStatusTip(tr("About OpenBRF"));
-    connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
-
-    editRefAct = new QAction(tr("_"), this);
-
-    connect(editRefAct, SIGNAL(triggered()), this, SLOT(editRef()));
-
-
-    importStaticMeshAct = new QAction(tr("Static mesh"), this);
-    importStaticMeshAct->setToolTip("Import a static mesh");
-    importRiggedMeshAct = new QAction(tr("Rigged mesh"), this);
-    importRiggedMeshAct->setToolTip("Import rigged (skeletal animable) mesh");
-    importMovingMeshAct = new QAction(tr("Vertex-animated mesh frame"), this);
-    importMovingMeshAct->setToolTip("Import a static mesh and add it as a vertex-animation frame of current mesh");
-    importSkeletonAct = new QAction(tr("Skeleton"), this);
-    importAnimationAct = new QAction(tr("Skeletal animation"), this);
-    importBodyAct = new QAction(tr("Collision body"),this);
-    addNewMaterialAct = new QAction(tr("New Material"),this);
-    addNewTextureAct = new QAction(tr("New Texture"),this);
-    addNewShaderAct = new QAction(tr("New Shader"),this);
-
-    navigateRightAct = new QAction(tr("follow link"),this);
-    navigateRightAct->setShortcut(tr("ctrl+right"));
-    navigateRightAct->setShortcutContext(Qt::ApplicationShortcut);
-    navigateLeftAct = new QAction(tr("follow back-link"),this);
-    navigateLeftAct->setShortcut(tr("ctrl+left"));
-    navigateDownAct = new QAction(tr("next back-link"),this);
-    navigateUpAct = new QAction(tr("prev back-link"),this);
-    searchBrfAct = new QAction(tr("Search"),this);
-    searchBrfAct->setShortcut(tr("ctrl+F"));
-    refreshIniAct = new QAction(tr("Refresh ini"),this);
-    refreshIniAct->setShortcut(tr("F5"));
-
-    connect(navigateRightAct, SIGNAL(triggered()), this, SLOT(navigateRight()));
-    connect(navigateLeftAct, SIGNAL(triggered()), this, SLOT(navigateLeft()));
-    connect(navigateUpAct, SIGNAL(triggered()), this, SLOT(navigateUp()));
-    connect(navigateDownAct, SIGNAL(triggered()), this, SLOT(navigateDown()));
-    connect(searchBrfAct, SIGNAL(triggered()), this, SLOT(searchBrf()));
-    connect(refreshIniAct, SIGNAL(triggered()), this, SLOT(refreshIni()));
-
-    registerMime = new QAction(tr("Register BRF extension"),this);
-    connect(registerMime, SIGNAL(triggered()), this, SLOT(registerExtension()));
-}
 
 bool readFile(QIODevice &device, QSettings::SettingsMap &map){
   return true;

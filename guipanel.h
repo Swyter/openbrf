@@ -4,6 +4,7 @@
 #include <QtGui/QWidget>
 #include <QModelIndexList>
 #include <map>
+#include <ddsData.h>
 
 class BrfData;
 class IniData;
@@ -36,13 +37,13 @@ public:
 protected:
     //MapSS *mapMT;
     void changeEvent(QEvent *e);
-    enum{MAXSEL=500};
+    //enum{MAXSEL=500};
     int _selectedIndex;
 
 public:
     Ui::GuiPanel *ui;
     int displaying;
-    int frameTime[100]; // how elegant is that? ;)
+    int frameTime[10000]; // how elegant is that? ;)
 
     QAction *textureAccessDup;
     QAction *textureAccessDel;
@@ -54,6 +55,7 @@ public:
 
 
 signals:
+    void followLink();
     //void dataMaterialChanged();
 
 private slots:
@@ -61,6 +63,7 @@ private slots:
     void on_lvTextAcc_customContextMenuRequested(QPoint pos);
     void updateVisibility();
     void setRulerLenght(int l);
+    void setTextureData(DdsData d);
 
 public slots:
     void updateHighlight();
@@ -80,6 +83,8 @@ public slots:
     void showMaterialEnviro();
     void showMaterialSpecular();
     void showMaterialShader();
+
+    void setNavigationStackDepth(int k);
 
 };
 

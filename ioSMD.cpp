@@ -18,7 +18,7 @@ static float Norm(const Matrix44f &m){
 }
 
 
-static Matrix44f euler2matrix(float* eul){
+Matrix44f euler2matrix(float* eul){
   Matrix44f m;
   m.FromEulerAngles(eul[0], eul[1], eul[2]);
   float f[16]={1,0,0,0, 0,0,1,0, 0,1,0,0, 0,0,0,1};
@@ -27,7 +27,7 @@ static Matrix44f euler2matrix(float* eul){
   return m;
 }
 
-static float* matrix2euler(const Matrix44f &_m){
+float* matrix2euler(const Matrix44f &_m){
   static float res[3];
   float f[16]={1,0,0,0, 0,0,1,0, 0,1,0,0, 0,0,0,1};
   Matrix44f inv(f);
