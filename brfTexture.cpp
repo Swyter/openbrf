@@ -29,5 +29,5 @@ void BrfTexture::Save(FILE* f) const{
 
 void BrfTexture::SetDefault(){
   sprintf(name, "%s.dds" ,name);
-  flags=0x000AA000;
+  flags=0x00000000;
 }

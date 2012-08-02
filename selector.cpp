@@ -230,6 +230,9 @@ Selector::Selector(QWidget *parent)
   meshComputeLodAct = new QAction(tr("Compute LODs"), this);
   meshComputeLodAct->setStatusTip(tr("Tries to compute a LOD pyramid"));
 
+  meshFreezeFrameAct = new QAction(tr("rigging (keep current pose)"), this);
+  meshFreezeFrameAct->setStatusTip(tr("Discard rigging, but keep current pose"));
+
   meshRecolorAct = new QAction(tr("Color uniform"), this);
   meshRecolorAct->setStatusTip(tr("Set per vertex color as a uniform color"));
 
@@ -297,6 +300,7 @@ Selector::Selector(QWidget *parent)
   connect(discardColAct,SIGNAL(triggered()),parent,SLOT(meshDiscardCol()));
   connect(discardRigAct,SIGNAL(triggered()),parent,SLOT(meshDiscardRig()));
   connect(discardTanAct,SIGNAL(triggered()),parent,SLOT(meshDiscardTan()));
+  connect(meshFreezeFrameAct,SIGNAL(triggered()),parent,SLOT(meshFreezeFrame()));
 
   connect(exportSkinAct, SIGNAL(triggered()), parent, SLOT(exportSkeletonAndSkin()));
   connect(exportSkinForAnimationAct, SIGNAL(triggered()), parent, SLOT(exportSkeletonAndSkin()));
@@ -586,12 +590,14 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
 
 
      m = contextMenu->addMenu(tr("Discard"));
-     m->addAction(discardAniAct);
-     m->addAction(discardRigAct);
      m->addAction(discardColAct);
      m->addAction(discardTanAct);
+     m->addAction(discardAniAct);
+     m->addAction(discardRigAct);
+     m->addAction(meshFreezeFrameAct);
      discardRigAct->setEnabled(mulsel || mesh.isRigged);
      discardAniAct->setEnabled(mulsel || mesh.HasVertexAni());
+     meshFreezeFrameAct->setEnabled(mulsel || mesh.isRigged);
      discardColAct->setEnabled(mulsel || mesh.hasVertexColor);
      discardTanAct->setEnabled(mulsel || mesh.HasTangentField());
 

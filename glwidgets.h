@@ -61,6 +61,7 @@ public slots:
    int  getRefSkin() const;
    void setRefSkeleton(int i);
    int  getRefSkeleton() const;
+   int  getRefSkelAni() const;
    void setWireframe(int i);
    void setLighting(int i);
    void setTexture(int i);
@@ -193,6 +194,8 @@ public:
     enum{MAXSEL=2000};
     bool selGroup[MAXSEL];
     int selIndex() const;
+
+    int lastSkelAniFrameUsed;
 
 private:
     int w, h; // screen size

@@ -89,6 +89,7 @@ private:
     *meshComputeAoAct,
     *meshFemininizeAct,
     *meshComputeLodAct,
+    *meshFreezeFrameAct,
 
 
     *renameAct,

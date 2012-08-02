@@ -91,12 +91,21 @@ seams hard</source>
 <context>
     <name>AskFlagsDialog</name>
     <message>
-        <location filename="../askFlagsDialog.cpp" line="+39"/>
         <source>unused?</source>
-        <translation>¿sin usar?</translation>
+        <translation type="obsolete">¿sin usar?</translation>
     </message>
     <message>
-        <location line="+8"/>
+        <location filename="../askFlagsDialog.cpp" line="+55"/>
+        <source>unused (?)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>This seems to be unused.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+10"/>
         <source>reserved</source>
         <translation>reservado</translation>
     </message>
@@ -110,172 +119,147 @@ seams hard</source>
         <translation></translation>
     </message>
     <message>
-        <location line="+6"/>
+        <location line="+3"/>
+        <source>...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+9"/>
         <source>Flags</source>
         <translation>Insignias</translation>
     </message>
     <message>
-        <location line="+56"/>
+        <location line="+88"/>
+        <source>Show all bits</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>show all</source>
-        <translation>Más &gt;</translation>
+        <translation type="obsolete">Más &gt;</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="+3594"/>
         <source>No fog</source>
-        <translation>Sin niebla</translation>
+        <translation type="obsolete">Sin niebla</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>No Lighting</source>
-        <translation>Sin Luz</translation>
+        <translation type="obsolete">Sin Luz</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>No Z-write</source>
-        <translation>Sin escritura en Z</translation>
+        <translation type="obsolete">Sin escritura en Z</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>No depth Test</source>
-        <translation>Sin profundidad</translation>
+        <translation type="obsolete">Sin profundidad</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Specular enable</source>
-        <translation>Activar brillos 
+        <translation type="obsolete">Activar brillos 
 especulares</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Alpha test</source>
-        <translation>Test Alfa</translation>
+        <translation type="obsolete">Test Alfa</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Uniform lighting</source>
-        <translation>Luz Uniforme</translation>
+        <translation type="obsolete">Luz Uniforme</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Blend</source>
-        <translation>Mezclar</translation>
+        <translation type="obsolete">Mezclar</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Blend add</source>
-        <translation>Subexponer/
+        <translation type="obsolete">Subexponer/
 Añadir</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Blend multiply *</source>
-        <translation>Sobreexponer/
+        <translation type="obsolete">Sobreexponer/
 Multiplicar*</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Blend factor **</source>
-        <translation>Factor de Mezcla**</translation>
+        <translation type="obsolete">Factor de Mezcla**</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Alpha test 1</source>
-        <translation>Test alfa 1</translation>
+        <translation type="obsolete">Test alfa 1</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Alpha test 128</source>
-        <translation>Test alfa 128</translation>
+        <translation type="obsolete">Test alfa 128</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Alpha test 256 *</source>
-        <translation>Test alfa 256*</translation>
+        <translation type="obsolete">Test alfa 256*</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Render 1st</source>
-        <translation>Renderizar el 1º</translation>
+        <translation type="obsolete">Renderizar el 1º</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Origin at camera</source>
-        <translation>Origen en Cámara</translation>
+        <translation type="obsolete">Origen en Cámara</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>LoD</source>
-        <translation>Nivel de Detalle</translation>
+        <translation type="obsolete">Nivel de Detalle</translation>
     </message>
     <message>
-        <location line="+11"/>
         <source>Invert bumpmap</source>
-        <translation>Invertir M. de 
+        <translation type="obsolete">Invertir M. de 
 Desplazamiento</translation>
     </message>
     <message>
-        <location line="-189"/>
         <source>Two-sided (?)</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Bilateral (¿?)</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>No Collision</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Sin Colisión</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>No Shadow</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Sin Sombra</translation>
     </message>
     <message>
-        <location line="+16"/>
         <source>Difficult (?)</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Dificultad (¿?)</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Unwalkable (?)</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Intransitable (¿?)</translation>
     </message>
     <message>
-        <location line="+56"/>
         <source>Unknown (for props?)</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Desconocido (¿para props?)</translation>
     </message>
     <message>
-        <location line="+1"/>
-        <location line="+2"/>
-        <location line="+6"/>
-        <location line="+18"/>
-        <location line="+2"/>
         <source>Unknown (for particles?)</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Desconocido (¿para partículas?)</translation>
     </message>
     <message>
-        <location line="-27"/>
         <source>Unknown (plants?)</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Desconocido (¿plantas?)</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>Unknown (hairs and body parts?)</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Desconocido (¿pelo y partes corporales?)</translation>
     </message>
     <message>
-        <location line="+5"/>
         <source>Unknown (screen space?)</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Desconocido (¿espacio en pantalla?)</translation>
     </message>
     <message>
-        <location line="+8"/>
         <source>reserved (tangent space)</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">reservado (espacio tangente)</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>reserved (Warband format)</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">reservado (formato Warband)</translation>
     </message>
 </context>
 <context>
@@ -342,12 +326,16 @@ p, li { white-space: pre-wrap; }
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;When OpenBRF computes a &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;LOD (Level Of Detail) Pyramid&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; for a mesh...&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;Cuando OpenBRF calcula &lt;/span&gt;&lt;span style=&quot; font-size:8pt; font-weight:600;&quot;&gt;Pirámides LOD (Nivel de Detalle)&lt;/span&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt; para un modelo...&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <location line="+14"/>
         <source>which levels to build, and with how many faces (w.r.t. original mesh)?</source>
-        <translation type="unfinished"></translation>
+        <translation>¿Qué niveles tiene que hacer, y con cuantas caras (en % desde la malla original)?</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -372,7 +360,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location line="+42"/>
         <source>Build?</source>
-        <translation>Crear?</translation>
+        <translation>¿Crear?</translation>
     </message>
     <message>
         <location line="+10"/>
@@ -382,17 +370,17 @@ p, li { white-space: pre-wrap; }
     <message>
         <location line="+25"/>
         <source>Overwrite existing LOD Pyramid (if there is one?):</source>
-        <translation type="unfinished"></translation>
+        <translation>Sobreescribir pirámides LOD existentes (en caso de que existan):</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>Yes</source>
-        <translation type="unfinished"></translation>
+        <translation>Sí</translation>
     </message>
     <message>
         <location line="+7"/>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
 </context>
 <context>
@@ -853,7 +841,7 @@ Ni siquiera serán cargadas por el juego...</translation>
 <context>
     <name>GLWidget</name>
     <message>
-        <location filename="../glwidgets.cpp" line="+1047"/>
+        <location filename="../glwidgets.cpp" line="+1057"/>
         <source>Scene mode: navigate with mouse and WASD (levitate with wheel, zoom in with shift)</source>
         <translation>Modo Escena: navega con el ratón y WASD (levita mediante la rueda del ratón, zoom con mayús)</translation>
     </message>
@@ -923,17 +911,17 @@ Ni siquiera serán cargadas por el juego...</translation>
     </message>
     <message>
         <location line="+18"/>
-        <location line="+1060"/>
-        <location line="+290"/>
+        <location line="+1063"/>
+        <location line="+303"/>
         <location line="+239"/>
-        <location line="+405"/>
+        <location line="+353"/>
         <location line="+54"/>
         <location line="+308"/>
         <source>Data</source>
         <translation>Propiedades</translation>
     </message>
     <message>
-        <location line="-2341"/>
+        <location line="-2305"/>
         <source>Set material used by this mesh.</source>
         <translation>Asigna el material usado por este modelo.</translation>
     </message>
@@ -959,21 +947,21 @@ Ni siquiera serán cargadas por el juego...</translation>
     </message>
     <message>
         <location line="+25"/>
-        <location line="+1016"/>
-        <location line="+1058"/>
+        <location line="+1019"/>
+        <location line="+1019"/>
         <source>000000000000; </source>
         <translation>000000000000; </translation>
     </message>
     <message>
-        <location line="-2058"/>
-        <location line="+978"/>
-        <location line="+704"/>
-        <location line="+354"/>
+        <location line="-2022"/>
+        <location line="+981"/>
+        <location line="+717"/>
+        <location line="+302"/>
         <source>Flags:</source>
         <translation>Insignia:</translation>
     </message>
     <message>
-        <location line="-2014"/>
+        <location line="-1978"/>
         <source>Diffuse texture name (depends on material)</source>
         <translation>Nombre de la textura difusa (depende del material)</translation>
     </message>
@@ -984,12 +972,12 @@ Ni siquiera serán cargadas por el juego...</translation>
     </message>
     <message>
         <location line="+19"/>
-        <location line="+2505"/>
+        <location line="+2469"/>
         <source>faces:</source>
         <translation>Cara:</translation>
     </message>
     <message>
-        <location line="-2486"/>
+        <location line="-2450"/>
         <source>Number of triangles of this mesh.</source>
         <translation>Número de triángulos de esta malla.</translation>
     </message>
@@ -1030,17 +1018,17 @@ Ni siquiera serán cargadas por el juego...</translation>
     </message>
     <message>
         <location line="+19"/>
-        <location line="+1215"/>
+        <location line="+1231"/>
         <source>:</source>
         <translation></translation>
     </message>
     <message>
-        <location line="-1105"/>
+        <location line="-1121"/>
         <source>View</source>
         <translation>Vista Previa</translation>
     </message>
     <message>
-        <location line="+39"/>
+        <location line="+42"/>
         <source>Skin:</source>
         <translation>Conjunto:</translation>
     </message>
@@ -1067,7 +1055,7 @@ Ni siquiera serán cargadas por el juego...</translation>
     <message>
         <location line="+3"/>
         <source>Vertex Color</source>
-        <translation>Color de Vért.</translation>
+        <translation type="unfinished">Color Vért.</translation>
     </message>
     <message>
         <location line="+16"/>
@@ -1305,13 +1293,13 @@ Ni siquiera serán cargadas por el juego...</translation>
     </message>
     <message>
         <location line="+6"/>
-        <location line="+673"/>
-        <location line="+375"/>
+        <location line="+647"/>
+        <location line="+362"/>
         <source>(&lt;a href=&quot;link&quot;&gt;back&lt;/a&gt;)</source>
         <translation>(&lt;a href=&quot;link&quot;&gt;Atrás&lt;/a&gt;)</translation>
     </message>
     <message>
-        <location line="-1032"/>
+        <location line="-993"/>
         <source>location:</source>
         <translation>Situación:</translation>
     </message>
@@ -1321,7 +1309,7 @@ Ni siquiera serán cargadas por el juego...</translation>
         <translation>Abrir...</translation>
     </message>
     <message>
-        <location line="+26"/>
+        <location line="+39"/>
         <source>First frame of the animation.</source>
         <translation>Primer cuadro de la Animación.</translation>
     </message>
@@ -1342,12 +1330,12 @@ Ni siquiera serán cargadas por el juego...</translation>
     </message>
     <message>
         <location line="+19"/>
-        <location line="+568"/>
+        <location line="+516"/>
         <source># bones:</source>
         <translation>Huesos:</translation>
     </message>
     <message>
-        <location line="-552"/>
+        <location line="-500"/>
         <source># frames:</source>
         <translation>Cuadros:</translation>
     </message>
@@ -1442,50 +1430,58 @@ Ni siquiera serán cargadas por el juego...</translation>
         <translation>Insignias (presiona el botón para editar los bits)</translation>
     </message>
     <message>
-        <location line="-1390"/>
-        <location line="+1419"/>
-        <location line="+188"/>
-        <location line="+734"/>
+        <location line="+140"/>
+        <source>&lt;a href=&quot;link&quot;&gt;Specular&lt;/a&gt;:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+143"/>
+        <source>&lt;a href=&quot;link&quot;&gt;Fallback:&lt;/a&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-1689"/>
+        <location line="+979"/>
+        <location line="+456"/>
+        <location line="+870"/>
         <source>...</source>
         <translation></translation>
     </message>
     <message>
-        <location line="-2639"/>
+        <location line="-2603"/>
         <source>Mesh flags</source>
-        <translation type="unfinished"></translation>
+        <translation>Insignias de Modelo</translation>
     </message>
     <message>
         <location line="+314"/>
         <source>Vertex Anim.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Anim Vértice</translation>
     </message>
     <message>
         <location line="+19"/>
         <source>Rigged</source>
-        <translation type="unfinished"></translation>
+        <translation>Vinculado</translation>
     </message>
     <message>
         <location line="+19"/>
         <source>Vertex Colors</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Color Vértice</translation>
     </message>
     <message>
         <location line="+19"/>
         <source>Tangent Dirs</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tangentes</translation>
     </message>
     <message>
-        <location line="+1359"/>
         <source>Rend.Ord:</source>
-        <translation>Render:</translation>
+        <translation type="obsolete">Render:</translation>
     </message>
     <message>
-        <location line="+16"/>
         <source>Rendering order (negative = soonest)</source>
-        <translation>Orden de Renderizado (negativo significa más cercano)</translation>
+        <translation type="obsolete">Orden de Renderizado (negativo significa más cercano)</translation>
     </message>
     <message>
-        <location line="+19"/>
+        <location line="+1375"/>
         <source>Click to open file containing shader.</source>
         <translation>Presiona para abrir el archivo que contiene el sombreador</translation>
     </message>
@@ -1536,25 +1532,24 @@ Ni siquiera serán cargadas por el juego...</translation>
         <translation>Presiona para abrir el archivo que contiene este Mapa Especular.</translation>
     </message>
     <message>
-        <location line="+3"/>
         <source>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;MS Shell Dlg 2&apos;; font-size:8.25pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;link&quot;&gt;&lt;span style=&quot; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;Specular&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//ES&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+        <translation type="obsolete">&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//ES&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:&apos;Trebuchet MS&apos;; font-size:5.25pt; font-weight:400; font-style:normal;&quot;&gt;
 &lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a href=&quot;link&quot;&gt;&lt;span style=&quot; font-size:8pt; text-decoration: underline; color:#0000ff;&quot;&gt;Especula&lt;/span&gt;&lt;/a&gt;&lt;span style=&quot; font-size:8pt;&quot;&gt;:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location line="+20"/>
+        <location line="+19"/>
         <source>Click to go back to the mesh.</source>
         <translation>Presiona para volver al modelo</translation>
     </message>
     <message>
-        <location line="+64"/>
+        <location line="+51"/>
         <source>Number of bones composing this skeleton.</source>
         <translation>Número de huesos que componen este esqueleto.</translation>
     </message>
@@ -1570,12 +1565,11 @@ p, li { white-space: pre-wrap; }
         <translation>Técnica: nombre de la &quot;técnica de sombreado&quot; dentro del archivo &quot;mb.fx&quot;.</translation>
     </message>
     <message>
-        <location line="+13"/>
         <source>Fallback:</source>
-        <translation>Alternativ:</translation>
+        <translation type="obsolete">Alternativ:</translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+29"/>
         <source>Which other shader to use if requirements are not met.</source>
         <translation>Especifica que otro sombrador se usará si los requerimientos no se alcanzan.</translation>
     </message>
@@ -1752,11 +1746,11 @@ p, li { white-space: pre-wrap; }
         <location line="+110"/>
         <location line="+32"/>
         <location line="+20"/>
-        <location line="+26"/>
+        <location line="+25"/>
         <location line="+22"/>
-        <location line="+33"/>
+        <location line="+31"/>
         <location line="+17"/>
-        <location line="+13"/>
+        <location line="+12"/>
         <location line="+40"/>
         <location line="+20"/>
         <location line="+30"/>
@@ -1776,7 +1770,7 @@ p, li { white-space: pre-wrap; }
         <translation>OpenBRF | Traducido al Castellano por Swyter</translation>
     </message>
     <message>
-        <location line="-817"/>
+        <location line="-813"/>
         <source>Cannot open file for writing;</source>
         <translation>No se puede abrir con permisos de escritura;</translation>
     </message>
@@ -1792,15 +1786,15 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location line="+20"/>
+        <location line="+47"/>
         <location line="+48"/>
-        <location line="+50"/>
         <source>Cannot export animation without a proper skeleton!
 </source>
         <translation>No se puede exportar la animación sin un esqueleto adecuado!
 </translation>
     </message>
     <message>
-        <location line="-72"/>
+        <location line="-70"/>
         <source>Cannot export rigged mesh:
  %1
 </source>
@@ -1809,7 +1803,7 @@ p, li { white-space: pre-wrap; }
 </translation>
     </message>
     <message>
-        <location line="+55"/>
+        <location line="+53"/>
         <source>Cannot export rest-pose:
  %1
 </source>
@@ -1817,7 +1811,7 @@ p, li { white-space: pre-wrap; }
  %1</translation>
     </message>
     <message>
-        <location line="+30"/>
+        <location line="+29"/>
         <source>Cannot export animation:
  %1
 </source>
@@ -1956,7 +1950,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location line="+30"/>
-        <location filename="../mainwindow.cpp" line="-2490"/>
+        <location filename="../mainwindow.cpp" line="+1064"/>
         <location line="+1"/>
         <location filename="../mainwindow.ui" line="+14"/>
         <source>OpenBRF</source>
@@ -1993,7 +1987,7 @@ al que añadir un fotograma o cuadro.</translation>
     </message>
     <message>
         <location line="+10"/>
-        <location filename="../mainwindow.cpp" line="+869"/>
+        <location filename="../mainwindow.cpp" line="+893"/>
         <source>Vertex number mismatch... using texture-coord matching instead of vertex-ordering</source>
         <translation>El número de vértices no concuerda... se usarán las coordenadas de textura para ordenarlos.</translation>
     </message>
@@ -2232,12 +2226,12 @@ al que añadir un fotograma o cuadro.</translation>
     <message>
         <location line="+8"/>
         <source>Sample per vertex (quicker)</source>
-        <translation type="unfinished"></translation>
+        <translation>Muestras por vértice (Más rápido)</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Sample per wedge (softer, better on some models)</source>
-        <translation type="unfinished"></translation>
+        <translation>Muestras por cuña (Más suave, mejor resultado en algunos modelos)</translation>
     </message>
     <message>
         <location line="+8"/>
@@ -2247,17 +2241,17 @@ al que añadir un fotograma o cuadro.</translation>
     <message>
         <location line="+8"/>
         <source>Store in per-vertex Alpha (not RGB)</source>
-        <translation type="unfinished"></translation>
+        <translation>Almacenar en Alfa por-vértice (no en RGB)</translation>
     </message>
     <message>
         <location line="+6"/>
         <source>On building LOD pyramids...</source>
-        <translation type="unfinished">Al crear Niveles de Detalle (LOD)...</translation>
+        <translation>Al crear Niveles de Detalle (LOD)...</translation>
     </message>
     <message>
         <location line="+1"/>
         <source>Set the way OpenBRF build LODs pyramids</source>
-        <translation type="unfinished">Ajusta la forma en la que OpenBRF construye las pirámides LOD</translation>
+        <translation>Ajusta la forma en la que OpenBRF construye las pirámides LOD</translation>
     </message>
     <message>
         <location line="+4"/>
@@ -2382,22 +2376,22 @@ al que añadir un fotograma o cuadro.</translation>
     <message>
         <location line="+2"/>
         <source>Copy complete</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia completa</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Copy selected objects plus everything used by them.</source>
-        <translation type="unfinished"></translation>
+        <translation>Copia todos los elementos seleccionados junto con todas las dependencias que usan (incluido material y texturas).</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Cut complete</source>
-        <translation type="unfinished"></translation>
+        <translation>Cortar completamente</translation>
     </message>
     <message>
         <location line="+2"/>
         <source>Cut selected objects plus everything used by them.</source>
-        <translation type="unfinished"></translation>
+        <translation>Corta todos los elementos seleccionados junto con todas las dependencias que usan (incluido material y texturas).</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -2960,9 +2954,8 @@ al que añadir un fotograma o cuadro.</translation>
         <translation>&lt;i&gt;(puedes ajustarlo más tarde en [Configuración])</translation>
     </message>
     <message>
-        <location line="+39"/>
         <source>I&apos;m supposed to understand .dds textures of formats DXT1 (maybe), DXT3, and DXT5.&lt;br&gt;But some kinds of DXT1 texture confuse me, and too big textures too.</source>
-        <translation>Se supone que debo entender los formatos de textura .dds DXT1 (tal vez), DXT3, y DXT5.&lt;br&gt;Pero algunos tipos de DXT1 me confunden, y las texturas demasiado grandes también.</translation>
+        <translation type="obsolete">Se supone que debo entender los formatos de textura .dds DXT1 (tal vez), DXT3, y DXT5.&lt;br&gt;Pero algunos tipos de DXT1 me confunden, y las texturas demasiado grandes también.</translation>
     </message>
     <message>
         <source>&lt;p&gt;&amp;nbsp; &amp;nbsp; &lt;b&gt;ver %6&lt;/b&gt;&lt;br&gt;&amp;nbsp; &amp;nbsp; (%1)&lt;br&gt;&lt;/p&gt;&lt;p&gt;&amp;nbsp; &amp;nbsp; by %2&lt;br&gt;&lt;/p&gt;&lt;p&gt;Testing, bug reporting, suggestions by: %3&lt;/p&gt;&lt;p&gt;Additional art by: %4&lt;/p&gt;&lt;p&gt;Translation by: %5&lt;/p&gt;</source>
@@ -2970,12 +2963,22 @@ al que añadir un fotograma o cuadro.</translation>
         <translation type="obsolete">&lt;p&gt;&amp;nbsp; &amp;nbsp; &lt;b&gt;versión %6&lt;/b&gt;&lt;br&gt;&amp;nbsp; &amp;nbsp; (%1)&lt;br&gt;&lt;/p&gt;&lt;p&gt;&amp;nbsp; &amp;nbsp; por %2&lt;br&gt;&lt;/p&gt;&lt;p&gt;Pruebas,reporte de errores y sugerencias por: %3&lt;/p&gt;&lt;p&gt;Arte adicional: %4&lt;/p&gt;&lt;p&gt;Traduciones por: %5&lt;/p&gt;</translation>
     </message>
     <message>
-        <location line="-72"/>
+        <location line="-33"/>
         <source>additional code and Chinese</source>
         <translation>código adicional y traducción al Chino</translation>
     </message>
     <message>
-        <location line="+79"/>
+        <location line="+72"/>
+        <source>I&apos;m supposed to understand .dds textures of formats DXT1 (maybe), DXT3, and DXT5.&lt;br&gt;But some kinds of DXT1 texture confuse me, and too big textures too.&lt;br&gt;Also, if graphic drivers are not up to date, I might ignore how to intepret DXT formats.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Try updating the drivers. Else, maybe just accept the fact... it should still show the texture in game.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+4"/>
         <source>Open-Brf</source>
         <translation>OpenBRF</translation>
     </message>
@@ -3024,26 +3027,25 @@ al que añadir un fotograma o cuadro.</translation>
         <translation type="obsolete">Se supone que debo entender las texturas .dds de los formatos DXT1 (tal vez), DXT3  y DXT5.&lt;br&gt;Pero algunos tipos de DXT1 me confunden, al igual que las texturas demasiado grandes. EL problema se puede solucionar activando la opción de auto reparación DXT situada arriba.</translation>
     </message>
     <message>
-        <location line="+4"/>
         <source>Maybe just accept the fact... it should still show the texture in game.</source>
-        <translation>Al menos acepta el hecho... seguramente se muestren sin problemas en el juego.</translation>
+        <translation type="obsolete">Al menos acepta el hecho... seguramente se muestren sin problemas en el juego.</translation>
     </message>
     <message>
-        <location line="+5"/>
+        <location line="+9"/>
         <source>&lt;i&gt;I could not display the real texture because:&lt;/i&gt;&lt;br&gt;&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;&lt;br&gt;%2&lt;br&gt;&lt;br&gt;&lt;b&gt;Cure: &lt;/b&gt;%3</source>
         <translation>&lt;i&gt;No puedo mostrar la textura real porque:&lt;/i&gt;&lt;br&gt;&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;&lt;br&gt;%2&lt;br&gt;&lt;br&gt;&lt;b&gt;Solución: &lt;/b&gt;%3</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="-1842"/>
+        <location filename="../mainwindow.cpp" line="-1888"/>
         <location line="+565"/>
-        <location line="+1013"/>
+        <location line="+1059"/>
         <location line="+11"/>
         <location line="+412"/>
         <source>OpenBrf</source>
         <translation>OpenBRF</translation>
     </message>
     <message>
-        <location line="-2000"/>
+        <location line="-2046"/>
         <source>%1 been modified.
 Save changes?</source>
         <translation>%1 ha sido modificado.
@@ -3065,7 +3067,7 @@ Save changes?</source>
         <translation>Asigna los materiales del modelo %1 a &quot;%2&quot;</translation>
     </message>
     <message>
-        <location line="+54"/>
+        <location line="+56"/>
         <source>Set time of frame %1 to %2</source>
         <translation>Asigna el tiempo de cuadro %1 a %2</translation>
     </message>
@@ -3078,7 +3080,7 @@ Save changes?</source>
 </translation>
     </message>
     <message>
-        <location line="+36"/>
+        <location line="+34"/>
         <source>Invalid frame %1</source>
         <translation>Cuadro %1 inválido</translation>
     </message>
@@ -3155,12 +3157,12 @@ Save changes?</source>
         <translation>Selecciona un conjunto:</translation>
     </message>
     <message>
-        <location line="+43"/>
+        <location line="+58"/>
         <source>Vertex unified.</source>
         <translation>Vértices unificados.</translation>
     </message>
     <message>
-        <location line="+16"/>
+        <location line="+20"/>
         <source>Cannot merge these meshes
  (different number of frames,
  or rigged VS not rigged).
@@ -3171,14 +3173,14 @@ o discordancia en la vinculación esqueletal).
 </translation>
     </message>
     <message>
-        <location line="+21"/>
+        <location line="+24"/>
         <source>Computed AO%1</source>
-        <translation type="unfinished"></translation>
+        <translation>Oclusión Ambiental calculada %1</translation>
     </message>
     <message>
         <location line="+0"/>
         <source>(in alpha channel)</source>
-        <translation type="unfinished"></translation>
+        <translation>(en canal alfa)</translation>
     </message>
     <message>
         <location line="+26"/>
@@ -3241,7 +3243,7 @@ Seleccionar k:</translation>
 </translation>
     </message>
     <message>
-        <location line="+183"/>
+        <location line="+207"/>
         <source>Transfer Rigging</source>
         <translation>Transferir unión esqueletal</translation>
     </message>
@@ -3343,11 +3345,11 @@ Escribe el nuevo aquí:</translation>
     <message>
         <location line="+13"/>
         <source>To use paste modification mesh: firstcopy a 2 frames mesh. Then, select one or more destination meshes, and &quot;paste modification&quot;any vertex in any frame of the destination mesh that are in the same pos of frame 0,will be moved on the position of frame 1.</source>
-        <translation type="unfinished">Para usar la función de pegar modificaciones de modelo primero copia un modelo con una animación de 2 cuadros. Después, selecciona uno o varios objetos de destino y, finalmente &quot;pega la modificación&quot; en cualquier cuadro de cualquier animación de vértices.</translation>
+        <translation>Para usar la función de pegar modificaciones de modelo primero copia un modelo con una animación de 2 cuadros. Después, selecciona uno o varios objetos de destino y, finalmente &quot;pega la modificación&quot; en cualquier cuadro de cualquier animación de vértices.</translation>
     </message>
     <message>
         <location line="+138"/>
-        <location line="+39"/>
+        <location line="+40"/>
         <source>Canceled.</source>
         <translation>Cancelado.</translation>
     </message>
@@ -3402,16 +3404,16 @@ Escribe el nuevo aquí:</translation>
         <translation>La animación %2 se ha dividido en %1 trozos -- ¡Nuevo actions.txt guardado en &quot;%3&quot;!</translation>
     </message>
     <message>
-        <location line="+887"/>
+        <location line="+896"/>
         <source>Navigate: cannot find &quot;%1&quot; in current module</source>
-        <translation type="unfinished"></translation>
+        <translation>Navigate:no se puede encontrar &quot;%1&quot; en el módulo actual</translation>
     </message>
     <message>
         <source>Open BRF</source>
         <translation type="obsolete">Open BRF</translation>
     </message>
     <message>
-        <location line="-507"/>
+        <location line="-516"/>
         <source>Cannot save reference file!</source>
         <translation>¡No se puede guardar el archivo de referencia!</translation>
     </message>
@@ -3441,7 +3443,9 @@ Are you sure?</source>
         <source>You are trying to save meshes with tangend directions in M&amp;B 1.011 file format.
 Unfortunately, tangent directions can only be saved in Warband file format.
 Tangent directions will not be saved...</source>
-        <translation type="unfinished"></translation>
+        <translation>Estás intentando guardar mallas con direcciones tangentes en el formato de archivo M&amp;B 1.011.
+Por desgracia, las direcciones tangentes sólo puenden ser guardadas en el formato Warband.
+Las direcciones no se guardarán...</translation>
     </message>
     <message>
         <location line="+6"/>
@@ -3531,7 +3535,7 @@ Tangent directions will not be saved...</source>
         <translation type="obsolete">Navegar derecha: pos = %1</translation>
     </message>
     <message>
-        <location line="+327"/>
+        <location line="+336"/>
         <source>&amp;%1 %2</source>
         <translation></translation>
     </message>
@@ -3546,13 +3550,367 @@ Tangent directions will not be saved...</source>
         <translation>Cancelado</translation>
     </message>
     <message>
-        <location line="+76"/>
-        <source>Collision objects flags</source>
+        <location line="+22"/>
+        <source>Two-sided</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+76"/>
-        <location line="+83"/>
+        <location line="+1"/>
+        <source>No Collision</source>
+        <translation type="unfinished">Sin Colisión</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>No Shadow</source>
+        <translation type="unfinished">Sin Sombra</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Game won&apos;t use this collision object</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>Difficult</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Unwalkable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+39"/>
+        <source>Collision objects flags</source>
+        <translation>Insignias de Objetos de Colisión</translation>
+    </message>
+    <message>
+        <location line="+20"/>
+        <source>Unknown (for props?)</source>
+        <translation type="unfinished">Desconocido (¿para props?)</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <location line="+1"/>
+        <location line="+1"/>
+        <location line="+1"/>
+        <location line="+2"/>
+        <location line="+4"/>
+        <location line="+1"/>
+        <location line="+19"/>
+        <source>Exact meaning of this flag is unknown.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-28"/>
+        <location line="+2"/>
+        <location line="+6"/>
+        <location line="+20"/>
+        <source>Unknown (for particles?)</source>
+        <translation type="unfinished">Desconocido (¿para partículas?)</translation>
+    </message>
+    <message>
+        <location line="-27"/>
+        <source>Unknown (plants?)</source>
+        <translation type="unfinished">Desconocido (¿plantas?)</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Unknown (hairs and body parts?)</source>
+        <translation type="unfinished">Desconocido (¿pelo y partes corporales?)</translation>
+    </message>
+    <message>
+        <location line="+5"/>
+        <source>Unknown (screen space?)</source>
+        <translation type="unfinished">Desconocido (¿espacio en pantalla?)</translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>R: (tangent space)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>This flag is automatically set if mesh has tangent directions defined.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>R: (Warband format)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>This flag is automatically set for meshes in WB formats</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+8"/>
+        <source>Pre-exponentiate colors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Vertex colors will be pre-exponentiated (for gamma corrections) if this flag is set.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+32"/>
+        <source>Mesh flags</source>
+        <translation type="unfinished">Insignias de Modelo</translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <location line="+2"/>
+        <location line="+5"/>
+        <source>Unknown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="-6"/>
+        <source>Force hi-res</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>By default, depending on the game settings, higher-res mipmap levels might by not loaded</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Languange dependent</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>If set, depending on the game language settings, this texture is substituted by the one found in the language folder (WB only)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>HDR only</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>If High-Dynamic-Ramge is off, this texture won&apos;t be loaded</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>No HDR</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>If High-Dynamic-Ramge is on, this texture won&apos;t be loaded</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+17"/>
+        <source>Clamp U</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>By default, texture U is set to wrap (horizontally tiled texture)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Clamp V</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>By default, texture V is set to wrap (vertically tiled texture)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+35"/>
+        <source>Animation frames</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>N. of frames of texture anim (append &quot;_0&quot;, &quot;_1&quot; ... to dds file names).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Size U (?)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Size V (?)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>Texture flags</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+27"/>
+        <source>No fog</source>
+        <translation type="unfinished">Sin niebla</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>This object must not be affected by fog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>No Lighting</source>
+        <translation type="unfinished">Sin Luz</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>This object won&apos;t be dynamically relit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>No Z-write</source>
+        <translation type="unfinished">Sin escritura en Z</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Rendering object leaves the depth buffer unaffected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>No depth Test</source>
+        <translation type="unfinished">Sin profundidad</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Object ignores the depth test: i.e. it will be always drawn over others.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Specular enable</source>
+        <translation type="unfinished">Activar brillos 
+especulares</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Specular reflections are enabled.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Alpha test</source>
+        <translation type="unfinished">Test Alfa</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Enable alpha testing (for cutouts).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Uniform lighting</source>
+        <translation type="unfinished">Luz Uniforme</translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Blend</source>
+        <translation type="unfinished">Mezclar</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Enable alpha-blending (for semi-transparencty)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Blend add</source>
+        <translation type="unfinished">Subexponer/
+Añadir</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Alpha-blend function: add</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Blend multiply</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Alpha-blend function: mulitply</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Blend factor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Alpha-blend function: factor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+6"/>
+        <source>Render 1st</source>
+        <translation type="unfinished">Renderizar el 1º</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Origin at camera</source>
+        <translation type="unfinished">Origen en Cámara</translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>LoD</source>
+        <translation type="unfinished">Nivel de Detalle</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>If set, this material is optimized for LODs&gt;1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+12"/>
+        <source>Invert bumpmap</source>
+        <translation type="unfinished">Invertir M. de 
+Desplazamiento</translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>If set, bumpmap should be considered inverted on Y axis</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+30"/>
+        <source>Render order</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>Determines what is rendered first (neg number), or later (pos numbers)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>Alpha test value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+0"/>
+        <source>If alpha test: discard stuff more transparent than this value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
         <source>Material flags</source>
         <translation>Insignias de material</translation>
     </message>
@@ -3664,7 +4022,7 @@ en la línea %3:
         <translation>&lt;h2&gt;Datos de TXT:&lt;/h2&gt;</translation>
     </message>
     <message>
-        <location line="+461"/>
+        <location line="+467"/>
         <source>&lt;b&gt;Missing in txt:&lt;/b&gt; cannot find %1 &lt;u&gt;%2&lt;/u&gt;, referred in &apos;%3&apos;</source>
         <translation>&lt;b&gt;Ausente en txt:&lt;/b&gt; no se encuentra %1 &lt;u&gt;%2&lt;/u&gt;, definido en &apos;%3&apos;</translation>
     </message>
@@ -3690,7 +4048,7 @@ en la línea %3:
 <context>
     <name>QTextBrowser::QTextBrowser</name>
     <message>
-        <location line="-389"/>
+        <location line="-395"/>
         <source>&lt;i&gt;more errors to follow...&lt;/i&gt;</source>
         <translation>&lt;i&gt;Quedan más errores por mostrar...&lt;/i&gt;</translation>
     </message>
@@ -3794,12 +4152,12 @@ en la línea %3:
     </message>
     <message>
         <location line="+2"/>
-        <location line="+414"/>
+        <location line="+418"/>
         <source>Rename</source>
         <translation>Renombrar</translation>
     </message>
     <message>
-        <location line="-410"/>
+        <location line="-414"/>
         <source>Remove</source>
         <translation>Eliminar</translation>
     </message>
@@ -4051,7 +4409,7 @@ en la línea %3:
     <message>
         <location line="+1"/>
         <source>Apply a geometric transform.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aplicar una transformación geométrica.</translation>
     </message>
     <message>
         <source>Apply a gemoetric transform.</source>
@@ -4199,6 +4557,16 @@ en la línea %3:
     </message>
     <message>
         <location line="+2"/>
+        <source>rigging (keep current pose)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Discard rigging, but keep current pose</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
         <source>Color uniform</source>
         <translation>Color Uniforme</translation>
     </message>
@@ -4240,7 +4608,7 @@ en la línea %3:
     <message>
         <location line="+1"/>
         <source>tangent directions</source>
-        <translation type="unfinished"></translation>
+        <translation>direcciones tangentes</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -4263,7 +4631,7 @@ en la línea %3:
         <translation>Realizar una modificación del esqueleto del modelo</translation>
     </message>
     <message>
-        <location line="+79"/>
+        <location line="+80"/>
         <source>[Right-Click]: tools for %1. Multiple selections with [Shift]-[Ctrl].</source>
         <translation>[Click Derecho]: Herramientas para %1. Selecciones múltiples con [Máyus]-[Ctrl]</translation>
     </message>
@@ -4293,7 +4661,7 @@ en la línea %3:
         <translation>Descartar</translation>
     </message>
     <message>
-        <location line="+42"/>
+        <location line="+44"/>
         <source>Add to reference skins</source>
         <translation>Añadir a los modelos de referencia:</translation>
     </message>

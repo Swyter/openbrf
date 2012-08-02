@@ -9,6 +9,7 @@ template <class T> class Matrix44;
 }
 
 class BrfSkeleton;
+class BrfAnimation;
 class BrfBodyPart;
 
 class BrfVert{
@@ -138,6 +139,9 @@ public:
   void MorphFrame(int framei, int framej, const MeshMorpher& m);
   void AddALittleOfBreast(int framei);
 
+  void FreezeFrame(const BrfSkeleton& s, const BrfAnimation& a, float frame);
+
+  void ResizeTextCoords(Point2f min, Point2f max );
 
   BrfMesh(){}
   BrfMesh(FILE *f){ Load(f);}

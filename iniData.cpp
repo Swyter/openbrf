@@ -1000,9 +1000,13 @@ BrfMaterial* IniData::findMaterial(const QString &name,ObjCoord ) {
 }
 
 BrfTexture* IniData::findTexture(const QString &fn){
-  for (unsigned int i=0; i<filename.size(); i++)
+
+  for (unsigned int i=0; i<file.size(); i++)
   for (unsigned int j=0; j<file[i].texture.size();j++ ){
-    if (fn.compare(file[i].texture[j].name),Qt::CaseInsensitive) return &(file[i].texture[j]);
+    if (!(fn.compare(file[i].texture[j].name,Qt::CaseInsensitive))) {
+      return &(file[i].texture[j]);
+    }
+
   }
   return NULL;
 
@@ -1138,15 +1142,16 @@ bool IniData::loadAll(int howFast){
   }
 
   /*
-  for (uint fn=0; fn<32; fn++) {
+ // DISCOVER ALL USED FLAGS
+  for (uint fn=16; fn<17; fn++) {
     int nk=0;
     QString res;
     for (uint fi=0; fi<file.size(); fi++) {
-      for (uint mi=0; mi<file[fi].mesh.size(); mi++) {
-        unsigned int b = file[fi].mesh[mi].flags & ~(3<<16);
+      for (uint mi=0; mi<file[fi].material.size(); mi++) {
+        unsigned int b = file[fi].material[mi].flags; // & ~(3<<16);
 
         QString t;
-        t.sprintf("%s(0x%X) ",file[fi].mesh[mi].name,b);
+        t.sprintf("%s(0x%X) ",file[fi].material[mi].name,b);
         if (b&(1<<fn)) {
           if (nk<100 || (nk%10==0)) {
             res+=t;
@@ -1157,9 +1162,10 @@ bool IniData::loadAll(int howFast){
       }
     }
     if (nk>0)
-    qDebug("[spoiler=mesh with flag: %d]\n%s\n[/spoiler]",fn,res.toAscii().data());
+    qDebug("[spoiler=textures with flag: %d]\n%s\n[/spoiler]",fn,res.toAscii().data());
   }
   */
+
   updateNeededLists();
   }
   if (howFast>=3){

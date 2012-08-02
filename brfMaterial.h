@@ -20,7 +20,8 @@ public:
   char spec[255];
   float specular;
   float r,g,b;
-  int renderOrder;
+  int RenderOrder() const;
+  void SetRenderOrder(int);
 
   bool Load(FILE*f,int verbose=1);
   bool Skip(FILE*f);

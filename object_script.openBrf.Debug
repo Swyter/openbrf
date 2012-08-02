@@ -38,6 +38,7 @@ INPUT(
 ./debug\askUnrefTextureDialog.o
 ./debug\askIntervalDialog.o
 ./debug\askHueSatBriDialog.o
+./debug\askLodOptionsDialog.o
 ./debug\glew.o
 ./debug\moc_mainwindow.o
 ./debug\moc_glwidgets.o
@@ -56,5 +57,6 @@ INPUT(
 ./debug\moc_askUnrefTextureDialog.o
 ./debug\moc_askIntervalDialog.o
 ./debug\moc_askHueSatBriDialog.o
+./debug\moc_askLodOptionsDialog.o
 ./debug\qrc_resource.o
 );

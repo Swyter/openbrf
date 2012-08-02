@@ -75,6 +75,13 @@ int GLWidget::getRefSkeleton() const{
   return selRefSkel;
 }
 
+int GLWidget::getRefSkelAni() const{
+  if (displaying == MESH ) {
+    return selRefAnimation;
+  }
+  return -1;
+}
+
 void GLWidget::setRefSkeleton(int i){
   selRefSkel = i;
   update();
@@ -327,7 +334,7 @@ void GLWidget::renderBrfItem (const BrfMesh& p){
   }
 
   if (a && s) {
-    fi = floatMod( relTime*runningSpeed , a->frame.size() );
+    lastSkelAniFrameUsed = fi = floatMod( relTime*runningSpeed , a->frame.size() );
     renderRiggedMesh(p,*s,*a,fi);
   } else {
     renderMesh(p,fi);
@@ -398,7 +405,7 @@ void GLWidget::initFramPrograms(){
       vec4 tex = texture( samplRgb,gl_TexCoord[0].st);
       gl_FragColor.rgb = tex.rgb*(gl_Color.rgb
                      + gl_SecondaryColor.rgb*spec_col*tex.a*1.0);
-      gl_FragColor.a = 1;
+      gl_FragColor.a = 1.0;
 
     }
 
@@ -461,6 +468,7 @@ void GLWidget::initFramPrograms(){
               normt.y * tany;
       float diffuse = dot(normt , lightDir ) ;
       diffuse = (diffuse<0.0)?0.0:diffuse;
+      diffuse = (diffuse>1.0)?1.0:diffuse;
       %1if SPECULAR_MAP%2
       vec3 specmapVal =  texture( samplSpec,tc).rgb;
       %1endif%2
@@ -473,13 +481,11 @@ void GLWidget::initFramPrograms(){
       %1endif%2
       );
       %1if ALPHA_CUTOUTS%2
-      discard(tex.a<0.1);
+      if (tex.a<0.1) discard;
       gl_FragColor.a = tex.a;
       %1else%2
       gl_FragColor.a = 1.0;
       %1endif%2
-
-      /*gl_FragColor.rgb = normt;*/
     }
 
   );
@@ -541,16 +547,19 @@ void GLWidget::enableMaterial(const BrfMaterial &m){
 
 
   if (bumpmapActivated) {
+
     if (useOpenGL2) {
       int prog;
 
-      if (mapShine) prog = programNormalMap[NM_SHINE][bumpmapUsingGreen];
-      else if (alphaCutout) prog = programNormalMap[NM_ALPHA][bumpmapUsingGreen];
-      else if (alphaShine) prog = programNormalMap[NM_IRON][bumpmapUsingGreen];
-      else prog = programNormalMap[NM_PLAIN][bumpmapUsingGreen];
+      int w;
+      if (mapShine) prog = programNormalMap[w=NM_SHINE][bumpmapUsingGreen];
+      else if (alphaCutout) prog = programNormalMap[w=NM_ALPHA][bumpmapUsingGreen];
+      else if (alphaShine) prog = programNormalMap[w=NM_IRON][bumpmapUsingGreen];
+      else prog = programNormalMap[w=NM_PLAIN][bumpmapUsingGreen];
 
+      //qDebug("using program %d (%d %d)",prog,w,bumpmapUsingGreen );
       if (glUseProgram) glUseProgram(prog);
-      if (glUniform3f)  {
+      if (glUniform3f && glUniform1f && glUniform1i )  {
         glUniform1f( glGetUniformLocation(prog,"usePerVertColor"), (colorMode==0)?-1:+1);
 
         glUniform3f( glGetUniformLocation(prog,"spec_col"),m.r,m.g,m.b );
@@ -580,7 +589,7 @@ void GLWidget::enableMaterial(const BrfMaterial &m){
         if (glUniform3f) glUniform3f(
           glGetUniformLocation(fragProgramIron,"spec_col"),m.r,m.g,m.b
         );
-        if (glUniform3f) glUniform1i(
+        if (glUniform1i) glUniform1i(
           glGetUniformLocation(fragProgramIron,"samplRgb"),0
         );
       }
@@ -812,6 +821,7 @@ void GLWidget::setTextureName(QString s, int origin, int texUnit){
      tw=data.sx;
      th=data.sy;
      ta=(data.ddxversion>=3);
+     //qDebug("Settexture: ta=%d, name=%s",data.ddxversion,s.toAscii().data());
   } else {
      setMaterialError(3); // format is wrong
      lastMatErr.texName=s;

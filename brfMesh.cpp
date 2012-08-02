@@ -14,6 +14,7 @@ using namespace vcg;
 
 #include "brfMesh.h"
 #include "brfSkeleton.h"
+#include "brfAnimation.h"
 #include "brfBody.h"
 
 #include "saveLoad.h"
@@ -75,6 +76,57 @@ void MeshMorpher::FinishLearning(){
         t[bi][i]/=det;
       }
     }
+  }
+}
+
+void BrfMesh::FreezeFrame(const BrfSkeleton& s, const BrfAnimation& a, float frameN){
+
+  int fv = 0;
+
+  if ((int)s.bone.size()!=a.nbones || maxBone>a.nbones) {
+    return;
+  }
+
+  int fi= (int)frameN;
+
+  if (fi<0) assert(0);
+  if (fi>=a.frame.size()) assert(0);
+
+  std::vector<Matrix44f> bonepos = s.GetBoneMatrices( a.frame[fi] );
+
+  std::vector<bool> done(frame[fv].pos.size(),false);
+
+
+  for (unsigned int vi=0; vi<vert.size(); vi++) {
+
+    const BrfRigging &rig (rigging[ vert[ vi ].index ]);
+
+    //glNormal(vert[face[i].index[j]].__norm);
+    Point3f &norm(frame[fv].norm[      vi        ]);
+    Point3f &tang(vert[                vi        ].tang);
+
+    Point3f &pos (frame[fv].pos [ vert[vi].index ]);
+
+    Point3f p(0,0,0);
+    Point3f n(0,0,0);
+    Point3f t(0,0,0);
+    for (int k=0; k<4; k++){
+      float wieght = rig.boneWeight[k];
+      int       bi = rig.boneIndex [k];
+      if (bi>=0 && bi<(int)bonepos.size()) {
+        p += (bonepos[bi]* pos  )*wieght;
+        n += (bonepos[bi]* norm - bonepos[bi]*Point3f(0,0,0) )*wieght;
+        t += (bonepos[bi]* tang - bonepos[bi]*Point3f(0,0,0) )*wieght;
+      }
+    }
+    norm = n;
+
+    tang = t;
+    if (!done[vert[vi].index]) {
+      pos = p;
+      done[vert[vi].index]=true;
+    }
+
   }
 }
 
@@ -2283,6 +2335,16 @@ void BrfMesh::AddRope(const BrfMesh &to, int nseg, float width){
     rope.SetPos(from.GetAvgSelectedPos(i), to.GetAvgSelectedPos(i), width);
     rope.Simulation(100);
     rope.AddTo(frame[i]);
+  }
+}
+
+void BrfMesh::ResizeTextCoords(Point2f min, Point2f max ){
+  for (uint i=0; i<vert.size(); i++){
+    float& u(vert[i].ta.X());
+    float& v(vert[i].ta.Y());
+    u = min.X()+(u)*(max.X()-min.X());
+    v = min.Y()+(v)*(max.Y()-min.Y());
+    vert[i].tb=vert[i].ta;
   }
 }
 

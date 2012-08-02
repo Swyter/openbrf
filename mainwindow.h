@@ -159,10 +159,12 @@ private:
     void meshFemininize();
     void meshComputeLod();
     void meshRecomputeTangents();
+    void meshFreezeFrame();
     void learnFemininzation(); // from current selection
 
     void setFlagsMesh();
     void setFlagsMaterial();
+    void setFlagsTexture();
     void setFlagsBody();
 
     void onClipboardChange();
@@ -256,8 +258,10 @@ private:
     QPair<int, int>  askRefSkel(int nbones, int &method, int &res); // ask user to specify two skel
     int askRefSkin(); //  ask user to specify a skin
     int currentDisplaySkin(); // returns skin currently used as display
-    int currentDisplaySkeleton(); // returns skeleton currently used as display
+    BrfSkeleton* currentDisplaySkeleton(); // returns skeleton currently used as display
     int currentDisplayFrame(); // return v.a. frame currently used as dispalu
+    BrfAnimation* currentDisplayAnimation(); // return skel animation
+    int currentDisplaySkelAniFrame(); // return skel animation frame currently used as dispaly
     int gimmeASkeleton(int nbones); // returns index of a skeleton with n bones. Maybe asks for one if more than one.
     void cancelNavStack();
     void insert(const BrfMesh &m);

@@ -33,6 +33,7 @@ int MainWindow::loadModAndDump(QString modpath, QString file){
   return 1;
 }
 
+
 void MainWindow::onActionTriggered(QAction *q){
   if (setNextActionAsRepeatable) {
     setNextActionAsRepeatable = false;
@@ -112,12 +113,12 @@ static void setFloat(float &f, QLineEdit *q){
   q->setFrame(true);
   f= q->text().trimmed().toFloat();
 }
-
+/*
 static void setInt(int &f, QSpinBox *q){
   if (!q->hasFrame() && q->text().isEmpty()) return;
   q->setFrame(true);
   f= q->value();
-}
+}*/
 static void setSign(int &s, const QLineEdit *q){
   int i =q->text().trimmed().toInt();
   if (i>=0) s=+1; else s=-1;
@@ -324,7 +325,9 @@ void MainWindow::updateDataMaterial(){
     setFloat(m.specular, u->leMatCoeff);
     setString(m.spec, u->leMatSpec);
     setString(m.shader, u->leMatShader);
-    setInt(m.renderOrder, u->leMatRendOrd);
+    //int ro;
+    //setInt(ro, u->leMatRendOrd);
+    //m.SetRenderOrder(ro);
 
     //mapMT[m.name] = m.diffuseA;
   }
@@ -422,13 +425,11 @@ void MainWindow::tldMakeDwarfSlim(){
 }
 
 void MainWindow::tldShrinkAroundBones(){
-  int sdi = currentDisplaySkeleton();
-  if (sdi<0 || sdi>=(int)reference.skeleton.size()) {
+  BrfSkeleton *skel  = currentDisplaySkeleton();
+  if (!skel) {
     statusBar()->showMessage("No current skeleton found!");
     return;
   }
-  BrfSkeleton &skel (reference.skeleton[sdi]);
-
 
   int done =0;
   for (int ii=0; ii<selector->selectedList().size(); ii++) {
@@ -442,7 +443,7 @@ void MainWindow::tldShrinkAroundBones(){
       continue;
     }
 
-    m.ShrinkAroundBones(skel,frame);
+    m.ShrinkAroundBones(*skel,frame);
     setModified(true);
     updateGl();
     done++;
@@ -943,8 +944,18 @@ int MainWindow::askRefSkin(){
 int MainWindow::currentDisplaySkin(){
   return glWidget->getRefSkin();
 }
-int MainWindow::currentDisplaySkeleton(){
-  return glWidget->getRefSkeleton();
+BrfSkeleton* MainWindow::currentDisplaySkeleton(){
+  int i = glWidget->getRefSkeleton();
+  if (i<0) return NULL;
+  if (i>=(int)reference.skeleton.size()) return NULL;
+  return &(reference.skeleton[i]);
+}
+BrfAnimation* MainWindow::currentDisplayAnimation(){
+  int i = glWidget->getRefSkelAni();
+  if (i<0) return NULL;
+  if (i>=(int)reference.animation.size()) return NULL;
+  return &(reference.animation[i]);
+  return NULL;
 }
 int MainWindow::currentDisplayFrame(){
   if (selector->currentTabName()==MESH)
@@ -953,6 +964,11 @@ int MainWindow::currentDisplayFrame(){
   return guiPanel->ui->frameNumberAni->value()-1;
   assert(0);
   return 0;
+}
+
+int MainWindow::currentDisplaySkelAniFrame(){
+  assert ((selector->currentTabName()==MESH));
+  return glWidget->lastSkelAniFrameUsed;
 }
 
 void MainWindow::meshUnify(){
@@ -983,11 +999,15 @@ template<class BrfType>
 void MainWindow::objectMergeSelected(vector<BrfType> &v){
   BrfType res;
   bool first=true;
+  QString commonPrefix;
   for (int i=0; i<selector->selectedList().size(); i++)
   {
     int j=selector->selectedList()[i].row();
     if (j<0 || j>=(int)v.size()) continue;
-    if (first) res = v[j]; else {
+    if (first) {
+      res = v[j];
+      commonPrefix = QString(v[j].name);
+    } else {
       if (!res.Merge( v[j] )) {
         QMessageBox::information(this,
           "OpenBrf",
@@ -995,9 +1015,12 @@ void MainWindow::objectMergeSelected(vector<BrfType> &v){
         );
         return;
       }
+      _findCommonPrefix( commonPrefix, v[j].name );
     }
     first=false;
   }
+  commonPrefix+="_combined";
+  sprintf(res.name,"%s",commonPrefix.toAscii().data());
   insert(res);
   setModified(true);
 }
@@ -1321,6 +1344,30 @@ void MainWindow::aniMerge(){
     }
   }
   insert(res);
+}
+
+
+void MainWindow::meshFreezeFrame(){
+  QModelIndexList list= selector->selectedList();
+  for (int j=0; j<list.size(); j++){
+    BrfMesh &m(brfdata.mesh[list[j].row()]);
+    //m.Unskeletonize(reference.skeleton[9]);//gimmeASkeleton(20)]);
+    if (m.isRigged) {
+
+      BrfSkeleton *s = currentDisplaySkeleton();
+      BrfAnimation *a = currentDisplayAnimation();
+      int f = currentDisplaySkelAniFrame();
+      if (s && a && (f>=0))
+        m.FreezeFrame(*s,*a,f);
+      else assert(0);
+      m.DiscardRigging();
+      setModified(true);
+    }
+
+  }
+  updateGui();
+  updateGl();
+
 }
 
 void MainWindow::meshDiscardRig(){
@@ -2221,6 +2268,7 @@ void MainWindow::meshMountOnBone(){
     int i = selector->selectedList()[j].row();
     if (i<0 || i>=(int)brfdata.mesh.size()) continue;
     BrfMesh &m(brfdata.mesh[i]);
+    //m.ResizeTextCoords(Point2f(0.75,0.75),Point2f(1,1)); return;
     if (isOri)
     m.Apply(
       BrfSkeleton::adjustCoordSystHalf(
@@ -2903,7 +2951,7 @@ void MainWindow::showUnrefTextures(){
   QStringList list =  dir.entryList();
   for (int i=0; i<list.size(); i++){
     QString name = QFileInfo(list[i]).fileName();
-    if (!inidata.findTexture(name))
+    if (!(inidata.findTexture(name)))
     d.addFile(name);
   }
 
@@ -3166,7 +3214,7 @@ bool MainWindow::navigateRight(){
 
   int currTab = selector->currentTabName();
 
-  if ((currTab!=MESH) && (currTab!=MATERIAL)) {
+  if ((currTab!=MESH) && (currTab!=MATERIAL) && (currTab!=SHADER)) {
     return false;
   }
 
@@ -3202,6 +3250,15 @@ bool MainWindow::navigateRight(){
     }
     stackPos = 1;
 
+  }
+
+  if (currTab==SHADER) {
+    nextName = guiPanel->ui->leShaderFallback->text();
+    ObjCoord p = inidata.indexOf(nextName,SHADER);
+    if (!p.isValid()) return false;
+    if (!goTo(p)) return false;
+    selector->currentWidget()->setFocus();
+    return true;
   }
 
   ObjCoord p = inidata.indexOf(nextName,nextTab);
@@ -3429,46 +3486,47 @@ void MainWindow::optionSetBgColor(){
     
 #include "askFlagsDialog.h"
 
+#define TR AskFlagsDialog::tr
 void MainWindow::setFlagsBody(){
   unsigned int curfOR=0, curfAND = 0xFFFFFFFF;
 
 
-  QString FlagNameArray[32] = {
-     AskFlagsDialog::tr("Two-sided (?)"),
-     AskFlagsDialog::tr("No Collision"),
-     AskFlagsDialog::tr("No Shadow"),
-     "",
-     "",
-     "",
-     "",
-     "",
+  QString FlagNameArray[64] = {
+     TR("Two-sided"),"",
+     TR("No Collision"),"",
+     TR("No Shadow"),TR("Game won't use this collision object"),
+     "","",
+     "","",
+     "","",
+     "","",
+     "","",
 
-     "",
-     "",
-     "",
-     "",
-     "",
-     "",
-     "",
-     "",
+     "","",
+     "","",
+     "","",
+     "","",
+     "","",
+     "","",
+     "","",
+     "","",
 
-     AskFlagsDialog::tr("Difficult (?)"),
-     AskFlagsDialog::tr("Unwalkable (?)"),
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
+     TR("Difficult"),"",
+     TR("Unwalkable"),"",
+    "","",
+    "","",
+    "","",
+    "","",
+    "","",
+    "","",
 
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
+    "","",
+    "","",
+    "","",
+    "","",
+    "","",
+    "","",
+    "","",
+    "","",
 
   };
 
@@ -3485,10 +3543,13 @@ void MainWindow::setFlagsBody(){
   curfOR = curfAND = p.flags;
 
   //setFlags(curf,ui->leMatFlags->text());
-  QStringList l ;
-  for (int i=0; i<32; i++) l.append(FlagNameArray[i]);
+  QStringList l, tips ;
+  for (int i=0; i<32; i++) {
+    l.append(FlagNameArray[i*2]);
+    tips.append(FlagNameArray[i*2+1]);
+  }
 
-  AskFlagsDialog *d = new AskFlagsDialog(this,curfOR,curfAND, l);
+  AskFlagsDialog *d = new AskFlagsDialog(this,curfOR,curfAND, l,tips);
   d->setWindowTitle(tr("Collision objects flags"));
   if (d->exec()==QDialog::Accepted) {
 
@@ -3508,42 +3569,42 @@ void MainWindow::setFlagsMesh(){
   unsigned int curfOR=0, curfAND = 0xFFFFFFFF;
 
 
-  QString FlagNameArray[32] = {
-    AskFlagsDialog::tr("Unknown (for props?)"),
-    AskFlagsDialog::tr("Unknown (for particles?)"),
-    AskFlagsDialog::tr("Unknown (plants?)"),
-    AskFlagsDialog::tr("Unknown (for particles?)"),
-    "",
-    AskFlagsDialog::tr("Unknown (hairs and body parts?)"),
-    "",
-    "",
+  QString FlagNameArray[64] = {
+    TR("Unknown (for props?)"),TR("Exact meaning of this flag is unknown."),
+    TR("Unknown (for particles?)"),TR("Exact meaning of this flag is unknown."),
+    TR("Unknown (plants?)"),TR("Exact meaning of this flag is unknown."),
+    TR("Unknown (for particles?)"),TR("Exact meaning of this flag is unknown."),
+    "","",
+    TR("Unknown (hairs and body parts?)"),TR("Exact meaning of this flag is unknown."),
+    "","",
+    "","",
 
-    AskFlagsDialog::tr("Unknown (for particles?)"),
-    AskFlagsDialog::tr("Unknown (screen space?)"),
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
+    TR("Unknown (for particles?)"),TR("Exact meaning of this flag is unknown."),
+    TR("Unknown (screen space?)"),TR("Exact meaning of this flag is unknown."),
+    "","",
+    "","",
+    "","",
+    "","",
+    "","",
+    "","",
 
-    AskFlagsDialog::tr("reserved (tangent space)"),
-    AskFlagsDialog::tr("reserved (Warband format)"),
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
+    TR("R: (tangent space)"),TR("This flag is automatically set if mesh has tangent directions defined."),
+    TR("R: (Warband format)"),TR("This flag is automatically set for meshes in WB formats"),
+    "","",
+    "","",
+    "","",
+    "","",
+    "","",
+    "","",
 
-    AskFlagsDialog::tr("Unknown (for particles?)"),
-    "",
-    AskFlagsDialog::tr("Unknown (for particles?)"),
-    "",
-    "",
-    "",
-    "",
-    "",
+    TR("Pre-exponentiate colors"),TR("Vertex colors will be pre-exponentiated (for gamma corrections) if this flag is set."),
+    "","",
+    TR("Unknown (for particles?)"),TR("Exact meaning of this flag is unknown."),
+    "","",
+    "","",
+    "","",
+    "","",
+    "","",
 
   };
 
@@ -3561,11 +3622,14 @@ void MainWindow::setFlagsMesh(){
   }
 
   //setFlags(curf,ui->leMatFlags->text());
-  QStringList l ;
-  for (int i=0; i<32; i++) l.append(FlagNameArray[i]);
+  QStringList l, tips ;
+  for (int i=0; i<32; i++) {
+    l.append(FlagNameArray[i*2]);
+    tips.append(FlagNameArray[i*2+1]);
+  }
 
-  AskFlagsDialog *d = new AskFlagsDialog(this,curfOR,curfAND, l);
-  d->setWindowTitle(tr("Material flags"));
+  AskFlagsDialog *d = new AskFlagsDialog(this,curfOR,curfAND, l,tips);
+  d->setWindowTitle(tr("Mesh flags"));
   if (d->exec()==QDialog::Accepted) {
     //ui->leMatFlags->setText(StringH( d->getRes() ));
     //emit(dataMaterialChanged());
@@ -3586,49 +3650,141 @@ void MainWindow::setFlagsMesh(){
 
 }
 
+void MainWindow::setFlagsTexture(){
+  unsigned int curfOR=0, curfAND = 0xFFFFFFFF;
+
+
+  QString FlagNameArray[64] = {
+    TR("Unknown"),"",
+    TR("Force hi-res"),TR("By default, depending on the game settings, higher-res mipmap levels might by not loaded"),
+    TR("Unknown"),"",
+    TR("Languange dependent"),TR("If set, depending on the game language settings, this texture is substituted by the one found in the language folder (WB only)"),
+    TR("HDR only"),TR("If High-Dynamic-Ramge is off, this texture won't be loaded"),
+    TR("No HDR"),TR("If High-Dynamic-Ramge is on, this texture won't be loaded"),
+    "","",
+    TR("Unknown"),"",
+
+    "","",
+    "","",
+    "","",
+    "","",
+    "B:","", // maybe mipmaps X
+    "B:","",
+    "B:","",
+    "B:","",
+
+    "B:","", // maybe mipmaps Y
+    "B:","",
+    "B:","",
+    "B:","",
+    TR("Clamp U"),TR("By default, texture U is set to wrap (horizontally tiled texture)"),
+    TR("Clamp V"),TR("By default, texture V is set to wrap (vertically tiled texture)"),
+    "","",
+    "","",
+
+    "B:","", // animation frames
+    "B:","",
+    "B:","",
+    "B:","",
+    "","",
+    "","",
+    "","",
+    "","",
+
+  };
+
+  QModelIndexList list=selector->selectedList();
+
+  for (int i=0; i<(int)list.size(); i++) {
+    int sel = list[i].row();
+    if (sel<0 || sel>=(int)brfdata.texture.size()) continue;
+
+    BrfTexture &t(brfdata.texture[sel]);
+    curfOR |= t.flags;
+    curfAND &= t.flags;
+  }
+
+  //setFlags(curf,ui->leMatFlags->text());
+  QStringList l, tips ;
+  for (int i=0; i<32; i++) {
+    l.append(FlagNameArray[i*2]);
+    tips.append(FlagNameArray[i*2+1]);
+  }
+
+  AskFlagsDialog *d = new AskFlagsDialog(this,curfOR,curfAND, l,tips);
+  int aniVals[16] = {0,4,8,12,16,20,24,28,32,36,40,44,48,52,56,60};
+  d->setBitCombo(TR("Animation frames"),TR("N. of frames of texture anim (append \"_0\", \"_1\" ... to dds file names)."),24,28,aniVals);
+  char* aniPows[16] = {"default","2","4","8","16","32","64","128","256","512","1024","2K", "4K","8K","16K","32K",};
+  d->setBitCombo(TR("Size U (?)"),"Unclear meaining, usually only set for face textures",12,16,aniPows);
+  d->setBitCombo(TR("Size V (?)"),"Unclear meaining, usually only set for face textures",16,20,aniPows);
+
+  d->setWindowTitle(tr("Texture flags"));
+  if (d->exec()==QDialog::Accepted) {
+    //ui->leMatFlags->setText(StringH( d->getRes() ));
+    //emit(dataMaterialChanged());
+
+    for (int i=0; i<(int)list.size(); i++) {
+      int sel = list[i].row();
+      if (sel<0 || sel>=(int)brfdata.texture.size()) continue;
+
+      BrfTexture &t(brfdata.texture[sel]);
+
+      t.flags |= d->toOne();
+      t.flags &= d->toZero();
+
+    }
+    guiPanel->setSelection(list,TEXTURE);
+    setModified(true);
+  }
+
+}
+
+
 void MainWindow::setFlagsMaterial(){
   unsigned int curfOR=0, curfAND = 0xFFFFFFFF;
 
 
-  QString FlagNameArray[32] = {
-     AskFlagsDialog::tr("No fog"),
-     AskFlagsDialog::tr("No Lighting"),
-    "",
-     AskFlagsDialog::tr("No Z-write"),
-     AskFlagsDialog::tr("No depth Test"), //
-     AskFlagsDialog::tr("Specular enable"),
-     AskFlagsDialog::tr("Alpha test"),
-     AskFlagsDialog::tr("Uniform lighting"),
+  QString FlagNameArray[64] = {
+     TR("No fog"),TR("This object must not be affected by fog"),
+     TR("No Lighting"),TR("This object won't be dynamically relit"),
+    "","",
+     TR("No Z-write"),TR("Rendering object leaves the depth buffer unaffected"),
+     TR("No depth Test"),TR("Object ignores the depth test: i.e. it will be always drawn over others."), //
+     TR("Specular enable"),TR("Specular reflections are enabled."),
+     TR("Alpha test"),TR("Enable alpha testing (for cutouts)."),
+     TR("Uniform lighting"),"",
 
 
-     AskFlagsDialog::tr("Blend"),
-     AskFlagsDialog::tr("Blend add"),
-     AskFlagsDialog::tr("Blend multiply *"),
-     AskFlagsDialog::tr("Blend factor **"),
-     AskFlagsDialog::tr("Alpha test 1"),
-     AskFlagsDialog::tr("Alpha test 128"),
-     AskFlagsDialog::tr("Alpha test 256 *"),
-    "",
+     TR("Blend"),TR("Enable alpha-blending (for semi-transparencty)"),
+     TR("Blend add"),TR("Alpha-blend function: add"),
+     TR("Blend multiply"),TR("Alpha-blend function: mulitply"),
+     TR("Blend factor"),TR("Alpha-blend function: factor"),
+     "B:","", // alpha test value
+     "B:","", // alpha test value
+     "B:","", // alpha test value
+    "","",
 
-     AskFlagsDialog::tr("Render 1st"),
-     AskFlagsDialog::tr("Origin at camera"),
-     AskFlagsDialog::tr("LoD"),
-    "",
-    "",
-    "",
-    "",
-    "",
+     TR("Render 1st"),"",
+     TR("Origin at camera"),"",
+     TR("LoD"),TR("If set, this material is optimized for LODs>1"),
+    "","",
+    "","",
+    "","",
+    "","",
+    "","",
 
-     "R",
-     "R",
-     "R",
-     "R",
-     AskFlagsDialog::tr("Invert bumpmap"),
-    "",
-    "",
-    "",
+    "B:","", // render order
+    "B:","",
+    "B:","",
+    "B:","",
+
+    TR("Invert bumpmap"),TR("If set, bumpmap should be considered inverted on Y axis"),
+    "","",
+    "","",
+    "","",
 
   };
+
 
   QModelIndexList list=selector->selectedList();
 
@@ -3644,10 +3800,19 @@ void MainWindow::setFlagsMaterial(){
   }
 
   //setFlags(curf,ui->leMatFlags->text());
-  QStringList l ;
-  for (int i=0; i<32; i++) l.append(FlagNameArray[i]);
+  QStringList l, tips ;
+  for (int i=0; i<32; i++) {
+    l.append(FlagNameArray[i*2]);
+    tips.append(FlagNameArray[i*2+1]);
+  }
 
-  AskFlagsDialog *d = new AskFlagsDialog(this,curfOR,curfAND, l);
+  AskFlagsDialog *d = new AskFlagsDialog(this,curfOR,curfAND, l,tips);
+  int vals[16] = {-8,-7,-6,-5,-4,-3,-2,-1,0,1,2,3,4,5,6,7};
+  d->setBitCombo(TR("Render order"),TR("Determines what is rendered first (neg number), or later (pos numbers)"),24,28, vals,8);
+
+  char* valsAlpha[8] = {"0","1/4","3/8","1/2","5/8","3/4","7/8","1"};
+  d->setBitCombo(TR("Alpha test value"),TR("If alpha test: discard stuff more transparent than this value"),12,15, valsAlpha);
+
   d->setWindowTitle(tr("Material flags"));
   if (d->exec()==QDialog::Accepted) {
     //ui->leMatFlags->setText(StringH( d->getRes() ));
