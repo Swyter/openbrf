@@ -1556,6 +1556,7 @@ unsigned int BrfVert::SizeOnDisk(){
 
 bool BrfVert::Load(FILE*f){
   if (globVersion == 0){
+    // M&B files
     LoadInt(f , index);
     LoadUint(f , col ); // color x vert! as 4 bytes AABBGGRR
     LoadPoint(f, __norm );
@@ -1563,12 +1564,17 @@ bool BrfVert::Load(FILE*f){
     LoadPoint(f, tb ); tb[1]=1-tb[1];
   }
   else if (globVersion == 1) {
-    //static FILE*_f =fopen("testLoadV.txt","wt");
+    // warband files
     LoadInt(f , index); //index=0;
     LoadUint(f , col );
     LoadPoint(f,__norm);
-    LoadPoint(f,tang);
-    LoadByte(f,ti);  //fprintf(_f,"%d ",int(p2));
+
+    // only old warband files has the following 2:
+    //LoadPoint(f,tang);
+    //LoadByte(f,ti);
+
+    //static FILE*_f =fopen("testLoadV.txt","wt"); fprintf(_f,"%d ",int(p2));//TEST
+
     LoadPoint(f,ta); ta[1]=1-ta[1]; tb = ta;
   }
   return true;

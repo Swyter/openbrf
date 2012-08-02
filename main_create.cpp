@@ -36,6 +36,7 @@ void MainWindow::createMenus()
     importMenu->addAction(importStaticMeshAct);
     importMenu->addAction(importRiggedMeshAct);
     importMenu->addAction(importMovingMeshAct);
+    importMenu->addAction(importMovingMeshFrameAct);
     importMenu->addSeparator();
     importMenu->addAction(importBodyAct);
     importMenu->addSeparator();
@@ -225,7 +226,7 @@ void MainWindow::createActions()
     connect(editPasteModificationAct, SIGNAL(triggered()), this, SLOT(editPasteMod()));
 
     saveAsAct = new QAction(tr("Save &As..."), this);
-    saveAsAct->setShortcuts(QKeySequence::SaveAs);
+    //saveAsAct->setShortcuts(QKeySequence::SaveAs);
     saveAsAct->setStatusTip(tr("Save the document under a new name"));
     connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveAs()));
 
@@ -261,22 +262,24 @@ void MainWindow::createActions()
     connect(sortEntriesAct, SIGNAL(triggered()), this, SLOT(sortEntries()));
 
     importStaticMeshAct = new QAction(tr("Static mesh"), this);
-    importStaticMeshAct->setStatusTip("Import a static Mesh");
+    importStaticMeshAct->setStatusTip(tr("Import a static Mesh"));
     importRiggedMeshAct = new QAction(tr("Rigged mesh"), this);
-    importRiggedMeshAct->setStatusTip("Import rigged (skeletal animable) Mesh");
-    importMovingMeshAct = new QAction(tr("Vertex-animated mesh frame"), this);
-    importMovingMeshAct->setStatusTip("Import a static mesh and add it as a vertex-animation frame of current Mesh");
+    importRiggedMeshAct->setStatusTip(tr("Import rigged (skeletal animable) Mesh"));
+    importMovingMeshFrameAct = new QAction(tr("Frame of vertex-animated mesh"), this);
+    importMovingMeshFrameAct->setStatusTip(tr("Import a static mesh and add it as a vertex-animation frame of current Mesh"));
+    importMovingMeshAct = new QAction(tr("Vertex-animated mesh"), this);
+    importMovingMeshFrameAct->setStatusTip(tr("Import a vertex animated mesh from a MD3 file"));
     importSkeletonAct = new QAction(tr("Skeleton"), this);
-    importSkeletonAct->setStatusTip("Import a Skeleton");
+    importSkeletonAct->setStatusTip(tr("Import a Skeleton"));
 
 
 
     importAnimationAct = new QAction(tr("Skeletal animation"), this);
-    importAnimationAct->setStatusTip("Import a skeletal Animation");
+    importAnimationAct->setStatusTip(tr("Import a skeletal Animation"));
     importBodyAct = new QAction(tr("Collision body"),this);
-    importBodyAct->setStatusTip("Import an (multi-object) OBJ mesh as a Collision object.");
+    importBodyAct->setStatusTip(tr("Import an (multi-object) OBJ mesh as a Collision object."));
     importBrfAct = new QAction(tr("Anything from a BRF"),this);
-    importBrfAct->setStatusTip("Import all content form another BRF file into current one.");
+    importBrfAct->setStatusTip(tr("Import all content form another BRF file into current one."));
     addNewMaterialAct = new QAction(tr("New Material"),this);
     addNewMaterialAct->setStatusTip("Make a new Material object.");
     addNewTextureAct = new QAction(tr("New Texture"),this);
@@ -431,6 +434,8 @@ void MainWindow::createConnections(){
   connect(importStaticMeshAct,SIGNAL(triggered()),this,SLOT(importStaticMesh()));
   connect(importRiggedMeshAct,SIGNAL(triggered()),this,SLOT(importRiggedMesh()));
   connect(importMovingMeshAct,SIGNAL(triggered()),this,SLOT(importMovingMesh()));
+  connect(importMovingMeshFrameAct,SIGNAL(triggered()),this,SLOT(importMovingMeshFrame()));
+
   connect(importSkeletonAct,  SIGNAL(triggered()),this,SLOT(importSkeleton()));
   connect(importAnimationAct, SIGNAL(triggered()),this,SLOT(importAnimation()));
   connect(importBodyAct, SIGNAL(triggered()),this,SLOT(importCollisionBody()));

@@ -416,7 +416,7 @@ void BrfBodyPart::Transform(float *f) {
   case SPHERE:
     center = m*center;
     dir = m*dir;
-    radius *= pow(m.Determinant(),1.0/3.0);
+    radius *= pow(double(m.Determinant()),1.0/3.0);
     break;
   default: break;
   }
@@ -528,13 +528,13 @@ bool BrfBodyPart::ExportOBJ(FILE* f, int i, int &vc) const{
 
     Point3f p;
     for (int j=0; j<M; j++)
-    for (int i=0; i<N; i++) {
-      p.FromPolar(radius,M_PI*2*i/N,M_PI*(j+1)/(M+1)-M_PI/2); p+= center;
+    for (int i=0; i<N; i++) {     
+      p.FromPolarRad(radius,M_PI*2*i/N,M_PI*(j+1)/(M+1)-M_PI/2); p+= center;
       fprintf(f,"v %f %f %f\n",-p.X(), p.Y(), p.Z());
     }
-    p.FromPolar(radius,0,-M_PI/2); p+= center;
+    p.FromPolarRad(radius,0,-M_PI/2); p+= center;
     fprintf(f,"v %f %f %f\n",-p.X(), p.Y(), p.Z());
-    p.FromPolar(radius,0,+M_PI/2); p+= center;
+    p.FromPolarRad(radius,0,+M_PI/2); p+= center;
     fprintf(f,"v %f %f %f\n",-p.X(), p.Y(), p.Z());
 
     for (int i=0; i<N; i++) {

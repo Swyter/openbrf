@@ -84,6 +84,7 @@ private:
     *exportImportMeshInfoAct,
     *exportStaticMeshAct,
     *exportRiggedMeshAct,
+    *exportMovingMeshFrameAct,
     *exportMovingMeshAct,
     *exportMeshGroupAct,
     *exportMeshGroupManyFilesAct,

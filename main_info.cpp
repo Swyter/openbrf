@@ -29,14 +29,14 @@ void MainWindow::about()
 
  QMessageBox msg(QMessageBox::Information,tr("OpenBrf"),
   //QMessageBox::about(this, tr("Open-Brf"),
-            tr("<p>&nbsp; &nbsp; <b>ver 0.0.37b</b><br>"
+            tr("<p>&nbsp; &nbsp; <b>ver 0.0.38</b><br>"
                "&nbsp; &nbsp; (%1)<br></p>"
                "<p>&nbsp; &nbsp; by [mtarini] --- Marco Tarini<br></p>"
                "<p>&nbsp; &nbsp; Testing, bug reporting, suggestions by: <br>[amade], &nbsp; [André de Cuyne],"
                "[Barf], [Brutus], [captain lust], "
                "[cdvader], [Chel], [DaBlade], [Dain Ironfoot], "
                "[Darwin], [dreamterror], [ealabor], [eierkopf], [EvolutiveBrain], [Fei Dao], [Freddex], [FrisianDude], [Geroj], "
-               "[GetAssista], [giles], [Highelf], [HokieBT], [killkhergit], [Konar], [Llew], "
+               "[GetAssista], [giles], [Gothic Knight], [havarez], [Highelf], [HokieBT], [killkhergit], [Konar], [Llew], "
                "[LordRaglan], [Lumos], "
                "[Merlkir], [mysstick], "
                "[octoburn], [pagan], [Percus], [RATMdude92], [Red River], [Septa Scarabae], "

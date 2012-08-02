@@ -59,7 +59,7 @@ vcg::Matrix44f BrfSkeleton::adjustCoordSyst(vcg::Matrix44f m){
   // for rotations (half):
 vcg::Point4f   BrfSkeleton::adjustCoordSystHalf(vcg::Point4f p){
   //generic: vcg::Quaternionf q; q.FromMatrix(matr);
-  static vcg::Quaternionf q(0, float(1/sqrt(2)),0, float(1/sqrt(2)));
+  static vcg::Quaternionf q(0, float(1.0/sqrt(2.0)),0, float(1.0/sqrt(2.0)));
   return vcg::Quaternionf(p)*q;
 }
 BrfBone   BrfSkeleton::adjustCoordSystHalf(BrfBone p){

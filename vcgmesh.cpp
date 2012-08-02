@@ -18,10 +18,15 @@ using namespace std;
 
 class CEdge;    // dummy prototype never used
 class CFace;
+class CVertex;
 
-class CVertex : public VertexSimp2< CVertex, CEdge, CFace, vertex::BitFlags, vertex::Coord3f,
+struct MyUsedTypes : public UsedTypes<	Use<CVertex>		::AsVertexType,
+                                        Use<CFace>			::AsFaceType>{};
+
+
+class CVertex : public Vertex< MyUsedTypes, vertex::BitFlags, vertex::Coord3f,
                                     vertex::Normal3f, vertex::Color4b, vertex::TexCoord2f >{};
-class CFace   : public FaceSimp2<   CVertex, CEdge, CFace, face::VertexRef, //face::Normal3f ,
+class CFace   : public Face<   MyUsedTypes, face::VertexRef, //face::Normal3f ,
                                     face::BitFlags, //face::WedgeTexCoord2f,
                                     //face::Normal3f, // just for obj importing
                                     face::WedgeTexCoord2f> {};

@@ -1137,7 +1137,7 @@ void _subdivideScreen(int nsel,int w,int h, int *ncol, int *nrow){
   if (w<h) { _subdivideScreen( nsel,h,w, nrow, ncol); }
   else {
     int best = 0;
-    for (int n=(int)(ceil(sqrt(nsel))); n>=1; n--) {
+    for (int n=(int)(ceil(sqrt(double(nsel)))); n>=1; n--) {
       int m = (nsel+n-1)/n;
       int score;
       score = (w/m<h/n)? w/m : h/n;

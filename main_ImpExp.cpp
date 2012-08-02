@@ -7,6 +7,7 @@
 #include "vcgmesh.h"
 
 #include "ioSMD.h"
+#include "ioMD3.h"
 #include "ioMB.h"
 #include "ioOBJ.h"
 
@@ -294,13 +295,7 @@ bool MainWindow::importSkeletonMod(){
   return true;
 }
 
-bool MainWindow::exportMovingMesh(){
-  QMessageBox::information(this,
-    tr("Open Brf"),
-    tr("Export vertex animation:: to do")
-  );
-  return false;
-}
+
 
 bool MainWindow::exportCollisionBody(){
   int i = selector->firstSelected();
@@ -318,6 +313,26 @@ bool MainWindow::exportCollisionBody(){
   }
   return true;
 }
+
+
+bool MainWindow::exportMovingMesh(){
+  int i = selector->firstSelected();
+  if (i<0) return false;
+  if (i>(int)brfdata.mesh.size()) return false;
+  if (selector->currentTabName()!=MESH) return false;
+  QString fn = askExportFilename(brfdata.mesh[ i ].name,tr("Quake 3 vertex animation (*.MD3)"));
+  if (fn.isEmpty()) return false;
+  if (!IoMD3::Export(fn.toAscii().data(),brfdata.mesh[i])){
+    QMessageBox::information(this,
+      tr("Open Brf"),
+      tr("Error exporting MD3 file\n: %1").arg(IoMD3::LastErrorString())
+    );
+    return false;
+  }
+  return true;
+}
+
+
 
 bool MainWindow::exportStaticMesh(){
   int i = selector->firstSelected();
@@ -462,6 +477,31 @@ QString MainWindow::askExportFilename(QString filename,QString ext){
 
 
 
+bool MainWindow::importMovingMesh(){
+  QString fn = askImportFilename(QString("Quake 3 vertex animation (*.MD3)"));
+  if (fn.isEmpty()) return false;
+
+  std::vector<BrfMesh> tmp;
+
+  bool ok=false;
+  ok = IoMD3::Import(fn.toAscii(),tmp);
+  if (!ok) {
+    QMessageBox::information(this, tr("Open Brf"),
+      tr("Cannot import file %1:\n%3\n").arg(fn).arg(IoMD3::LastErrorString())
+    );
+    return false;
+  }
+  for (unsigned int i=0; i<tmp.size(); i++) {
+    applyAfterMeshImport(tmp[i]);
+    insert(tmp[i]);
+  }
+
+  selector->updateData(brfdata);
+  setModified(true);
+  return true;
+}
+
+
 
 
 bool MainWindow::importBrf(){
@@ -563,6 +603,8 @@ bool MainWindow::_importStaticMesh(QString s, std::vector<BrfMesh> &mV, std::vec
   return res;
 }
 
+
+
 bool MainWindow::importStaticMesh(){
   vector<BrfMesh> m;
   vector<bool> mult;
@@ -597,7 +639,7 @@ bool MainWindow::importStaticMesh(){
   return true;
 }
 
-bool MainWindow::importMovingMesh(){
+bool MainWindow::importMovingMeshFrame(){
   int i = selector->firstSelected();
   int j = guiPanel->getCurrentSubpieceIndex(MESH);
   if ((selector->currentTabName()!=MESH) ||
@@ -688,6 +730,7 @@ bool MainWindow::importAnimation(){
 }
 
 
+
 bool MainWindow::importSkeleton(){
 
   QString fn = askImportFilename(
@@ -735,6 +778,7 @@ bool MainWindow::importSkeleton(){
   );
   return true;
 }
+
 
 bool MainWindow::importRiggedMesh(){
   QStringList fnList = askImportFilenames(
