@@ -44,14 +44,14 @@ void BrfShader::SetDefault(){
 }
 
 bool BrfShader::Skip(FILE*f){
-  LoadString(f, name);
+  if (!LoadString(f, name)) return false;
   ::Skip(f,8);
-  LoadString(f, technique);
+  if (!LoadString(f, technique)) return false;
 
   unsigned int k;
   LoadUint(f , k);
   assert(k<=1);
-  if (k) LoadString(f , fallback);
+  if (k) { if (!LoadString(f , fallback)) return false;}
   else fallback[0]=0;
 
   SkipVectorF<BrfShaderOpt>(f);
@@ -59,20 +59,20 @@ bool BrfShader::Skip(FILE*f){
 }
 
 bool BrfShader::Load(FILE*f, int verbose){
-  LoadString(f, name);
+  if (!LoadString(f, name)) return false;
   if (verbose>0) printf("loading \"%s\"...\n",name);
   LoadUint(f , flags);
   LoadUint(f , requires);
-  LoadString(f, technique);
+  if (!LoadString(f, technique)) return false;
 
   unsigned int k;
   LoadUint(f , k);
   assert(k<=1);
-  if (k) LoadString(f , fallback);
+  if (k) { if (!LoadString(f , fallback)) return false; }
   else fallback[0]=0;
 
   //fprintf(fff,"--%s--\n",technique);
-  LoadVector(f,opt);
+  if (!LoadVector(f,opt)) return false;
   return true;
 }
 

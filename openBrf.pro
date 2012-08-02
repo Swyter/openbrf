@@ -3,6 +3,7 @@
 # -------------------------------------------------
 QT += opengl
 QT += xml
+RC_FILE = openBrf.rc
 TARGET = openBrf
 TEMPLATE = app
 SOURCES += main.cpp \
@@ -29,7 +30,14 @@ SOURCES += main.cpp \
     askTexturenameDialog.cpp \
     askFlagsDialog.cpp \
     iniData.cpp \
-    ioOBJ.cpp
+    ioOBJ.cpp \
+    askModErrorDialog.cpp \
+    ioMB.cpp \
+    askTransformDialog.cpp \
+    askCreaseDialog.cpp \
+    main_info.cpp \
+    main_create.cpp \
+    main_ImpExp.cpp
 HEADERS += mainwindow.h \
     glwidgets.h \
     saveLoad.h \
@@ -53,11 +61,22 @@ HEADERS += mainwindow.h \
     askSkelDialog.h \
     askTexturenameDialog.h \
     askFlagsDialog.h \
-    iniData.h
+    iniData.h \
+    askModErrorDialog.h \
+    ioMB.h \
+    askTransformDialog.h \
+    bindTexturePatch.h \
+    ddsData.h \
+    askCreaseDialog.h \
+    ioOBJ.h
 FORMS += guipanel.ui \
     askBoneDialog.ui \
     askSkelDialog.ui \
     askTexturenameDialog.ui \
-    askFlagsDialog.ui
+    askFlagsDialog.ui \
+    askModErrorDialog.ui \
+    askTransformDialog.ui \
+    askCreaseDialog.ui
 INCLUDEPATH += "C:\projects\vcglib"
 INCLUDEPATH += "C:\libs\lib3ds-1.3.0"
+RESOURCES += resource.qrc

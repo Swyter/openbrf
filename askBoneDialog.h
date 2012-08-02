@@ -17,6 +17,7 @@ public:
     void setSkeleton(const BrfSkeleton &s);
     int getSkel() const;
     int getBone() const;
+    void sayNotRigged(bool say);
 
 protected:
     void changeEvent(QEvent *e);

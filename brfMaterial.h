@@ -28,7 +28,7 @@ public:
   static bool IsAnimable() { return false; }
   static Box3f bbox;
 
-  typedef enum {UNKNOWN, NOWHERE, COMMON, MODULE} Location; // where the texture dss file is
+  typedef enum {UNKNOWN, NOWHERE, COMMON, MODULE, LOCAL} Location; // where the texture dss file is
   Location location;
 };
 

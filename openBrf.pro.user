@@ -70,6 +70,7 @@
     <value type="QString" >COMMONPROGRAMFILES=C:\Program Files\Common Files</value>
     <value type="QString" >COMPUTERNAME=NB-TARINI</value>
     <value type="QString" >COMSPEC=C:\Windows\system32\cmd.exe</value>
+    <value type="QString" >DXSDK_DIR=C:\Program Files\Microsoft DirectX SDK (August 2009)\</value>
     <value type="QString" >FP_NO_HOST_CHECK=NO</value>
     <value type="QString" >HOMEDRIVE=C:</value>
     <value type="QString" >HOMEPATH=\Users\tarini</value>
@@ -78,8 +79,8 @@
     <value type="QString" >NUMBER_OF_PROCESSORS=2</value>
     <value type="QString" >ONLINESERVICES=Servizi in linea</value>
     <value type="QString" >OS=Windows_NT</value>
-    <value type="QString" >PATH=C:\Qt\2009.03\mingw\bin;C:\Qt\2009.03\qt\bin;C:\Program Files\PC Connectivity Solution\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Program Files\CyberLink\Power2Go\;C:\Program Files\TortoiseSVN\bin;C:\qt4.4.3\bin;C:\Program Files\QuickTime\QTSystem\;C:\Program Files\MiKTeX 2.7\miktex\bin;C:\Qt\2009.03\mingw\bin</value>
-    <value type="QString" >PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC</value>
+    <value type="QString" >PATH=C:\Qt\2009.03\mingw\bin;C:\Qt\2009.03\qt\bin;C:\Python26\\Scripts;C:\Python26\;C:\Program Files\PC Connectivity Solution\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Program Files\CyberLink\Power2Go\;C:\Program Files\TortoiseSVN\bin;C:\qt4.4.3\bin;C:\Program Files\QuickTime\QTSystem\;C:\Users\tarini\AppData\Roaming\Python\Scripts;C:\Program Files\MiKTeX 2.7\miktex\bin;C:\Qt\2009.03\mingw\bin</value>
+    <value type="QString" >PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.py;.pyw</value>
     <value type="QString" >PCBRAND=Pavilion</value>
     <value type="QString" >PLATFORM=MCD</value>
     <value type="QString" >PROCESSOR_ARCHITECTURE=x86</value>
@@ -126,6 +127,7 @@
     <value type="QString" >COMMONPROGRAMFILES=C:\Program Files\Common Files</value>
     <value type="QString" >COMPUTERNAME=NB-TARINI</value>
     <value type="QString" >COMSPEC=C:\Windows\system32\cmd.exe</value>
+    <value type="QString" >DXSDK_DIR=C:\Program Files\Microsoft DirectX SDK (August 2009)\</value>
     <value type="QString" >FP_NO_HOST_CHECK=NO</value>
     <value type="QString" >HOMEDRIVE=C:</value>
     <value type="QString" >HOMEPATH=\Users\tarini</value>
@@ -134,8 +136,8 @@
     <value type="QString" >NUMBER_OF_PROCESSORS=2</value>
     <value type="QString" >ONLINESERVICES=Servizi in linea</value>
     <value type="QString" >OS=Windows_NT</value>
-    <value type="QString" >PATH=C:\Qt\2009.03\mingw\bin;C:\Qt\2009.03\qt\bin;C:\Program Files\PC Connectivity Solution\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Program Files\CyberLink\Power2Go\;C:\Program Files\TortoiseSVN\bin;C:\qt4.4.3\bin;C:\Program Files\QuickTime\QTSystem\;C:\Program Files\MiKTeX 2.7\miktex\bin;C:\Qt\2009.03\mingw\bin</value>
-    <value type="QString" >PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC</value>
+    <value type="QString" >PATH=C:\Qt\2009.03\mingw\bin;C:\Qt\2009.03\qt\bin;C:\Python26\\Scripts;C:\Python26\;C:\Program Files\PC Connectivity Solution\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Program Files\CyberLink\Power2Go\;C:\Program Files\TortoiseSVN\bin;C:\qt4.4.3\bin;C:\Program Files\QuickTime\QTSystem\;C:\Users\tarini\AppData\Roaming\Python\Scripts;C:\Program Files\MiKTeX 2.7\miktex\bin;C:\Qt\2009.03\mingw\bin</value>
+    <value type="QString" >PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.py;.pyw</value>
     <value type="QString" >PCBRAND=Pavilion</value>
     <value type="QString" >PLATFORM=MCD</value>
     <value type="QString" >PROCESSOR_ARCHITECTURE=x86</value>
@@ -231,6 +233,7 @@
     <value type="QString" >COMMONPROGRAMFILES=C:\Program Files\Common Files</value>
     <value type="QString" >COMPUTERNAME=NB-TARINI</value>
     <value type="QString" >COMSPEC=C:\Windows\system32\cmd.exe</value>
+    <value type="QString" >DXSDK_DIR=C:\Program Files\Microsoft DirectX SDK (August 2009)\</value>
     <value type="QString" >FP_NO_HOST_CHECK=NO</value>
     <value type="QString" >HOMEDRIVE=C:</value>
     <value type="QString" >HOMEPATH=\Users\tarini</value>
@@ -239,8 +242,8 @@
     <value type="QString" >NUMBER_OF_PROCESSORS=2</value>
     <value type="QString" >ONLINESERVICES=Servizi in linea</value>
     <value type="QString" >OS=Windows_NT</value>
-    <value type="QString" >PATH=C:\Qt\2009.03\mingw\bin;C:\Qt\2009.03\qt\bin;C:\Program Files\PC Connectivity Solution\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Program Files\CyberLink\Power2Go\;C:\Program Files\TortoiseSVN\bin;C:\qt4.4.3\bin;C:\Program Files\QuickTime\QTSystem\;C:\Program Files\MiKTeX 2.7\miktex\bin;C:\Qt\2009.03\mingw\bin</value>
-    <value type="QString" >PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC</value>
+    <value type="QString" >PATH=C:\Qt\2009.03\mingw\bin;C:\Qt\2009.03\qt\bin;C:\Python26\\Scripts;C:\Python26\;C:\Program Files\PC Connectivity Solution\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Program Files\CyberLink\Power2Go\;C:\Program Files\TortoiseSVN\bin;C:\qt4.4.3\bin;C:\Program Files\QuickTime\QTSystem\;C:\Users\tarini\AppData\Roaming\Python\Scripts;C:\Program Files\MiKTeX 2.7\miktex\bin;C:\Qt\2009.03\mingw\bin</value>
+    <value type="QString" >PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.py;.pyw</value>
     <value type="QString" >PCBRAND=Pavilion</value>
     <value type="QString" >PLATFORM=MCD</value>
     <value type="QString" >PROCESSOR_ARCHITECTURE=x86</value>
@@ -288,6 +291,7 @@
     <value type="QString" >COMMONPROGRAMFILES=C:\Program Files\Common Files</value>
     <value type="QString" >COMPUTERNAME=NB-TARINI</value>
     <value type="QString" >COMSPEC=C:\Windows\system32\cmd.exe</value>
+    <value type="QString" >DXSDK_DIR=C:\Program Files\Microsoft DirectX SDK (August 2009)\</value>
     <value type="QString" >FP_NO_HOST_CHECK=NO</value>
     <value type="QString" >HOMEDRIVE=C:</value>
     <value type="QString" >HOMEPATH=\Users\tarini</value>
@@ -296,8 +300,8 @@
     <value type="QString" >NUMBER_OF_PROCESSORS=2</value>
     <value type="QString" >ONLINESERVICES=Servizi in linea</value>
     <value type="QString" >OS=Windows_NT</value>
-    <value type="QString" >PATH=C:\Qt\2009.03\mingw\bin;C:\Qt\2009.03\qt\bin;C:\Program Files\PC Connectivity Solution\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Program Files\CyberLink\Power2Go\;C:\Program Files\TortoiseSVN\bin;C:\qt4.4.3\bin;C:\Program Files\QuickTime\QTSystem\;C:\Program Files\MiKTeX 2.7\miktex\bin;C:\Qt\2009.03\mingw\bin</value>
-    <value type="QString" >PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC</value>
+    <value type="QString" >PATH=C:\Qt\2009.03\mingw\bin;C:\Qt\2009.03\qt\bin;C:\Python26\\Scripts;C:\Python26\;C:\Program Files\PC Connectivity Solution\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Program Files\CyberLink\Power2Go\;C:\Program Files\TortoiseSVN\bin;C:\qt4.4.3\bin;C:\Program Files\QuickTime\QTSystem\;C:\Users\tarini\AppData\Roaming\Python\Scripts;C:\Program Files\MiKTeX 2.7\miktex\bin;C:\Qt\2009.03\mingw\bin</value>
+    <value type="QString" >PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.py;.pyw</value>
     <value type="QString" >PCBRAND=Pavilion</value>
     <value type="QString" >PLATFORM=MCD</value>
     <value type="QString" >PROCESSOR_ARCHITECTURE=x86</value>

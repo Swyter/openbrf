@@ -70,6 +70,41 @@ bool BrfMesh::AddFrameDirect(const BrfMesh &b)
   return true;
 }
 
+void BrfMesh::AddBackfacingFaces(){
+  int n=(int)face.size();
+  for (int ff=0; ff<n; ff++) {
+    BrfFace f = face[ff];
+    f.Flip();
+    face.push_back( f );
+  }
+}
+
+void BrfMesh::RemoveBackfacingFaces(){
+  int fi=0;
+  vector<int> kill(face.size(),0);
+  int nsurv=0;
+  for (unsigned int ff=0; ff<face.size(); ff++) {
+    Point3f a=frame[fi].pos[ vert[face[ff].index[0]].index ];
+    Point3f b=frame[fi].pos[ vert[face[ff].index[1]].index ];
+    Point3f c=frame[fi].pos[ vert[face[ff].index[2]].index ];
+    Point3f na=(c-a)^(b-a); // area weighted norm
+
+    Point3f nb;
+    nb.SetZero();
+    nb+=frame[fi].norm[ face[ff].index[0] ];
+    nb+=frame[fi].norm[ face[ff].index[1] ];
+    nb+=frame[fi].norm[ face[ff].index[2] ];
+
+    na.Normalize();
+    nb.Normalize();
+    if (nb*na<0) kill[ff]=1;
+    else nsurv++;
+  }
+  vector<BrfFace> tmp = face;
+  face.resize(0);
+  for (unsigned int ff=0; ff<tmp.size(); ff++) if (!kill[ff]) face.push_back(tmp[ff]);
+}
+
 
 void BrfMesh::ComputeNormals(){
   for (unsigned int fi=0; fi<frame.size(); fi++) {
@@ -99,6 +134,30 @@ void BrfFrame::Apply(Matrix44f m){
     norm[i]=m*norm[i] - t;
   }
 }
+
+void BrfMesh::Scale(float f){
+  for (unsigned int i=0; i<frame.size(); i++)
+    for (unsigned int j=0; j<frame[i].pos.size(); j++)
+      frame[i].pos[j]*=f;
+
+  bbox.min*=f;
+  bbox.max*=f;
+}
+
+void BrfMesh::Transform(float *f){
+  vcg::Matrix44f m(f); m.transposeInPlace();
+  vcg::Point3f z = m * Point3f(0,0,0);
+  for (unsigned int i=0; i<frame.size(); i++) {
+    for (unsigned int j=0; j<frame[i].pos.size(); j++)
+      frame[i].pos[j]=m*frame[i].pos[j];
+    for (unsigned int j=0; j<frame[i].norm.size(); j++)
+      frame[i].norm[j]=(m*frame[i].norm[j] - z).Normalize();
+  }
+  AdjustNormDuplicates();
+  UpdateBBox();
+
+}
+
 
 void BrfMesh::Reskeletonize(const BrfSkeleton& from, const BrfSkeleton& to){
 
@@ -210,6 +269,7 @@ void BrfMesh::UnifyPos(){
       public:
         static BrfMesh* mesh;
         static bool careForNormals;
+        static float crease;
         int ind;
 
         MyIndexVertClass(int a):ind(a) {}
@@ -231,8 +291,9 @@ void BrfMesh::UnifyPos(){
 
           if (careForNormals)
           for (unsigned int i=0; i<mesh->frame.size(); i++) {
+            if ((mesh->frame[i].norm[ind] * mesh->frame[i].norm[b.ind])>crease) return false;
             if (mesh->frame[i].norm[ind] < mesh->frame[i].norm[b.ind]) return true;
-            if (mesh->frame[i].norm[ind] != mesh->frame[i].norm[b.ind]) return false;
+            //if (mesh->frame[i].norm[ind] != mesh->frame[i].norm[b.ind]) return false;
           }
 
           return false;
@@ -241,12 +302,84 @@ void BrfMesh::UnifyPos(){
       };
       BrfMesh* MyIndexVertClass::mesh;
       bool MyIndexVertClass::careForNormals;
+      float MyIndexVertClass::crease;
 
-void BrfMesh::UnifyVert(bool careForNormals){
+void BrfMesh::DivideVert(){
+  std::vector<BrfVert> v = vert;
+  vert.resize(face.size()*3);
+  for (unsigned int j=0; j<frame.size(); j++) frame[j].norm.resize(face.size()*3);
+  for (unsigned int i=0,k=0; i<face.size(); i++)
+  for (unsigned int w=0; w<3; w++,k++) {
+    vert[k]=v[ face[i].index[w] ];
+    face[i].index[w] = k;
+  }
+}
+
+void BrfMesh::RemoveUnreferenced(){
+  vector<bool> present;
+  vector<int> rank;
+  vector<int> select;
+
+  // remove unreferenced verts
+  int r=0;
+  present.resize(vert.size(),false);
+  rank.resize(vert.size());
+  for (unsigned int i=0; i<face.size(); i++) {
+    present[ face[i].index[0] ] =
+    present[ face[i].index[1] ] =
+    present[ face[i].index[2] ] = true;
+  }
+  for (unsigned int i=0; i<vert.size(); i++) {
+    if (present[i]) { rank[i]=r++; select.push_back(i); }
+  }
+  for (unsigned int i=0; i<face.size(); i++) {
+    face[i].index[0] = rank[ face[i].index[0] ];
+    face[i].index[1] = rank[ face[i].index[1] ];
+    face[i].index[2] = rank[ face[i].index[2] ];
+  }
+  for (int i=0; i<r; i++) {
+    vert[i] = vert[ select[i] ];
+    for (unsigned int nf=0; nf<frame.size(); nf++) frame[nf].norm[i]=frame[nf].norm[ select[i] ];
+  }
+  vert.resize(r);
+  for (unsigned int nf=0; nf<frame.size(); nf++) frame[nf].norm.resize(r);
+
+  // remove unreferenced pos
+
+  present.clear();
+  rank.clear();
+  select.clear();
+  r=0;
+  assert(frame.size()>0);
+  present.resize(frame[0].pos.size(),false);
+  rank.resize(frame[0].pos.size());
+  for (unsigned int i=0; i<vert.size(); i++) {
+    present[ vert[i].index ] = true;
+  }
+  for (unsigned int i=0; i<frame[0].pos.size(); i++) {
+    if (present[i]) { rank[i]=r++; select.push_back(i); }
+  }
+  assert(r<=(int)frame[0].pos.size());
+  for (unsigned int i=0; i<vert.size(); i++) {
+    vert[i].index = rank[ vert[i].index ];
+  }
+
+  for (int i=0; i<r; i++) {
+    for (unsigned int nf=0; nf<frame.size(); nf++) frame[nf].pos[i] = frame[nf].pos[ select[i] ];
+  }
+  for (unsigned int nf=0; nf<frame.size(); nf++) frame[nf].pos.resize(r);
+
+  UpdateBBox();
+}
+
+
+
+void BrfMesh::UnifyVert(bool careForNormals, float crease){
   typedef std::set< MyIndexVertClass > Set;
   Set st;
   MyIndexVertClass::mesh=this;
   MyIndexVertClass::careForNormals=careForNormals;
+  MyIndexVertClass::crease=crease;
   vector<int> map(vert.size());
 
   for (unsigned int vi=0; vi<vert.size(); vi++) {
@@ -601,17 +734,54 @@ bool BrfMesh::CheckAssert() const{
   return ok;
 }
 
+int BrfFrame::FindClosestPoint(Point3f to, float *min) const{
+  int best=-1;
+  //float min=9e10f;
+  for (unsigned int i=0; i<pos.size(); i++) {
+    float d = (pos[i]-to).SquaredNorm();
+    if (d<*min) {
+      *min=d;
+      best=i;
+    }
+  }
+  return best;
+}
 
+void BrfMesh::TransferRigging(const std::vector<BrfMesh>& from, int nf, int nfb){
+  rigging.resize( frame[0].pos.size() );
+  for (unsigned int i=0; i<frame[nf].pos.size(); i++) {
+    float maxdist=9e10f;
+    for (unsigned int h=0; h<from.size(); h++)
+    {
+      int j=from[h].frame[nfb].FindClosestPoint( frame[nf].pos[i], &maxdist );
+      if (maxdist==9e10f) j=-1;
+      if (j>=0)
+        rigging[i]=from[h].rigging[j];
+    }
+  }
+  isRigged = true;
+  UpdateMaxBone();
+}
 
+void BrfMesh::UpdateMaxBone(){
+  maxBone = 0;
+  for (int i=0; i<(int)rigging.size(); i++) {
+    for (int j=0; j<4; j++) {
+      if (rigging[i].boneWeight[j]>0)
+        if (rigging[i].boneIndex[j]>maxBone) maxBone = rigging[i].boneIndex[j];
+    }
+  }
+}
 
 // tmp class to load and save rigging
 class TmpRiggingPair{
 public:
   int vindex;  // vert index
   float    weight;
-  void Load(FILE*f){
+  bool Load(FILE*f){
     LoadInt(f,vindex);
     LoadFloat(f,weight);
+    return true;
   }
   void Save(FILE*f) const {
     SaveInt(f,vindex);
@@ -625,9 +795,10 @@ class TmpRigging{
 public:
   int bindex; // bone index
   vector< TmpRiggingPair > pair;
-  void Load(FILE*f){
+  bool Load(FILE*f){
     LoadInt(f,bindex);
-    LoadVector(f,pair);
+    if (!LoadVector(f,pair)) return false;
+    return true;
   }
   void Save(FILE*f) const {
     SaveInt(f,bindex);
@@ -712,6 +883,11 @@ void Rigging2TmpRigging(const vector<BrfRigging>& vert , vector<TmpRigging>& v) 
 
 }
 
+float BrfRigging::WeightOf(int i) const{
+  for ( int k=0;  k<4; k++) if (boneIndex[k]==i) return boneWeight[k];
+  return 0;
+}
+
 int BrfRigging::FirstEmpty() const{
   for ( int k=0;  k<4; k++) if (boneIndex[k]==-1) return k;
   return 4;
@@ -729,10 +905,22 @@ int BrfRigging::LeastIndex() const{
 void BrfRigging::Normalize(){
   float sum=0;
 
-  for ( int k=1;  k<4; k++) if (boneIndex[k]!=-1) sum+=boneWeight[k];
+  for ( int k=0;  k<4; k++) if (boneIndex[k]!=-1) sum+=boneWeight[k];
   if (sum==0) return;
-  for ( int k=1;  k<4; k++) if (boneIndex[k]!=-1) boneWeight[k]/=sum;
+  for ( int k=0;  k<4; k++) if (boneIndex[k]!=-1) boneWeight[k]/=sum;
 
+}
+
+void BrfRigging::Add(int bi, float w){
+  bool overflow = false;
+  int k = FirstEmpty();
+  if (k>=4) {
+    k=LeastIndex();
+    overflow= true;
+  }
+  boneIndex[k] = bi;
+  boneWeight[k] = w;
+  if (overflow) Normalize();
 }
 
 int TmpRigging2Rigging(const vector<TmpRigging>& v, vector<BrfRigging>&vert){
@@ -740,7 +928,9 @@ int TmpRigging2Rigging(const vector<TmpRigging>& v, vector<BrfRigging>&vert){
 
   for (unsigned int i=0; i<v.size(); i++)
   for (unsigned int j=0; j<v[i].pair.size(); j++){
-    bool tooManyBones = false;
+
+    vert[ v[i].pair[j].vindex ].Add( v[i].bindex, v[i].pair[j].weight );
+    /*
     int vi = v[i].pair[j].vindex;
     int k = vert[vi].FirstEmpty();
     if (k>=4) {
@@ -751,7 +941,7 @@ int TmpRigging2Rigging(const vector<TmpRigging>& v, vector<BrfRigging>&vert){
 
     vert[ vi ].boneIndex[k] = v[i].bindex;
     vert[ vi ].boneWeight[k] = v[i].pair[j].weight;
-    if (tooManyBones) vert[vi].Normalize();
+    */
     if (max<v[i].bindex) max =v[i].bindex;
 
 
@@ -759,10 +949,15 @@ int TmpRigging2Rigging(const vector<TmpRigging>& v, vector<BrfRigging>&vert){
   return max;
 }
 
+void BrfMesh::NormalizeRigging(){
+  for (unsigned int i=0; i<rigging.size(); i++) {
+    rigging[i].Normalize();
+  }
+}
+
 void BrfMesh::Save(FILE*f) const{
   CheckAssert();
 
-  //if (verbose) printf(" saving \"%s\"...\n",name);
   SaveString(f, name);  
   SaveUint(f , flags);
   SaveString(f, material); // material used
@@ -993,8 +1188,8 @@ void BrfMesh::Flip(){
       frame[j].norm[i].X()*=-1;
     }
   }
-  
   for (unsigned int i=0; i<face.size(); i++) face[i].Flip();
+  AdjustNormDuplicates();
 }
 
 class CoordSist{
@@ -1158,31 +1353,60 @@ void BrfMesh::Bend(int j, float range){
   }
 }
 
+extern int globVersion;
+
 unsigned int BrfVert::SizeOnDisk(){
-  return 4+4+12+8+8;
+  if (globVersion == 0 )
+    return 4+4+12+8+8;
+  else
+    return 4+4+12+12+1+8;
 }
 
-bool BrfVert::Load(FILE*f,int verbose){
-  LoadInt(f , index);
-  LoadUint(f , col ); // color x vert! as 4 bytes AABBGGRR
-  LoadPoint(f, __norm );
-  LoadPoint(f, ta ); ta[1]=1-ta[1];
-  LoadPoint(f, tb ); tb[1]=1-tb[1];
+
+bool BrfVert::Load(FILE*f){
+  if (globVersion == 0){
+    LoadInt(f , index);
+    LoadUint(f , col ); // color x vert! as 4 bytes AABBGGRR
+    LoadPoint(f, __norm );
+    LoadPoint(f, ta ); ta[1]=1-ta[1];
+    LoadPoint(f, tb ); tb[1]=1-tb[1];
+  }
+  else if (globVersion == 1) {
+    //static FILE*_f =fopen("testLoadV.txt","wt");
+    LoadInt(f , index); //index=0;
+    LoadUint(f , col );
+    LoadPoint(f,__norm);
+    LoadPoint(f,tang);
+    LoadByte(f,ti);  //fprintf(_f,"%d ",int(p2));
+    LoadPoint(f,ta); ta[1]=1-ta[1]; tb = ta;
+  }
   return true;
 }
 void BrfVert::Save(FILE*f) const{
-  SaveInt(f , index);
-  SaveUint(f , col ); // color x vert! as 4 bytes AABBGGRR
-  SavePoint(f, __norm );
-  SavePoint(f, vcg::Point2f(ta[0],1-ta[1]) );
-  SavePoint(f, vcg::Point2f(tb[0],1-tb[1]) );
+  if (globVersion <= 0) {
+    SaveInt(f , index);
+    SaveUint(f , col ); // color x vert! as 4 bytes AABBGGRR
+    SavePoint(f, __norm );
+    SavePoint(f, vcg::Point2f(ta[0],1-ta[1]) );
+    SavePoint(f, vcg::Point2f(tb[0],1-tb[1]) );
+  } else {
+    SaveInt(f , index); //index=0;
+    SaveUint(f , col );
+    SavePoint(f,__norm);
+    Point3f t = tang; if (t == Point3f(0,0,0)) t = __norm^Point3f(0,0,1);
+    SavePoint(f,t);
+    unsigned char tj = ti;
+    if (tj==255) tj=0;
+    SaveByte(f,tj);  //fprintf(_f,"%d ",int(p2));
+    SavePoint(f, vcg::Point2f(ta[0],1-ta[1]) );
+  }
 }
 
 unsigned int BrfFace::SizeOnDisk(){
   return 4+4+4;
 }
 
-bool BrfFace::Load(FILE*f,int verbose){
+bool BrfFace::Load(FILE*f){
   LoadInt(f, index[0] );
   LoadInt(f, index[1] );
   LoadInt(f, index[2] );
@@ -1195,20 +1419,19 @@ void BrfFace::Save(FILE*f) const{
   SaveInt(f, index[2] );
 }
 
-bool BrfFrame::Load(FILE*f, int verbose)
+bool BrfFrame::Load(FILE*f)
 {
-    LoadInt(f , time);
-    if (verbose>2) printf("    [t:%03d] ",time);
-    //system("PAUSE");
-    LoadVector(f,pos);
-    LoadVector(f,norm);
-    return true;
+  LoadInt(f , time);
+  if (!LoadVector(f,pos)) return false;
+  if (!LoadVector(f,norm)) return false;
+  return true;
 }
 
-void BrfFrame::Skip(FILE*f){
+bool BrfFrame::Skip(FILE*f){
   ::Skip<int>(f);
   SkipVectorB< Point3f > (f);
   SkipVectorB< Point3f > (f);
+  return true;
 }
 
 
@@ -1246,6 +1469,8 @@ void BrfMesh::FixPosOrder(const BrfMesh &b){
 }
 
 BrfVert::BrfVert(){
+  tang = Point3f(0,0,0);
+  ti = 255;
 }
 
 BrfRigging::BrfRigging(){
@@ -1253,17 +1478,18 @@ BrfRigging::BrfRigging(){
   boneWeight[0]=boneWeight[1]=boneWeight[2]=boneWeight[3]=0;
 }
 
-void BrfMesh::Skip(FILE* f){
-  LoadString(f, name);
+bool BrfMesh::Skip(FILE* f){
+  if (!LoadString(f, name)) return false;
   //printf(" -skipping \"%s\"...\n",name);
   //SkipString(f);
   ::Skip<int>(f); // flags
-  LoadString(f, material);
+  if (!LoadString(f, material)) return false;
   SkipVectorB< Point3f >(f); // pos
   SkipVectorR< TmpRigging >(f);
   SkipVectorR< BrfFrame >(f);
   SkipVectorF< BrfVert >(f);
   SkipVectorF< BrfFace >(f);
+  return true;
 }
 
 void BrfMesh::KeepOnlyFrame(int i){
@@ -1280,38 +1506,28 @@ void BrfMesh::AfterLoad(){
   for(unsigned int i=0; i<vert.size(); i++) if (vert[i].col!=0xFFFFFFFF) hasVertexColor=true;
 }
 
-bool BrfMesh::Load(FILE*f, int verbose){
-  LoadString(f, name);
-  //if (verbose>0) printf(" -loading \"%s\"...\n",name);
+bool BrfMesh::Load(FILE*f){
+  if (!LoadString(f, name)) return false;
 
   LoadUint(f , flags);
-  LoadString(f, material); // material used
+  if (!LoadString(f, material)) return false; // material used
   frame.resize(1); // first frame (and only one, iff no vertex animation)
   frame[0].time =0;
-  LoadVector(f, frame[0].pos);
+  if (!LoadVector(f, frame[0].pos)) return false;
 
   vector<TmpRigging> tmpRig;
 
-  LoadVector(f,tmpRig);
-  /*
-  if (tmpRig.size()>0) {
-    char fn[255];
-    sprintf(fn,"%s_rigBefore.txt",name);
-    FILE *f = fopen(fn,"wt");
-    for (unsigned int i=0; i<tmpRig.size(); i++) tmpRig[i].Export(f);
-    fclose(f);
-  }
-  */
+  if (!LoadVector(f,tmpRig)) return false;
+
 
   int k;
   // if vertex animation, there are other frames...
   LoadInt(f , k  ); // nframes!
-  if (verbose>1) if (k>0) printf("  frames:%d...\n",k);
   frame.resize(k+1);
-  for (unsigned int i=1; i<frame.size(); i++) frame[i].Load(f,verbose);
+  for (unsigned int i=1; i<frame.size(); i++) frame[i].Load(f);
   
-  LoadVector(f,vert);
-  LoadVector(f,face);
+  if (!LoadVector(f,vert)) return false;
+  if (!LoadVector(f,face)) return false;
   
   // let's make the structure so that M&B is happy
   frame[0].norm.resize(vert.size());
@@ -1319,12 +1535,10 @@ bool BrfMesh::Load(FILE*f, int verbose){
     frame[0].norm[i]=vert[i].__norm;
   }
   
-  //if (verbose>0) printf("  [%dv %dFx%dp %df]\n", vert.size(),frame.size(),frame[0].pos.size(), face.size());
-
   isRigged = tmpRig.size()>0;
   rigging.resize(frame[0].pos.size());
   maxBone = TmpRigging2Rigging(tmpRig, rigging);
-
+  NormalizeRigging();
 
   AfterLoad();
   return true;
@@ -1465,10 +1679,11 @@ void BrfMesh::AddRope(const BrfMesh &to, int nseg, float width){
   }
 }
 
-void BrfMesh::Merge(const BrfMesh &b)
+bool BrfMesh::Merge(const BrfMesh &b)
 {
-  assert(frame.size()==b.frame.size());
-  assert( (rigging.size()!=0) == (b.rigging.size()!=0) );
+
+  if (frame.size()!=b.frame.size()) return false;
+  if ( (rigging.size()!=0) != (b.rigging.size()!=0) ) return false;
 
   bbox.Add(b.bbox);
   if (maxBone<b.maxBone) maxBone = b.maxBone;
@@ -1496,11 +1711,12 @@ void BrfMesh::Merge(const BrfMesh &b)
   for (unsigned int i=0; i<b.face.size(); i++) {
     face.push_back(b.face[i] + nvert);
   }
-  
+  /*
   for (unsigned int i=0; i<b.selected.size(); i++) {
     selected.push_back(b.selected[i]);
   }
-  
+  */
+  return true;
 }
 
 Point3f Mirror(Point3f p) {
@@ -1617,6 +1833,8 @@ void BrfMesh::Translate(Point3f p){
       //if (selected[i] || !selectedOnly) 
       frame[j].pos[i]+=p;
   }
+  bbox.min+=p;
+  bbox.max+=p;
 }
 
 void BrfMesh::CollapseBetweenFrames(int fi,int fj){
@@ -1630,7 +1848,7 @@ void BrfMesh::CollapseBetweenFrames(int fi,int fj){
 }
 
 
-
+/*
 void BrfMesh::Scale(float p){
   for (unsigned int j=0; j<frame.size(); j++)
     for (unsigned int i=0; i<frame[j].pos.size(); i++){
@@ -1638,6 +1856,7 @@ void BrfMesh::Scale(float p){
       frame[j].pos[i]*=p;
   }
 }
+*/
 
 void BrfMesh::TranslateSelected(Point3f p){
   for (unsigned int j=0; j<frame.size(); j++) {

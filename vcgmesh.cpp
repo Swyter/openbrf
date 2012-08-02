@@ -22,7 +22,7 @@ class CFace;
 class CVertex : public VertexSimp2< CVertex, CEdge, CFace, vertex::BitFlags, vertex::Coord3f,
                                     vertex::Normal3f, vertex::Color4b, vertex::TexCoord2f >{};
 class CFace   : public FaceSimp2<   CVertex, CEdge, CFace, face::VertexRef, //face::Normal3f ,
-                                    face::BitFlags, face::WedgeTexCoord2f,
+                                    face::BitFlags, //face::WedgeTexCoord2f,
                                     //face::Normal3f, // just for obj importing
                                     face::WedgeTexCoord2f> {};
 class CMesh   : public vcg::tri::TriMesh< vector<CVertex>, vector<CFace> > {
@@ -47,7 +47,7 @@ static const int mask =
   vcg::tri::io::Mask::IOM_VERTCOLOR |
   //vcg::tri::io::Mask::IOM_WEDGCOLOR |
   vcg::tri::io::Mask::IOM_VERTTEXCOORD|
-  //vcg::tri::io::Mask::IOM_WEDGTEXCOORD|
+  vcg::tri::io::Mask::IOM_WEDGTEXCOORD|
   vcg::tri::io::Mask::IOM_VERTCOORD |
   vcg::tri::io::Mask::IOM_VERTNORMAL |
   vcg::tri::io::Mask::IOM_FACEINDEX
@@ -132,8 +132,10 @@ static Color4b Int2Col(unsigned int h){
 }
 
 static unsigned int Col2Int(const Color4b & c){
-  return (((unsigned int)(c[3]))<<24) + (((unsigned int)(c[1]))<<16) +
-         (((unsigned int)(c[2]))<< 8) + ((unsigned int)(c[0]));
+  unsigned char b[4]={c[2],c[1],c[0],c[3]};
+  return * ((unsigned int*)b);
+/*  return (((unsigned int)(c[3]))<<24) + (((unsigned int)(c[1]))<<16) +
+         (((unsigned int)(c[2]))<< 8) + ((unsigned int)(c[0]));*/
 }
 
 class CoordSyst{
@@ -183,6 +185,13 @@ public:
   }
 };
 
+static void normalizeTriple(Point3f &x, Point3f &y, Point3f &z){
+  y=z^x;
+  z=x^y;
+  x.Normalize();
+  z.Normalize();
+  y.Normalize();
+}
 
 void makeCoordSyst(const BrfSkeleton &s, int bi,  vector<CoordSyst> &cs, CoordSyst c0){
   c0= c0*CoordSyst(s.bone[bi].t, s.bone[bi].x,s.bone[bi].y,s.bone[bi].z);
@@ -245,6 +254,7 @@ bool VcgMesh::modifyBrfSkeleton(BrfSkeleton &s){
     b.x = (data[bi][0]-data[bi][3])/(X*2);
     b.y = (data[bi][1]-data[bi][4])/(Y*2);
     b.z = (data[bi][2]-data[bi][5])/(Z*2);
+    normalizeTriple(b.x,b.y,b.z);
     s.bone[bi] = b;
   }
 
@@ -315,8 +325,18 @@ void VcgMesh::add(const BrfSkeleton &s){
 
   }
 }
+
+void VcgMesh::moveBoneInSkelMesh(int nb, Point3f d){
+  for (unsigned int i=0; i<mesh.vert.size(); i++) {
+    if (mesh.vert[i].T().P()[0]==nb) mesh.vert[i].P()+=d;
+  }
+}
+
 static Point2f _flipY(const Point2f p){
   return Point2f(p[0],1-p[1]);
+}
+static Point3f _flipZ(const Point3f p){
+  return Point3f(p[0],p[1],-p[2]);
 }
 
 void VcgMesh::add(const BrfMesh &b, int fi){
@@ -342,26 +362,30 @@ void VcgMesh::add(const BrfMesh &b, int fi){
     }
   }
 #else
+#if 1
   // one vcg::vert per brf::vert
   CMesh::VertexIterator v=vcg::tri::Allocator<CMesh>::AddVertices( mesh , b.vert.size() );
   int k=0;
   for (CMesh::FaceIterator f=mesh.face.begin(); f!=mesh.face.end(); f++,k++) {
     for (int h=0; h<3; h++) {
       int vi = b.face[k].index[h];
-      f->V(2-h) = &(mesh.vert[0]) + vi;
+      f->V(h) = &(mesh.vert[0]) + vi;
 
-      //f->WT(2-h).P() = b.vert[vi].ta; // texture also x wedge, always
+      f->WT(h).P() = _flipY(b.vert[vi].ta); // texture also x wedge, always
 
     }
   }
   k=0;
   for (CMesh::VertexIterator v=mesh.vert.begin();v!=mesh.vert.end(); v++,k++) {
       int pi = b.vert[ k ].index;
-      v->N() = b.frame[fi].norm[ k ];
-      v->P() = b.frame[fi].pos [ pi ];
+      v->N() = _flipZ(b.frame[fi].norm[ k ]);
+      v->P() = _flipZ(b.frame[fi].pos [ pi ]);
       v->C() = Int2Col( b.vert[ k ].col );
       v->T().P() = _flipY(  b.vert[ k ].ta );
   }
+#else
+  // three vcg::vert per face
+#endif
 #endif
 
 }
@@ -369,6 +393,8 @@ void VcgMesh::add(const BrfMesh &b, int fi){
 BrfMesh VcgMesh::toBrfMesh(){
 
   BrfMesh b;
+  b.name[0]=0;
+  b.material[0]=0;
 
   if (lastMeterial=(mesh.textures.size()>0))
 
@@ -393,10 +419,13 @@ BrfMesh VcgMesh::toBrfMesh(){
   for (CMesh::FaceIterator f=mesh.face.begin(); f!=mesh.face.end(); f++,k++) if (!f->IsD()) {
     for (int h=0; h<3; h++) {
 
-      int vi  = b.face[k].index[2-h] = f->V(h)-&(mesh.vert[0]);
+      int vi  = b.face[k].index[h] = f->V(h)-&(mesh.vert[0]);
       if (mustUseWT()) b.vert[ vi ] .ta = b.vert[ vi ] .tb = _flipY(f->WT(h).P()); // text x wedge
     }
   }
+
+  if (mustUseWT()) qDebug("Using WT");
+  if (mustUseVT()) qDebug("Using VT");
 
   k=0;
   for (CMesh::VertexIterator v=mesh.vert.begin();v!=mesh.vert.end(); v++,k++) {
@@ -405,16 +434,19 @@ BrfMesh VcgMesh::toBrfMesh(){
     (gotColor())? Col2Int( v->C() )
                :0xFFFFFFFF;
     b.vert[k].index = k;
-    b.frame[0].norm[k] = v->N();
-    b.frame[0].pos[k] = v->P();
-    if (mustUseVT())
+    b.frame[0].norm[k] = _flipZ(v->N());
+    b.frame[0].pos[k] = _flipZ(v->P());
+    if (mustUseVT()) {
+      //qDebug("%f %f",v->T().P()[0],v->T().P()[1]);
       b.vert[k].ta = b.vert[k].tb  = _flipY(v->T().P()); // text x vert?
+    }
   }
 
   b.AdjustNormDuplicates();
   b.isRigged = false;
   b.flags=0;
-  if (!gotNormals()); b.ComputeNormals();
+  if (!gotNormals()) b.ComputeNormals();
   b.AfterLoad();
+
   return b;
 }

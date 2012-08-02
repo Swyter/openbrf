@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading ui file 'askBoneDialog.ui'
 **
-** Created: Sat Aug 29 22:05:44 2009
+** Created: Thu Oct 22 08:00:39 2009
 **      by: Qt User Interface Compiler version 4.5.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling ui file!
@@ -80,8 +80,8 @@ public:
         AskBoneDialog->setWindowTitle(QApplication::translate("AskBoneDialog", "Dialog", 0, QApplication::UnicodeUTF8));
         label->setText(QApplication::translate("AskBoneDialog", "Reference skeleton:", 0, QApplication::UnicodeUTF8));
         label_2->setText(QApplication::translate("AskBoneDialog", "Bone:", 0, QApplication::UnicodeUTF8));
-        label_3->setText(QApplication::translate("AskBoneDialog", "This object is not rigged:", 0, QApplication::UnicodeUTF8));
-        label_4->setText(QApplication::translate("AskBoneDialog", "Select a skeleton and a bone to attach it to.", 0, QApplication::UnicodeUTF8));
+        label_3->setText(QApplication::translate("AskBoneDialog", "This mesh is not rigged:", 0, QApplication::UnicodeUTF8));
+        label_4->setText(QApplication::translate("AskBoneDialog", "Select a skeleton and a bone to attach this mesh to.", 0, QApplication::UnicodeUTF8));
         Q_UNUSED(AskBoneDialog);
     } // retranslateUi
 

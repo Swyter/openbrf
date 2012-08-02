@@ -41,7 +41,7 @@ public:
   static Box3f bbox;
 
   int Break(std::vector<BrfAnimation> &res) const;
-  int Break(std::vector<BrfAnimation> &res, char* aniFile) const;
+  int Break(std::vector<BrfAnimation> &res, char* aniFile, char *fn2) const;
 
   bool SaveSMD(FILE *f) const;
   bool LoadSMD(FILE *f);
@@ -49,7 +49,10 @@ public:
   int FirstIndex() const;
   int LastIndex() const;
 
+  bool AutoAssingTimesIfZero();
   bool Reskeletonize(const BrfSkeleton& from, const BrfSkeleton& to);
+
+  void ShiftIndexInterval(int i);
 
 private:
   void EnlongFrames(int nframes);

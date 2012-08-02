@@ -43,6 +43,8 @@ public:
 
   void UpdateBBox();
   void InferTypeFromString(char* str);
+  void Flip();
+  void Transform(float * m);
 
 private:
   Point3f Baricenter() const;
@@ -58,6 +60,9 @@ public:
   bool Load(FILE*f, int verbose=1);
   bool Skip(FILE*f);
   void Save(FILE*f) const;
+
+  void Flip();
+  void Transform(float * m);
 
   std::vector<BrfBodyPart> part;
 

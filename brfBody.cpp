@@ -13,6 +13,46 @@ BrfBody::BrfBody()
 {
 }
 
+template<class T>
+static void invertV(std::vector<T> v){
+  int n=(int)v.size();
+  for (int i=0; i<n/2; i++){
+    T tmp=v[i]; v[i]=v[n-1-i]; v[n-1-i]=tmp;
+  }
+}
+
+void BrfBodyPart::Flip(){
+  switch(type) {
+  case MANIFOLD: {
+    for (unsigned int i=0; i<pos.size(); i++) pos[i].X()*=-1;
+    for (unsigned int i=0; i<face.size(); i++) invertV(face[i]);
+  };
+  case CAPSULE: {
+    center.X()*=-1;
+    dir.X()*=-1;
+    break;
+  }
+  case SPHERE: {
+    center.X()*=-1;
+    break;
+  }
+  case FACE:{
+    for (unsigned int i=0; i<pos.size(); i++) pos[i].X()*=-1;
+    invertV(pos);
+    break;
+  }
+  default: return;
+  }
+}
+
+void BrfBody::Flip(){
+  for (unsigned int i=0; i<part.size(); i++) part[i].Flip();
+}
+
+void BrfBody::Transform(float *f){
+  for (unsigned int i=0; i<part.size(); i++) part[i].Transform(f);
+}
+
 float* BrfBodyPart::GetRotMatrix() const{
   vcg::Point3f dx, dy, dz(1,1.1,1.3);
   dx = (dir-center)/2.0;
@@ -180,7 +220,7 @@ bool BrfBody::ImportOBJ(char *fn){
       switch (c){
         case 'v':{
           Point3f p;
-          sscanf(line, "v %f %f %f",&(p[0]),&(p[1]),&(p[2]));
+          sscanf(line, "v %f %f %f",&(p[0]),&(p[1]),&(p[2])); p[0]*=-1;
           if (reading) {
             curr.pos.push_back(p);
           } else {
@@ -195,6 +235,7 @@ bool BrfBody::ImportOBJ(char *fn){
           std::vector<int> fac;
           for (int i=0; i<res; i++){
             int d=2;
+            //sscanf(buf[res-1-i],"%d",&d);
             sscanf(buf[i],"%d",&d);
             fac.push_back(d+startV-1);
           }
@@ -263,14 +304,16 @@ void BrfBody::UpdateBBox(){
 bool BrfBodyPart::Load(FILE*f, char* _firstWord, int verbose ){
   char firstWord[255];
   //static FILE* fff = fopen("flags.txt","wt");
-  if (!_firstWord) LoadString(f,firstWord);
+  if (!_firstWord) {
+    if (!LoadString(f,firstWord)) return false;
+  }
   else sprintf(firstWord,_firstWord);
 
   //static FILE* ftmp=NULL; //if (!ftmp) ftmp=fopen("debug.txt","wt");
 
   if (!strcmp(firstWord,"manifold")) {
     type=MANIFOLD;
-    LoadVector(f, pos);// # points
+    if (!LoadVector(f, pos)) return false;// # points
 
     int k;
     LoadInt(f,k); // # faces
@@ -307,7 +350,7 @@ bool BrfBodyPart::Load(FILE*f, char* _firstWord, int verbose ){
     //fprintf(fff,"Flags sphere: %u\n",flags);
   } else if (!strcmp(firstWord,"face")) {
     type=FACE;
-    LoadVector(f,pos);
+    if (!LoadVector(f,pos)) return false;
 
     int k = pos.size();
 
@@ -332,7 +375,7 @@ bool BrfBodyPart::Load(FILE*f, char* _firstWord, int verbose ){
 bool BrfBodyPart::Skip(FILE*f, char* _firstWord){
   char firstWord[255];
 
-  if (!_firstWord) LoadString(f,firstWord);
+  if (!_firstWord) { if (!LoadString(f,firstWord)) return false; }
   else sprintf(firstWord,_firstWord);
 
 
@@ -358,6 +401,25 @@ bool BrfBodyPart::Skip(FILE*f, char* _firstWord){
     assert(0);
   }
   return true;
+}
+
+void BrfBodyPart::Transform(float *f) {
+  vcg::Matrix44f m(f); m.transposeInPlace();
+  switch(type) {
+  case MANIFOLD:
+  case FACE:
+    for (unsigned int i=0; i<pos.size(); i++){
+      pos[i] = m*pos[i];
+    }
+    break;
+  case CAPSULE:
+  case SPHERE:
+    center = m*center;
+    dir = m*dir;
+    radius *= pow(m.Determinant(),1.0/3.0);
+    break;
+  default: break;
+  }
 }
 
 void BrfBodyPart::Save(FILE *f) const {
@@ -417,12 +479,12 @@ bool BrfBodyPart::ExportOBJ(FILE* f, int i, int &vc) const{
   case MANIFOLD:
   case FACE:
     for (unsigned int i=0; i<pos.size(); i++) {
-      fprintf(f,"v %f %f %f\n",pos[i].X(),pos[i].Y(),pos[i].Z());
+      fprintf(f,"v %f %f %f\n",-pos[i].X(),pos[i].Y(),pos[i].Z());
     }
     for (unsigned int i=0; i<face.size(); i++) {
       fprintf(f,"f ");
       for (unsigned int j=0; j<face[i].size(); j++)
-      fprintf(f,"%d// ",vc+face[i][face[i].size()-1-j]);
+      fprintf(f,"%d// ",vc+face[i][j]);
       fprintf(f,"\n");
     }
     vc+=pos.size();
@@ -443,19 +505,19 @@ bool BrfBodyPart::ExportOBJ(FILE* f, int i, int &vc) const{
       float sa = (float)sin(M_PI*2*i/N)*radius;
       vcg::Point3f p;
       p = a+dy*sa+dz*ca;
-      fprintf(f,"v %f %f %f\n",p.X(), p.Y(), p.Z());
+      fprintf(f,"v %f %f %f\n",-p.X(), p.Y(), p.Z());
       p = b+dy*sa+dz*ca;
-      fprintf(f,"v %f %f %f\n",p.X(), p.Y(), p.Z());
+      fprintf(f,"v %f %f %f\n",-p.X(), p.Y(), p.Z());
     }
-    fprintf(f,"v %f %f %f\n",a.X(), a.Y(), a.Z());
-    fprintf(f,"v %f %f %f\n",b.X(), b.Y(), b.Z());
+    fprintf(f,"v %f %f %f\n",-a.X(), a.Y(), a.Z());
+    fprintf(f,"v %f %f %f\n",-b.X(), b.Y(), b.Z());
 
     for (int h=0; h<N; h++) {
       int i = h*2;
       int j = ((h+1)%N)*2;
-      fprintf(f,"f %d// %d// %d//\n", vc+N*2, vc+j, vc+i );
-      fprintf(f,"f %d// %d// %d// %d//\n",  vc+j, vc+j+1, vc+i+1, vc+i );
-      fprintf(f,"f %d// %d// %d//\n", vc+N*2+1, vc+i+1, vc+j+1 );
+      fprintf(f,"f %d// %d// %d//\n",       vc+N*2, vc+i, vc+j );
+      fprintf(f,"f %d// %d// %d// %d//\n",  vc+i, vc+i+1, vc+j+1, vc+j );
+      fprintf(f,"f %d// %d// %d//\n",       vc+N*2+1, vc+j+1, vc+i+1 );
     }
     vc+=2*N+2;
     break;
@@ -468,19 +530,19 @@ bool BrfBodyPart::ExportOBJ(FILE* f, int i, int &vc) const{
     for (int j=0; j<M; j++)
     for (int i=0; i<N; i++) {
       p.FromPolar(radius,M_PI*2*i/N,M_PI*(j+1)/(M+1)-M_PI/2); p+= center;
-      fprintf(f,"v %f %f %f\n",p.X(), p.Y(), p.Z());
+      fprintf(f,"v %f %f %f\n",-p.X(), p.Y(), p.Z());
     }
     p.FromPolar(radius,0,-M_PI/2); p+= center;
-    fprintf(f,"v %f %f %f\n",p.X(), p.Y(), p.Z());
+    fprintf(f,"v %f %f %f\n",-p.X(), p.Y(), p.Z());
     p.FromPolar(radius,0,+M_PI/2); p+= center;
-    fprintf(f,"v %f %f %f\n",p.X(), p.Y(), p.Z());
+    fprintf(f,"v %f %f %f\n",-p.X(), p.Y(), p.Z());
 
     for (int i=0; i<N; i++) {
       int ip = (i+1)%N;
-      fprintf(f,"f %d// %d// %d//\n", vc+N*M, vc+i, vc+ip );
+      fprintf(f,"f %d// %d// %d//\n", vc+N*M, vc+ip, vc+i );
       for (int j=0; j<M-1; j++)
-        fprintf(f,"f %d// %d// %d// %d//\n",  vc+ip+j*N, vc+i+j*N, vc+i+j*N+N, vc+ip+j*N+N );
-      fprintf(f,"f %d// %d// %d//\n", vc+N*M+1, vc+ip+(M-1)*N, vc+i+(M-1)*N );
+        fprintf(f,"f %d// %d// %d// %d//\n", vc+ip+j*N+N, vc+i+j*N+N, vc+i+j*N , vc+ip+j*N );
+      fprintf(f,"f %d// %d// %d//\n", vc+N*M+1, vc+i+(M-1)*N , vc+ip+(M-1)*N);
     }
     vc+=N*M+2;
     break;
@@ -503,9 +565,9 @@ bool BrfBody::ExportOBJ(char* fn) const {
 }
 
 bool BrfBody::Skip(FILE*f){
-  LoadString(f, name);
+  if (!LoadString(f, name)) return false;
   char str[255];
-  LoadString(f, str);
+  if (!LoadString(f, str)) return false;
 
   if (!strcmp(str,"composite")) {
     SkipVectorR<BrfBodyPart>(f);
@@ -516,17 +578,17 @@ bool BrfBody::Skip(FILE*f){
 
 }
 bool BrfBody::Load(FILE*f, int verbose){
-  LoadString(f, name);
+  if (!LoadString(f, name)) return false;
   if (verbose>0) printf("loading \"%s\"...\n",name);
 
   char str[255];
-  LoadString(f, str);
+  if (!LoadString(f, str)) return false;
 
   if (!strcmp(str,"composite")) {
-    LoadVector(f, part);
+    if (!LoadVector(f, part)) return false;
   } else {
     BrfBodyPart b;
-    b.Load(f,str,verbose);
+    if (!b.Load(f,str,verbose)) return false;
     part.push_back(b);
   }
   UpdateBBox();

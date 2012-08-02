@@ -23,6 +23,11 @@ void SaveInt(FILE *f, int x){
   fwrite(&x, 4, 1,  f);
 }
 
+void SaveByte(FILE *f, unsigned char x){
+  fwrite(&x, 1, 1,  f);
+}
+
+
 void SaveUint(FILE *f, unsigned int x){
   fwrite(&x, 4, 1,  f);
 }
@@ -64,7 +69,7 @@ void SaveVector(FILE *f,const std::vector<Point3f> &v){
 bool LoadStringMaybe(FILE *f, char *st, const char *ifnot){
   unsigned int x;
   fread(&x, 4, 1,  f);
-  if (x<50 && x>0) {
+  if (x<99 && x>0) {
     fread(st, 1, x, f);
     st[x]=0;
     return true;
@@ -76,19 +81,26 @@ bool LoadStringMaybe(FILE *f, char *st, const char *ifnot){
 
 }
 
-void LoadString(FILE *f, char *st){
+bool LoadString(FILE *f, char *st){
   unsigned int x;
   fread(&x, 4, 1,  f);
-  assert(x<256);
+  if (x>=256) return false;
 
   fread(st, 1, x, f);
   st[x]=0;
   
  //printf("\"%s\"...\n",st);
+  return true;
 }
 
 void LoadInt(FILE *f, int &i){
   fread(&i, 4, 1,  f);
+  //printf("%d ",i);
+}
+
+
+void LoadByte(FILE *f, unsigned char &i){
+  fread(&i, 1, 1,  f);
   //printf("%d ",i);
 }
 
@@ -123,32 +135,36 @@ void LoadPoint(FILE *f, vcg::Point2f &p){
   //printf("(%f,%f) ",p[0],p[1]);
 }
 
-void LoadVector(FILE *f,std::vector<int> &v){
+bool LoadVector(FILE *f,std::vector<int> &v){
   unsigned int k;
   LoadUint(f,k);
   v.resize(k);
   for (unsigned int i=0; i<v.size(); i++) LoadInt(f,v[i]);
+  return true;
 }
 
-void LoadVector(FILE *f,std::vector<Point3f> &v){
+bool LoadVector(FILE *f,std::vector<Point3f> &v){
   unsigned int k;
   LoadUint(f,k);
   v.resize(k);
   for (unsigned int i=0; i<v.size(); i++) LoadPoint(f,v[i]);
+  return true;
 }
 
-template<class T> void LoadVector(FILE *f,std::vector< std::vector<T> > &v){
+template<class T> bool LoadVector(FILE *f,std::vector< std::vector<T> > &v){
   unsigned int k;
   LoadUint(f,k);
   v.resize(k);
-  for (unsigned int i=0; i<v.size(); i++) LoadVector(f,v[i]);
+  for (unsigned int i=0; i<v.size(); i++) if (!LoadVector(f,v[i])) return false;
+  return true;
 }
 
-template<class T> void LoadVector(FILE *f,std::vector<T, std::allocator<T> > &v){
+template<class T> bool LoadVector(FILE *f,std::vector<T, std::allocator<T> > &v){
   unsigned int k;
   LoadUint(f,k);
   v.resize(k);
-  for (unsigned int i=0; i<v.size(); i++) v[i].Load(f);
+  for (unsigned int i=0; i<v.size(); i++) if (!v[i].Load(f)) return false;
+  return true;
 }
 
 

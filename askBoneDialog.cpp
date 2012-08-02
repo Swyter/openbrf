@@ -18,6 +18,10 @@ AskBoneDialog::AskBoneDialog(QWidget *parent,const std::vector<BrfSkeleton> &s) 
   connect(ui->cbSlel, SIGNAL(currentIndexChanged(int)), this, SLOT(selectSkel(int)) );
 }
 
+void AskBoneDialog::sayNotRigged(bool say){
+  ui->label_3->setVisible(say);
+}
+
 void AskBoneDialog::selectSkel(int i){
   ui->cbBone->clear();
   for (unsigned int j=0; j<sv[i].bone.size(); j++)

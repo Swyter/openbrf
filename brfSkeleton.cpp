@@ -23,6 +23,13 @@ static float values[16] = {
 
 static vcg::Matrix44f matr(values);
 
+int BrfSkeleton::FindBoneByName(char * name) const{
+  for (unsigned int i=0; i<bone.size(); i++){
+    if (strcmp(bone[i].name,name)==0) return i;
+  }
+  return -1; // not found
+}
+
 // for translations and points:
 vcg::Point3f BrfSkeleton::adjustCoordSyst(vcg::Point3f p){
   return matr*p;
@@ -311,16 +318,16 @@ void BrfSkeleton::Save(FILE*f) const{
 }
 
 bool BrfSkeleton::Skip(FILE*f){
-  LoadString(f, name);
+  if (!LoadString(f, name)) return false;
   SkipVectorR<BrfBone>(f);
   return true;
 }
 
 bool BrfSkeleton::Load(FILE*f, int verbose){
-  LoadString(f, name);
+  if (!LoadString(f, name)) return false;
   if (verbose>0) printf("loading \"%s\"...\n",name);
 
-  LoadVector(f,bone);
+  if (!LoadVector(f,bone)) return false;
   BuildTree();
   return true;
 }
