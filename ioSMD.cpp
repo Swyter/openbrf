@@ -4,21 +4,19 @@
 
 #include "vcg\math\quaternion.h"
 
+// everything is scaled up when expoerted, down when imported...
+static const float SCALE = 10.0f;
+
 // used to export/import skeletons, rigged meshes, animations...
 // return 0 on success. +... on error. -... on warnings
 
-static float* matrix2euler(Matrix44f m){
-  static float res[3];
-  float f[16]={1,0,0,0, 0,0,1,0, 0,1,0,0, 0,0,0,1};
-  Matrix44f inv(f);
-  m = inv*m*inv;
-  //m.ToEulerAngles(res[0], res[1], res[2]);
-
-  static vcg::Quaternionf q;
-  q.FromMatrix(m);
-  q.ToEulerAngles( res[0], res[1], res[2]);
+static float Norm(const Matrix44f &m){
+  float res=0;
+  for (int i=0; i<4; i++)
+    for (int j=0; j<4; j++) res+=m.ElementAt(i,j)*m.ElementAt(i,j);
   return res;
 }
+
 
 static Matrix44f euler2matrix(float* eul){
   Matrix44f m;
@@ -28,6 +26,42 @@ static Matrix44f euler2matrix(float* eul){
   m = inv*m*inv;
   return m;
 }
+
+static float* matrix2euler(const Matrix44f &_m){
+  static float res[3];
+  float f[16]={1,0,0,0, 0,0,1,0, 0,1,0,0, 0,0,0,1};
+  Matrix44f inv(f);
+  Matrix44f m = _m;
+  m = inv*m.transpose()*inv;
+  m.ToEulerAngles(res[0], res[1], res[2]);
+  if (fabs(fabs(res[1])-M_PI/2)<0.000001) {
+    // ouch: pivot angle... let's try everythin...
+    float best = 1000;
+    static float win[3];
+    for (int k=-1; k<=1; k+=2)
+    for (int i=0; i<4; i++)
+
+    for (int j=0; j<4; j++) {
+        res[0]=(i-2)*M_PI/2;
+        res[1]=(k)*M_PI/2;
+        res[2]=(j-2)*M_PI/2;
+        Matrix44f m2 = euler2matrix(res);
+        float score =Norm(m2-_m.transpose());
+        if (score<best) {
+          win[0]=res[0];win[1]=res[1];win[2]=res[2];
+          best = score;
+        }
+    }
+    return win;
+  }
+  return res;
+
+  /*static vcg::Quaternionf q;
+  q.FromMatrix(m);
+  q.ToEulerAngles( res[0], res[1], res[2]);*/
+  return res;
+}
+
 
 static int lastErr;
 char *expectedErr, *foundErr;
@@ -64,6 +98,7 @@ static bool ioSMD_ImportTriangles(FILE*f, BrfMesh &m ){
     char matName[255];
     fscanf(f,"%s\n", matName);
     if (strcmp(matName,"end")==0) break;
+    sprintf(m.material,"%s",matName);
     for (int w=0; w<3; w++) {
       int bi;
       Point3f p;
@@ -85,6 +120,7 @@ static bool ioSMD_ImportTriangles(FILE*f, BrfMesh &m ){
         &(r.boneIndex[2]), &(r.boneWeight[2]),
         &(r.boneIndex[3]), &(r.boneWeight[3])
       );
+      p/=SCALE;
       assert ( nread==9 || nread == 9+1+nr*2);
       for (int k = nr; k<4; k++) {
         r.boneIndex[k]=-1; r.boneWeight[k]=0;
@@ -121,15 +157,18 @@ static void ioSMD_ExportTriangles(FILE*f,const BrfMesh &m , int fi){
   fprintf(f,"triangles\n");
   assert(m.rigging.size()==m.frame[fi].pos.size());
   for (unsigned int i=0; i<m.face.size(); i++){
-    fprintf(f,"material_name\n");
+    if (m.material[0]==0)
+      fprintf(f,"%s\n","material_name");
+    else
+      fprintf(f,"%s\n",m.material);
     for (int w=0; w<3; w++){
       int vi = m.face[i].index[w]; // vertex index
       int pi = m.vert[vi].index; // position index
-      fprintf(f,"%d\t%f %f %f\t%f %f %f\t%f %f",
+      fprintf(f," %d %f %f %f %f %f %f %f %f",
         m.rigging[pi].boneIndex[0],
-        m.frame[fi].pos[pi][0],
-        m.frame[fi].pos[pi][2],
-        m.frame[fi].pos[pi][1],
+        m.frame[fi].pos[pi][0]*SCALE,
+        m.frame[fi].pos[pi][2]*SCALE,
+        m.frame[fi].pos[pi][1]*SCALE,
         m.frame[fi].norm[vi][0],
         m.frame[fi].norm[vi][2],
         m.frame[fi].norm[vi][1],
@@ -138,13 +177,13 @@ static void ioSMD_ExportTriangles(FILE*f,const BrfMesh &m , int fi){
       );
       int nrig=0;
       for (int j=0; j<4; j++) if (m.rigging[pi].boneIndex[j]!=-1) nrig++;
-      if (nrig>1) {
-        fprintf(f,"\t%d",nrig); // number of links except 1st one
+      if (nrig>0) {
+        fprintf(f," %d",nrig); // number of links except 1st one
         for (int j=0; j<nrig; j++) {
           fprintf(f," %d %f", m.rigging[pi].boneIndex[j], m.rigging[pi].boneWeight[j] );
         }
       }
-      fprintf(f,"\n");
+      fprintf(f," \n");
 
     }
   }
@@ -158,6 +197,7 @@ static bool ioSMD_ImportBoneStruct(FILE*f,BrfSkeleton &s ){
   fscanf(f, "%d\n",&v);
   if (!expect(f,"nodes")) return false;
   if (v!=1) { versionErr = v; lastErr=3; return false;}
+  bool rootFound = false;
   while (1) {
     int a, b;
     char st[255];
@@ -166,8 +206,14 @@ static bool ioSMD_ImportBoneStruct(FILE*f,BrfSkeleton &s ){
       if (!expect(f,"end")) return false;
       break;
     }
+    // remove ending '"'
     assert(st[strlen(st)-1]=='"');
     st[strlen(st)-1]=0;
+
+    if (b==-1) {// here is a root
+      if (rootFound) continue; // ignore extra roots;
+      rootFound=true;
+    }
     if (a<=(int)s.bone.size()) s.bone.resize(a+1);
     s.bone[a].attach=b;
     sprintf(s.bone[a].name,"%s",st);
@@ -189,11 +235,23 @@ template <class T>
 static void ioSMD_ExportPose(FILE* f, const BrfSkeleton &s,  const T& pose, int time){
   fprintf(f,"time %d\n",time);
   for (unsigned int i=0; i<s.bone.size(); i++) {
-    float* euler=matrix2euler( pose.getRotationMatrix(i) );
-    fprintf(f,"%d\t\%f %f %f\t%f %f %f\n",
+    Matrix44f ma,mb,mc;
+    float* euler=matrix2euler( ma=pose.getRotationMatrix(i).transpose() );
+    /*
+      tests:
+    float e0=euler[0];
+    float e1=euler[1];
+    float e2=euler[2];
+    mb = euler2matrix(euler);
+    euler=matrix2euler( mb );
+    float b0=euler[0];
+    float b1=euler[1];
+    float b2=euler[2];
+    mc = euler2matrix(euler);*/
+    fprintf(f," %d %f %f %f %f %f %f \n",
             i,
-            s.bone[i].t[0], s.bone[i].t[2], s.bone[i].t[1],
-            euler[0], euler[1],euler[2]);
+            s.bone[i].t[0]*SCALE, s.bone[i].t[2]*SCALE, s.bone[i].t[1]*SCALE,
+             euler[0],  euler[1],  euler[2]);
   }
 }
 
@@ -208,18 +266,19 @@ static bool ioSMD_ImportPose(FILE* f, BrfSkeleton &s,  T& pose, int &time){
     int i;
     int res = fscanf(f,"%d",&i);
     if (res==0) break; // opefully it is an "end"
-    assert(i<(int)s.bone.size());
+    //assert(i<(int)s.bone.size());
+    if (i>=(int)s.bone.size()) continue; // ignore rotation for non-existing bones
     float r[3];
     vcg::Point3f t;
     fscanf(f,"%f %f %f %f %f %f", &(t[0]),&(t[2]),&(t[1]), r+0, r+1, r+2);
-    s.bone[i].t = t;
+    s.bone[i].t = t/SCALE;
     pose.setRotationMatrix( euler2matrix(r) , i );
   }
   return true;
 }
 
 int ioSMD::Export(const char*filename, const BrfMesh &m , const BrfSkeleton &s, int fi){
-  FILE* f=fopen(filename,"wt");
+  FILE* f=fopen(filename,"wb");
   lastErr = 0;
   if (!f) return(lastErr=2);
 
@@ -237,7 +296,7 @@ int ioSMD::Export(const char*filename, const BrfMesh &m , const BrfSkeleton &s, 
 
 int ioSMD::Export(const char*filename, const BrfAnimation &a, const BrfSkeleton &s){
 
-  FILE* f=fopen(filename,"wt");
+  FILE* f=fopen(filename,"wb");
   lastErr = 0;
   if (!f) return(lastErr=2);
 
@@ -262,7 +321,7 @@ int ioSMD::Export(const char*filename, const BrfAnimation &a, const BrfSkeleton 
 
 int ioSMD::Import(const char*filename, BrfMesh &m , BrfSkeleton &s){
   lastErr = 0;
-  FILE* f=fopen(filename,"rt");
+  FILE* f=fopen(filename,"rb");
   if (!f) return(lastErr=1);
 
   if (!ioSMD_ImportBoneStruct(f,s)) return lastErr;
@@ -275,9 +334,8 @@ int ioSMD::Import(const char*filename, BrfMesh &m , BrfSkeleton &s){
   if (!ioSMD_ImportTriangles(f,m)) return false;
 
   m.UnifyPos();
-  m.UnifyVert();
+  m.UnifyVert(true);
   m.AfterLoad();
-  m.material[0]=0;
   m.flags=0;
   m.maxBone=s.bone.size();
 
@@ -290,14 +348,17 @@ int ioSMD::Import(const char*filename, BrfMesh &m , BrfSkeleton &s){
 int ioSMD::Import(const char*filename, BrfAnimation &a, BrfSkeleton &s){
 
   lastErr = 0;
-  FILE* f=fopen(filename,"rt");
+  FILE* f=fopen(filename,"rb");
   if (!f) return(lastErr=1);
 
   if (!ioSMD_ImportBoneStruct(f,s)) return lastErr;
 
   if (!expect(f,"skeleton")) return false;
-  int time;
-  if (!ioSMD_ImportPose(f,s,s,time)) return lastErr; // initial pose
+
+  int last;
+  if (!ioSMD_ImportPose(f,s,s,last)) return lastErr; // initial pose
+
+
   a.nbones = s.bone.size();
   BrfAnimationFrame af;
   af.rot.resize(a.nbones);
@@ -305,10 +366,14 @@ int ioSMD::Import(const char*filename, BrfAnimation &a, BrfSkeleton &s){
   while (1) {
     BrfSkeleton s0 = s;
     if (!ioSMD_ImportPose(f,s0,af,af.index)) break;
-    af.tra = s0.bone[ s.root ].t -s.bone[ s.root ].t;
-    af.index--;
+    if (af.index<=last) af.index=last+1; last = af.index; // enforce increasing order
+
+    af.wasImplicit.resize(af.rot.size()+1, false);
+    af.tra = s0.bone[ s.root ].t - s.bone[ s.root ].t;
+    af.index--; // first frame was just a reference...
     a.frame.push_back(af);
   }
+
   expectedErr="end";
   if (strcmp(foundErr,expectedErr)==0) lastErr=0; else return false;
 

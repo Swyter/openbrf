@@ -7,25 +7,39 @@ using namespace vcg;
 
 #include "saveLoad.h"
 
+BrfShaderOpt::BrfShaderOpt()
+{
+  map=colorOp=alphaOp=flags=0;
+}
+
+
 BrfShader::BrfShader()
 {
 }
-
+FILE *fff=fopen("prova.txt","wt");
 bool BrfShaderOpt::Load(FILE*f, int verbose){
   //map, colorOp, alphaOp, flags
-  LoadUint(f,map);
+  LoadInt(f,map);
   LoadUint(f,colorOp);
   LoadUint(f,alphaOp);
   LoadUint(f,flags);
+  fprintf(fff,"%d %u %u %u\n",map,colorOp, alphaOp, flags);
   return true;
 }
 
 void BrfShaderOpt::Save(FILE*f) const{
   //map, colorOp, alphaOp, flags
-  SaveUint(f,map);
+  SaveInt(f,map);
   SaveUint(f,colorOp);
   SaveUint(f,alphaOp);
   SaveUint(f,flags);
+}
+
+void BrfShader::SetDefault(){
+  requires = 0;
+  sprintf(technique,name);
+  fallback[0]=0;
+  opt.clear();
 }
 
 bool BrfShader::Load(FILE*f, int verbose){
@@ -33,11 +47,15 @@ bool BrfShader::Load(FILE*f, int verbose){
   if (verbose>0) printf("loading \"%s\"...\n",name);
   LoadUint(f , flags);
   LoadUint(f , requires);
-  LoadString(f, codename);
-  LoadUint(f , myst);
-  assert(myst<=1);
-  for (unsigned int i=0; i<myst; i++) LoadString(f , fallback);
+  LoadString(f, technique);
 
+  unsigned int k;
+  LoadUint(f , k);
+  assert(k<=1);
+  if (k) LoadString(f , fallback);
+  else fallback[0]=0;
+
+  fprintf(fff,"--%s--\n",technique);
   LoadVector(f,opt);
   return true;
 }
@@ -46,8 +64,11 @@ void BrfShader::Save(FILE*f) const{
   SaveString(f, name);
   SaveUint(f , flags);
   SaveUint(f , requires);
-  SaveString(f, codename);
-  SaveUint(f , myst);
-  if(myst) SaveString(f , fallback);
+  SaveString(f, technique);
+  if (fallback[0]==0) SaveUint(f,0);
+  else {
+    SaveUint(f,1);
+    SaveString(f, fallback);
+  }
   SaveVector(f,opt);
 }

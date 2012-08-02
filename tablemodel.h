@@ -19,9 +19,12 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     std::vector<QString> vec;
+    void clear();
+    int size() const {return (int)vec.size();}
     QModelIndex pleaseCreateIndex(int a, int b){
       return createIndex(a,b);
     }
+    void updateChanges();
 private:
 };
 //! [0]

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>1120</height>
+    <height>1685</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -78,7 +78,7 @@
    <widget class="QLCDNumber" name="boxNVerts">
     <property name="geometry">
      <rect>
-      <x>3</x>
+      <x>47</x>
       <y>130</y>
       <width>42</width>
       <height>24</height>
@@ -183,7 +183,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>verts:</string>
+     <string>faces:</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -192,7 +192,7 @@
    <widget class="QLCDNumber" name="boxNFaces">
     <property name="geometry">
      <rect>
-      <x>47</x>
+      <x>3</x>
       <y>130</y>
       <width>42</width>
       <height>24</height>
@@ -218,7 +218,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>faces:</string>
+     <string>vert:</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -378,7 +378,7 @@
      <x>10</x>
      <y>230</y>
      <width>181</width>
-     <height>231</height>
+     <height>201</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -390,7 +390,7 @@
    <property name="title">
     <string>View</string>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,1">
+   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,0,0,0,1">
     <property name="sizeConstraint">
      <enum>QLayout::SetMinimumSize</enum>
     </property>
@@ -420,10 +420,10 @@
       <widget class="QLabel" name="label">
        <property name="geometry">
         <rect>
-         <x>20</x>
+         <x>5</x>
          <y>0</y>
-         <width>46</width>
-         <height>14</height>
+         <width>61</width>
+         <height>20</height>
         </rect>
        </property>
        <property name="text">
@@ -592,7 +592,7 @@
       <widget class="QLabel" name="label_21">
        <property name="geometry">
         <rect>
-         <x>0</x>
+         <x>5</x>
          <y>0</y>
          <width>61</width>
          <height>20</height>
@@ -608,6 +608,42 @@
      </widget>
     </item>
     <item>
+     <widget class="QWidget" name="viewRefSkel" native="true">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>25</height>
+       </size>
+      </property>
+      <widget class="QLabel" name="label_23">
+       <property name="geometry">
+        <rect>
+         <x>5</x>
+         <y>0</y>
+         <width>61</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Skeleton:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="cbRefSkel">
+       <property name="geometry">
+        <rect>
+         <x>70</x>
+         <y>0</y>
+         <width>101</width>
+         <height>21</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
+    </item>
+    <item>
      <widget class="QWidget" name="viewAni" native="true">
       <property name="minimumSize">
        <size>
@@ -618,7 +654,7 @@
       <widget class="QPushButton" name="buPause">
        <property name="geometry">
         <rect>
-         <x>80</x>
+         <x>60</x>
          <y>4</y>
          <width>18</width>
          <height>18</height>
@@ -636,7 +672,7 @@
       <widget class="QPushButton" name="buPlay">
        <property name="geometry">
         <rect>
-         <x>60</x>
+         <x>38</x>
          <y>4</y>
          <width>18</width>
          <height>18</height>
@@ -654,7 +690,7 @@
       <widget class="QPushButton" name="buStop">
        <property name="geometry">
         <rect>
-         <x>100</x>
+         <x>80</x>
          <y>4</y>
          <width>18</width>
          <height>18</height>
@@ -667,6 +703,94 @@
        </property>
        <property name="text">
         <string>[]</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="buStepF">
+       <property name="geometry">
+        <rect>
+         <x>130</x>
+         <y>4</y>
+         <width>18</width>
+         <height>18</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>&gt;|</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="buStepB">
+       <property name="geometry">
+        <rect>
+         <x>110</x>
+         <y>4</y>
+         <width>18</width>
+         <height>18</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>8</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>|&lt;</string>
+       </property>
+      </widget>
+     </widget>
+    </item>
+    <item>
+     <widget class="QWidget" name="viewShowAlpha" native="true">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>60</height>
+       </size>
+      </property>
+      <widget class="QRadioButton" name="rbAlphaNo">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>0</y>
+         <width>84</width>
+         <height>18</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>&amp;RGB</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="rbAlphaTransparent">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>40</y>
+         <width>131</width>
+         <height>18</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Alpha &amp;Transparency</string>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="rbAlphaColor">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>84</width>
+         <height>18</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>&amp;Alpha</string>
        </property>
       </widget>
      </widget>
@@ -719,8 +843,8 @@
      <rect>
       <x>60</x>
       <y>30</y>
-      <width>71</width>
-      <height>21</height>
+      <width>113</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="toolTip">
@@ -741,7 +865,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>680</y>
+     <y>1200</y>
      <width>181</width>
      <height>111</height>
     </rect>
@@ -858,9 +982,9 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>930</y>
+     <y>900</y>
      <width>181</width>
-     <height>181</height>
+     <height>251</height>
     </rect>
    </property>
    <property name="title">
@@ -870,7 +994,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>30</y>
+      <y>35</y>
       <width>46</width>
       <height>14</height>
      </rect>
@@ -886,7 +1010,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>60</y>
+      <y>65</y>
       <width>46</width>
       <height>14</height>
      </rect>
@@ -902,7 +1026,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>90</y>
+      <y>85</y>
       <width>46</width>
       <height>14</height>
      </rect>
@@ -918,7 +1042,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>120</y>
+      <y>105</y>
       <width>46</width>
       <height>14</height>
      </rect>
@@ -934,7 +1058,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>150</y>
+      <y>125</y>
       <width>46</width>
       <height>14</height>
      </rect>
@@ -966,11 +1090,11 @@
      </rect>
     </property>
    </widget>
-   <widget class="QLineEdit" name="leMatDifA_2">
+   <widget class="QLineEdit" name="leMatDifB">
     <property name="geometry">
      <rect>
       <x>60</x>
-      <y>90</y>
+      <y>80</y>
       <width>113</width>
       <height>20</height>
      </rect>
@@ -980,7 +1104,7 @@
     <property name="geometry">
      <rect>
       <x>60</x>
-      <y>120</y>
+      <y>100</y>
       <width>113</width>
       <height>20</height>
      </rect>
@@ -990,10 +1114,869 @@
     <property name="geometry">
      <rect>
       <x>60</x>
-      <y>150</y>
+      <y>120</y>
       <width>113</width>
       <height>20</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="leMatR">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>170</y>
+      <width>37</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="leMatG">
+    <property name="geometry">
+     <rect>
+      <x>97</x>
+      <y>170</y>
+      <width>37</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="leMatB">
+    <property name="geometry">
+     <rect>
+      <x>134</x>
+      <y>170</y>
+      <width>37</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_22">
+    <property name="geometry">
+     <rect>
+      <x>-5</x>
+      <y>175</y>
+      <width>61</width>
+      <height>14</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Spec RGB:</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="leMatSpec">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>140</y>
+      <width>113</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_24">
+    <property name="geometry">
+     <rect>
+      <x>5</x>
+      <y>145</y>
+      <width>51</width>
+      <height>14</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Specmap:</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_25">
+    <property name="geometry">
+     <rect>
+      <x>-5</x>
+      <y>195</y>
+      <width>61</width>
+      <height>14</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Coeff:</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="leMatCoeff">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>190</y>
+      <width>37</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="leMatFlags">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>220</y>
+      <width>111</width>
+      <height>20</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_26">
+    <property name="geometry">
+     <rect>
+      <x>15</x>
+      <y>225</y>
+      <width>41</width>
+      <height>14</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Flags:</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="skeletonData">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>1150</y>
+     <width>181</width>
+     <height>51</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Data</string>
+   </property>
+   <widget class="QLabel" name="label_27">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>51</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string># bones:</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLCDNumber" name="boxSkelNBones">
+    <property name="geometry">
+     <rect>
+      <x>70</x>
+      <y>20</y>
+      <width>41</width>
+      <height>21</height>
+     </rect>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="shaderData">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>530</y>
+     <width>181</width>
+     <height>271</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="title">
+    <string>Data</string>
+   </property>
+   <widget class="QLabel" name="label_28">
+    <property name="geometry">
+     <rect>
+      <x>5</x>
+      <y>35</y>
+      <width>51</width>
+      <height>14</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Technique:</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="leShaderTechnique">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>30</y>
+      <width>113</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="whatsThis">
+     <string>Technique: name of the &quot;technique&quot; inside mb.fx file.</string>
+    </property>
+    <property name="accessibleName">
+     <string/>
+    </property>
+    <property name="accessibleDescription">
+     <string>Technique: name of the &quot;technique&quot; inside mb.fx file.</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_29">
+    <property name="geometry">
+     <rect>
+      <x>5</x>
+      <y>95</y>
+      <width>51</width>
+      <height>14</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Fallback:</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="leShaderFallback">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>90</y>
+      <width>113</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_30">
+    <property name="geometry">
+     <rect>
+      <x>5</x>
+      <y>125</y>
+      <width>51</width>
+      <height>14</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Flags:</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="leShaderFlags">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>120</y>
+      <width>113</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="toolTip">
+     <string extracomment="flags"/>
+    </property>
+    <property name="inputMask">
+     <string>000000000000; </string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="readOnly">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="leShaderRequires">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>60</y>
+      <width>113</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_31">
+    <property name="geometry">
+     <rect>
+      <x>6</x>
+      <y>65</y>
+      <width>51</width>
+      <height>14</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Requires:</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="groupBox">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>150</y>
+      <width>121</width>
+      <height>111</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>texture access</string>
+    </property>
+    <widget class="QLabel" name="label_33">
+     <property name="geometry">
+      <rect>
+       <x>16</x>
+       <y>20</y>
+       <width>31</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>map:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="leShaderTaMap">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>20</y>
+       <width>61</width>
+       <height>20</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="leShaderTaColorOp">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>40</y>
+       <width>61</width>
+       <height>20</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="leShaderTaAlphaOp">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>60</y>
+       <width>61</width>
+       <height>20</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="leShaderTaFlags">
+     <property name="geometry">
+      <rect>
+       <x>50</x>
+       <y>80</y>
+       <width>61</width>
+       <height>20</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_34">
+     <property name="geometry">
+      <rect>
+       <x>-3</x>
+       <y>40</y>
+       <width>51</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>colorOp:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_35">
+     <property name="geometry">
+      <rect>
+       <x>-3</x>
+       <y>60</y>
+       <width>51</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>alphaOp:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_36">
+     <property name="geometry">
+      <rect>
+       <x>-4</x>
+       <y>80</y>
+       <width>51</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>flags:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QListView" name="lvTextAcc">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>170</y>
+      <width>31</width>
+      <height>81</height>
+     </rect>
+    </property>
+    <property name="contextMenuPolicy">
+     <enum>Qt::CustomContextMenu</enum>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QGroupBox" name="bodyData">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>1310</y>
+     <width>181</width>
+     <height>231</height>
+    </rect>
+   </property>
+   <property name="title">
+    <string>Data</string>
+   </property>
+   <widget class="QListView" name="lvBodyPart">
+    <property name="geometry">
+     <rect>
+      <x>70</x>
+      <y>20</y>
+      <width>101</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="contextMenuPolicy">
+     <enum>Qt::CustomContextMenu</enum>
+    </property>
+    <property name="selectionRectVisible">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="groupBox_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>90</y>
+      <width>161</width>
+      <height>131</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>piece</string>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_2">
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>5</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+     <item>
+      <widget class="QWidget" name="wiBodyAxisA" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>25</height>
+        </size>
+       </property>
+       <widget class="QLineEdit" name="leBodyAZ">
+        <property name="geometry">
+         <rect>
+          <x>119</x>
+          <y>5</y>
+          <width>37</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="leBodyAY">
+        <property name="geometry">
+         <rect>
+          <x>82</x>
+          <y>5</y>
+          <width>37</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="leBodyAX">
+        <property name="geometry">
+         <rect>
+          <x>45</x>
+          <y>5</y>
+          <width>37</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+       <widget class="QLabel" name="labelAxisRadius">
+        <property name="geometry">
+         <rect>
+          <x>-20</x>
+          <y>10</y>
+          <width>61</width>
+          <height>14</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>axisA:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </widget>
+     </item>
+     <item>
+      <widget class="QWidget" name="wiBodyAxisB" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>25</height>
+        </size>
+       </property>
+       <widget class="QLabel" name="label_40">
+        <property name="geometry">
+         <rect>
+          <x>-20</x>
+          <y>5</y>
+          <width>61</width>
+          <height>14</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>axisB:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="leBodyBZ">
+        <property name="geometry">
+         <rect>
+          <x>119</x>
+          <y>0</y>
+          <width>37</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="leBodyBY">
+        <property name="geometry">
+         <rect>
+          <x>82</x>
+          <y>0</y>
+          <width>37</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="leBodyBX">
+        <property name="geometry">
+         <rect>
+          <x>45</x>
+          <y>0</y>
+          <width>37</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </widget>
+     </item>
+     <item>
+      <widget class="QWidget" name="wiBodyRadius" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>30</height>
+        </size>
+       </property>
+       <widget class="QLabel" name="label_41">
+        <property name="geometry">
+         <rect>
+          <x>-20</x>
+          <y>10</y>
+          <width>61</width>
+          <height>14</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>radius:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="leBodyRad">
+        <property name="geometry">
+         <rect>
+          <x>45</x>
+          <y>5</y>
+          <width>61</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </widget>
+     </item>
+     <item>
+      <widget class="QWidget" name="wiBodyNVerts" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>30</height>
+        </size>
+       </property>
+       <widget class="QLCDNumber" name="leBodyNVert">
+        <property name="geometry">
+         <rect>
+          <x>50</x>
+          <y>4</y>
+          <width>41</width>
+          <height>21</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_43">
+        <property name="geometry">
+         <rect>
+          <x>-10</x>
+          <y>4</y>
+          <width>51</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>verts:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </widget>
+     </item>
+     <item>
+      <widget class="QWidget" name="wiBodyNFaces" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>30</height>
+        </size>
+       </property>
+       <widget class="QLCDNumber" name="leBodyNFace">
+        <property name="geometry">
+         <rect>
+          <x>50</x>
+          <y>5</y>
+          <width>41</width>
+          <height>20</height>
+         </rect>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_42">
+        <property name="geometry">
+         <rect>
+          <x>-10</x>
+          <y>4</y>
+          <width>51</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>faces:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </widget>
+     </item>
+     <item>
+      <widget class="QWidget" name="wiBodyFlags" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>30</height>
+        </size>
+       </property>
+       <widget class="QLabel" name="label_44">
+        <property name="geometry">
+         <rect>
+          <x>-20</x>
+          <y>10</y>
+          <width>61</width>
+          <height>14</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>flags:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="leBodyFlags">
+        <property name="geometry">
+         <rect>
+          <x>45</x>
+          <y>5</y>
+          <width>61</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </widget>
+     </item>
+     <item>
+      <widget class="QWidget" name="wiBodySigns" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>30</height>
+        </size>
+       </property>
+       <widget class="QLabel" name="label_45">
+        <property name="geometry">
+         <rect>
+          <x>-20</x>
+          <y>10</y>
+          <width>61</width>
+          <height>14</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>sign:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="leBodySign">
+        <property name="geometry">
+         <rect>
+          <x>50</x>
+          <y>5</y>
+          <width>41</width>
+          <height>20</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </widget>
+     </item>
+     <item>
+      <spacer name="verticalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QLabel" name="label_37">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>20</y>
+      <width>51</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>piece list:</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
     </property>
    </widget>
   </widget>

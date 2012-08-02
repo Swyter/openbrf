@@ -6,6 +6,18 @@ TableModel::TableModel(QObject *parent)
 {
 }
 
+void TableModel::updateChanges(){
+  int t=vec.size();
+  emit(this->dataChanged(createIndex(0,0),createIndex(1,t+100)));
+  emit(layoutChanged());
+}
+
+void TableModel::clear()
+{
+  int t=vec.size();
+  vec.clear();
+  this->dataChanged(createIndex(0,0),createIndex(1,t));
+}
 
 int TableModel::rowCount(const QModelIndex &parent) const
 {

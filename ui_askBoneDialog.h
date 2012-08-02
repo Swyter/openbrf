@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading ui file 'askBoneDialog.ui'
 **
-** Created: Tue Aug 11 16:08:36 2009
+** Created: Fri Aug 14 21:49:36 2009
 **      by: Qt User Interface Compiler version 4.5.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling ui file!
@@ -37,7 +37,7 @@ public:
     {
         if (AskBoneDialog->objectName().isEmpty())
             AskBoneDialog->setObjectName(QString::fromUtf8("AskBoneDialog"));
-        AskBoneDialog->resize(312, 170);
+        AskBoneDialog->resize(312, 167);
         buttonBox = new QDialogButtonBox(AskBoneDialog);
         buttonBox->setObjectName(QString::fromUtf8("buttonBox"));
         buttonBox->setGeometry(QRect(-100, 130, 341, 32));

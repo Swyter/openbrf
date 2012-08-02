@@ -11,6 +11,12 @@ using namespace vcg;
 
 
 Matrix44f BrfAnimationFrame::getRotationMatrix(int i) const{
+  vcg::Matrix44f res;
+  vcg::Quaternionf qua = rot[i];
+  qua.ToMatrix(res);
+  //res.transposeInPlace();
+  return res;
+  /*
 
   float dva[] = {-1,0,0,0, 0,0,1,0, 0,1,0,0, 0,0,0,1};
   vcg::Matrix44f swapYZ(dva);
@@ -30,10 +36,15 @@ Matrix44f BrfAnimationFrame::getRotationMatrix(int i) const{
 
   mat = mat.transpose();
   return mat;
+  */
 }
 
 void BrfAnimationFrame::setRotationMatrix(Matrix44f mat, int i){
-
+  vcg::Quaternionf qua;
+  qua.FromMatrix(mat);
+  rot[i]=qua;
+  return;
+  /*
   float dva[] = {-1,0,0,0, 0,0,1,0, 0,1,0,0, 0,0,0,1};
   vcg::Matrix44f swapYZ(dva);
   float dvb[] = {-1,0,0,0, 0,-1,0,0, 0,0,1,0, 0,0,0,1};
@@ -46,16 +57,10 @@ void BrfAnimationFrame::setRotationMatrix(Matrix44f mat, int i){
   qua.Normalize();
   qua.Invert();
   rot[i]= Point4f(qua[3],qua[0],qua[1],qua[2]);
-}
-
-void BrfAnimation::SetSkeleton(BrfSkeleton *s){
-  //skel=s;
-  //if (s) bbox = s->bbox;
+  */
 }
 
 Box3f BrfAnimation::bbox;
-BrfSkeleton* BrfAnimation::skel=NULL;
-int  BrfAnimation::curFrame; // frame currently being shown
 
 using namespace std;
 
@@ -87,6 +92,40 @@ public:
     LoadVector(f,cas);
     return true;
   }
+  void Adjust(){
+    for (unsigned int i=0; i<cas.size(); i++)
+      cas[i].rot = BrfSkeleton::adjustCoordSyst(cas[i].rot);
+      /* cas[i].rot=vcg::Point4f(
+        cas[i].rot[3],
+       -cas[i].rot[0],
+        cas[i].rot[1],
+        cas[i].rot[2]
+     );*/
+  }
+  void AdjustInv(){
+    Adjust(); // it's its own inverse
+     /*cas[i].rot=vcg::Point4f(
+       -cas[i].rot[1],
+        cas[i].rot[2],
+        cas[i].rot[3],
+        cas[i].rot[0]
+     );*/
+  }
+
+  void AdjustRoot(){
+    for (unsigned int i=0; i<cas.size(); i++)
+      cas[i].rot = BrfSkeleton::adjustCoordSystHalf(cas[i].rot);
+//    for (unsigned int i=0; i<cas.size(); i++) {
+//      Quaternionf q = Quaternionf(0,0,1,1).Normalize();
+//      cas[i].rot.Import( ((Quaternionf)cas[i].rot)*q );
+//    }
+  }
+  void AdjustRootInv(){    
+    AdjustRoot(); // it's its own inverse
+    //for (unsigned int i=0; i<cas.size(); i++)
+    // cas[i].rot = BrfSkeleton::adjustCoordSystHalfInv(cas[i].rot);
+  }
+
   /*void Export(FILE* f){
     for (unsigned int i=0; i<cas.size(); i++) {
       fprintf(f,"%d,",cas[i].findex);
@@ -96,6 +135,7 @@ public:
   }*/
   vector< TmpCas4 > cas;
 };
+
 
 void TmpBone2BrfFrame(const vector<TmpBone4> &vb, const vector<TmpCas3> &vt,
                       vector<BrfAnimationFrame> &vf){
@@ -148,7 +188,7 @@ void TmpBone2BrfFrame(const vector<TmpBone4> &vb, const vector<TmpCas3> &vt,
   vf.resize(nf);
   for (int i=0; i<nf; i++) {
     vf[i].rot.resize(vb.size());
-    vf[i].wasImplicit.resize(vb.size() + 1); // +1 for the translation
+    vf[i].wasImplicit.resize(vb.size() + 1, false); // +1 for the translation
   }
 
   for (unsigned int bi=0; bi<vb.size(); bi++) {
@@ -225,6 +265,67 @@ void BrfFrame2TmpBone(const vector<BrfAnimationFrame> &vf,
     c.rot = vf[ fi ].tra;
     if (!vf[ fi ].wasImplicit[nbones]) vt.push_back(c);
   }
+}
+
+bool BrfAnimationFrame::Reskeletonize(const BrfSkeleton& from, const BrfSkeleton& to){
+
+
+  float tmp[16]={-1,0,0,0, 0,0,1,0, 0,1,0,0, 0,0,0,1};
+  Matrix44f t(tmp); // t goes from BRFedit style to OpenBrf style!
+  /*
+  Matrix44f t,tt,t0,t1;
+  t0.SetIdentity();
+  t0.SetColumn(0,from.bone[1].t);
+  t0.SetColumn(1,from.bone[3].t);
+  t0.SetColumn(2,from.bone[4].t);
+  t0=Invert(t0);
+  t1.SetIdentity();
+  t1.SetColumn(0,to.bone[1].t);
+  t1.SetColumn(1,to.bone[3].t);
+  t1.SetColumn(2,to.bone[4].t);
+  t1.transposeInPlace();
+  t0.transposeInPlace();
+  t = t0*t1;
+  tt = t; tt.transposeInPlace();*/
+
+  for (unsigned int i=0; i<rot.size(); i++) {
+    Matrix44f m = this->getRotationMatrix(i);
+    //m.transposeInPlace();
+    /*
+    Matrix44f debug;
+    Quaternionf q0, q1, q2, q3, q4;
+    q0 = this->rot[i];
+    q1.FromMatrix(t);
+    q3.FromMatrix(t*m*t);
+    q4.FromMatrix(m);
+    q2 = q1*q4*q1;
+
+    Matrix44f m2, m3;
+    q2.ToMatrix(m2); m2 -= t*m*t;
+    q3.ToMatrix(m3); m3 -= t*m*t;
+    */
+
+    Matrix44f a = to.getRotationMatrix(i);
+    Matrix44f b = from.getRotationMatrix(i);
+    Matrix44f at = a;
+    Matrix44f bt = b;
+    b.transposeInPlace();
+    a.transposeInPlace();
+
+    //m = t*m * b*t * at ;
+    m = m * b * at ;
+
+
+    this->setRotationMatrix( m , i );
+  }
+
+  return true;
+}
+
+bool BrfAnimation::Reskeletonize(const BrfSkeleton& from, const BrfSkeleton& to){
+  for (unsigned int i=0; i<frame.size(); i++)
+    if (!frame[i].Reskeletonize(from, to)) return false;
+  return true;
 }
 
 int BrfAnimation::FirstIndex() const{
@@ -325,12 +426,16 @@ bool BrfAnimation::Load(FILE*f, int verbose){
   if (verbose>0) printf("loading \"%s\"...\n",name);
 
   vector< TmpBone4 > tmpBone4v;
-  LoadVector(f,tmpBone4v);
+  LoadVector(f,tmpBone4v); // vector of [vector of bone rotations]
 
+  for (unsigned int i=0; i<tmpBone4v.size(); i++) {
+    tmpBone4v[i].Adjust();
+    if (i==0) tmpBone4v[i].AdjustRoot(); // assuming bone 0 is the root
+  }
   nbones = tmpBone4v.size();
 
   vector< TmpCas3 > tmpCas3v;
-  LoadVector(f,tmpCas3v);
+  LoadVector(f,tmpCas3v); // vector of translations
 
   TmpBone2BrfFrame(tmpBone4v, tmpCas3v, frame);
 
@@ -351,12 +456,10 @@ void BrfAnimation::Save(FILE *f) const{
 
   BrfFrame2TmpBone(frame , tmpBone4v, tmpCas3v);
 
-  /*
-  FILE *ff = fopen("after.txt","wt");
   for (unsigned int i=0; i<tmpBone4v.size(); i++) {
-    fprintf(ff,"(Bone %d) ",i); tmpBone4v[i].Export(ff);
+    if (i==0) tmpBone4v[i].AdjustRootInv(); // assuming bone 0 is the root
+    tmpBone4v[i].AdjustInv();
   }
-  fclose(ff);*/
 
   SaveVector(f,tmpBone4v);
   SaveVector(f,tmpCas3v);

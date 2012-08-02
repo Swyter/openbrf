@@ -14,6 +14,9 @@ public:
   void setRotationMatrix(Matrix44f m, int i);
   Point3f tra;
   std::vector< bool > wasImplicit;
+
+  bool Reskeletonize(const BrfSkeleton& from, const BrfSkeleton& to);
+
 };
 
 class BrfAnimation
@@ -35,9 +38,6 @@ public:
   bool IsAnimable() const{return true;}
 
   static Box3f bbox;
-  static void SetSkeleton(BrfSkeleton* sk);
-  static int curFrame; // frame currently being shown
-  //bool capped; // if true, ATTENTION, animation was capped at MAXFRAMES
 
   int Break(std::vector<BrfAnimation> &res) const;
   int Break(std::vector<BrfAnimation> &res, char* aniFile) const;
@@ -48,8 +48,9 @@ public:
   int FirstIndex() const;
   int LastIndex() const;
 
+  bool Reskeletonize(const BrfSkeleton& from, const BrfSkeleton& to);
+
 private:
-  static BrfSkeleton* skel;
   void EnlongFrames(int nframes);
 
 };

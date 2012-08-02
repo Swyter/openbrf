@@ -26,6 +26,8 @@ public:
   void Save(FILE*f) const;
   void Export(FILE*f);
 
+  //void Adjust(); // adjust to new axis ordering...
+
   vcg::Matrix44<float> getRotationMatrix() const;
   void  setRotationMatrix(vcg::Matrix44<float>);
 
@@ -39,6 +41,8 @@ class BrfSkeleton
 {      
 public:
   BrfSkeleton();
+
+
   static int tokenIndex(){return SKELETON;}
   char name[255];
   unsigned int flags;
@@ -59,6 +63,24 @@ public:
   void BuildDefaultMesh(BrfMesh & output) const; // builds a mesh with just an octa x bone...
   vcg::Matrix44<float> getRotationMatrix(int i) const {return bone[i].getRotationMatrix();}
   void setRotationMatrix(vcg::Matrix44<float> m,int i) {bone[i].setRotationMatrix(m);}
+
+  // for translations and points:
+  static vcg::Point3f adjustCoordSyst(vcg::Point3f);
+
+  // for rotations (full):
+  static vcg::Point4f   adjustCoordSyst(vcg::Point4f); // for quaternions
+  static BrfBone        adjustCoordSyst(BrfBone);
+  static vcg::Matrix44f adjustCoordSyst(vcg::Matrix44f);
+
+  // for rotations (half):
+  static vcg::Point4f   adjustCoordSystHalf(vcg::Point4f);
+  static      BrfBone   adjustCoordSystHalf(BrfBone);
+  static vcg::Matrix44f adjustCoordSystHalf(vcg::Matrix44f);
+
+  static float BoneSizeX();
+  static float BoneSizeY();
+  static float BoneSizeZ();
+
 private:
 
   void Export(char *f); // for intrnal use

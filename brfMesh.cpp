@@ -12,6 +12,7 @@ using namespace std;
 using namespace vcg;
 
 #include "BrfMesh.h"
+#include "BrfSkeleton.h"
 
 #include "saveLoad.h"
 typedef vcg::Point3f Pos;
@@ -23,9 +24,9 @@ void BrfMesh::ComputeNormals(){
       frame[fi].norm[vi]=Point3f(0,0,0);
     }
     for (unsigned int ff=0; ff<face.size(); ff++){
-      Point3f a=frame[fi].pos[ face[ff].index[0] ];
-      Point3f b=frame[fi].pos[ face[ff].index[1] ];
-      Point3f c=frame[fi].pos[ face[ff].index[2] ];
+      Point3f a=frame[fi].pos[ vert[face[ff].index[0]].index ];
+      Point3f b=frame[fi].pos[ vert[face[ff].index[1]].index ];
+      Point3f c=frame[fi].pos[ vert[face[ff].index[2]].index ];
       Point3f n=(c-a)^(b-a); // area weighted norm
       for (int w=0; w<3; w++)
       frame[fi].norm[ face[ff].index[w] ]+=n;
@@ -45,6 +46,36 @@ void BrfFrame::Apply(Matrix44f m){
     norm[i]=m*norm[i] - t;
   }
 }
+
+void BrfMesh::Reskeletonize(const BrfSkeleton& from, const BrfSkeleton& to){
+
+  vector<Matrix44f> mat0 = from.GetBoneMatrices();
+  vector<Matrix44f> mat = to.GetBoneMatrices();
+
+  for (int bi=0; bi<(int)mat.size(); bi++) {
+    Matrix44f inv = vcg::Inverse(mat0[bi]);
+    mat[bi]=mat[bi]*inv;
+  }
+  if (!rigging.size()) return;
+  assert (rigging.size()==frame[0].pos.size());
+
+  for (int pi=0; pi<(int)rigging.size(); pi++){
+    Matrix44f matTot;
+    matTot.SetZero();
+    const BrfRigging &rig(rigging[pi]);
+    for (int k=0; k<4; k++) {
+      int i = rig.boneIndex[k];
+      if (i>=0) matTot+=mat[i]* rig.boneWeight[k];
+    }
+    for (int fi=0; fi<(int)frame.size(); fi++) {
+      BrfFrame &f(frame[fi]);
+
+      f.pos[pi]=matTot*f.pos[pi];
+
+    }
+  }
+}
+
 
 void BrfMesh::Apply(Matrix44<float> m){
   for (int i=0; i<(int)frame.size(); i++) frame[i].Apply(m);
@@ -117,12 +148,15 @@ void BrfMesh::UnifyPos(){
       }
     }
     frame[i].pos.resize( ns );
+    if (rigging.size()>0) rigging.resize( ns );
   }
 }
+
 
       class MyIndexVertClass{
       public:
         static BrfMesh* mesh;
+        static bool careForNormals;
         int ind;
 
         MyIndexVertClass(int a):ind(a) {}
@@ -142,6 +176,7 @@ void BrfMesh::UnifyPos(){
           if (mesh->vert[ind].tb <  mesh->vert[b.ind].tb) return true;
           if (mesh->vert[ind].tb != mesh->vert[b.ind].tb) return false;
 
+          if (careForNormals)
           for (unsigned int i=0; i<mesh->frame.size(); i++) {
             if (mesh->frame[i].norm[ind] < mesh->frame[i].norm[b.ind]) return true;
             if (mesh->frame[i].norm[ind] != mesh->frame[i].norm[b.ind]) return false;
@@ -152,10 +187,13 @@ void BrfMesh::UnifyPos(){
 
       };
       BrfMesh* MyIndexVertClass::mesh;
-void BrfMesh::UnifyVert(){
+      bool MyIndexVertClass::careForNormals;
+
+void BrfMesh::UnifyVert(bool careForNormals){
   typedef std::set< MyIndexVertClass > Set;
   Set st;
   MyIndexVertClass::mesh=this;
+  MyIndexVertClass::careForNormals=careForNormals;
   vector<int> map(vert.size());
 
   for (unsigned int vi=0; vi<vert.size(); vi++) {
@@ -620,18 +658,49 @@ void Rigging2TmpRigging(const vector<BrfRigging>& vert , vector<TmpRigging>& v) 
 
 }
 
+int BrfRigging::FirstEmpty() const{
+  for ( int k=0;  k<4; k++) if (boneIndex[k]==-1) return k;
+  return 4;
+}
+
+int BrfRigging::LeastIndex() const{
+  int min=0;
+
+  for ( int k=1;  k<4; k++) if (boneIndex[k]!=-1)
+    if (boneWeight[k]<boneWeight[min]) min=k;
+  return min;
+}
+
+
+void BrfRigging::Normalize(){
+  float sum=0;
+
+  for ( int k=1;  k<4; k++) if (boneIndex[k]!=-1) sum+=boneWeight[k];
+  if (sum==0) return;
+  for ( int k=1;  k<4; k++) if (boneIndex[k]!=-1) boneWeight[k]/=sum;
+
+}
+
 int TmpRigging2Rigging(const vector<TmpRigging>& v, vector<BrfRigging>&vert){
   int max=0;
 
   for (unsigned int i=0; i<v.size(); i++)
   for (unsigned int j=0; j<v[i].pair.size(); j++){
-    int k = 0;
+    bool tooManyBones = false;
     int vi = v[i].pair[j].vindex;
-    for ( ;  k<4; k++) if (vert[ vi ].boneIndex[k]==-1) break;
-    assert(k<4); // otherwise, more than 4 bones for this vertex
+    int k = vert[vi].FirstEmpty();
+    if (k>=4) {
+      k = vert[vi].LeastIndex();
+      tooManyBones = true;
+    }
+
+
     vert[ vi ].boneIndex[k] = v[i].bindex;
     vert[ vi ].boneWeight[k] = v[i].pair[j].weight;
+    if (tooManyBones) vert[vi].Normalize();
     if (max<v[i].bindex) max =v[i].bindex;
+
+
   }
   return max;
 }
@@ -641,7 +710,7 @@ void BrfMesh::Save(FILE*f) const{
 
   //if (verbose) printf(" saving \"%s\"...\n",name);
   SaveString(f, name);  
-  SaveInt(f , flags);  
+  SaveUint(f , flags);
   SaveString(f, material); // material used
 
   SaveVector(f, frame[0].pos);
@@ -1155,7 +1224,7 @@ bool BrfMesh::Load(FILE*f, int verbose){
   LoadString(f, name);
   //if (verbose>0) printf("loading \"%s\"...\n",name);
 
-  LoadInt(f , flags); 
+  LoadUint(f , flags);
   LoadString(f, material); // material used
   frame.resize(1); // first frame (and only one, iff no vertex animation)
   frame[0].time =0;

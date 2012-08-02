@@ -16,12 +16,23 @@
 
 char * tokenTabName[N_TOKEN] = {
   "&Mesh",
-  "&Texture",
+  "Te&xture",
   "&Shader",
-  "M&aterial",
+  "Mat&erial",
   "S&keleton",
-  "A&nimation",
+  "&Animation",
   "&Collision",
+};
+
+
+char * tokenFullName[N_TOKEN] = {
+  "Mesh",
+  "Texture",
+  "Shader",
+  "Material",
+  "Skeleton",
+  "Animation",
+  "Collision Object",
 };
 
 
@@ -102,9 +113,10 @@ template<class BrfType> void BrfData::SaveAll(FILE *f, const vector<BrfType> &v)
   }
 }
 
-int BrfData::getOneSkeleton(int nbones){
+int BrfData::getOneSkeleton(int nbones, int after){
+
   for (unsigned int i=0; i<skeleton.size(); i++){
-    if ((int)skeleton[i].bone.size()==nbones) return i;
+    if ((int)skeleton[i].bone.size()==nbones) { if (!after)return i; after--; }
   }
   return -1;
 }
@@ -145,7 +157,7 @@ bool BrfData::LoadMat(FILE *f){
 
     if (!strcmp(str,"end")) break;
 
-    if (!strcmp(str,"mesh")) SkipVectorV<BrfMesh>(f);
+    if (!strcmp(str,"mesh")) LoadVector(f,mesh); //SkipVectorV<BrfMesh>(f);
     else if (!strcmp(str,"texture")) LoadVector(f,texture);
     else if (!strcmp(str,"shader")) LoadVector(f,shader);
     else if (!strcmp(str,"material")) {
