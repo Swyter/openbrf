@@ -1,5 +1,6 @@
 #include <vector>
 #include <vcg/math/matrix44.h>
+#include <vcg/math/quaternion.h>
 #include <vcg/space/point3.h>
 #include <vcg/space/point2.h>
 #include <vcg/space/box3.h>
@@ -13,6 +14,64 @@ using namespace std;
 #include "saveLoad.h"
 
 
+static float values[16] = {
+  0, 0,  1, 0,
+  0, -1, 0, 0,
+   1, 0, 0, 0,
+  0, 0, 0, 1,
+};
+
+static vcg::Matrix44f matr(values);
+
+// for translations and points:
+vcg::Point3f BrfSkeleton::adjustCoordSyst(vcg::Point3f p){
+  return matr*p;
+}
+
+// for rotations (full):
+vcg::Point4f   BrfSkeleton::adjustCoordSyst(vcg::Point4f p){
+  //generic:
+  //vcg::Quaternionf q,r; q.FromMatrix(matr);
+  //return r=q*vcg::Quaternionf(p)*q;
+  return vcg::Point4f(p[0],p[3],-p[2],p[1]);
+}
+BrfBone        BrfSkeleton::adjustCoordSyst(BrfBone p) {
+  BrfBone res=p;
+  /*res.setRotationMatrix( adjustCoordSyst(res.getRotationMatrix()) );
+  res.t = adjustCoordSyst( res.t );*/
+  res.x =  adjustCoordSyst( p.z );
+  res.y = -adjustCoordSyst( p.y );
+  res.z =  adjustCoordSyst( p.x );
+  res.t =  adjustCoordSyst( res.t );
+  return  res;
+}
+vcg::Matrix44f BrfSkeleton::adjustCoordSyst(vcg::Matrix44f m){
+  return matr*m*matr;
+}
+
+  // for rotations (half):
+vcg::Point4f   BrfSkeleton::adjustCoordSystHalf(vcg::Point4f p){
+  //generic: vcg::Quaternionf q; q.FromMatrix(matr);
+  static vcg::Quaternionf q(0, float(1/sqrt(2)),0, float(1/sqrt(2)));
+  return vcg::Quaternionf(p)*q;
+}
+BrfBone   BrfSkeleton::adjustCoordSystHalf(BrfBone p){
+  BrfBone res=p;
+  res.x =  p.z;
+  res.y =  -p.y;
+  res.z =  p.x;
+  //res.setRotationMatrix( adjustCoordSystHalf(res.getRotationMatrix()) );
+  return  res;
+}
+vcg::Matrix44f BrfSkeleton::adjustCoordSystHalf(vcg::Matrix44f m){
+  return matr*m;
+}
+
+float BrfSkeleton::BoneSizeX(){return 0.12;}
+float BrfSkeleton::BoneSizeY(){return 0.06;}
+float BrfSkeleton::BoneSizeZ(){return 0.04;}
+
+
 void BrfSkeleton::BuildDefaultMesh(BrfMesh & m) const{ // builds a mesh with just an octa x bone...
   int nb = bone.size();
   m.vert.resize(nb*6);
@@ -22,7 +81,10 @@ void BrfSkeleton::BuildDefaultMesh(BrfMesh & m) const{ // builds a mesh with jus
   m.face.resize(nb*8);
   m.rigging.resize(nb*6);
 
-  float X=0.04,Y=0.06,Z=0.12;
+  float
+    X=BrfSkeleton::BoneSizeX(),
+    Y=BrfSkeleton::BoneSizeX(),
+    Z=BrfSkeleton::BoneSizeX();
   vcg::Point3f pos[6]={
     vcg::Point3f(+X,0,0), //0
     vcg::Point3f(0,+Y,0), //1
@@ -109,7 +171,7 @@ void BrfSkeleton::SetBoneMatrices(const BrfAnimationFrame &fr, int bi,
                                   std::vector<Matrix44f> &output, const Matrix44f &curr) const
 {
   Matrix44f tr; tr.SetTranslate( bone[bi].t );
-  output[ bi ] = curr * tr * Matrix44f( fr.getRotationMatrix( bi ));
+  output[ bi ] = curr * tr * (fr.getRotationMatrix( bi ).transpose());
 
   for (unsigned int k=0; k<bone[bi].next.size(); k++) {
     SetBoneMatrices(fr, bone[bi].next[k] , output, output[bi] );
@@ -129,7 +191,7 @@ void BrfSkeleton::SetBoneMatrices(int bi,
                                   std::vector<Matrix44f> &output, const Matrix44f &curr) const
 {
   Matrix44f tr; tr.SetTranslate( bone[bi].t );
-  output[ bi ] = curr * tr * Matrix44f( bone[bi].getRotationMatrix());
+  output[ bi ] = curr * tr * Matrix44f( bone[bi].getRotationMatrix().transpose());
 
   for (unsigned int k=0; k<bone[bi].next.size(); k++) {
     SetBoneMatrices( bone[bi].next[k] , output, output[bi] );
@@ -139,26 +201,59 @@ void BrfSkeleton::SetBoneMatrices(int bi,
 
 bool BrfBone::Load(FILE*f, int verbose){
   LoadInt(f, attach);
-  LoadString(f, name);
-  LoadInt(f, b);
+
+  if (LoadStringMaybe(f, name, "bone")) // for back compatibility!!!
+    LoadInt(f, b);
 
   LoadPoint(f,x);
   LoadPoint(f,z);
   LoadPoint(f,y);
   LoadPoint(f,t);
 
+  if (attach>=0)
+    *this = BrfSkeleton::adjustCoordSyst(*this);
+  else
+    *this = BrfSkeleton::adjustCoordSystHalf(*this);
+
+
+    //t = vcg::Point3f(-t[0],t[2],t[1]);
+    //x =  vcg::Point3f(-x[0],x[2],x[1]);
+    //y =  vcg::Point3f(-y[0],y[2],y[1]);
+    //z =  vcg::Point3f(-z[0],z[2],z[1]);
+  //}
+
   return true;
 }
 
 void BrfBone::Save(FILE*f) const{
   SaveInt(f, attach);
-  SaveString(f, name);
+  SaveStringNotempty(f, name, "noname");
   SaveInt(f, b);
 
-  SavePoint(f,x);
-  SavePoint(f,z);
-  SavePoint(f,y);
-  SavePoint(f,t);
+  BrfBone b;
+  if (attach>=0) {
+    b = BrfSkeleton::adjustCoordSyst(*this);
+  } else {
+    b = BrfSkeleton::adjustCoordSystHalf(*this);
+  }
+  /*Point3f nx,ny,nz,nt;
+  if (attach>=0) {
+    nt = vcg::Point3f(-t[0],t[2],t[1]);
+    nx = vcg::Point3f(-x[0],x[2],x[1]);
+    ny = vcg::Point3f(-y[0],y[2],y[1]);
+    nz = vcg::Point3f(-z[0],z[2],z[1]);
+  } else {
+    nx=x;ny=y;nz=z;nt=t;
+  }
+  SavePoint(f,-nx);
+  SavePoint(f,ny);
+  SavePoint(f,nz);
+  SavePoint(f,nt);*/
+
+  SavePoint(f,b.x);
+  SavePoint(f,b.z);
+  SavePoint(f,b.y);
+  SavePoint(f,b.t);
 
 }
 
@@ -211,9 +306,7 @@ bool BrfSkeleton::Load(FILE*f, int verbose){
   if (verbose>0) printf("loading \"%s\"...\n",name);
 
   LoadVector(f,bone);
-
   BuildTree();
-  //Export("tmp.txt");
   return true;
 }
 
@@ -231,7 +324,7 @@ vcg::Matrix44f BrfBone::getRotationMatrix() const{
   res[0+2*4]=z[0];res[1+2*4]=z[1];res[2+2*4]=z[2];res[3+2*4]=0;
   res[0+3*4]=t[0];res[1+3*4]=t[1];res[2+3*4]=t[2];res[3+3*4]=1;
 #else
-#if 1
+#if 0
   res[0+0*4]=x[0];res[0+1*4]=x[1];res[0+2*4]=x[2];res[0+3*4]=0;
   res[1+0*4]=y[0];res[1+1*4]=y[1];res[1+2*4]=y[2];res[1+3*4]=0;
   res[2+0*4]=z[0];res[2+1*4]=z[1];res[2+2*4]=z[2];res[2+3*4]=0;

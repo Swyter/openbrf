@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>AskBoneDialog</class>
- <widget class="QDialog" name="AskBoneDialog">
+ <class>AskSkelDialog</class>
+ <widget class="QDialog" name="AskSkelDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>312</width>
-    <height>167</height>
+    <width>320</width>
+    <height>222</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,9 +16,9 @@
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
-     <x>-100</x>
-     <y>130</y>
-     <width>341</width>
+     <x>90</x>
+     <y>180</y>
+     <width>161</width>
      <height>32</height>
     </rect>
    </property>
@@ -29,37 +29,40 @@
     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
    </property>
   </widget>
-  <widget class="QComboBox" name="cbSlel">
+  <widget class="QComboBox" name="cbSkelFrom">
    <property name="geometry">
     <rect>
-     <x>140</x>
+     <x>150</x>
      <y>60</y>
-     <width>161</width>
-     <height>21</height>
+     <width>151</width>
+     <height>22</height>
     </rect>
    </property>
+   <property name="accessibleName">
+    <string>cbSkelTo</string>
+   </property>
   </widget>
-  <widget class="QComboBox" name="cbBone">
+  <widget class="QComboBox" name="cbSkelTo">
    <property name="geometry">
     <rect>
-     <x>140</x>
+     <x>150</x>
      <y>90</y>
-     <width>161</width>
-     <height>21</height>
+     <width>151</width>
+     <height>22</height>
     </rect>
    </property>
   </widget>
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>10</x>
+     <x>20</x>
      <y>60</y>
-     <width>120</width>
-     <height>20</height>
+     <width>121</width>
+     <height>21</height>
     </rect>
    </property>
    <property name="text">
-    <string>Reference skeleton:</string>
+    <string>From (current skeleton):</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -70,12 +73,12 @@
     <rect>
      <x>10</x>
      <y>90</y>
-     <width>120</width>
-     <height>20</height>
+     <width>131</width>
+     <height>21</height>
     </rect>
    </property>
    <property name="text">
-    <string>Bone:</string>
+    <string>To (destination skeleton):</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -84,10 +87,10 @@
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>10</y>
-     <width>191</width>
-     <height>21</height>
+     <x>10</x>
+     <y>12</y>
+     <width>301</width>
+     <height>16</height>
     </rect>
    </property>
    <property name="font">
@@ -96,16 +99,16 @@
     </font>
    </property>
    <property name="text">
-    <string>This object is not rigged:</string>
+    <string>Change geometry of a mesh currently tigged for a skeleton</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>
-     <x>20</x>
+     <x>10</x>
      <y>26</y>
-     <width>261</width>
-     <height>21</height>
+     <width>301</width>
+     <height>16</height>
     </rect>
    </property>
    <property name="font">
@@ -114,7 +117,20 @@
     </font>
    </property>
    <property name="text">
-    <string>Select a skeleton and a bone to attach it to.</string>
+    <string>to make it follow a new skeleton:</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="checkBox">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>140</y>
+     <width>221</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>result in a new vertex-ani frame</string>
    </property>
   </widget>
  </widget>
@@ -123,7 +139,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>AskBoneDialog</receiver>
+   <receiver>AskSkelDialog</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -139,7 +155,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>AskBoneDialog</receiver>
+   <receiver>AskSkelDialog</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

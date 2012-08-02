@@ -48,17 +48,30 @@ public slots:
    void setPlay();
    void setStop();
    void setPause();
+   void setStepon();
+   void setStepback();
    void setColorPerVert();
    void setColorPerRig();
    void setColorPerWhite();
    void setFrameNumber(int);
    int  getFrameNumber() const;
+   void showMaterialDiffuseA();
+   void showMaterialDiffuseB();
+   void showMaterialBump();
+   void showMaterialEnviro();
+   void showMaterialSpecular();
+   void showAlphaTransparent();
+   void showAlphaPurple();
+   void showAlphaNo();
 public:
 bool useWireframe, useLighting, useTexture , useFloor;
 int colorMode;
 QString texturePath;
 
 enum{STOP, PAUSE, PLAY} runningState;
+enum{DIFFUSEA, DIFFUSEB, BUMP, ENVIRO, SPECULAR } curMaterialTexture;
+enum{TRANSALPHA, PURPLEALPHA, NOALPHA} showAlpha;
+
 float runningSpeed;
 int relTime; // msec, zeroed at stop.
 
@@ -79,6 +92,8 @@ protected:
     void renderBrfItem(const BrfAnimation& p);
     void renderBrfItem(const BrfBody& p);
     void renderBrfItem(const BrfSkeleton& p);
+    void renderBrfItem(const BrfTexture& p);
+    void renderBrfItem(const BrfMaterial& p);
 
 
     // basic rendering of Brf Items & c:
@@ -92,14 +107,18 @@ protected:
     void renderBone(const BrfSkeleton& p, int i, int lvl) const; // recursive
     void renderBodyPart(const BrfBodyPart &b) const;
 
+    void renderTexture(const char* name, bool addExtension = true);
     void renderSphereWire() const;
+    void renderCylWire() const;
     void renderOcta() const;
     void renderFloor();
     
+    void glClearCheckBoard();
     // rendering mode (just changes of openGL status):
     void setShadowMode(bool on) const;
     void setWireframeLightingMode(bool on, bool light, bool text) const;
     void setTextureName(const char* text=NULL);
+    void setMaterialName(const char* text=NULL);
     void initializeGL();
 
     bool skeletalAnimation();
@@ -115,6 +134,7 @@ private:
     float bg_r, bg_g, bg_b; // bgcolor
     QPoint lastPos; // mouse pos
     float phi, theta, dist;
+    float cx, cy, zoom; // for texture display
     QTimer *timer;
 
     bool animating;

@@ -19,10 +19,14 @@ INPUT(
 ./release\plylib.o
 ./release\xmldocumentmanaging.o
 ./release\ioSMD.o
+./release\askSkelDialog.o
+./release\askTexturenameDialog.o
 ./release\moc_mainwindow.o
 ./release\moc_glwidgets.o
 ./release\moc_selector.o
 ./release\moc_tablemodel.o
 ./release\moc_guipanel.o
 ./release\moc_askBoneDialog.o
+./release\moc_askSkelDialog.o
+./release\moc_askTexturenameDialog.o
 );

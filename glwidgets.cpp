@@ -46,6 +46,7 @@ int GLWidget::getRefSkeleton() const{
 
 void GLWidget::setRefSkeleton(int i){
   selRefSkel = i;
+  update();
 }
 
 
@@ -85,6 +86,60 @@ int GLWidget::getFrameNumber() const{
   return selFrameN;
 }
 
+void GLWidget::renderTexture(const char* name, bool addExtension){
+  glDisable(GL_LIGHTING);
+
+  char tname[512];
+  sprintf(tname,"%s%s",name,(addExtension)?".dds":"");
+
+  if (showAlpha==PURPLEALPHA) {
+    glDisable(GL_TEXTURE_2D);
+    glColor3f(1,0,1);
+    glBegin(GL_QUADS);
+    glVertex2f(-1,-1);
+    glVertex2f( 1,-1);
+    glVertex2f( 1, 1);
+    glVertex2f(-1, 1);
+    glEnd();
+  }
+
+  glColor3f(1,1,1);
+  setTextureName(tname);
+  if (showAlpha==TRANSALPHA ){
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  }
+  if (showAlpha==PURPLEALPHA){
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ZERO, GL_SRC_ALPHA);
+  }
+  glDisable(GL_DEPTH_TEST);
+  glBegin(GL_QUADS);
+  glTexCoord2f(0,1);glVertex2f(-1,-1);
+  glTexCoord2f(1,1);glVertex2f( 1,-1);
+  glTexCoord2f(1,0);glVertex2f( 1, 1);
+  glTexCoord2f(0,0);glVertex2f(-1, 1);
+  glEnd();
+
+  glDisable(GL_BLEND);
+  glEnable(GL_DEPTH_TEST);
+
+}
+
+void GLWidget::renderBrfItem (const BrfMaterial& t){
+  switch (curMaterialTexture){
+  default:
+  case DIFFUSEA: renderTexture(t.diffuseA); break;
+  case DIFFUSEB: renderTexture(t.diffuseB); break;
+  case BUMP: renderTexture(t.bump); break;
+  case ENVIRO: renderTexture(t.enviro); break;
+  case SPECULAR: renderTexture(t.spec); break;
+  }
+}
+void GLWidget::renderBrfItem (const BrfTexture& t){
+  renderTexture(t.name,false);
+}
+
 void GLWidget::renderBrfItem (const BrfMesh& p){
   float fi = 0;
   if (p.HasVertexAni()) {
@@ -106,9 +161,9 @@ void GLWidget::renderBrfItem (const BrfMesh& p){
   if (p.isRigged) {
     if (selRefAnimation>=0) {
       a=&(reference->animation[selRefAnimation]);
-      int si = reference->getOneSkeleton( int(a->nbones ) );
+      int si = reference->getOneSkeleton( int(a->nbones ), getRefSkeleton() );
       if (si>=0) s=&(reference->skeleton[si]);
-      selRefSkel = si;
+      //selRefSkel = si;
     }
   }
 
@@ -125,10 +180,11 @@ void GLWidget::renderBrfItem (const BrfBody& p){
 }
 void GLWidget::renderBrfItem (const BrfAnimation& a){
   float fi = floatMod( relTime*runningSpeed , a.frame.size() );
+  //if (runningState==STOP) fi=a.frame.size()-1;
   if (!reference) return;
 
 
-  int si = selRefSkel = reference->getOneSkeleton( int(a.nbones ) );
+  int si = reference->getOneSkeleton( int(a.nbones ), getRefSkeleton() );
   if (si==-1) return ; // no skel, no render
   const BrfSkeleton &s(reference->skeleton[si]);
 
@@ -202,30 +258,32 @@ void GLWidget::setWireframeLightingMode(bool wf, bool light, bool tex) const{
   }
 }
 
-void GLWidget::setTextureName(const char *tn){
 
-    std::string s = (*mapMT)[ tn ];
-    if (s!="") {
-
-      glEnable(GL_TEXTURE_2D);
-      //QGLContext c; c = *context();
-      //c.
-      std::string cazz = std::string(texturePath.toAscii().data()) +"\\"+s+std::string(".dds");
+void GLWidget::setTextureName(const char *s){
+      std::string cazz = std::string(texturePath.toAscii().data()) +"\\"+s;
       const char* textname = cazz.c_str();
-      if (!bindTexture( textname ))
+      if (s=="" || !bindTexture( textname ))
       {
         // small checkboard
-        QImage im(QSize(16,16),QImage::Format_ARGB32);
-        for (int x=0; x<16; x++)
-          for (int y=0; y<16; y++)
+        const int N = 16;
+        QImage im(QSize(N,N),QImage::Format_ARGB32);
+        for (int x=0; x<N; x++)
+          for (int y=0; y<N; y++)
             if ((x+y)%2) im.setPixel(QPoint(x,y),0xFFFFFFFF);
-            else im.setPixel(QPoint(x,y),0xFF8888FF);
+            else im.setPixel(QPoint(x,y),0xFFAAAAFF);
         bindTexture(im);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+      } else {
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
       }
       glEnable(GL_TEXTURE_2D);
-    } else
-    glDisable(GL_TEXTURE_2D);
+}
 
+void GLWidget::setMaterialName(const char *tn){
+    std::string s = (*mapMT)[ tn ];
+    setTextureName((s+".dds").c_str());
 }
 
 // SLOTS
@@ -246,6 +304,16 @@ void GLWidget::setPlay(){
   update();
 }
 void GLWidget::setPause(){
+  runningState=PAUSE;
+  update();
+}
+void GLWidget::setStepon(){
+  relTime=relTime+int(1.0/runningSpeed);
+  runningState=PAUSE;
+  update();
+}
+void GLWidget::setStepback(){
+  relTime=relTime-int(1.0/runningSpeed);
   runningState=PAUSE;
   update();
 }
@@ -293,6 +361,8 @@ GLWidget::GLWidget(QWidget *parent, MapSS* mm)
   selectNone();
   phi=theta=0;
   dist = 5;
+  zoom = 1;
+  cx = cy = 0;
   displaying = NONE;
   timer = new QTimer();
   timer->setInterval(1000/60);
@@ -300,12 +370,14 @@ GLWidget::GLWidget(QWidget *parent, MapSS* mm)
   timer->start();
 
   useTexture=useWireframe=false; useLighting=useFloor=true;
+  curMaterialTexture = DIFFUSEA;
 
   colorMode=1;
   selRefAnimation = -1;
   selRefSkin = -1;
   selFrameN = 0;
   selRefSkel = 0;
+  showAlpha=NOALPHA;
 
   relTime=0;
   runningState = STOP;
@@ -423,7 +495,7 @@ void GLWidget::renderRiggedMesh(const BrfMesh& m,  const BrfSkeleton& s, const B
 
   for (int pass=(useWireframe)?0:1; pass<2; pass++) {
   setWireframeLightingMode(pass==0, useLighting, useTexture);
-  if (useTexture) setTextureName(m.material);
+  if (useTexture) setMaterialName(m.material);
 
   glBegin(GL_TRIANGLES);
   for (unsigned int i=0; i<m.face.size(); i++) {
@@ -458,8 +530,6 @@ void GLWidget::renderMesh(const BrfMesh &m, float frame){
 
   int framei = (int) frame;
 
-
-
   glEnable(GL_COLOR_MATERIAL);
   glColor3f(1,1,1);
   if ((!m.isRigged && colorMode==2)|| colorMode==0) glDisable(GL_COLOR_MATERIAL);
@@ -467,7 +537,7 @@ void GLWidget::renderMesh(const BrfMesh &m, float frame){
 
   for (int pass=(useWireframe)?0:1; pass<2; pass++) {
   setWireframeLightingMode(pass==0, useLighting, useTexture);
-  if (useTexture) setTextureName(m.material);
+  if (useTexture) setMaterialName(m.material);
   glBegin(GL_TRIANGLES);
   for (unsigned int i=0; i<m.face.size(); i++) {
     for (int j=0; j<3; j++) {
@@ -485,6 +555,36 @@ void GLWidget::renderMesh(const BrfMesh &m, float frame){
   glEnd();
   }
   glDisable(GL_TEXTURE_2D);
+}
+
+void GLWidget::renderCylWire() const{
+  glEnable(GL_LIGHTING);
+  const int N = 9;
+  for (int i=0; i<N; i++) {
+    float ci = (float)cos(2.0*i/N*3.1415);
+    float si = (float)sin(2.0*i/N*3.1415);
+    glBegin(GL_LINE_LOOP);
+      glNormal3f( 1, si, ci );
+      glVertex3f( 1, si, ci );
+      glNormal3f( 1, -si, -ci );
+      glVertex3f( 1, -si, -ci );
+      glNormal3f(-1, -si, -ci );
+      glVertex3f(-1, -si, -ci );
+      glNormal3f(-1, si, ci );
+      glVertex3f(-1, si, ci );
+    glEnd();
+  }
+  for (int j=-3; j<=+3; j++) {
+    glBegin(GL_LINE_LOOP);
+    for (int i=0; i<N; i++) {
+      float ci = (float)cos(2.0*i/N*3.1415);
+      float si = (float)sin(2.0*i/N*3.1415);
+      glNormal3f(0,ci,si);
+      glVertex3f( j/3.0f, si, ci );
+    }
+    glEnd();
+  }
+  glDisable(GL_LIGHTING);
 }
 
 void GLWidget::renderSphereWire() const{
@@ -548,12 +648,14 @@ void GLWidget::renderBone(const BrfSkeleton &s, int i, int lvl) const{
   glPushMatrix();
   glTranslate(s.bone[i].t);
   Matrix44f mat = s.bone[i].getRotationMatrix();
-  mat = mat.transpose();
+
   glMultMatrixf((const GLfloat *) mat.V());
   //glMultMatrixf(bone[i].mat);
   glPushMatrix();
     glColor3ub(255-lvl*30,255-lvl*30,255);
-    glScalef(0.04,0.06,0.12);
+    glScalef(BrfSkeleton::BoneSizeX(),BrfSkeleton::BoneSizeY(),BrfSkeleton::BoneSizeZ());
+
+
     renderOcta();
   glPopMatrix();
   for (unsigned int k=0; k<s.bone[i].next.size(); k++){
@@ -568,14 +670,14 @@ void GLWidget::renderBone(const BrfAnimation &a,const BrfSkeleton &s, float fram
   int fi= (int) frame;
   //int fi= (glWidget->frame/100)%(int)frame.size();
   vcg::Matrix44f mat = a.frame[fi].getRotationMatrix(i);
-  mat = mat.transpose();
+
   glPushMatrix();
   glTranslate(s.bone[i].t);
   if (lvl!=0); glMultMatrixf((const GLfloat *) mat.V());
 
   glPushMatrix();
     glColor3ub(255-lvl*30,255-lvl*30,255);
-    glScalef(0.04,0.06,0.12);
+    glScalef(BrfSkeleton::BoneSizeX(),BrfSkeleton::BoneSizeY(),BrfSkeleton::BoneSizeZ());
     renderOcta();
   glPopMatrix();
   for (unsigned int k=0; k<s.bone[i].next.size(); k++){
@@ -631,7 +733,9 @@ void GLWidget::renderAnimation(const BrfAnimation &a, const BrfSkeleton &s, floa
 }
 
 void GLWidget::renderBodyPart(const BrfBodyPart &b) const{
-
+  setWireframeLightingMode(true,false,false);
+  glLineWidth(2.0);
+  glEnable(GL_FOG);
   glDisable(GL_LIGHTING);
   switch(b.type){
     case BrfBodyPart::MANIFOLD: glColor3f(1,1,1); break;
@@ -660,9 +764,11 @@ void GLWidget::renderBodyPart(const BrfBodyPart &b) const{
     glTranslate((b.center+b.dir)/2);
     glMultMatrixf((GLfloat*)b.GetRotMatrix());
     glScalef(1,b.radius,b.radius);
-    renderSphereWire();
+    renderCylWire();
     glPopMatrix();
   }
+  glDisable(GL_FOG);
+  glLineWidth(1.0);
 
 }
 
@@ -673,16 +779,18 @@ void GLWidget::renderBody(const BrfBody& b){
 template<class BrfType>
 void GLWidget::renderSelected(const std::vector<BrfType>& v){
   Box3f bbox;
+  bbox.SetNull();
   int max=v.size();
   if (max>MAXSEL) max=MAXSEL;
 
   for (int i=0; i<max; i++) if (selGroup[i]) {
     bbox.Add( v[i].bbox );
   }
-
-  float s = 5/bbox.Diag();
-  glScalef(s,s,s);
-  glTranslate(-bbox.Center() );
+  if (!bbox.IsNull()) {
+    float s = 5/bbox.Diag();
+    glScalef(s,s,s);
+    glTranslate(-bbox.Center() );
+  }
 
   animating=false;
   for (int i=0; i<max; i++) if (selGroup[i]) {
@@ -698,38 +806,81 @@ int GLWidget::selIndex() const{
   return -1;
 }
 
-
-void GLWidget::paintGL()
-{
-
-  //switch(displaying){
-  //case NONE: glClearColor(0.2f,0.2f,0.2f,1); break;
-  //default:
-  glClearColor(bg_r,bg_g,bg_b,1); //break;
-  //}
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-  if (displaying == NONE) return;
-
-  //int side = qMin(w, h);
-  //glViewport((w - side) / 2, (h - side) / 2, side, side);
-  glViewport(0,0,w,h);
+void GLWidget::glClearCheckBoard(){
+  float K = 0.075;
+  glColor3f(bg_r+K,bg_g+K,bg_b+K);
+  glDisable(GL_LIGHTING);
+  glDisable(GL_TEXTURE_2D);
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  //glOrtho(-1, +1, +1, -1, 4.0, 15.0);
-  gluPerspective(60,float(w)/h,1,20);
+  gluOrtho2D(0,w,0,h);
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
-  glTranslatef(0,0,-dist);
-  glRotatef(theta, 1,0,0);
-  glRotatef(phi, 0,1,0);
+
+  int N =16;
+  glBegin(GL_QUADS);
+  for (int x=0; x<(w+N-1)/N; x++)
+  for (int y=0; y<(h+N-1)/N; y++) {
+    if ((x+y)&1){
+    glVertex2i(x*N+N,y*N+N);
+    glVertex2i(x*N,  y*N+N);
+    glVertex2i(x*N,  y*N);
+    glVertex2i(x*N+N,y*N);
+    }
+  }
+  glEnd();
+
+}
+
+void GLWidget::paintGL()
+{
+  glViewport(0,0,w,h);
+
+  glClearColor(bg_r,bg_g,bg_b,1);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  if ((displaying==TEXTURE || displaying==MATERIAL) && showAlpha==TRANSALPHA) {
+    glClearCheckBoard();
+  }
+
+  if (displaying == NONE) return;
+
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  float wh = float(w)/h;
+  if (displaying==TEXTURE || displaying==MATERIAL) {
+    if (w<h)
+      gluOrtho2D(-1,+1,-1/wh,+1/wh);
+    else
+      gluOrtho2D(-wh,+wh,-1,+1);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glScalef(zoom, zoom, zoom);
+    float x=cx,y=cy;
+    float lim = 1-1/zoom;
+    if (x<-lim) x=-lim;
+    if (x>+lim) x=lim;
+    if (y<-lim) y=-lim;
+    if (y>+lim) y=lim;
+    glTranslatef( x,-y,0);
+  } else {
+    gluPerspective(60,wh,1,20);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glTranslatef(0,0,-dist);
+    glRotatef(theta, 1,0,0);
+    glRotatef(phi, 0,1,0);
+
+    glScalef(-1,1,1);
+    //glFrontFace(GL_CW);
+  }
   //glRotatef(180, 0,0,1);
   //glRotatef(90, 1,0,0);
   glEnable(GL_LIGHTING);
   glEnable(GL_LIGHT0);
   glEnable(GL_NORMALIZE);
-  glFrontFace(GL_CW);
+
 
   if (data) {
 
@@ -737,8 +888,11 @@ void GLWidget::paintGL()
     if (displaying == MESH ) renderSelected(data->mesh);
     if (displaying == SKELETON ) renderSelected(data->skeleton);
     if (displaying == ANIMATION )  renderSelected(data->animation);
+    if (displaying == TEXTURE )  renderSelected(data->texture);
+    if (displaying == MATERIAL )  renderSelected(data->material);
 
-    if (useFloor || displaying == ANIMATION || displaying == SKELETON )
+    if ((useFloor &&  (displaying == MESH || displaying == BODY) )
+         || displaying == ANIMATION || displaying == SKELETON )
       renderFloor();
   }
 
@@ -758,22 +912,43 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
 void GLWidget::wheelEvent(QWheelEvent *event)
 {
   if (event->delta()>0) {
-    dist*=1.1;
+    if (displaying==TEXTURE || displaying==MATERIAL) zoom*=1.2; else dist*=1.1;
   } else {
-    dist/=1.1;
+    if (displaying==TEXTURE || displaying==MATERIAL) zoom/=1.2; else dist/=1.1;
   }
+  if (zoom<1.0) zoom = 1.0;
+
   update();
 }
+
+void GLWidget::showMaterialDiffuseA(){curMaterialTexture = DIFFUSEA; update();}
+void GLWidget::showMaterialDiffuseB(){curMaterialTexture = DIFFUSEB;update();}
+void GLWidget::showMaterialBump(){curMaterialTexture = BUMP;update();}
+void GLWidget::showMaterialEnviro(){curMaterialTexture = ENVIRO;update();}
+void GLWidget::showMaterialSpecular(){curMaterialTexture = SPECULAR;update();}
+
+void GLWidget::showAlphaTransparent(){ showAlpha = TRANSALPHA; update();}
+void GLWidget::showAlphaPurple(){ showAlpha = PURPLEALPHA; update();}
+void GLWidget::showAlphaNo(){showAlpha = NOALPHA; update();}
 
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
     int dx = event->x() - lastPos.x();
     int dy = event->y() - lastPos.y();
 
-    phi += dx*2.0;
-    theta += dy*1.0;
-    if (theta>90) theta=90;
-    if (theta<-90) theta=-90;
+    if (displaying==TEXTURE || displaying==MATERIAL) {
+      cx += 1/zoom*dx*0.01;
+      cy += 1/zoom*dy*0.01;
+      if (cx<-1.0) cx=-1.0;
+      if (cx>1.0) cx=1.0;
+      if (cy<-1.0) cy=-1.0;
+      if (cy>1.0) cy=1.0;
+    } else {
+      phi += dx*2.0;
+      theta += dy*1.0;
+      if (theta>90) theta=90;
+      if (theta<-90) theta=-90;
+    }
     lastPos = event->pos();
     this->update();
 }

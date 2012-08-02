@@ -49,7 +49,7 @@ public:
   int GetFirstUnusedLetter() const; // return first unused alphabet letter in meshes
   BrfMesh GetCompleteSkin(int i) const; // returns a mesh composed of all skin pieces
 
-  int getOneSkeleton(int nbones);
+  int getOneSkeleton(int nbones, int after);
 private:
   //template<class BrfType> bool LoadAll(FILE *f, vector<BrfType> &v, int k);
   template<class BrfType> void SaveAll(FILE *f, const vector<BrfType> &v) const;

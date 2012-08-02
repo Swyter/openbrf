@@ -120,6 +120,14 @@ public:
   Point3f V(Point3f p) {
     return x*p[0] + y*p[1] + z*p[2];
   }
+  BrfBone B(BrfBone b){
+    BrfBone res = b;
+    res.t = P(b.t);
+    res.x = V(b.x);
+    res.y = V(b.y);
+    res.z = V(b.z);
+    return res;
+  }
   CoordSyst operator *(const CoordSyst &b){
     return CoordSyst( P(b.base), V(b.x), V(b.y), V(b.z));
   }
@@ -150,12 +158,79 @@ public:
 };
 
 
-void makeCoordSyst(const BrfSkeleton &s, int bi, vector<CoordSyst> &cs, CoordSyst c0){
+void makeCoordSyst(const BrfSkeleton &s, int bi,  vector<CoordSyst> &cs, CoordSyst c0){
   c0= c0*CoordSyst(s.bone[bi].t, s.bone[bi].x,s.bone[bi].y,s.bone[bi].z);
   cs[bi]=c0;
   for (unsigned int k=0; k<s.bone[bi].next.size(); k++){
     makeCoordSyst(s,s.bone[bi].next[k],cs,c0);
   }
+}
+
+void applyInverseCoordSyst(BrfSkeleton &s, int bi,  CoordSyst c0){
+  s.bone[bi] = c0.Inverse().B( s.bone[bi] );
+  c0= c0*CoordSyst(s.bone[bi].t, s.bone[bi].x,s.bone[bi].y,s.bone[bi].z);
+
+
+  for (unsigned int k=0; k<s.bone[bi].next.size(); k++){
+    applyInverseCoordSyst(s,s.bone[bi].next[k],c0);
+  }
+}
+
+bool VcgMesh::modifyBrfSkeleton(BrfSkeleton &s){
+  int bn = (int)s.bone.size();
+  if (mesh.fn!=bn*8) return false;
+  if (mesh.vn!=bn*6) return false;
+  Point3f undef(666,666,666);
+  vector<Point3f> v(6, undef);
+  if (mustUseWT()) {
+    for (CMesh::FaceIterator f = mesh.face.begin(); f!=mesh.face.end(); f++) {
+      f->V(0)->T() = f->WT(0);
+      f->V(1)->T() = f->WT(1);
+      f->V(2)->T() = f->WT(2);
+    }
+  }
+  vector< vector<Point3f> > data (s.bone.size(), v);
+  for (CMesh::VertexIterator v = mesh.vert.begin(); v!=mesh.vert.end(); v++) {
+    int bi = (int)v->T().P()[0]; // bone index
+    int vi = (int)v->T().P()[1];
+    if (bi<0 || bi>=bn) {
+      return false;
+    }
+    if (vi<0 || vi>=6) {
+      return false;
+    }
+    if (data[bi][vi]!=undef) {
+      return false;
+    }
+    data[bi][vi]=v->P();
+  }
+
+  for (int bi=0; bi<bn; bi++) {
+    BrfBone b = s.bone[bi];
+    b.t=Point3f(0,0,0);
+    for (int i=0; i<6; i++) {
+      b.t += data[bi][i];
+    }
+    b.t/=6;
+    float
+      X=BrfSkeleton::BoneSizeX(),
+      Y=BrfSkeleton::BoneSizeY(),
+      Z=BrfSkeleton::BoneSizeZ();
+    b.x = (data[bi][0]-data[bi][3])/(X*2);
+    b.y = (data[bi][1]-data[bi][4])/(Y*2);
+    b.z = (data[bi][2]-data[bi][5])/(Z*2);
+    s.bone[bi] = b;
+  }
+
+  CoordSyst c0;
+  c0.base=Point3f(0,0,0);
+  c0.x   =Point3f(1,0,0);
+  c0.y   =Point3f(0,1,0);
+  c0.z   =Point3f(0,0,1);
+
+
+  applyInverseCoordSyst(s, s.root, c0);
+  return true;
 }
 
 // save a skeleton as a mesh
@@ -186,7 +261,10 @@ void VcgMesh::add(const BrfSkeleton &s){
       int a=mesh.face[i*8+h].V(w)-&(mesh.vert[0]);
       mesh.face[i*8+h].WT(w).P() = Point2f(i,a); // encode node id in pos
     }*/
-    float X=0.04,Y=0.06,Z=0.12;
+    float
+      X=BrfSkeleton::BoneSizeX(),
+      Y=BrfSkeleton::BoneSizeY(),
+      Z=BrfSkeleton::BoneSizeZ();
     mesh.vert[i*6+0].P()=cs[ i ].P( Point3f(X,0,0) );
     mesh.vert[i*6+1].P()=cs[ i ].P( Point3f(0,Y,0) );
     mesh.vert[i*6+2].P()=cs[ i ].P( Point3f(0,0,Z) );
@@ -201,8 +279,13 @@ void VcgMesh::add(const BrfSkeleton &s){
     mesh.vert[i*6+4].N()=cs[ i ].V(-Point3f(0,1,0) );
     mesh.vert[i*6+5].N()=cs[ i ].V(-Point3f(0,0,1) );
 
-    for (int v=0; v<6; v++)
+    for (int v=0; v<6; v++) {
       mesh.vert[i*6+v].T().P()=Point2f(i,v);
+    }
+    for (int f=0; f<8; f++)
+    for (int w=0; w<3; w++) {
+      mesh.face[i*8+f].WT(w) = mesh.face[i*8+f].V(w)->T();
+    }
 
   }
 }
@@ -303,7 +386,6 @@ BrfMesh VcgMesh::toBrfMesh(){
   b.isRigged = false;
   b.flags=0;
   if (!gotNormals()); b.ComputeNormals();
-  b.UnifyPos();
   b.AfterLoad();
   return b;
 }

@@ -31,9 +31,17 @@ public:
   unsigned int flags; // for faces, capsules, spheres only
 
   Box3f bbox;
+  const char* name() const;
 
   float* GetRotMatrix() const; // rotation matrix for capsules
+
+  bool ExportOBJ(FILE *f, int i, int &vc) const;
+  bool ImportOBJ(FILE *f);
+
+  void GuessFromManyfold(); // guess sphere, ect parameter from manufold data
+
 private:
+  Point3f Baricenter() const;
   void UpdateBBox();
 };
 
@@ -52,6 +60,9 @@ public:
   bool IsAnimable() const{return false;}
 
   Box3f bbox;
+
+  bool ExportOBJ(char *fn) const;
+  bool ImportOBJ(char *fn);
 private:
   void UpdateBBox();
 };

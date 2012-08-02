@@ -1,5 +1,6 @@
 #ifndef BRFMATERIAL_H
 #define BRFMATERIAL_H
+#include "vcg\space\box3.h"
 
 #include "brfToken.h"
 
@@ -16,11 +17,14 @@ public:
   char bump[255];
   char enviro[255];
   char spec[255];
-  unsigned int specular;
+  float specular;
   float r,g,b;
 
   bool Load(FILE*f,int verbose=1);
   void Save(FILE*f) const;
+  void SetDefault();
+  static bool IsAnimable() { return false; }
+  static Box3f bbox;
 };
 
 #endif // BRFMATERIAL_H

@@ -10,8 +10,20 @@ using namespace vcg;
 
 BrfMaterial::BrfMaterial()
 {
+  bbox.SetNull();
 }
 
+void BrfMaterial::SetDefault(){
+  flags = 0;
+  sprintf(shader,"simple_shader");
+  sprintf(diffuseA,name);
+  sprintf(diffuseB,"none");
+  sprintf(bump,"none");
+  sprintf(enviro,"none");
+  sprintf(spec,"none");
+  specular = 0;
+  r=g=b=1;
+}
 
 bool BrfMaterial::Load(FILE*f, int verbose){
   LoadString(f, name);
@@ -22,8 +34,8 @@ bool BrfMaterial::Load(FILE*f, int verbose){
   LoadString(f, diffuseB);
   LoadString(f, bump);
   LoadString(f, enviro);
-  LoadString(f, spec);
-  LoadUint(f,specular);
+  LoadStringMaybe(f, spec,"none");
+  LoadFloat(f,specular);
   LoadFloat(f,r);
   LoadFloat(f,g);
   LoadFloat(f,b);
@@ -38,9 +50,11 @@ void BrfMaterial::Save(FILE*f) const{
   SaveString(f, diffuseB);
   SaveString(f, bump);
   SaveString(f, enviro);
-  SaveString(f, spec);
-  SaveUint(f,specular);
+  SaveStringNotempty(f, spec, "none");
+  SaveFloat(f,specular);
   SaveFloat(f,r);
   SaveFloat(f,g);
   SaveFloat(f,b);
 }
+
+vcg::Box3f BrfMaterial::bbox;

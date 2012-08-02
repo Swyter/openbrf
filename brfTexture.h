@@ -13,7 +13,10 @@ public:
   unsigned int flags;
   bool Load(FILE*f,int verbose=1);
   void Save(FILE*f) const;
+  static bool IsAnimable() { return false; }
+  static Box3f bbox;
 
+  void SetDefault();
 };
 
 #endif // BRFTEXTURE_H

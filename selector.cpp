@@ -47,8 +47,11 @@ Selector::Selector(QWidget *parent)
   moveDownAct->setShortcut(QString("Alt+down"));
   addAction(moveDownAct);
 
-  addToRefAniAct = new QAction(tr("Add to reference animations"), this);
-  addToRefAniAct->setStatusTip(tr("Add this animation to reference animations (which OpenBrf can use while showing rigged meshes)."));
+  addToRefAnimAct = new QAction(tr("Add to reference animations"), this);
+  addToRefAnimAct->setStatusTip(tr("Add this animation to reference animations (which OpenBrf can use to display rigged meshes)."));
+
+  addToRefSkelAct = new QAction(tr("Add to reference skeletons"), this);
+  addToRefSkelAct->setStatusTip(tr("Add this animation to reference skeletons."));
 
   for (int i=0; i<10; i++) {
     this->addToRefMeshAct[i]= new QAction(tr("set %1").arg(char('A'+i)), this);
@@ -67,6 +70,8 @@ Selector::Selector(QWidget *parent)
   connect(addToRefMeshAct[9], SIGNAL(triggered()), this, SLOT(addToRefMeshJ()));
   connect(this, SIGNAL(addToRefMesh(int)), parent, SLOT(addToRefMesh(int)));
 
+  exportBodyAct = new QAction(tr("Export"), this);
+
   exportImportMeshInfoAct = new QAction(tr("Info on mesh import/export"), this);
 
   exportStaticMeshAct = new QAction(tr("Export static mesh"), this);
@@ -78,7 +83,6 @@ Selector::Selector(QWidget *parent)
   exportRiggedMeshAct = new QAction(tr("Export rigged mesh"), this);
   exportRiggedMeshAct->setStatusTip(tr("Export this model (or this frame) as a rigged mesh."));
 
-  exportSkeletonModAct = new QAction(tr("Export skeletal-modification-mesh"), this);
   exportSkeletonAct = new QAction(tr("Export (nude) skeleton"), this);
   exportSkeletonAct ->setStatusTip(tr("Export this skeleton (as a set of nude bones)."));
   exportSkinAct = new QAction(tr("Export skeleton with skin"), this);
@@ -89,22 +93,23 @@ Selector::Selector(QWidget *parent)
   exportAnimationAct = new QAction(tr("Export animation"), this);
   exportAnimationAct->setStatusTip(tr("Export this animation."));
 
+  reskeletonizeAct = new QAction(tr("Reskeletonize"), this);
+  reskeletonizeAct->setStatusTip(tr("Adapt this rigged mesh to a new skeleton"));
+
+  meshRecomputeNormalsAndUnify = new QAction(tr("Recompute normals"), this);
+  meshRecomputeNormalsAndUnify->setStatusTip(tr("Recompute normals for this model, and unify pos and vertices"));
+
+
   //exportAnyBrfAct = new QAction(tr("in a BRF"), this);
   //exportAnyBrfAct->setStatusTip(tr("Export this object in a BRF file."));
 
-  //importAnyBrfAct = new QAction(tr("from a BRF"), this);
-  importStaticMeshAct = new QAction(tr("a static mesh"), this);
-  importRiggedMeshAct = new QAction(tr("a rigged mesh"), this);
-  importMovingMeshAct = new QAction(tr("a vertex-animated mesh"), this);
-
-  importSkeletonModAct = new QAction(tr("Modify with a skeletal-modification-mesh"), this);
-  importSkeletonAct = new QAction(tr("Import skeleton"), this);
-  importAnimationAct = new QAction(tr("Import animation"), this);
-
-
+  exportSkeletonModAct = new QAction(tr("Make a skeleton-modification mesh"), this);
+  importSkeletonModAct = new QAction(tr("Modify from a skeleton-modification mesh"), this);
 
   connect(breakAniAct, SIGNAL(triggered()),this,SLOT(onBreakAni()));
   connect(breakAniWithIniAct, SIGNAL(triggered()),this,SLOT(onBreakAniWithIni()));
+  connect(meshRecomputeNormalsAndUnify,  SIGNAL(triggered()),parent,SLOT(meshRecomputeNormalsAndUnify()));
+
 
   //connect(exportAnyBrfAct, SIGNAL(triggered()),parent,SLOT(exportBrf()));
   connect(exportStaticMeshAct, SIGNAL(triggered()),parent,SLOT(exportStaticMesh()));
@@ -113,17 +118,13 @@ Selector::Selector(QWidget *parent)
   connect(exportSkeletonModAct, SIGNAL(triggered()),parent,SLOT(exportSkeletonMod()));
   connect(exportSkeletonAct, SIGNAL(triggered()),parent,SLOT(exportSkeleton()));
   connect(exportAnimationAct, SIGNAL(triggered()),parent,SLOT(exportAnimation()));
+  connect(reskeletonizeAct, SIGNAL(triggered()),parent,SLOT(reskeletonize()));
+  connect(exportBodyAct, SIGNAL(triggered()), parent, SLOT(exportCollisionBody()));
 
   connect(exportSkinAct, SIGNAL(triggered()), parent, SLOT(exportSkeletonAndSkin()));
   connect(exportSkinForAnimationAct, SIGNAL(triggered()), parent, SLOT(exportSkeletonAndSkin()));
 
-  connect(importStaticMeshAct, SIGNAL(triggered()),parent,SLOT(importStaticMesh()));
-  connect(importRiggedMeshAct, SIGNAL(triggered()),parent,SLOT(importRiggedMesh()));
-  connect(importMovingMeshAct, SIGNAL(triggered()),parent,SLOT(importMovingMesh()));
-  //connect(importAnyBrfAct, SIGNAL(triggered()),parent,SLOT(importBrf()));
   connect(importSkeletonModAct, SIGNAL(triggered()),parent,SLOT(importSkeletonMod()));
-  connect(importSkeletonAct, SIGNAL(triggered()),parent,SLOT(importSkeleton()));
-  connect(importAnimationAct, SIGNAL(triggered()),parent,SLOT(importAnimation()));
 
   connect(moveUpAct, SIGNAL(triggered()), parent, SLOT(moveUpSel()));
   connect(moveDownAct, SIGNAL(triggered()), parent, SLOT(moveDownSel()));
@@ -133,8 +134,28 @@ Selector::Selector(QWidget *parent)
   connect(renameAct, SIGNAL(triggered()), parent, SLOT(renameSel()));
 
 
-  connect(addToRefAniAct, SIGNAL(triggered()), parent, SLOT(addToRef()));
+  connect(addToRefAnimAct, SIGNAL(triggered()), parent, SLOT(addToRef()));
+  connect(addToRefSkelAct, SIGNAL(triggered()), parent, SLOT(addToRef()));
   this->setMinimumWidth(200);
+
+  // prepare all tabs (w/o attaching them for now)
+  for (int ti=0; ti<N_TOKEN; ti++) {
+
+    tab[ti] =// new QListWidget;
+    new QListView;
+
+    tableModel[ti] = new TableModel(this);
+
+    tab[ti]->setModel(tableModel[ti]);
+
+    if (ti==MESH) tab[ti]->setSelectionMode(QAbstractItemView::ExtendedSelection);
+
+    connect(tab[ti]->selectionModel(),
+          SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
+          this, SLOT(onChanged()) );
+
+  }
+
 
 }
 
@@ -173,20 +194,23 @@ void Selector::updateData(const BrfData &data){
 
   QListView* c;
   QModelIndexList li;
-  TokenEnum w=TokenEnum(this->currentTabName());
+
   //int i=this->currentIndex();
   c=(QListView*)this->currentWidget();
   if (c) li=c->selectionModel()->selectedIndexes();
 
+  TokenEnum w=TokenEnum(this->currentTabName());
   setup(data);
+
 
   if (w==NONE) return;
   if (tab[w]) setCurrentWidget(tab[w]);
+  return;
   c=(QListView*)this->currentWidget();
   if (c) {
-    c->clearSelection();
-    for (int i=0; i<li.size(); i++)
-    c->selectionModel()->select(li[i],QItemSelectionModel::Select);
+    //c->clearSelection();
+    //for (int i=0; i<li.size(); i++)
+    //c->selectionModel()->select(li[i],QItemSelectionModel::Select);
     c->setFocus();
   }
 
@@ -216,9 +240,6 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
 
    QMenu menu(this);
 
-   if (!this->currentWidget()) {
-     return;
-   }
    if (!this->currentWidget()) { event->ignore(); return; }
 
    QModelIndexList sel=
@@ -257,34 +278,38 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
 
      if (t==SKELETON) {
        menu.addAction(exportSkeletonAct);
-       menu.addAction(exportSkeletonModAct);
        menu.addAction(exportSkinAct);
+       menu.addSeparator();
+       menu.addAction(exportSkeletonModAct);
+       menu.addAction(importSkeletonModAct);
      }
      if (t==ANIMATION){
        menu.addAction(exportAnimationAct);
        menu.addAction(exportSkinForAnimationAct);
      }
+     if (t==BODY) {
+       menu.addAction(exportBodyAct);
+     }
    }
-   if (onesel || nosel) {
 
-
-     if (t==MESH) {
-       QMenu* importMenu=menu.addMenu("Import");
-       importMenu->addAction(importStaticMeshAct);
-       importMenu->addAction(importRiggedMeshAct);
-       importMenu->addAction(importMovingMeshAct);
+   // tool section
+   bool sep = false;
+   if (t==MESH) {
+     if (data->mesh[ seli ].isRigged) {
+       if (!sep) menu.addSeparator(); sep=true;
+       menu.addAction(reskeletonizeAct);
      }
-     if (t==ANIMATION) {
-       menu.addAction(importAnimationAct);
-     }
+     menu.addAction(meshRecomputeNormalsAndUnify);
+   }
+   if (t==ANIMATION) {
      if (onesel) {
-       if (t==SKELETON) menu.addAction(importSkeletonModAct);
+       if (!sep) menu.addSeparator(); sep=true;
+       menu.addAction(breakAniAct);
+       menu.addAction(breakAniWithIniAct);
      }
-     if (t==SKELETON) menu.addAction(importSkeletonAct);
-
-
    }
 
+   // add to reference
    if (onesel && t==MESH) {
      menu.addSeparator();
      QMenu* refMenu=menu.addMenu("Add to reference skins");
@@ -300,16 +325,15 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
    }
    if (onesel && t==ANIMATION) {
      menu.addSeparator();
-     menu.addAction(addToRefAniAct);
+     menu.addAction(addToRefAnimAct);
+   }
+   if (onesel && t==ANIMATION) {
+     menu.addSeparator();
+     menu.addAction(addToRefSkelAct);
    }
 
 
-   if (t==ANIMATION)
-     if (onesel) {
-       menu.addSeparator();
-       menu.addAction(breakAniAct);
-       menu.addAction(breakAniWithIniAct);
-     }
+
 
    //menu.addAction(moveUp);
    //menu.addAction(moveDown);
@@ -326,41 +350,52 @@ void Selector::addBrfTab(const vector<BrfType>  &v){
 
   int ti = BrfType::tokenIndex();
 
+  tableModel[ti]->clear();
   if (v.size()!=0) {
-    TableModel *tableModel = new TableModel(this);
+
     for (unsigned int k=0; k<v.size(); k++) {
-      tableModel->vec.push_back( QString( v[k].name ) );
+      tableModel[ti]->vec.push_back( QString( v[k].name ) );
     }
+    //tab[ti]->setModel(tableModel[ti]);
 
-    if (tab[ti]) {
-      delete tab[ti]; tab[ti]=NULL;
-    }
-    tab[ti] =// new QListWidget;
-    new QListView;
+    tableModel[ti]->updateChanges();
 
-    tab[ti]->setModel(tableModel);
+    tab[ti]->viewport()->update();
 
-
-    if (ti==MESH) tab[ti]->setSelectionMode(QAbstractItemView::ExtendedSelection);
-
-    connect(tab[ti]->selectionModel(),
-          SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
-          this, SLOT(onChanged()) );
-
-    if (v.size()>0) tab[ti]->selectionModel()->select(
-        tableModel->pleaseCreateIndex(0,0), QItemSelectionModel::Select
+    if (tab[ti]->selectionModel()->selectedIndexes().size()==0)
+    tab[ti]->selectionModel()->select(
+        tableModel[ti]->pleaseCreateIndex(0,0),
+        QItemSelectionModel::Select
     );
 
-    //tabIndex[ti]=
-    addTab(tab[ti], tr("%1 (%2)")
-           .arg( tokenTabName[ti] )
-           .arg(v.size())
-           );
+
   } else {
-    //if (tabIndex[ti]>=0)
-    //this->removeTab(tabIndex[ti]);
   }
 
+}
+
+void Selector::hideEmpty(){
+
+  int n=0;
+  for (int i=0; i<N_TOKEN; i++){
+    if (tableModel[i]->size()) n++;
+  }
+
+  for (int i=0; i<N_TOKEN; i++) {
+    int v = tableModel[i]->size();
+    if (v==0) {
+      int j = indexOf( tab[i] );
+      if (j>=0) this->removeTab(  j );
+    } else {
+      QString title(tokenTabName[i]);
+      if (n>3) title.truncate(3);
+      else if (n>2) title.truncate(4);
+      if (n>3)
+        title = QString("%1%2").arg( title ).arg(v);
+      else title = QString("%1(%2)").arg( title ).arg(v);
+      addTab(tab[i], title);
+    }
+  }
 }
 
 void Selector::onBreakAniWithIni(){
@@ -387,15 +422,17 @@ void Selector::onChanged(){
       return;
     }
   }
+
+
   emit setSelection(empty , NONE );
 
 }
 
 
 
+
 void Selector::setup(const BrfData &_data){
 
-  this->clear();
 
   addBrfTab<BrfMesh> (_data.mesh);
   addBrfTab<BrfShader> (_data.shader);
@@ -405,6 +442,9 @@ void Selector::setup(const BrfData &_data){
   addBrfTab<BrfAnimation> (_data.animation);
   addBrfTab<BrfBody> (_data.body);
   data = &_data;
+
+  hideEmpty();
+  onChanged();
 
   //static QModelIndexList *empty = new QModelIndexList();
   //emit setSelection(*empty , NONE );

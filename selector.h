@@ -7,6 +7,7 @@
 
 class BrfData;
 class QListView;
+class TableModel;
 
 class Selector : public QTabWidget
 {
@@ -44,12 +45,18 @@ signals:
   void breakAni(int i, bool useIni);
 
 private:
+  void hideEmpty();
   template<class BrfType> void addBrfTab(const std::vector<BrfType> &x);
   QListView * tab[N_TOKEN];
+  TableModel * tableModel[N_TOKEN];
   void contextMenuEvent(QContextMenuEvent *event);
   QAction
+
+     // tools
     *breakAniAct,
     *breakAniWithIniAct,
+    *meshRecomputeNormalsAndUnify,
+
     *renameAct,
     *removeAct,
     *moveUpAct,
@@ -66,16 +73,15 @@ private:
     *exportSkinAct,
     *exportSkinForAnimationAct,
     *exportAnimationAct,
+    *exportBodyAct,
+
+    *reskeletonizeAct,
 
     // importer acts
-    *importStaticMeshAct,
-    *importRiggedMeshAct,
-    *importMovingMeshAct,
     *importSkeletonModAct,
-    *importSkeletonAct,
-    *importAnimationAct,
 
-    *addToRefAniAct,
+    *addToRefSkelAct,
+    *addToRefAnimAct,
     *addToRefMeshAct[10];
 ;
 };

@@ -14,6 +14,11 @@ void SaveString(FILE *f, const char *st){
   fwrite(st, 1, x, f);
 }
 
+void SaveStringNotempty(FILE *f, const char *st, const char *ifnot){
+  if (st[0]==0) SaveString(f,ifnot);
+  else SaveString(f,st);
+}
+
 void SaveInt(FILE *f, int x){
   fwrite(&x, 4, 1,  f);
 }
@@ -38,10 +43,10 @@ void SavePoint(FILE *f, vcg::Point2f p) {
 }
 
 void SavePoint(FILE *f, vcg::Point4f p) {
-  SaveFloat(f,  p.X() );
   SaveFloat(f,  p.Y() );
-  SaveFloat(f,  p.Z() );
   SaveFloat(f,  p.W() );
+  SaveFloat(f,  p.Z() );
+  SaveFloat(f,  p.X() );
 }
 
 
@@ -56,9 +61,23 @@ void SaveVector(FILE *f,const std::vector<Point3f> &v){
 }
 
 
+bool LoadStringMaybe(FILE *f, char *st, const char *ifnot){
+  unsigned int x;
+  fread(&x, 4, 1,  f);
+  if (x<50 && x>0) {
+    fread(st, 1, x, f);
+    st[x]=0;
+    return true;
+  } else {
+    fseek(f,-4,SEEK_CUR);
+    sprintf(st,ifnot);
+    return false;
+  }
+
+}
 
 void LoadString(FILE *f, char *st){
-  int x;
+  unsigned int x;
   fread(&x, 4, 1,  f);
   assert(x<256);
 
@@ -91,10 +110,10 @@ void LoadPoint(FILE *f, vcg::Point3f &p){
 }
 
 void LoadPoint(FILE *f, vcg::Point4f &p){
-  LoadFloat(f,  p.X() );
   LoadFloat(f,  p.Y() );
-  LoadFloat(f,  p.Z() );
   LoadFloat(f,  p.W() );
+  LoadFloat(f,  p.Z() );
+  LoadFloat(f,  p.X() );
 }
 
 

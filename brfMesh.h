@@ -8,6 +8,8 @@ namespace vcg {
 template <class T> class Matrix44;
 }
 
+class BrfSkeleton;
+
 class BrfVert{
 public:
   BrfVert();
@@ -49,6 +51,9 @@ public:
   void SetColorGl() const;
   bool operator < (const BrfRigging &b) const;
   bool operator == (const BrfRigging &b) const;
+  int FirstEmpty() const;
+  int LeastIndex() const; // index with the smallest weight
+  void Normalize();
 };
 
 class BrfFrame{
@@ -86,9 +91,12 @@ public:
 
   void DiminishAni(float t);
   void DiminishAniSelected(float t);
+
+  void Reskeletonize(const BrfSkeleton& from, const BrfSkeleton& to);
+
   BrfMesh(){}
   BrfMesh(FILE *f, int verbose=1){ Load(f,verbose);}
-  int flags;
+  unsigned int flags;
   
   char name[255];
   char material[255];
@@ -133,16 +141,16 @@ public:
   bool IsAnimable() const;
   void ComputeNormals();
   void UnifyPos();
-  void UnifyVert();
+  void UnifyVert(bool careForNormals);
   void AfterLoad();
   bool hasVertexColor;
 
   void Merge(const BrfMesh &brf);
+  void AddFrame(const BrfMesh &brf);
 private:
   void CopyTimesFrom(const BrfMesh &brf);
   void Average(const BrfMesh &brf);
   void MergeMirror(const BrfMesh &brf);
-  void AddFrame(const BrfMesh &brf);
   
   void CollapseBetweenFrames(int fi, int fj);
   void DuplicateFrames(const BrfMesh &brf);

@@ -18,7 +18,7 @@ public:
   static bool save(char* filename);
   static bool load(char* filename);
   static BrfMesh toBrfMesh();
-  static void modifyBrfSkeleton(BrfSkeleton &s);
+  static bool modifyBrfSkeleton(BrfSkeleton &s);
 
   static bool gotColor();
   static bool gotTexture();
