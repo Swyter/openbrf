@@ -187,6 +187,98 @@ void BrfFrame2TmpBone(const vector<BrfAnimationFrame> &vf,
   }
 }
 
+int BrfAnimation::FirstIndex() const{
+  if (frame.size()==0) return 0;
+  return frame[0].index;
+}
+int BrfAnimation::LastIndex() const{
+  if (frame.size()==0) return 0;
+  return frame[ frame.size()-1 ].index;
+}
+
+int BrfAnimation::Break(vector<BrfAnimation> &vect, char* fn) const{
+
+  int res=0;
+  FILE *fin=fopen(fn,"rt");
+  char fn2[1024];
+  sprintf(fn2,"%s [after splitting %s].txt",fn,name);
+  FILE *fout=fopen(fn2,"wt");
+  if (!fin) return -1;
+  if (!fout) return -2;
+  int n=0;
+  fscanf(fin,"%d ",&n);
+  fprintf(fout,"%d \n",n);
+
+  char aniName[255];
+  char aniSubName[255];
+  unsigned int v00;
+  int nparts;
+  float speed;
+
+  BrfAnimation ani;
+  ani.flags=flags;
+  ani.nbones=nbones;
+
+  char oldst[2048];
+  for (int i=0; i<n; i++){
+    fscanf(fin," %s %u %d \n",aniName, &v00, &nparts);
+    sprintf(oldst," %s %u  %d\n",aniName, v00, nparts);
+    int v0; float v1, v2, v3, v4;
+    int ia, ib; unsigned int flags;
+    int cumulated = 0;
+    for (int j=0; j<nparts; j++) {
+      fscanf(fin,"  %f %s %d %d %u %d %f %f %f %f \n", &speed, aniSubName, &ia, &ib ,  &flags, &v0, &v1,&v2,&v3,&v4);
+      sprintf(oldst,"%s  %f %s %d %d %u %d %f %f %f %f \n", oldst, speed, aniSubName, ia, ib ,  flags, v0, v1,v2,v3,v4);
+      if (!strcmp(aniSubName,name) && (ia!=0 || ib!=1) ) {
+        for (unsigned int h=0; h<frame.size(); h++) {
+          if (frame[h].index>=ia && frame[h].index<=ib) {
+            ani.frame.push_back(frame[h]);
+            ani.frame[ ani.frame.size()-1 ].index += -ia + cumulated;
+            cumulated+=ib-ia+1;
+          }
+        }
+      }
+    }
+    if (ani.frame.size()) {
+      sprintf(ani.name, "%s_%s",name, aniName);
+      vect.push_back(ani);
+      fprintf(fout," %s %u  1 \n",aniName, v00);
+      fprintf(fout,"  %f %s %d %d %u %d %f %f %f %f \n", speed, ani.name,
+              ani.FirstIndex(),ani.LastIndex(),  flags, v0, v1,v2,v3,v4);
+
+      ani.frame.clear();
+      res++;
+    } else {
+      fprintf(fout,oldst);
+    }
+  }
+  fclose(fin);
+  fclose(fout);
+  return res;
+}
+int BrfAnimation::Break(vector<BrfAnimation> &vect) const{
+  int res=0;
+  BrfAnimation ani;
+  ani.flags=flags;
+  ani.nbones=nbones;
+  int start=-1;
+  for (unsigned int i=0; i<frame.size(); i++) {
+
+    if (start==-1) start = frame[i].index;
+
+    if (( i>0) && (frame[i].index>frame[i-1].index+11)) {
+      res++;
+      sprintf(ani.name,"%s_%d_%d",name, start, frame[i-1].index);
+      vect.push_back(ani);
+      ani.frame.clear();
+      start = frame[i].index;
+    }
+
+    ani.frame.push_back(frame[i]);
+    ani.frame[ ani.frame.size()-1 ].index -=start;
+  }
+  return res;
+}
 
 bool BrfAnimation::Load(FILE*f, int verbose){
   LoadString(f, name);

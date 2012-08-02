@@ -96,11 +96,14 @@ public:
   bool isRigged; // for convenience
   void UpdateBBox();
  
+  void AdjustNormDuplicates(); // copys normals
   // sanity check
   bool CheckAssert() const;
   
   bool Load(FILE*f,int verbose=1);
   void Save(FILE*f) const;
+  static void Skip(FILE* f);
+
   bool SaveAsPly(int nframe=0, char* path="") const;
   
   void Bend(int frame, float range); // bends as if on a cylinder
@@ -161,7 +164,12 @@ public:
   static void AlignToTop(BrfMesh& a, BrfMesh& b);
   BrfMesh SingleFrame(int i) const; // returns a BrfMesh consisting only of frame i
 
-  void Render() const;
+  bool IsAnimable() const;
+  void ComputeNormals();
+  void UnifyPos();
+  void AfterLoad();
+  bool hasVertexColor;
+
 };
 
 #endif

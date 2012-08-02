@@ -1,5 +1,6 @@
 
 #include <vector>
+#include <set>
 #include <stdio.h>
 
 #include <vcg/space/box3.h>
@@ -13,6 +14,80 @@ using namespace vcg;
 
 #include "saveLoad.h"
 typedef vcg::Point3f Pos;
+
+
+void BrfMesh::ComputeNormals(){
+  for (unsigned int fi=0; fi<frame.size(); fi++) {
+    for (unsigned int vi=0; vi<vert.size(); vi++){
+      frame[fi].norm[vi]=Point3f(0,0,0);
+    }
+    for (unsigned int ff=0; ff<face.size(); ff++){
+      Point3f a=frame[fi].pos[ face[ff].index[0] ];
+      Point3f b=frame[fi].pos[ face[ff].index[1] ];
+      Point3f c=frame[fi].pos[ face[ff].index[2] ];
+      Point3f n=(c-a)^(b-a); // area weighted norm
+      for (int w=0; w<3; w++)
+      frame[fi].norm[ face[ff].index[w] ]+=n;
+    }
+    for (unsigned int vi=0; vi<vert.size(); vi++){
+      frame[fi].norm[vi].Normalize();
+      vert[vi].__norm = frame[fi].norm[vi];
+    }
+  }
+}
+
+      class MyIndexClass{
+      public:
+        static BrfMesh* mesh;
+        int ind;
+        //MyPair(int a, int b):pair<int,int>(a,b){}
+        MyIndexClass(int a):ind(a) {}
+
+        inline bool operator != (MyIndexClass const &b) const
+        { return (mesh->frame[0].pos[ind] != mesh->frame[0].pos[b.ind]); }
+        inline bool operator == (MyIndexClass const &b)const
+        { return (mesh->frame[0].pos[ind] == mesh->frame[0].pos[b.ind]); }
+        inline bool operator < (MyIndexClass const &b)const
+        { return (mesh->frame[0].pos[ind] < mesh->frame[0].pos[b.ind]); }
+        inline bool operator <= (MyIndexClass const &b)const
+        { return (mesh->frame[0].pos[ind] <= mesh->frame[0].pos[b.ind]); }
+        inline bool operator >= (MyIndexClass const &b)const
+        { return (mesh->frame[0].pos[ind] >= mesh->frame[0].pos[b.ind]); }
+        inline bool operator > (MyIndexClass const &b)const
+        { return (mesh->frame[0].pos[ind] > mesh->frame[0].pos[b.ind]); }
+      };
+      BrfMesh* MyIndexClass::mesh;
+
+void BrfMesh::UnifyPos(){
+  typedef std::set< MyIndexClass > Set;
+  Set st;
+  MyIndexClass::mesh=this;
+  vector<int> map(frame[0].pos.size());
+
+  for (unsigned int pi=0; pi<frame[0].pos.size(); pi++) {
+    pair< Set::iterator, bool> res;
+    res = st.insert( MyIndexClass(pi) );
+    int pin = res.first->ind;
+    map[pi]=pin;
+  }
+
+  vector<int> rank(frame[0].pos.size(),-1);
+  for (int i=0,k=0; i<(int)map.size(); i++) {
+    if (map[i]==i) rank[i]=k++;
+  }
+
+
+  for (unsigned int vi=0; vi<vert.size(); vi++) {
+    vert[vi].index =  rank[ map[vert[vi].index] ];
+  }
+  int ns = (int)st.size();
+
+  for (unsigned int i=0; i<frame.size(); i++){
+    for (int h=0; h<(int)rank.size(); h++)
+      if (rank[h]>=0) frame[i].pos[ rank[h] ]=frame[i].pos[h];
+    frame[i].pos.resize( ns );
+  }
+}
 
 int SameTri(Pos a0, Pos a1, Pos b0, Pos b1, Pos c0, Pos c1){  
    
@@ -444,14 +519,7 @@ void BrfMesh::Save(FILE*f) const{
   SaveVector(f, frame[0].pos);
 
   std::vector<TmpRigging> tmpRig;
-  /*if (isRigged) {
-    Rigging2TmpRigging( rigging, tmpRig );
-    char fn [255];
-    sprintf(fn,"%s_rigAfter.txt",name);
-    FILE *f = fopen(fn,"wt");
-    for (unsigned int i=0; i<tmpRig.size(); i++) tmpRig[i].Export(f);
-    fclose(f);
-  }*/
+
   SaveVector(f, tmpRig);
 
   SaveInt(f , frame.size()-1 ); // tho other nframes!
@@ -463,6 +531,11 @@ void BrfMesh::Save(FILE*f) const{
   return;
 }
 
+void BrfMesh::AdjustNormDuplicates(){ // copys normals
+  for (unsigned int i=0; i<vert.size(); i++) {
+    vert[i].__norm = frame[0].norm[i];
+  }
+}
 /*
 BrfMesh& BrfMesh::operator = (const BrfMesh &brf){
   flags=brf.flags;
@@ -908,6 +981,38 @@ BrfVert::BrfVert(){
 BrfRigging::BrfRigging(){
   boneIndex[0]=boneIndex[1]=boneIndex[2]=boneIndex[3]=-1;
 }
+/*
+template <class T> void Skip(FILE* f){
+  fseek(f,sizeof(T), SEEK_CUR);
+}
+
+template <class T> void SkipVector(FILE* f){
+  unsigned int k;
+  LoadUInt(f,k);
+  fseek(f,k*sizeof(T),SEEK_CUR);
+}
+
+void SkipVector<TmpRigging>(FILE* f){
+  SkipInt(f);
+  SkipVector<TmpRiggingPair>(f);
+}
+
+void BrfMesh::Skip(FILE* f){
+  SkipString(f);
+  Skip<int>(f); // flags
+  SkipString(f);
+  SkipVector< Point3f >(f);
+  SkipVector< TmpRigging >(f);
+  SkipVector< BrfFrame >(f);
+  SkipVector< BrfVert >(f);
+  SkipVector< BrfFace >(f);
+}
+*/
+void BrfMesh::AfterLoad(){
+  UpdateBBox();
+  hasVertexColor=false;
+  for(unsigned int i=0; i<vert.size(); i++) if (vert[i].col!=0xFFFFFFFF) hasVertexColor=true;
+}
 
 bool BrfMesh::Load(FILE*f, int verbose){
   LoadString(f, name);
@@ -919,6 +1024,7 @@ bool BrfMesh::Load(FILE*f, int verbose){
   LoadVector(f, frame[0].pos);
 
   vector<TmpRigging> tmpRig;
+
   LoadVector(f,tmpRig);
   /*
   if (tmpRig.size()>0) {
@@ -948,13 +1054,17 @@ bool BrfMesh::Load(FILE*f, int verbose){
   
   //if (verbose>0) printf("  [%dv %dFx%dp %df]\n", vert.size(),frame.size(),frame[0].pos.size(), face.size());
 
-  UpdateBBox();
   isRigged = tmpRig.size()>0;
   rigging.resize(frame[0].pos.size());
   TmpRigging2Rigging(tmpRig, rigging);
+
+  AfterLoad();
   return true;
 }
 
+bool BrfMesh::IsAnimable() const{
+  return (frame.size()>1);
+}
 
 void BrfMesh::CopyTimesFrom(const BrfMesh &b){
   if (frame.size()!=b.frame.size()) {

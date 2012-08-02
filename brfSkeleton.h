@@ -39,8 +39,7 @@ public:
   std::vector<BrfBone> bone;
   int root;
   void BuildTree();
-  void Render(int bone, int lvl) const;
-  void Render() const;
+  bool IsAnimable() const{return false;}
   vcg::Box3f bbox;
 };
 

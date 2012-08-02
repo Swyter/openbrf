@@ -13,8 +13,13 @@ INPUT(
 ./debug\brfSkeleton.o
 ./debug\brfAnimation.o
 ./debug\brfBody.o
+./debug\guipanel.o
+./debug\vcgmesh.o
+./debug\plylib.o
+./debug\xmldocumentmanaging.o
 ./debug\moc_mainwindow.o
 ./debug\moc_glwidgets.o
 ./debug\moc_selector.o
 ./debug\moc_tablemodel.o
+./debug\moc_guipanel.o
 );
