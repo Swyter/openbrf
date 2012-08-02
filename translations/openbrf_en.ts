@@ -92,12 +92,12 @@ seams hard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../askFlagsDialog.ui" line="42"/>
+        <location filename="../askFlagsDialog.ui" line="20"/>
         <source>Flags</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../askFlagsDialog.ui" line="95"/>
+        <location filename="../askFlagsDialog.ui" line="76"/>
         <source>show all</source>
         <translation type="unfinished"></translation>
     </message>
@@ -217,13 +217,42 @@ seams hard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../mainwindow.cpp" line="3513"/>
+        <location filename="../mainwindow.cpp" line="3515"/>
+        <location filename="../mainwindow.cpp" line="3521"/>
+        <location filename="../mainwindow.cpp" line="3539"/>
+        <location filename="../mainwindow.cpp" line="3541"/>
+        <source>Unknown (for particles?)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="3522"/>
+        <source>Unknown (screen space?)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="3514"/>
+        <source>Unknown (plants?)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="3517"/>
+        <source>Unknown (hairs and body parts?)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../mainwindow.cpp" line="3530"/>
-        <source>Reserved (tangent space)</source>
+        <source>reserved (tangent space)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../mainwindow.cpp" line="3531"/>
-        <source>Reserved (warband format)</source>
+        <source>reserved (Warband format)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../mainwindow.cpp" line="3512"/>
+        <source>Unknown (for props?)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -731,17 +760,17 @@ They will not be even loaded by the game.</source>
 <context>
     <name>GLWidget</name>
     <message>
-        <location filename="../glwidgets.cpp" line="1046"/>
+        <location filename="../glwidgets.cpp" line="1047"/>
         <source>Scene mode: navigate with mouse and WASD (levitate with wheel, zoom in with shift)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../glwidgets.cpp" line="1051"/>
+        <location filename="../glwidgets.cpp" line="1052"/>
         <source>Helmet mode: for objects with vertical Z axis, like M&amp;B helmets or weapons.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../glwidgets.cpp" line="1053"/>
+        <location filename="../glwidgets.cpp" line="1054"/>
         <source>Default mode: rotate objects with mouse, zoom in/out with wheel.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -828,11 +857,6 @@ They will not be even loaded by the game.</source>
     <message>
         <location filename="../guipanel.ui" line="97"/>
         <source>Number of vertices of this mesh, including seams.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../guipanel.ui" line="119"/>
-        <source>Mesh flags (unknown meaning)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1337,6 +1361,11 @@ They will not be even loaded by the game.</source>
         <location filename="../guipanel.ui" line="2024"/>
         <location filename="../guipanel.ui" line="2758"/>
         <source>...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../guipanel.ui" line="119"/>
+        <source>Mesh flags</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1962,16 +1991,6 @@ to add a frame to.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../main_create.cpp" line="233"/>
-        <source>Sample per vertex (much quiker)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../main_create.cpp" line="234"/>
-        <source>Sample per wedge (might be better)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../main_create.cpp" line="250"/>
         <source>Store in per-vertex Alpha (not RGB)</source>
         <translation type="unfinished"></translation>
@@ -2501,6 +2520,16 @@ to add a frame to.</source>
     <message>
         <location filename="../main_create.cpp" line="225"/>
         <source>Light from all around</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../main_create.cpp" line="233"/>
+        <source>Sample per vertex (quicker)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../main_create.cpp" line="234"/>
+        <source>Sample per wedge (softer, better on some models)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3339,17 +3368,17 @@ at line %3:
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../iniData.cpp" line="1213"/>
+        <location filename="../iniData.cpp" line="1237"/>
         <source>&lt;b&gt;Missing in txt:&lt;/b&gt; cannot find %1 &lt;u&gt;%2&lt;/u&gt;, referred in &apos;%3&apos;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../iniData.cpp" line="1291"/>
+        <location filename="../iniData.cpp" line="1316"/>
         <source>&lt;b&gt;File-Not-Found:&lt;/b&gt; could not read brf file &lt;u&gt;%1&lt;/u&gt;, listed in module.ini file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../iniData.cpp" line="1294"/>
+        <location filename="../iniData.cpp" line="1319"/>
         <source>&lt;b&gt;File-Format Error:&lt;/b&gt; could not read brf file &lt;u&gt;%1&lt;/u&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3717,7 +3746,7 @@ at line %3:
     </message>
     <message>
         <location filename="../selector.cpp" line="191"/>
-        <source>Apply a gemoetric transform.</source>
+        <source>Apply a geometric transform.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -116,7 +116,7 @@
      <string extracomment="flags"/>
     </property>
     <property name="statusTip">
-     <string>Mesh flags (unknown meaning)</string>
+     <string>Mesh flags</string>
     </property>
     <property name="inputMask">
      <string>000000000000; </string>

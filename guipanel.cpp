@@ -640,7 +640,7 @@ switch (TokenEnum(k)){
          frameTime[fi]=m->frame[fi].time;
     }
 
-    if (hasAni>0)  {
+    if (hasRig>0)  {
       ui->rbRiggingcolor->setEnabled( true );
       ui->viewRefAni->setVisible( true );
     }

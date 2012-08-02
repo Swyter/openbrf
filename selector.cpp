@@ -188,7 +188,7 @@ Selector::Selector(QWidget *parent)
   flipAct->setStatusTip(tr("Mirror this object on the X axis."));
 
   transformAct = new QAction(tr("Roto-translate-rescale"),this);
-  flipAct->setStatusTip(tr("Apply a gemoetric transform."));
+  transformAct->setStatusTip(tr("Apply a geometric transform."));
 
   scaleAct = new QAction(tr("Rescale"), this);
   scaleAct->setStatusTip(tr("Rescale this object."));
