@@ -180,6 +180,19 @@ p, li { white-space: pre-wrap; }
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>buttonBox</tabstop>
+  <tabstop>checkBox_1</tabstop>
+  <tabstop>doubleSpinBox_1</tabstop>
+  <tabstop>checkBox_2</tabstop>
+  <tabstop>doubleSpinBox_2</tabstop>
+  <tabstop>checkBox_3</tabstop>
+  <tabstop>doubleSpinBox_3</tabstop>
+  <tabstop>checkBox_4</tabstop>
+  <tabstop>doubleSpinBox_4</tabstop>
+  <tabstop>overrideYes</tabstop>
+  <tabstop>overrideNo</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

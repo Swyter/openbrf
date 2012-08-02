@@ -241,6 +241,15 @@
    <header>../tablemodel.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>buttonBox</tabstop>
+  <tabstop>scaleU</tabstop>
+  <tabstop>scaleV</tabstop>
+  <tabstop>traU</tabstop>
+  <tabstop>traV</tabstop>
+  <tabstop>Reset</tabstop>
+  <tabstop>invertY</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

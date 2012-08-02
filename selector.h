@@ -35,9 +35,11 @@ public:
 	bool iniDataWaitsSaving;
 	int iniFileIndex;
 	void selectOne(int kind, int i);
+	void selectOneSilent(int kind, int i);
 	void updateContextMenu();
 	QMenu *contextMenu;
 
+	static void addDataToAllActions(QMenu* m, QString s);
 
 public slots:
 	void selectAll();
@@ -72,6 +74,7 @@ private:
 	TableModel * tableModel[N_TOKEN];
 	void contextMenuEvent(QContextMenuEvent *event);
 	enum {MAX_USED_BY = 50};
+	void addShortCuttedAction(QAction *act);
 public:
 	QAction
 	*goNextTabAct,

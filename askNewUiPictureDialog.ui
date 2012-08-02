@@ -446,6 +446,32 @@ Mesh, and Texture</string>
    </property>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>buttonBox</tabstop>
+  <tabstop>NameBox</tabstop>
+  <tabstop>browse</tabstop>
+  <tabstop>posX</tabstop>
+  <tabstop>posY</tabstop>
+  <tabstop>sizeX</tabstop>
+  <tabstop>sizeY</tabstop>
+  <tabstop>measurePerc</tabstop>
+  <tabstop>measurePixel</tabstop>
+  <tabstop>pushButton_NW</tabstop>
+  <tabstop>pushButton_N</tabstop>
+  <tabstop>pushButton_NE</tabstop>
+  <tabstop>pushButton_W</tabstop>
+  <tabstop>pushButton_C</tabstop>
+  <tabstop>pushButton_E</tabstop>
+  <tabstop>pushButton_SW</tabstop>
+  <tabstop>pushButton_S</tabstop>
+  <tabstop>pushButton_SE</tabstop>
+  <tabstop>setActualPixels</tabstop>
+  <tabstop>setFullScreen</tabstop>
+  <tabstop>overlayDarken</tabstop>
+  <tabstop>overlayNormal</tabstop>
+  <tabstop>overlaySubstitute</tabstop>
+  <tabstop>replaceOpt</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

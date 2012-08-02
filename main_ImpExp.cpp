@@ -113,7 +113,7 @@ void MainWindow::meshComputeLod(){
       }
     }
     inidataChanged();
-    setModified(true);
+    setModified();
     updateSel();
     selector->selectOne(MESH, i);
   }
@@ -400,7 +400,7 @@ bool MainWindow::importSkeletonMod(){
   name.truncate(254);
   sprintf( s.name, "%s", name.toAscii().data());
   insert(s);
-  setModified(true);
+  setModified();
   return true;
 }
 
@@ -647,7 +647,7 @@ bool MainWindow::importBrf(){
   }
   brfdata.Merge(tmp);
   selector->updateData(brfdata);
-  setModified(true);
+  setModified();
   return true;
 }
 
@@ -676,7 +676,7 @@ bool MainWindow::_importCollisionBody(bool reimportExisting){
 
 		if (reimportExisting) replace( b ); else insert( b );
 
-    setModified(true);
+    setModified();
   }
 
   return true;
@@ -799,7 +799,7 @@ bool MainWindow::importMovingMesh(){
   }
 
   selector->updateData(brfdata);
-  setModified(true);
+  setModified();
   return true;
 }
 
@@ -825,7 +825,7 @@ bool MainWindow::importStaticMesh(){
         insert(v[i]);
       }
     }
-    setModified(true);
+    setModified();
 
   }
   return true;
@@ -927,7 +927,7 @@ bool MainWindow::importRiggedMesh(){
     .arg( total ).arg((total==1)?"":"es"),6000
   );
 
-  if (total>0) setModified(true);
+  if (total>0) setModified();
   return true;
 }
 
@@ -970,7 +970,7 @@ bool MainWindow::importMovingMeshFrame(){
       res = brfdata.mesh[i].AddFrameMatchPosOrDie(m[h],j);
     }
     if (!res) brfdata.mesh[i].AddFrameMatchTc(m[h],j);
-    setModified(true);
+    setModified();
     selector->selectOne(MESH,i);
 
   }
@@ -1020,7 +1020,7 @@ bool MainWindow::_importAnimation(bool reimportExisting){
 			statusBar()->showMessage(tr("Found no time value in SMD file, so I added them."),5000);
 		}
 		if (reimportExisting) replace(a); else insert(a);
-		setModified(true);
+		setModified();
 	}
 
 
@@ -1070,7 +1070,7 @@ bool MainWindow::importSkeleton(){
   sprintf( s.name, "%s", name.toAscii().data());
 
   insert(s);
-  setModified(true);
+  setModified();
 
   statusBar()->showMessage(tr("Imported skeleton \"%1\"--- nbones:%2")
     .arg( s.name )

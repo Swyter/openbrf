@@ -30,6 +30,11 @@ void Selector::addToRefMeshH(){ emit(addToRefMesh(7)); }
 void Selector::addToRefMeshI(){ emit(addToRefMesh(8)); }
 void Selector::addToRefMeshJ(){ emit(addToRefMesh(9)); }
 
+void Selector::addShortCuttedAction(QAction *act){
+	addAction(act);
+	contextMenu->addAction(act);
+}
+
 Selector::Selector(QWidget *parent)
   : QTabWidget(parent)
 {
@@ -42,12 +47,13 @@ Selector::Selector(QWidget *parent)
 	}
 	iniDataWaitsSaving = false;
 
+
 	contextMenu = new QMenu(this);
 	connect(contextMenu, SIGNAL(triggered(QAction *)),parent, SLOT(onActionTriggered(QAction *)));
+	connect(this, SIGNAL(currentChanged(int)), this, SLOT(onChanged()) );
 
-
-	connect(this, SIGNAL(currentChanged(int)),
-	        this, SLOT(onChanged()) );
+	//connect(this, SIGNAL(currentChanged(int)), parent, SLOT(undoHistoryAddAction()) );
+	connect(contextMenu, SIGNAL(triggered(QAction *)),parent, SLOT(undoHistoryAddAction(QAction *)));
 
 	breakAniWithIniAct = new QAction(tr("Split via action.txt..."), this);
 	breakAniWithIniAct ->setStatusTip(tr("Split sequence following the action.txt file. A new \"action [after split].txt\" file is also produced, which use the new animation."));
@@ -70,31 +76,38 @@ Selector::Selector(QWidget *parent)
 
 	renameAct = new QAction(tr("Rename..."), this);
 	renameAct->setShortcut(QString("F2"));
-	addAction(renameAct);
+	connect(renameAct, SIGNAL(triggered()), parent, SLOT(renameSel()));
+	addShortCuttedAction(renameAct);
 
 	removeAct = new QAction(tr("Remove"), this);
 	removeAct->setShortcut(QString("delete"));
-	addAction(removeAct);
+	connect(removeAct, SIGNAL(triggered()), parent, SLOT(deleteSel()));
+	addShortCuttedAction(removeAct);
 
 	duplicateAct = new QAction(tr("Duplicate"), this);
 
 	goNextTabAct = new QAction(tr("next tab"),this);
 	goNextTabAct->setShortcut(QString("right"));
-	addAction(goNextTabAct);
+	connect(goNextTabAct, SIGNAL(triggered()),this,SLOT(goNextTab()));
+	addShortCuttedAction(goNextTabAct);
 
 	goPrevTabAct = new QAction(tr("left tab"),this);
 	goPrevTabAct->setShortcut(QString("left"));
-	addAction(goPrevTabAct);
+	connect(goPrevTabAct, SIGNAL(triggered()),this,SLOT(goPrevTab()));
+	addShortCuttedAction(goPrevTabAct);
 
 	moveUpAct = new QAction(tr("Move up in the list"), this);
 	moveUpAct->setShortcut(QString("Alt+up"));
 	moveUpAct->setStatusTip(tr("Move this object upward in the list"));
-	addAction(moveUpAct);
+	connect(moveUpAct, SIGNAL(triggered()), parent, SLOT(moveUpSel()));
+	addShortCuttedAction(moveUpAct);
 
 	moveDownAct = new QAction(tr("Move down in the list"), this);
 	moveDownAct->setShortcut(QString("Alt+down"));
 	moveDownAct->setStatusTip(tr("Move this object one step down in the list"));
-	addAction(moveDownAct);
+	connect(moveDownAct, SIGNAL(triggered()), parent, SLOT(moveDownSel()));
+	addShortCuttedAction(moveDownAct);
+
 
 	addToRefAnimAct = new QAction(tr("Add to reference animations"), this);
 	addToRefAnimAct->setStatusTip(tr("Add this animation to reference animations (to use it later to display rigged meshes)."));
@@ -300,19 +313,14 @@ Selector::Selector(QWidget *parent)
 
 	discardColAct = new QAction(tr("per-vertex color"), this);
 	discardColAct->setStatusTip(tr("Reset per-vertex coloring (i.e. turn all full-white)"));
-	discardColAct->setData(QString(tr("discard: ")));
 	discardRigAct = new QAction(tr("rigging"), this);
 	discardRigAct->setStatusTip(tr("Remove rigging (per-verex bone attachments)"));
-	discardRigAct->setData(QString(tr("discard: ")));
 	discardTanAct = new QAction(tr("tangent directions"), this);
 	discardTanAct->setStatusTip(tr("Remove tangent directions (saves space, they are needed mainly for bumbmapping)"));
-	discardTanAct->setData(QString(tr("discard: ")));
 	discardNorAct = new QAction(tr("normals"), this);
 	discardNorAct->setStatusTip(tr("Disregard normals, so to merge more vertices (and use less of them)"));
-	discardNorAct->setData(QString(tr("discard: ")));
 	discardAniAct = new QAction(tr("vertex animation"), this);
 	discardAniAct->setStatusTip(tr("Discard vertex animation (keep only current frame)"));
-	discardAniAct->setData(QString(tr("discard: ")));
 	//exportAnyBrfAct = new QAction(tr("in a BRF"), this);
 	//exportAnyBrfAct->setStatusTip(tr("Export this object in a BRF file."));
 
@@ -324,8 +332,6 @@ Selector::Selector(QWidget *parent)
 	//saveSkeletonHitboxAct = new QAction(tr("Save hit-boxes in XML..."), this);
 
 	connect(aniReskeletonizeAct, SIGNAL(triggered()), parent, SLOT(aniReskeletonize()));
-	connect(goNextTabAct, SIGNAL(triggered()),this,SLOT(goNextTab()));
-	connect(goPrevTabAct, SIGNAL(triggered()),this,SLOT(goPrevTab()));
 
 	connect(breakAniAct, SIGNAL(triggered()),this,SLOT(onBreakAni()));
 	connect(aniExtractIntervalAct, SIGNAL(triggered()),parent,SLOT(aniExtractInterval()));
@@ -400,12 +406,8 @@ Selector::Selector(QWidget *parent)
 
 	connect(importSkeletonModAct, SIGNAL(triggered()),parent,SLOT(importSkeletonMod()));
 
-	connect(moveUpAct, SIGNAL(triggered()), parent, SLOT(moveUpSel()));
-	connect(moveDownAct, SIGNAL(triggered()), parent, SLOT(moveDownSel()));
-	connect(removeAct, SIGNAL(triggered()), parent, SLOT(deleteSel()));
 	connect(duplicateAct, SIGNAL(triggered()), parent, SLOT(duplicateSel()));
 	//
-	connect(renameAct, SIGNAL(triggered()), parent, SLOT(renameSel()));
 
 
 	connect(addToRefAnimAct, SIGNAL(triggered()), parent, SLOT(addToRef()));
@@ -424,7 +426,7 @@ Selector::Selector(QWidget *parent)
 
 		if (ti==MESH || ti==MATERIAL || ti==BODY || ti==TEXTURE || ti==SKELETON || ti==ANIMATION) {
 			tab[ti]->setSelectionMode(QAbstractItemView::ExtendedSelection);
-			tab[ti]->setStatusTip(QString(tr("[Right-Click]: tools for %1. Multiple selections with [Shift]-[Ctrl].")).arg(IniData::tokenFullName(ti)));
+			tab[ti]->setStatusTip(QString(tr("[Right-Click]: tools for %1. Multiple selections with [Shift] or [Ctrl].")).arg(IniData::tokenFullName(ti)));
 		}
 		else
 			tab[ti]->setStatusTip(QString(tr("[Right-Click]: tools for %1.")).arg(IniData::tokenFullName(ti)));
@@ -433,8 +435,37 @@ Selector::Selector(QWidget *parent)
 		        SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
 		        this, SLOT(onChanged()) );
 
+
+		//connect(tab[ti],SIGNAL(clicked(QModelIndex)),
+		//        parent, SLOT(undoHistoryAddAction()) );
+
+		connect(tab[ti]->selectionModel(),
+		        SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+		        parent, SLOT(undoHistoryAddAction()) );
+	}
+	/*connect(new QShortcut(QKeySequence("up"),this),SIGNAL(activated()),
+	        parent, SLOT(undoHistoryAddAction()) );
+	connect(new QShortcut(QKeySequence("down"),this),SIGNAL(activated()),
+	        parent, SLOT(undoHistoryAddAction()) );*/
+}
+
+void Selector::moveSel(int dx){
+	QListView* c=(QListView*)this->currentWidget();
+
+	if (c) {
+		QModelIndex li=c->selectionModel()->selectedIndexes()[0];
+		QModelIndex lj=li.sibling(li.row()+dx,li.column());
+		if (lj.isValid()) {
+			c->selectionModel()->blockSignals(true);
+			c->clearSelection();
+			c->selectionModel()->select(lj,QItemSelectionModel::Select);
+			c->selectionModel()->setCurrentIndex(lj,QItemSelectionModel::NoUpdate);
+			c->setFocus();
+			c->selectionModel()->blockSignals(false);
+		}
 	}
 }
+
 
 /*
 void Selector::onRenameSel(){
@@ -548,36 +579,48 @@ void Selector::selectOne(int kind, int i){
 	onChanged();
 }
 
+void Selector::selectOneSilent(int kind, int i){
+
+	assert(kind>=0 && kind<N_TOKEN);
+	QListView* c=tab[kind];
+	if (c) {
+		c->selectionModel()->blockSignals(true);
+		c->clearSelection();
+		QModelIndex li = tableModel[kind]->pleaseCreateIndex(i,0);
+		c->selectionModel()->setCurrentIndex(li,QItemSelectionModel::NoUpdate);
+		c->selectionModel()->select(li,QItemSelectionModel::Select);
+		c->scrollTo(li,QAbstractItemView::PositionAtCenter);
+
+		this->setCurrentWidget(c);
+		c->setFocus();
+		c->selectionModel()->blockSignals(false);
+
+	}
+	onChanged();
+}
+
 
 void Selector::goNextTab(){
 	int j=currentIndex();
-	if (j<count()) setCurrentIndex(j+1);
+	if (j<count()-1) setCurrentIndex(j+1);
+	else setCurrentIndex(0);
 }
 
 void Selector::goPrevTab(){
 	int j=currentIndex();
 	if (j>0) setCurrentIndex(j-1);
-}
-
-void Selector::moveSel(int dx){
-	QListView* c=(QListView*)this->currentWidget();
-
-	if (c) {
-		QModelIndex li=c->selectionModel()->selectedIndexes()[0];
-		QModelIndex lj=li.sibling(li.row()+dx,li.column());
-		if (lj.isValid()) {
-			c->clearSelection();
-			c->selectionModel()->select(lj,QItemSelectionModel::Select);
-			c->selectionModel()->setCurrentIndex(lj,QItemSelectionModel::NoUpdate);
-			c->setFocus();
-		}
-	}
+	else setCurrentIndex(count()-1);
 }
 
 int Selector::currentTabName() const{
 	for (int i=0; i<N_TOKEN; i++)
 		if (this->currentWidget()==tab[i]) return i;
 	return NONE;
+}
+
+void Selector::addDataToAllActions(QMenu *m, QString s){
+	QList<QAction*> l = m->actions();
+	for (int i=0; i<l.size(); i++) l[i]->setData(s);
 }
 
 void Selector::updateContextMenu(){
@@ -732,6 +775,7 @@ void Selector::updateContextMenu(){
 			contextMenu->addAction(meshUnify);
 			if (onesel)  {
 				contextMenu->addAction(meshSubdivideIntoComponents);
+				if (mesh.HasVertexAni())
 				contextMenu->addAction(meshAniSplitAct);
 			}
 			if (!onesel) {
@@ -754,6 +798,8 @@ void Selector::updateContextMenu(){
 			m->addAction(discardNorAct);
 			m->addAction(discardRigAct);
 			m->addAction(meshFreezeFrameAct);
+			addDataToAllActions(m,"Discard ");
+
 			discardRigAct->setEnabled(mulsel || mesh.IsRigged());
 			discardAniAct->setEnabled(mulsel || mesh.HasVertexAni());
 			meshFreezeFrameAct->setEnabled(mulsel || mesh.IsRigged());
@@ -938,7 +984,7 @@ void Selector::onBreakAni(){
 }
 
 void Selector::onChanged(){
-	static QModelIndexList empty;
+	//static QModelIndexList empty;
 	for(int ti=0; ti<N_TOKEN; ti++) if (tab[ti]) {
 		//if (tab[ti]) tab[ti]->clearSelection();
 		if (this->currentWidget()==tab[ti]) {

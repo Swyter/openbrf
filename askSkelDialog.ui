@@ -212,6 +212,16 @@
    </widget>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>buttonBox</tabstop>
+  <tabstop>cbSkelFrom</tabstop>
+  <tabstop>cbSkelTo</tabstop>
+  <tabstop>radioButtonA0</tabstop>
+  <tabstop>radioButtonA1</tabstop>
+  <tabstop>radioButtonB0</tabstop>
+  <tabstop>radioButtonB1</tabstop>
+  <tabstop>radioButtonB2</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

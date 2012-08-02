@@ -5,7 +5,7 @@
 
 #include <QtGui>
 
-const char* applVersion = "0.0.77";
+const char* applVersion = "0.0.78";
 QString IniData::tokenFullName(int k){
 
   switch (k){
@@ -60,22 +60,23 @@ void MainWindow::about()
                "<p><i>Translations by:</i> %5</p>")
              ).arg(__DATE__)
               .arg("[mtarini] --- Marco Tarini")
-              .arg(" <br>[Abhuva], [amade], [Andrde Cuyne], [Barf], [Bilwit], [Bolkonsky], [Brutus], [Caba`drin], "
+              .arg(" <br>[Abhuva], [amade], [Andrde Cuyne], [Barabas], "
+                   "[Barf], [Bilwit], [Bolkonsky], [Brutus], [Caba`drin], "
                    "[captain lust], [cdvader], [Chel], [captain lust], [Computica], [cmpxchg8b], [Crazy-Q], [DaBlade], [Dain Ironfoot], "
-                   "[Darwin], [dreamterror], [dunde], [ealabor], [eierkopf], "
+                   "[Darwin], [dia151], [dreamterror], [dunde], [ealabor], [eierkopf], "
                    "[EvolutiveBrain], "
                    "[Fafhrd], [fedeita], [Fei Dao], [foxyman], [Freddex], [FrisianDude], "
                    "[Geroj], [GetAssista], [giles], [Gothic Knight], [Hatonastick], "
-                   "[havarez], [Highelf], [Highlander], [HokieBT], [Ikaguia], [iLag], [Jai], [killkhergit], "
+                   "[havarez], [Highelf], [Highlander], [HokieBT], [Ikaguia], [iggorbb], [iLag], [Jai], [killkhergit], "
                    "[Konar], [Llew], [Lord_Cheap], [Lord Kinlar], [lord_olafson], "
                    "[LordRaglan], [Lumos], [MadocComadrin], [MadVader], [Mandible], [Mekelan], "
                    "[Merlkir], [mr.master], "
                    "[mysstick], [N0body], [newaxekub], "
-                   "[octoburn], [pagan], [Percus], [qlithe], [Rath0s], [RATMdude92], [Red River], "
+                   "[octoburn], [OrangeKnight], [pagan], [Percus], [qlithe], [Rath0s], [RATMdude92], [Red River], "
                    "[rgcotl], [Romainoir], [Septa Scarabae], [Sayd Ûthman], [Silesian], [Shik], "
-                   "[Silver Wolf], [Somebody], [SonKidd], [Spak], [Specialist], [Stefano], [Sunnetci_Dede], [Swyter], "
+                   "[Silver Wolf], [Shredzorz], [Slawomir of Aaarrghh], [Somebody], [SonKidd], [Spak], [Specialist], [Stefano], [Sunnetci_Dede], [Swyter], "
                    "[Triglav], [Tul], [Ursca], [Vincenzo], [Vlejundo], [Vornne], [WilliamBerne], "
-                   "[yellowmosquito], [Yoshiboy], [xenoargh]")
+                   "[yellowmosquito], [Yoshiboy], [xenoargh], [Zimke Zlovoljni]")
               .arg("<br>[amade], [Swyter]!")
               .arg(QString("<br> [foxyman] <i>(%1)</i><br>"
                            " [Swyter] <i>(Español)</i><br>"

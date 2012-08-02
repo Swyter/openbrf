@@ -74,6 +74,11 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>buttonBox</tabstop>
+  <tabstop>from</tabstop>
+  <tabstop>to</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

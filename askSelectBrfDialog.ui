@@ -157,6 +157,15 @@ folder:</string>
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>buttonBox</tabstop>
+  <tabstop>listMod</tabstop>
+  <tabstop>listComm</tabstop>
+  <tabstop>listUnref</tabstop>
+  <tabstop>openModuleIni</tabstop>
+  <tabstop>refresh</tabstop>
+  <tabstop>countUsed</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>

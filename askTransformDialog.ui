@@ -754,6 +754,29 @@ object only</string>
    <header>../tablemodel.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>buttonBox</tabstop>
+  <tabstop>trax</tabstop>
+  <tabstop>leftX</tabstop>
+  <tabstop>midX</tabstop>
+  <tabstop>rightX</tabstop>
+  <tabstop>tray</tabstop>
+  <tabstop>leftY</tabstop>
+  <tabstop>midY</tabstop>
+  <tabstop>rightY</tabstop>
+  <tabstop>traz</tabstop>
+  <tabstop>leftZ</tabstop>
+  <tabstop>midZ</tabstop>
+  <tabstop>rightZ</tabstop>
+  <tabstop>rotx</tabstop>
+  <tabstop>roty</tabstop>
+  <tabstop>rotz</tabstop>
+  <tabstop>scx</tabstop>
+  <tabstop>checkBox</tabstop>
+  <tabstop>scy</tabstop>
+  <tabstop>scz</tabstop>
+  <tabstop>applyToLastSel</tabstop>
+ </tabstops>
  <resources>
   <include location="resource.qrc"/>
  </resources>

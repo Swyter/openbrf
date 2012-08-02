@@ -2008,11 +2008,14 @@ float myrand(float min, float max){
   return min+(max-min)*(rand()%1001)/1000;
 }
 
-static Point3f randomUpVector(int, float above){
+static Point3f randomUpVector(int, float above, bool YisUp){
   Point3f res;
   float maxup = 1-above;
   do {
-    res = Point3f( myrand(-1,1),myrand(-1,maxup),myrand(-1,1));
+		if (YisUp)
+      res = Point3f( myrand(-1,1),myrand(-1,maxup),myrand(-1,1));
+		else
+			res = Point3f( myrand(-1,1),myrand(-1,1),myrand(-1,maxup));
     if (res.SquaredNorm()>1) continue;
     res.Normalize();
     if (res.Y()>maxup) continue;
@@ -2134,6 +2137,8 @@ void GLWidget::renderAoOnMeshesAllSelected(float brightness, float howMuchFromAb
     bbox.Add( v[i].bbox );
   }
 
+
+
   float maxLight = 0;
   for (int n=0; n<NPASS; n++)  {
 
@@ -2141,8 +2146,8 @@ void GLWidget::renderAoOnMeshesAllSelected(float brightness, float howMuchFromAb
 
     // set a view direction for shadows
     // ld = light dir
-    Point3f ld = randomUpVector(n, howMuchFromAbove),
-                 dx(0,0,1), dy;
+    Point3f ld = randomUpVector(n, howMuchFromAbove, viewmode!=1 ),
+                 dx(1,0,0), dy;
     maxLight += std::max(-ld.X(),0.0f);
     ld.Normalize();
     dy = (ld^dx).normalized();

@@ -1187,8 +1187,13 @@ bool IniData::loadAll(int howFast){
 
     QString s = QString("%1").arg(st);
     lineN ++;
-    s = s.trimmed(); // removal of spaces
-    if (s[0]=='#') continue; // skip all comments
+
+		 // remove commented part
+		int posOfComm = s.indexOf('#');
+		if (posOfComm>-1) s.truncate(posOfComm);
+
+		s = s.trimmed(); // removal of spaces
+    if (s.isEmpty()) continue; // skip empty lines (including comments)
     QString com1, com2;
     //char com1[512], com2[512];
     QStringList p = s.split('=');

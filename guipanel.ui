@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>200</width>
-    <height>2175</height>
+    <height>2282</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -2576,7 +2576,7 @@
      <x>10</x>
      <y>1910</y>
      <width>181</width>
-     <height>261</height>
+     <height>251</height>
     </rect>
    </property>
    <property name="title">
@@ -2607,7 +2607,7 @@
       <x>10</x>
       <y>115</y>
       <width>161</width>
-      <height>141</height>
+      <height>131</height>
      </rect>
     </property>
     <property name="title">
@@ -3624,6 +3624,110 @@ ze</string>
    <header>../tablemodel.h</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>boxMaterial</tabstop>
+  <tabstop>boxTexture</tabstop>
+  <tabstop>boxFlags</tabstop>
+  <tabstop>buFlagMes</tabstop>
+  <tabstop>cbMeshHasAni</tabstop>
+  <tabstop>cbMeshHasRig</tabstop>
+  <tabstop>cbMeshHasCol</tabstop>
+  <tabstop>cbMeshHasTan</tabstop>
+  <tabstop>frameNumber</tabstop>
+  <tabstop>timeOfFrame</tabstop>
+  <tabstop>leShaderTechnique</tabstop>
+  <tabstop>leShaderRequires</tabstop>
+  <tabstop>buFlagReq</tabstop>
+  <tabstop>leShaderFallback</tabstop>
+  <tabstop>leShaderFlags</tabstop>
+  <tabstop>buFlagSha</tabstop>
+  <tabstop>lvTextAcc</tabstop>
+  <tabstop>leShaderTaMap</tabstop>
+  <tabstop>leShaderTaColorOp</tabstop>
+  <tabstop>leShaderTaAlphaOp</tabstop>
+  <tabstop>leShaderTaFlags</tabstop>
+  <tabstop>boxTextureFlags</tabstop>
+  <tabstop>buFlagTex</tabstop>
+  <tabstop>boxTextureFormat</tabstop>
+  <tabstop>boxOrigin</tabstop>
+  <tabstop>browseTextureButton</tabstop>
+  <tabstop>leMatShader</tabstop>
+  <tabstop>leMatDifA</tabstop>
+  <tabstop>leMatDifB</tabstop>
+  <tabstop>leMatBump</tabstop>
+  <tabstop>leMatEnv</tabstop>
+  <tabstop>leMatSpec</tabstop>
+  <tabstop>leMatR</tabstop>
+  <tabstop>leMatG</tabstop>
+  <tabstop>leMatB</tabstop>
+  <tabstop>leMatCoeff</tabstop>
+  <tabstop>leMatFlags</tabstop>
+  <tabstop>buFlagMat</tabstop>
+  <tabstop>cbSkelHasHitbox</tabstop>
+  <tabstop>lvBones</tabstop>
+  <tabstop>editHbActive</tabstop>
+  <tabstop>editHbRagdollOnly</tabstop>
+  <tabstop>editHitBoxReset</tabstop>
+  <tabstop>editHitBoxSymmetric</tabstop>
+  <tabstop>frameNumberAni</tabstop>
+  <tabstop>timeOfFrameAni</tabstop>
+  <tabstop>lvBodyPart</tabstop>
+  <tabstop>leBodyRad</tabstop>
+  <tabstop>leBodyAX</tabstop>
+  <tabstop>leBodyAY</tabstop>
+  <tabstop>leBodyAZ</tabstop>
+  <tabstop>leBodyBX</tabstop>
+  <tabstop>leBodyBY</tabstop>
+  <tabstop>leBodyBZ</tabstop>
+  <tabstop>leBodyFlags</tabstop>
+  <tabstop>buFlagBody</tabstop>
+  <tabstop>leBodySign</tabstop>
+  <tabstop>cbComparisonMesh</tabstop>
+  <tabstop>cbSkin</tabstop>
+  <tabstop>cbLighting</tabstop>
+  <tabstop>cbTexture</tabstop>
+  <tabstop>cbNormalmap</tabstop>
+  <tabstop>cbSpecularmap</tabstop>
+  <tabstop>cbWireframe</tabstop>
+  <tabstop>cbFloor</tabstop>
+  <tabstop>rbVertexcolor</tabstop>
+  <tabstop>rbRiggingcolor</tabstop>
+  <tabstop>rbNocolor</tabstop>
+  <tabstop>cbRuler</tabstop>
+  <tabstop>rulerSlid</tabstop>
+  <tabstop>rulerSpin</tabstop>
+  <tabstop>cbFloatingProbe</tabstop>
+  <tabstop>floatingProbeX</tabstop>
+  <tabstop>floatingProbeY</tabstop>
+  <tabstop>floatingProbeZ</tabstop>
+  <tabstop>cbRefani</tabstop>
+  <tabstop>cbRefSkel</tabstop>
+  <tabstop>cbHitboxes</tabstop>
+  <tabstop>buPlay</tabstop>
+  <tabstop>buPause</tabstop>
+  <tabstop>buStop</tabstop>
+  <tabstop>buStepB</tabstop>
+  <tabstop>buStepF</tabstop>
+  <tabstop>rbAlphaNo</tabstop>
+  <tabstop>rbAlphaColor</tabstop>
+  <tabstop>rbAlphaTransparent</tabstop>
+  <tabstop>attributeData</tabstop>
+  <tabstop>checkBox</tabstop>
+  <tabstop>attrColorUint</tabstop>
+  <tabstop>attrColorSaturation</tabstop>
+  <tabstop>attrColorBrightness</tabstop>
+  <tabstop>attrColorHue</tabstop>
+  <tabstop>attrColorButton</tabstop>
+  <tabstop>attrBoneWeigth0</tabstop>
+  <tabstop>attrBoneWeigth1</tabstop>
+  <tabstop>attrBoneWeigth2</tabstop>
+  <tabstop>attrBoneWeigth3</tabstop>
+  <tabstop>attrBoneIndex0</tabstop>
+  <tabstop>attrBoneIndex1</tabstop>
+  <tabstop>attrBoneIndex2</tabstop>
+  <tabstop>attrBoneIndex3</tabstop>
+  <tabstop>pushButton</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
