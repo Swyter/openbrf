@@ -81,6 +81,54 @@ void MeshMorpher::FinishLearning(){
   }
 }
 
+bool BrfMesh::FindVertVertMapping(std::vector<int> &map, const BrfMesh& a, const BrfMesh& b, int fa, int fb,   float uv, float xyz){
+
+	//if (a.vert.size()!=b.vert.size()) return false;
+	//if (a.frame[fa].pos.size()!=b.frame[fa].pos.size()) return false;
+	map.resize(a.vert.size());
+	for (uint i=0; i<a.vert.size(); i++) {
+		Point3f ap = a.frame[fa].pos[ a.vert[i].index ];
+		Point2f auv = a.vert[i].ta;
+		int bestj = 0;
+		float bestScore = 1e20;
+		for (uint j=0; j<b.vert.size(); j++) {
+			Point3f bp = b.frame[fb].pos[ b.vert[j].index ];
+			Point2f buv = b.vert[j].ta;
+			float score= (ap-bp).Norm()*xyz + (auv-buv).Norm()*uv;
+			if (score<bestScore) {
+				bestScore = score;
+				bestj = j;
+			}
+		}
+		map[i] = bestj;
+	}
+	return true;
+}
+
+bool BrfMesh::CopyVertAni(const BrfMesh& m){
+	std::vector<int> map;
+
+	if (!FindVertVertMapping(map,*this,m,0,0, 0.8,0.2)) return false;
+	frame.resize(m.frame.size());
+
+	for (uint fi=1; fi<frame.size(); fi++){
+		frame[fi].pos.resize( frame[0].pos.size() );
+		frame[fi].norm.resize( frame[0].norm.size() );
+		frame[fi].tang.resize( frame[0].tang.size() );
+		for (uint vi=0; vi<vert.size(); vi++) {
+			int vj = map[vi];
+			int pi = vert[vi].index;
+			int pj = m.vert[vj].index;
+
+			frame[fi].pos[pi] = frame[0].pos[ pi ]  + m.frame[fi].pos[ pj ] - m.frame[0].pos[ pj ] ;
+
+		}
+
+	}
+	return true;
+
+}
+
 int BrfMesh::DivideIntoSeparateChunks(std::vector<int> &map){
 	int framei = 0;
 	int npos = frame[framei].pos.size();
@@ -297,7 +345,8 @@ bool MeshMorpher::Save(const char* filename) const{
     for (int i=0; i<3; i++) {
       fprintf(f,"%10f %10f ",s[bi][i],t[bi][i]);
     }
-  }
+	}
+	fprintf(f,"%10f ",extraBreast);
   fclose(f);
   return true;
 }
@@ -316,6 +365,8 @@ bool MeshMorpher::Load(const char* text){
       offset+=22; // space for "%10f %10f "
     }
   }
+	sscanf(text+offset,"%f",&extraBreast);
+ //!=2) return false;;
   //fclose(f);
   return true;
 }
@@ -358,10 +409,12 @@ void BrfMesh::MorphFrame(int framei, int framej, const MeshMorpher& m){
 
   }
 
+	AddALittleOfBreast(framej, m.extraBreast);
+
 }
 
 
-void BrfMesh::AddALittleOfBreast(int framei){
+void BrfMesh::AddALittleOfBreast(int framei, float howMuch){
   Pos p0(+0.0793, 1.3443, 0.1210);
   Pos p1(-0.0793, 1.3443, 0.1210);
   float r = 0.066;
@@ -373,7 +426,7 @@ void BrfMesh::AddALittleOfBreast(int framei){
     float s = max(s0,s1);
     if (s>0) {
       s = pow( s ,0.3);
-      q.Z()+=s*0.013;
+			q.Z()+=s*howMuch;
     }
   }
 }
@@ -543,6 +596,18 @@ bool BrfMesh::AddFrameMatchVert(const BrfMesh &b, int k){
   frame.insert(frame.begin()+k+1, 1, nf);
   return true;
 
+}
+
+bool BrfMesh::AddAllFrames(const BrfMesh &b){
+
+	if (b.frame[0].pos.size()!=frame[0].pos.size()) return false;
+	if (b.frame[0].norm.size()!=frame[0].norm.size()) return false;
+	if (b.vert.size()!=vert.size()) return false;
+	if (b.face.size()!=face.size()) return false;
+	if (b.rigging.size() != rigging.size()) return false;
+	for (uint i=0; i<b.frame.size(); i++)
+		frame.push_back(b.frame[i]);
+	return true;
 }
 
 bool BrfMesh::AddFrameDirect(const BrfMesh &b)
@@ -1425,6 +1490,40 @@ void BrfMesh::SelectAbsent(const BrfMesh& brf, int fi){
   printf("Selected %d absent (%d where present)\n",nbad, ngood);
 }
 
+bool BrfMesh::CopyVertColors(const BrfMesh& b){
+	int fi = 0;
+	int fib = 0;
+	hasVertexColor = false;
+	for (unsigned int i=0; i<face.size(); i++)
+	for (int w=0; w<3; w++){
+		Point3f posA =  frame[fi].pos[ vert[ face[i].index[w] ].index ]*0.75
+									+ frame[fi].pos[ vert[ face[i].index[(w+1)%3] ].index ]*0.125
+									+ frame[fi].pos[ vert[ face[i].index[(w+2)%3] ].index ]*0.125;
+
+		float mindist = -1;
+		int minw = 0;
+		int mini = 0;
+		for (unsigned int ib=0; ib<b.face.size(); ib++)
+		for (int wb=0; wb<3; wb++){
+			Point3f posB =  b.frame[fib].pos[ b.vert[ b.face[ib].index[wb] ].index ]*0.75
+										+ b.frame[fib].pos[ b.vert[ b.face[ib].index[(wb+1)%3] ].index ]*0.125
+										+ b.frame[fib].pos[ b.vert[ b.face[ib].index[(wb+2)%3] ].index ]*0.125;
+			float dist = (posA-posB).SquaredNorm();
+			if ((mindist==-1)||(dist<mindist)){
+				mindist = dist;
+				mini = ib;
+				minw = wb;
+			}
+		}
+
+		unsigned int c =  b.vert[ b.face[mini].index[minw] ].col;
+		if (c!=0xFFFFFFFF) hasVertexColor = true;
+		vert[ face[i].index[w] ].col = c;
+
+	}
+	return true;
+}
+
 
 bool BrfMesh::CopyTextcoords(const BrfMesh& b){
 	int fi = 0;
@@ -1691,6 +1790,23 @@ void BrfRigging::Add(int bi, float w){
   if (overflow) Normalize();
 }
 
+static float sign(float x){
+	if (x<0) return -1; else return +1;
+}
+
+void BrfRigging::Stiffen(float howmuch){
+
+	int k=0;
+	for (k=0; k<4; k++) {
+		if (boneIndex[k] != -1) {
+			boneWeight[k] = sign(boneWeight[k])*(float)pow(fabs(boneWeight[k]),howmuch);
+			if (boneWeight[k]<0.01f) boneWeight[k]=0;
+		}
+	}
+	Normalize();
+}
+
+
 bool BrfRigging::MaybeAdd(int bi, float w){
 	if (bi<0) return true;
 	if (w<=0.01) return true;
@@ -1704,7 +1820,6 @@ bool BrfRigging::MaybeAdd(int bi, float w){
 		}
 	}
 	return false;
-
 }
 
 bool BrfRigging::MaybeAdd(BrfRigging& w){
@@ -2003,6 +2118,10 @@ void BrfMesh::Hasten(float timemult){
 }
 
 void BrfMesh::Flip(){
+
+	/* TMP!!! */
+	//SmoothRigging(); return;
+
   for (unsigned int j=0; j<frame.size(); j++) {
     for (unsigned int i=0; i<frame[j].pos.size(); i++){
       frame[j].pos[i].X()*=-1;
@@ -2741,6 +2860,41 @@ void BrfMesh::paintAlphaAsZ(float min, float max){
 
 
 unsigned int tuneColor(unsigned int col, int c, int h, int s, int b);
+
+void BrfMesh::SmoothRigging(){
+
+        std::vector<int> map; DivideIntoSeparateChunks(map);
+        int npos = frame[0].pos.size();
+        std::vector<bool> glued(npos,false);
+        const float glueDist = 0.07;
+	for (int i=0; i<npos; i++) {
+		for (int j=0; j<npos; j++) {
+			if ( (map[i]!=map[j]) && (vcg::SquaredDistance(frame[0].pos[i],frame[0].pos[j])<glueDist*glueDist)){
+				glued[i]=true;
+				break;
+			}
+
+		}
+	}
+
+	std::vector<BrfRigging> rb = rigging;
+	for (int i=0; i<(int)face.size(); i++) {
+		for (int j=0; j<3; j++) {
+			int k0 = vert[ face[i].index[   j   ] ].index;
+			int k1 = vert[ face[i].index[(j+1)%3] ].index;
+                        if (!glued[k0]) rigging[k0].MaybeAdd( rb[k1] );
+                        if (!glued[k1])rigging[k1].MaybeAdd( rb[k0] );
+		}
+	}
+	for (int i=0; i<(int)rigging.size(); i++)
+		if (!glued[i]) rigging[i].Normalize();
+        for (int i=0; i<(int)vert.size(); i++) if (glued[vert[i].index]) vert[i].col=0;
+}
+
+void BrfMesh::StiffenRigging(float howMuch){
+	for (int i=0; i<(int)rigging.size(); i++)
+		rigging[i].Stiffen(howMuch);
+}
 
 void BrfMesh::TuneColors(int c, int h, int s, int b){
   //unsigned int col =(unsigned int)r<<8+(unsigned int)g<<16+(unsigned int)b<<24+(unsigned int)a;

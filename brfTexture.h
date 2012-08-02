@@ -14,7 +14,7 @@ public:
   char name[255];
   unsigned int flags;
 
-  bool Load(FILE*f,int verbose=1);
+  bool Load(FILE*f,int verbose=0);
   void Save(FILE*f) const;
   static bool IsAnimable() { return false; }
   static Box3f bbox;

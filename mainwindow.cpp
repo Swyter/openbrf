@@ -190,11 +190,12 @@ static bool _copy(vector<T> &t, const QModelIndexList &l, vector<T> &d){
     int i=l[k].row();
     if (i<0 || i>=(int)t.size()) continue;
     d.push_back(t[i]);
-    QString name(t[i].name);
+		/*
     if (T::tokenIndex()==TEXTURE) {
       // remove ".dds"
-      name.truncate(name.lastIndexOf("."));
-    }
+			QString name(t[i].name);
+			name.truncate(name.lastIndexOf("."));
+		}*/
 
   }
 
@@ -248,7 +249,7 @@ void MainWindow::updateDataShader(){
   Ui::GuiPanel* u = guiPanel->ui;
   setFlags(s.flags, u->leShaderFlags);
   setString(s.technique, u->leShaderTechnique);
-  setUInt(s.requires, u->leShaderRequires);
+	setFlags(s.requires, u->leShaderRequires);
   setString(s.fallback, u->leShaderFallback);
 
   int ta =guiPanel->getCurrentSubpieceIndex(SHADER);
@@ -1020,6 +1021,43 @@ void MainWindow::meshUnify(){
   statusBar()->showMessage(tr("Vertex unified."), 2000);
 }
 
+void MainWindow::meshAniSplit(){
+	for (int k=0; k<selector->selectedList().size(); k++) {
+		int i= selector->selectedList()[k].row();
+		if (i<0) continue;
+		if (i>(int)brfdata.mesh.size()) continue;
+
+		BrfMesh &m (brfdata.mesh[i]);
+
+
+		std::vector<BrfMesh> res;
+		for (uint i=0; i<m.frame.size(); i++) {
+			BrfMesh m2 = m;
+			m2.frame[0]=m.frame[i];
+			m2.frame.resize(1);
+			sprintf( m2.name, "%s_frame%d", m.name, i);
+			res.push_back( m2 );
+
+		}
+
+		for (uint i=0; i<res.size(); i++) insert(res[i]);
+
+		if (!res.size())
+			statusBar()->showMessage(tr("Only one component found"), 2000);
+		else
+			statusBar()->showMessage(tr("Mesh separated into %1 pieces.").arg(res.size()), 2000);
+
+		updateGui();
+		updateGl();
+
+		setModified(true);
+
+		break;
+
+	}
+}
+
+
 void MainWindow::meshSubdivideIntoComponents(){
 	for (int k=0; k<selector->selectedList().size(); k++) {
 		int i= selector->selectedList()[k].row();
@@ -1054,8 +1092,6 @@ void MainWindow::meshSubdivideIntoComponents(){
 		break;
 
 	}
-
-
 }
 
 void MainWindow::meshFixRiggingRigidParts(){
@@ -1175,7 +1211,7 @@ void MainWindow::meshFemininize(){
     int feminineFrame = (usingWarband)?2:1;
     int masculineFrame = (usingWarband)?1:2;
     m.MorphFrame(masculineFrame,feminineFrame,femininizer);
-    m.AddALittleOfBreast(feminineFrame);
+
     m.ComputeNormals(feminineFrame);
     m.frame[0].time = 0;
     m.frame[1].time = (usingWarband)?0:10;
@@ -1286,6 +1322,44 @@ void MainWindow::meshRecomputeNormalsAndUnify(){
   setModified(true);
 }
 
+void MainWindow::smoothenRigging(){
+	QModelIndexList list= selector->selectedList();
+	if (selector->currentTabName()!=MESH) return;
+
+	int k=0;
+	for (int j=0; j<list.size(); j++){
+		BrfMesh &m(brfdata.mesh[list[j].row()]);
+		if (m.isRigged) {
+			m.SmoothRigging();
+			k++;
+		}
+	}
+	if (k) {
+		updateGl();
+		setModified(true);
+	}
+	statusBar()->showMessage(tr("Softened %1 rigged meshes!").arg(k), 2000);
+}
+
+
+void MainWindow::stiffenRigging(){
+	QModelIndexList list= selector->selectedList();
+	if (selector->currentTabName()!=MESH) return;
+
+	int k=0;
+	for (int j=0; j<list.size(); j++){
+		BrfMesh &m(brfdata.mesh[list[j].row()]);
+		if (m.isRigged) {
+			m.StiffenRigging(1.2);
+			k++;
+		}
+	}
+	if (k) {
+		updateGl();
+		setModified(true);
+	}
+	statusBar()->showMessage(tr("Stiffened %1 rigged meshes!").arg(k), 2000);
+}
 
 void MainWindow::flip(){
   QModelIndexList list= selector->selectedList();
@@ -1449,6 +1523,44 @@ void MainWindow::aniMerge(){
     }
   }
   insert(res);
+}
+
+void MainWindow::meshAniMerge(){
+	if (selector->currentTabName()!=MESH) return;
+
+	QModelIndexList list = selector->selectedList();
+	std::vector<bool> sel(brfdata.mesh.size(),false);
+
+	for (int i=0; i<list.size(); i++){
+		int j = list[i].row();
+		sel[j] = true;
+	}
+
+	BrfMesh res;
+	for (uint i=0, first=1; i<sel.size(); i++) if (sel[i]) {
+		if (first) {
+			res = brfdata.mesh[i]; first = 0;
+		} else {
+			if (!res.AddAllFrames(brfdata.mesh[i])) {
+				QMessageBox::information(this,"OpenBrf",
+					tr("Cannot merge these meshes\n (different number of vertices, faces, points...).\n")
+				);
+				return;
+			}
+			QString n0 = QString("%1").arg(res.name);
+			QString n1 = QString("%2").arg(res.name);
+		}
+	}
+	int j=0;
+	for (uint i=0; i<sel.size(); i++) {
+		if (!sel[i]) {
+			brfdata.mesh[j++] = brfdata.mesh[i];
+		}
+	}
+	brfdata.mesh.resize(j);
+
+
+	insert(res);
 }
 
 
@@ -1617,23 +1729,56 @@ void MainWindow::meshDiscardAni(){
   updateGl();
 }
 
+double myRound(double d){
+	double res1=0.00001;
+	int res2=1;
+	while (res1*res2<d) {
+		if (res2==1) res2=5;
+		else if (res2==5) res2=10;
+		else if (res2==10) res2=25;
+		else if (res2==25) res2=50;
+		else { res2=1; res1*=10; }
+	}
+	return res1*res2;
+}
 
 void MainWindow::transform(){
   QModelIndexList list= selector->selectedList();
   if (list.size()>0) {
 
-    AskTransformDialog *d = new AskTransformDialog(this);
-    d->matrix = glWidget->extraMatrix;
+		glWidget->lastSelected = list[ list.size()-1 ].row();
+
+		// find bbox
+		Box3f bboxAll, bboxOne; bboxAll.SetNull();
+		if (selector->currentTabName()==MESH)
+		for (int j=0; j<list.size(); j++){
+			bboxOne = brfdata.mesh[list[j].row()].bbox;
+			bboxAll.Add( bboxOne );
+		} else
+		if (selector->currentTabName()==BODY)
+		for (int j=0; j<list.size(); j++){
+			bboxOne = brfdata.body[list[j].row()].bbox;
+			bboxAll.Add( bboxOne );
+		}
+
+		AskTransformDialog *d = new AskTransformDialog(this, list.size()>1 );
+		d->setSensitivityOne( 0.01 ) ; //myRound( bboxOne.Diag() / 20 ) );
+		d->setSensitivityAll( 0.05 ) ; // myRound( bboxAll.Diag() / 20 ) );
+		d->matrix = glWidget->extraMatrix;
+		d->setApplyToAllLoc( &( glWidget->applyExtraMatrixToAll ) );
+
     connect(d,SIGNAL(changed()),glWidget,SLOT(update()));
     bool ok = d->exec() == QDialog::Accepted;
 
+		int start = (glWidget->applyExtraMatrixToAll)?0:list.size()-1;
+
     if (ok) {
       if (selector->currentTabName()==MESH)
-      for (int j=0; j<list.size(); j++){
+			for (int j=start; j<list.size(); j++){
         brfdata.mesh[list[j].row()].Transform(d->matrix);
       }
       if (selector->currentTabName()==BODY)
-      for (int j=0; j<list.size(); j++){
+			for (int j=start; j<list.size(); j++){
         brfdata.body[list[j].row()].Transform(d->matrix);
       }
       setModified(true);
@@ -1935,7 +2080,9 @@ void MainWindow::onClipboardChange(){
     editPasteFrameAct->setEnabled((clipboard.mesh.size()==1) && (clipboard.mesh[0].frame.size()==1));
 
 		editPasteTextcoordsAct->setEnabled(clipboard.mesh.size()==1);
-    editPasteModificationAct->setEnabled(true);
+		editPasteVertColorsAct->setEnabled(clipboard.mesh.size()==1);
+        editPasteVertAniAct->setEnabled((clipboard.mesh.size()==1) &&  (clipboard.mesh[0].frame.size()>=1));
+        editPasteModificationAct->setEnabled(true);
 
   } else {
     editPasteRiggingAct->setEnabled(false);
@@ -1943,7 +2090,9 @@ void MainWindow::onClipboardChange(){
     editPasteModificationAct->setEnabled(false);
 		editPasteFrameAct->setEnabled(false);
 		editPasteTextcoordsAct->setEnabled(false);
-  }
+		editPasteVertColorsAct->setEnabled(false);
+        editPasteVertAniAct->setEnabled(false);
+    }
 
 	editPasteAniLowerPartsAct->setEnabled((clipboard.animation.size()==1));
 
@@ -1967,13 +2116,13 @@ void MainWindow::saveSystemClipboard(){
   // save data
   QTemporaryFile file;
   file.open();
-  FILE* pFile = fdopen(file.handle(), "wb");
+	FILE* pFile = fdopen(file.handle(), "wb");
   clipboard.Save(pFile);
   fflush(pFile);
 
-  QFile refile(file.fileName());
+	QFile refile(file.fileName());
 
-  refile.open(QIODevice::ReadOnly);
+	refile.open(QIODevice::ReadOnly);
 
   /*
   //refile.reset();
@@ -1986,9 +2135,9 @@ void MainWindow::saveSystemClipboard(){
     refile.reset();
   }*/
 
-  mime->setData("application/openBrf",refile.readAll());
+	mime->setData("application/openBrf",refile.readAll());
 
-  refile.close();
+	refile.close();
   file.close();
 
 
@@ -1999,6 +2148,7 @@ void MainWindow::saveSystemClipboard(){
 }
 
 void MainWindow::loadSystemClipboard(){
+	//return;
   clipboard.Clear();
   const QMimeData *mime = QApplication::clipboard()->mimeData();
   const QByteArray &ba = mime->data("application/openBrf");
@@ -2009,7 +2159,7 @@ void MainWindow::loadSystemClipboard(){
   fn[f.fileName().size()]=0;
   f.write(ba);
   f.flush();
-  /*
+	/*
   if (!f.isOpen()) {
     QMessageBox::information(this,"Cannot open file",QString("%1").arg(f.fileName()));
   } else {
@@ -2017,10 +2167,12 @@ void MainWindow::loadSystemClipboard(){
       QString("filename: %3\n%4,file size: %1 (%2)").
       arg(f.size()).arg(ba.size()).arg(f.fileName()).arg(QString("pippo"))
     );
-  }*/
+	}*/
 
   //FILE* pFile = fdopen(f.handle(), "rb");
-  clipboard.Load(fn);
+	if (!clipboard.Load(fn)) {
+		QMessageBox::information(this,"Cannot load file",QString("%1").arg(f.fileName()));
+	}
   f.close();
   //
 }
@@ -2042,17 +2194,32 @@ void MainWindow::editPasteAniLowerParts(){
 }
 
 void MainWindow::editPasteTextcoords(){
-
 	QModelIndexList list= selector->selectedList();
 	for (int j=0; j<list.size(); j++){
 		brfdata.mesh[list[j].row()].CopyTextcoords(clipboard.mesh[0]);
 	}
-
-
 	updateSel();
 	setModified(true);
 }
 
+
+void MainWindow::editPasteVertColors(){
+    QModelIndexList list= selector->selectedList();
+    for (int j=0; j<list.size(); j++){
+                brfdata.mesh[list[j].row()].CopyVertColors(clipboard.mesh[0]);
+    }
+    updateSel();
+    setModified(true);
+}
+
+void MainWindow::editPasteVertAni(){
+	QModelIndexList list= selector->selectedList();
+	for (int j=0; j<list.size(); j++){
+                brfdata.mesh[list[j].row()].CopyVertAni(clipboard.mesh[0]);
+	}
+	updateSel();
+	setModified(true);
+}
 
 void MainWindow::editPasteRigging(){
 
@@ -3977,3 +4144,180 @@ void MainWindow::setFlagsMaterial(){
   }
 
 }
+
+void MainWindow::setFlagsShaderRequires(){
+	unsigned int curfOR=0, curfAND = 0xFFFFFFFF;
+
+
+	QString FlagNameArray[64] = {
+		"","",
+		"","",
+		"","",
+		"","",
+
+		"","",
+		"","",
+		"","",
+		"","",
+
+		"","",
+		"","",
+		"","",
+		"","",
+
+		"pixel shader", "requires config setting use_pixel_shaders and video card PS 1.1 capability",// 0x1000, //
+		"mid quality",  "requires config setting shader_quality > 0",// 0x2000, //
+		"hi quality", "requires config setting shader_quality > 1 and some additional video card PS 2.0a/b capabilities",  // 0x4000, //
+
+		"","",
+		"","",
+		"","",
+		"","",
+
+		"","",
+		"","",
+		"","",
+		"","",
+
+		"","",
+		"","",
+		"","",
+		"","",
+
+		"","",
+		"","",
+		"","",
+		"","",
+
+	};
+
+	QModelIndexList list=selector->selectedList();
+
+	for (int i=0; i<(int)list.size(); i++) {
+		int sel = list[i].row();
+		if (sel<0 || sel>=(int)brfdata.shader.size()) continue;
+
+		BrfShader &t(brfdata.shader[sel]);
+		curfOR |= t.requires;
+		curfAND &= t.requires;
+	}
+
+	//setFlags(curf,ui->leMatFlags->text());
+	QStringList l, tips ;
+	for (int i=0; i<32; i++) {
+		l.append(FlagNameArray[i*2]);
+		tips.append(FlagNameArray[i*2+1]);
+	}
+
+	AskFlagsDialog *d = new AskFlagsDialog(this,curfOR,curfAND, l,tips);
+
+	d->setWindowTitle(tr("Shader Requirements"));
+	if (d->exec()==QDialog::Accepted) {
+		//ui->leMatFlags->setText(StringH( d->getRes() ));
+		//emit(dataMaterialChanged());
+
+		for (int i=0; i<(int)list.size(); i++) {
+			int sel = list[i].row();
+			if (sel<0 || sel>=(int)brfdata.shader.size()) continue;
+
+			BrfShader &t(brfdata.shader[sel]);
+
+			t.requires |= d->toOne();
+			t.requires &= d->toZero();
+
+		}
+		guiPanel->setSelection(list,SHADER);
+		setModified(true);
+	}
+
+}
+
+void MainWindow::setFlagsShader(){
+	unsigned int curfOR=0, curfAND = 0xFFFFFFFF;
+
+
+	QString FlagNameArray[64] = {
+		"","",
+		"","",
+		"","",
+		"","",
+
+		"","",
+		"specular enable","self explanatory",    // 0x20        //
+		"","",
+		"static_lighting","meshes using this shader will simulate lighting by vertex painting (static, on scene creation)",
+
+		"","",
+		"","",
+		"","",
+		"","",
+
+		"preshaded"        ,"uses preshaded technique", //0x1000,     //
+		"uses instancing"  ,"shader receives instance data as input (TEXCOORD1..4)", //0x2000,     //
+		"","",
+		"biased"           ,"used for shadowmap bias", //0x8000,     //
+
+		"","",
+		"","",
+		"","",
+		"","",
+
+		"","",
+		"","",
+		"","",
+		"","",
+
+		"","",
+		"","",
+		"","",
+		"","",
+
+		"uses pixel shader","self explanatory", //0x10000000, //
+		"uses HLSL"        ,"if not set the FFP will be used", //0x20000000, //
+		"uses normal map"  ,"shader receives binormal and tangent as input (TANGENT, BINORMAL)", //0x40000000, //
+		"uses skinning"    ,"shader receives skinning data as input (BLENDWEIGHTS, BLENDINDICES)", //0x80000000, //
+
+	};
+
+	QModelIndexList list=selector->selectedList();
+
+	for (int i=0; i<(int)list.size(); i++) {
+		int sel = list[i].row();
+		if (sel<0 || sel>=(int)brfdata.shader.size()) continue;
+
+		BrfShader &t(brfdata.shader[sel]);
+		curfOR |= t.flags;
+		curfAND &= t.flags;
+	}
+
+	//setFlags(curf,ui->leMatFlags->text());
+	QStringList l, tips ;
+	for (int i=0; i<32; i++) {
+		l.append(FlagNameArray[i*2]);
+		tips.append(FlagNameArray[i*2+1]);
+	}
+
+	AskFlagsDialog *d = new AskFlagsDialog(this,curfOR,curfAND, l,tips);
+
+	d->setWindowTitle(tr("Shader flags"));
+	if (d->exec()==QDialog::Accepted) {
+		//ui->leMatFlags->setText(StringH( d->getRes() ));
+		//emit(dataMaterialChanged());
+
+		for (int i=0; i<(int)list.size(); i++) {
+			int sel = list[i].row();
+			if (sel<0 || sel>=(int)brfdata.shader.size()) continue;
+
+			BrfShader &t(brfdata.shader[sel]);
+
+			t.flags |= d->toOne();
+			t.flags &= d->toZero();
+
+		}
+		guiPanel->setSelection(list,SHADER);
+		setModified(true);
+	}
+
+}
+
+

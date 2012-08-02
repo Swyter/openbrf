@@ -68,6 +68,7 @@ public:
   void Add(int index, float w);
 	bool MaybeAdd(int index, float w);
 	bool MaybeAdd(BrfRigging &b);
+	void Stiffen(float howmuch);
 };
 
 class BrfFrame{
@@ -89,6 +90,7 @@ public:
   void Apply(Matrix44<float> m);
   int FindClosestPoint(Point3f to, float* maxdist)const;
 
+
   void MakeSlim(float ratioX, float ratioZ, const BrfSkeleton* s);
 };
 
@@ -105,9 +107,11 @@ public:
   bool Load(const char* text);
   void Emphatize(float k);
   Point3f s[MAX_BONES], t[MAX_BONES];
+	float extraBreast;
 private:
-  // quadric coefficients
+	// quadric coefficients
   Point3f css[MAX_BONES],ctt[MAX_BONES],cst[MAX_BONES],cs[MAX_BONES],ct[MAX_BONES],cc[MAX_BONES];
+	// breast multiplier
 };
 
 class BrfMesh{
@@ -136,13 +140,17 @@ public:
   void DiscardTangentField();
 	bool CopyModification(const BrfMesh& mod);
 	bool CopyTextcoords(const BrfMesh& b);
-  void SetDefault();
+	bool CopyVertColors(const BrfMesh& b);
+	bool CopyVertAni(const BrfMesh& b);
+	void SetDefault();
   void MakeSingleQuad(float x, float y, float dx, float dy);
   void AddToBody(BrfBodyPart &dest);
 
-  void TuneColors(int contast, int hue, int sat, int brigh);
+	void SmoothRigging();
+	void StiffenRigging(float howmuch);
+	void TuneColors(int contast, int hue, int sat, int brigh);
   void MorphFrame(int framei, int framej, const MeshMorpher& m);
-  void AddALittleOfBreast(int framei);
+	void AddALittleOfBreast(int framei, float howMuch);
 
   void FreezeFrame(const BrfSkeleton& s, const BrfAnimation& a, float frame);
 
@@ -220,7 +228,8 @@ public:
 
 
   bool Merge(const BrfMesh &brf);
-  bool AddFrameDirect(const BrfMesh &brf);
+	bool AddAllFrames(const BrfMesh &brf);
+	bool AddFrameDirect(const BrfMesh &brf);
   bool AddFrameMatchVert(const BrfMesh &brf, int k);
   bool AddFrameMatchTc(const BrfMesh &brf, int k);
   bool AddFrameMatchPosOrDie(const BrfMesh &brf, int k);
@@ -240,7 +249,7 @@ public:
 
 private:
   void CopyTimesFrom(const BrfMesh &brf);
-  void Average(const BrfMesh &brf);
+	void Average(const BrfMesh &brf);
   void MergeMirror(const BrfMesh &brf);
   void UpdateMaxBone();
   
@@ -294,6 +303,7 @@ private:
   
   static void AlignToTop(BrfMesh& a, BrfMesh& b);
   BrfMesh SingleFrame(int i) const; // returns a BrfMesh consisting only of frame i
+	static bool FindVertVertMapping(std::vector<int> &map, const BrfMesh& a, const BrfMesh& b, int ai, int bi, float uv, float xyz);
 
 };
 

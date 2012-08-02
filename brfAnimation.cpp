@@ -79,6 +79,7 @@ static vcg::Point4f MirrorRotRoot(vcg::Point4f x){
 }
 
 static vcg::Point4f MirrorRot(vcg::Point4f x){
+	x[0]*=-1;x[3]*=-1; return x;
 	vcg::Matrix44f res;
 	vcg::Quaternionf(x).ToMatrix(res);
 	res[1][2]*=-1; res[2][1]*=-1;

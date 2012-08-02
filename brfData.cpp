@@ -169,7 +169,8 @@ int BrfData::getOneSkeleton(int nbones, int after){
 int globVersion;
 
 bool BrfData::Save(FILE *f) const{
-  if (globVersion==1) { SaveString(f, "rfver "); SaveInt(f,1); }
+	globVersion = version;
+	if (globVersion==1) { SaveString(f, "rfver "); SaveInt(f,1); }
   SaveAll(f,texture);
   SaveAll(f,shader);
   SaveAll(f,material);
@@ -183,7 +184,6 @@ bool BrfData::Save(FILE *f) const{
 }
 
 bool BrfData::Save(const wchar_t*fn) const{
-  globVersion = version;
 
   FILE *f = _wfopen(fn,L"wb");
   if (!f) return false;

@@ -9,7 +9,7 @@
 
 class BrfBodyPart{
 public:
-  bool Load(FILE*f,char* firstWord=NULL, int verbose=1);
+  bool Load(FILE*f,char* firstWord=NULL, int verbose=0);
   static bool Skip(FILE*f,char* firstWord=NULL);
   void Save(FILE*f) const;
   typedef enum {MANIFOLD, FACE, CAPSULE, SPHERE, N_TYPE } Type;
@@ -65,7 +65,7 @@ public:
   static int tokenIndex(){return BODY;}
   char name[255];
 
-  bool Load(FILE*f, int verbose=1);
+  bool Load(FILE*f, int verbose=0);
   bool Skip(FILE*f);
   void Save(FILE*f) const;
 

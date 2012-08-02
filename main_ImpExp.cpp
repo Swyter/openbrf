@@ -403,6 +403,35 @@ bool MainWindow::importSkeletonMod(){
   return true;
 }
 
+bool MainWindow::exportBodyGroupManyFiles(){
+  int i = selector->firstSelected();
+  if (i<0) return false;
+  if (i>(int)brfdata.mesh.size()) return false;
+
+  QString path = settings->value("LastExpImpPath").toString();
+  if (path.isEmpty()) path = QDir::currentPath();
+
+  QString dir = QFileDialog::getExistingDirectory ( this, tr("Select a folder to export all coll meshes"),path,QFileDialog::ShowDirsOnly);
+
+  if (dir.isEmpty()) return false;
+
+  for (int k=0; k<selector->selectedList().size(); k++){
+
+    int i = selector->selectedList()[k].row();
+    const BrfBody &m(brfdata.body[ i ]);
+    QString fn = QString("%1/%2.obj").arg(dir,m.name);
+    if (!brfdata.body[i].ExportOBJ(fn.toStdWString().c_str())){
+      QMessageBox::information(this,
+        tr("Open Brf"),
+        tr("Cannot open file %1 for writing;").arg(fn)
+      );
+      return false;
+    }
+
+  }
+  return true;
+}
+
 
 
 bool MainWindow::exportCollisionBody(){

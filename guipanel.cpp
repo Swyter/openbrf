@@ -205,6 +205,7 @@ GuiPanel::GuiPanel(QWidget *parent, IniData &id) :
   ui->leShaderFlags->setInputMask(flagMask);
   ui->leShaderTaFlags->setInputMask(flagMask);
   ui->leBodyFlags->setInputMask(flagMask);
+	ui->leShaderRequires->setInputMask(flagMask);
 
 
   //ui->leMatR->setInputMask("0.0000");
@@ -711,7 +712,7 @@ switch (TokenEnum(k)){
       ui->leShaderTechnique->setText( s.technique );
       ui->leShaderFallback->setText( s.fallback );
       ui->leShaderFlags->setText( StringH(s.flags) );
-      ui->leShaderRequires->setText( String(s.requires) );
+			ui->leShaderRequires->setText( StringH(s.requires) );
       updateShaderTextaccSize();
       }
       break;

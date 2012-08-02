@@ -84,12 +84,12 @@ Selector::Selector(QWidget *parent)
   goPrevTabAct->setShortcut(QString("left"));
   addAction(goPrevTabAct);
 
-  moveUpAct = new QAction(tr("Move up"), this);
+	moveUpAct = new QAction(tr("Move up in the list"), this);
   moveUpAct->setShortcut(QString("Alt+up"));
   moveUpAct->setStatusTip(tr("Move this object upward in the list"));
   addAction(moveUpAct);
 
-  moveDownAct = new QAction(tr("Move down"), this);
+	moveDownAct = new QAction(tr("Move down in the list"), this);
   moveDownAct->setShortcut(QString("Alt+down"));
   moveDownAct->setStatusTip(tr("Move this object one step down in the list"));
   addAction(moveDownAct);
@@ -169,6 +169,9 @@ Selector::Selector(QWidget *parent)
   exportMeshGroupManyFilesAct = new QAction(tr("Export all meshes"), this);
   exportMeshGroupManyFilesAct->setStatusTip(tr("Export each of these models as separate OBJs."));
 
+  exportBodyGroupManyFilesAct = new QAction(tr("Export all"), this);
+  exportBodyGroupManyFilesAct->setStatusTip(tr("Export each of these collison bodies as separate files."));
+
   exportRiggedMeshAct = new QAction(tr("Export rigged mesh"), this);
   exportRiggedMeshAct->setStatusTip(tr("Export this model (or this frame) as a rigged mesh."));
 
@@ -188,6 +191,11 @@ Selector::Selector(QWidget *parent)
   transferRiggingAct = new QAction(tr("Transfer rigging"), this);
   transferRiggingAct->setStatusTip(tr("Copy rigging from one mesh to another"));
 
+	stiffenRiggingAct = new QAction(tr("Make rigging stiffer"), this);
+	stiffenRiggingAct->setStatusTip(tr("Make the rigging of selected mesh(es) somewhat rigidier"));
+
+	smoothenRiggingAct = new QAction(tr("Make rigging softer"), this);
+	smoothenRiggingAct->setStatusTip(tr("Make the rigging of selected mesh(es) somewhat softer."));
 
   flipAct = new QAction(tr("Mirror"), this);
   flipAct->setStatusTip(tr("Mirror this object on the X axis."));
@@ -244,6 +252,12 @@ Selector::Selector(QWidget *parent)
   meshFreezeFrameAct = new QAction(tr("rigging (keep current pose)"), this);
   meshFreezeFrameAct->setStatusTip(tr("Discard rigging, but keep current pose"));
 
+	meshAniMergeAct = new QAction(tr("Merge as frames in a vertex ani"), this);
+	meshAniMergeAct->setStatusTip(tr("Merge these meshes, in their current order, as frames in a mesh ani"));
+
+	meshAniSplitAct = new QAction(tr("Separate all frames"), this);
+	meshAniSplitAct->setStatusTip(tr("Split all frames, making 1 mesh per frame"));
+
   meshRecolorAct = new QAction(tr("Color uniform"), this);
   meshRecolorAct->setStatusTip(tr("Set per vertex color as a uniform color"));
 
@@ -297,6 +311,7 @@ Selector::Selector(QWidget *parent)
   connect(exportMovingMeshAct, SIGNAL(triggered()),parent,SLOT(exportMovingMesh()));
   connect(exportMeshGroupAct, SIGNAL(triggered()),parent,SLOT(exportMeshGroup()));
   connect(exportMeshGroupManyFilesAct, SIGNAL(triggered()),parent,SLOT(exportMeshGroupManyFiles()));
+  connect(exportBodyGroupManyFilesAct, SIGNAL(triggered()),parent,SLOT(exportBodyGroupManyFiles()));
   connect(exportSkeletonModAct, SIGNAL(triggered()),parent,SLOT(exportSkeletonMod()));
   connect(exportSkeletonAct, SIGNAL(triggered()),parent,SLOT(exportSkeleton()));
   connect(exportAnimationAct, SIGNAL(triggered()),parent,SLOT(exportAnimation()));
@@ -304,11 +319,16 @@ Selector::Selector(QWidget *parent)
   connect(transferRiggingAct, SIGNAL(triggered()),parent,SLOT(transferRigging()));
 
   connect(flipAct, SIGNAL(triggered()),parent,SLOT(flip()));
-  connect(transformAct, SIGNAL(triggered()),parent,SLOT(transform()));
+	connect(smoothenRiggingAct, SIGNAL(triggered()),parent,SLOT(smoothenRigging()));
+	connect(stiffenRiggingAct, SIGNAL(triggered()),parent,SLOT(stiffenRigging()));
+	connect(transformAct, SIGNAL(triggered()),parent,SLOT(transform()));
   connect(scaleAct, SIGNAL(triggered()),parent,SLOT(scale()));
   connect(exportBodyAct, SIGNAL(triggered()), parent, SLOT(exportCollisionBody()));
   connect(shiftAniAct, SIGNAL(triggered()),parent,SLOT(shiftAni()));
   connect(bodyMakeQuadDominantAct, SIGNAL(triggered()),parent,SLOT(bodyMakeQuadDominant()));
+
+	connect(meshAniSplitAct,SIGNAL(triggered()),parent,SLOT(meshAniSplit()));
+	connect(meshAniMergeAct,SIGNAL(triggered()),parent,SLOT(meshAniMerge()));
 
   connect(discardAniAct,SIGNAL(triggered()),parent,SLOT(meshDiscardAni()));
   connect(discardColAct,SIGNAL(triggered()),parent,SLOT(meshDiscardCol()));
@@ -572,6 +592,9 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
        contextMenu->addAction(exportMeshGroupAct);
        contextMenu->addAction(exportMeshGroupManyFilesAct);
      }
+     if (t==BODY) {
+       contextMenu->addAction(exportBodyGroupManyFilesAct);
+     }
    }
 
    // tool section
@@ -579,27 +602,36 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
    if (!nosel) {
    if (t==MESH) {
      const BrfMesh &mesh(data->mesh[ seli ]);
-     if (mesh.isRigged) {
-       if (!sep) contextMenu->addSeparator(); sep=true;
+		 if (!sep) contextMenu->addSeparator();
+		 if (mesh.isRigged) {
        contextMenu->addAction(reskeletonizeAct);
        contextMenu->addAction(meshFemininizeAct);
 			 contextMenu->addAction(meshFixRiggingRigidParts);
+			 contextMenu->addAction(smoothenRiggingAct);
+			 contextMenu->addAction(stiffenRiggingAct);
      }
-     //contextMenu->addAction(transferRiggingAct);
+		 contextMenu->addAction(meshMountOnBone);
+		 //contextMenu->addAction(transferRiggingAct);
 
-     if (!sep) contextMenu->addSeparator(); sep=true;
-		 if (onesel)  contextMenu->addAction(meshSubdivideIntoComponents);
-		 contextMenu->addAction(flipAct);
+		 contextMenu->addSeparator(); sep=true;
+
      contextMenu->addAction(transformAct);
-     //contextMenu->addAction(scaleAct);
+		 contextMenu->addAction(flipAct);
+		 //contextMenu->addAction(scaleAct);
      contextMenu->addAction(meshRecomputeNormalsAndUnify);
      contextMenu->addAction(meshRecomputeTangentsAct);
      contextMenu->addAction(meshUnify);
-     contextMenu->addAction(meshComputeLodAct);
+		 if (onesel)  {
+			 contextMenu->addAction(meshSubdivideIntoComponents);
+			 contextMenu->addAction(meshAniSplitAct);
+		 }
+		 if (!onesel) {
+			 contextMenu->addAction(meshMerge);
+			 contextMenu->addAction(meshAniMergeAct);
+		 }
+		 contextMenu->addAction(meshComputeLodAct);
+		 contextMenu->addAction(meshToBody);
 
-     contextMenu->addAction(meshToBody);
-		 if (!onesel) contextMenu->addAction(meshMerge);
-     contextMenu->addAction(meshMountOnBone);
      QMenu *m = contextMenu->addMenu(tr("Backfacing faces"));
      m->addAction(meshRemoveBackfacing);
      m->addAction(meshAddBackfacing);
