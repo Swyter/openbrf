@@ -200,12 +200,13 @@ int VcgMesh::simplify(int percFaces){
   float TargetError=numeric_limits<float>::max();
   MyTriEdgeCollapse::Params().SafeHeapUpdate=true;
   qparams.QualityCheck	= true;
-  qparams.NormalCheck	= false;
+  qparams.NormalCheck	= true;
   qparams.OptimalPlacement	= false;
   qparams.ScaleIndependent	= true;
   qparams.PreserveBoundary	= false;
   qparams.PreserveTopology	= false;
-  qparams.BoundaryWeight  = 50;
+  qparams.PreserveBoundaryMild	= false ;
+  qparams.BoundaryWeight  = 500;
 
 
   //qparams.QualityThr	= atof(argv[i]+2);
@@ -250,8 +251,8 @@ int VcgMesh::simplify(int percFaces){
 
 }
 
-#include "BrfMesh.h"
-#include "BrfSkeleton.h"
+#include "brfMesh.h"
+#include "brfSkeleton.h"
 
 
 VcgMesh::VcgMesh()

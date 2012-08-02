@@ -1,7 +1,7 @@
 #include "askFlagsDialog.h"
 #include "ui_askFlagsDialog.h"
 
-#include<qtgui>
+#include<QtGui>
 #include<assert.h>
 
 AskFlagsDialog::AskFlagsDialog(QWidget *parent, unsigned int ones, unsigned int zeros, QStringList l) :

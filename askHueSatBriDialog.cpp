@@ -1,7 +1,7 @@
 #include "ui_askHueSatBriDialog.h"
 #include "askHueSatBriDialog.h"
 
-#include<qtgui>
+#include<QtGui>
 #include<assert.h>
 
 

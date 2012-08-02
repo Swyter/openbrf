@@ -1,4 +1,4 @@
-#include "brfdata.h"
+#include "brfData.h"
 #include "glwidgets.h"
 #include "selector.h"
 #include "mainwindow.h"
@@ -648,6 +648,7 @@ void MainWindow::createConnections(){
   connect(guiPanel->ui->leMatRendOrd,SIGNAL(editingFinished()), this, SLOT(updateDataMaterial()));
   //connect(guiPanel, SIGNAL(dataMaterialChanged()), this, SLOT(updateDataMaterial()));
   connect(guiPanel->ui->buFlagMat, SIGNAL(clicked()), this, SLOT(setFlagsMaterial()));
+  connect(guiPanel->ui->buFlagBody, SIGNAL(clicked()), this, SLOT(setFlagsBody()));
 
   connect(guiPanel->ui->browseTextureButton, SIGNAL(clicked()), glWidget, SLOT(browseTexture()));
 

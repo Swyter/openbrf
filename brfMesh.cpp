@@ -12,9 +12,9 @@
 using namespace std;
 using namespace vcg;
 
-#include "BrfMesh.h"
-#include "BrfSkeleton.h"
-#include "BrfBody.h"
+#include "brfMesh.h"
+#include "brfSkeleton.h"
+#include "brfBody.h"
 
 #include "saveLoad.h"
 typedef vcg::Point3f Pos;

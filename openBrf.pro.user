@@ -660,7 +660,7 @@
     <value type="QString">NUMBER_OF_PROCESSORS=2</value>
     <value type="QString">ONLINESERVICES=Servizi in linea</value>
     <value type="QString">OS=Windows_NT</value>
-    <value type="QString">PATH=C:\Qt\2009.03\mingw\bin;C:\Qt\2009.03\qt\bin;C:\Python26\\Scripts;C:\Python26\;C:\Program Files\PC Connectivity Solution\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Program Files\CyberLink\Power2Go\;C:\Program Files\TortoiseSVN\bin;C:\qt4.4.3\bin;C:\Program Files\QuickTime\QTSystem\;C:\Program Files\SlikSvn\bin\;C:\Program Files\TortoiseHg\;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Users\tarini\AppData\Roaming\Python\Scripts;C:\Program Files\MiKTeX 2.7\miktex\bin;C:\Qt\2009.03\mingw\bin</value>
+    <value type="QString">PATH=C:\Qt\2009.03\mingw\bin;C:\Qt\2009.03\qt\bin;C:\Python26\\Scripts;C:\Python26\;C:\Program Files\PC Connectivity Solution\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Program Files\CyberLink\Power2Go\;C:\Program Files\TortoiseSVN\bin;C:\qt4.4.3\bin;C:\Program Files\QuickTime\QTSystem\;C:\Program Files\SlikSvn\bin\;C:\Program Files\TortoiseHg\;C:\Windows\System32\WindowsPowerShell\v1.0\;%APPDATA%\Python\Scripts;C:\Program Files\MiKTeX 2.7\miktex\bin;C:\Qt\2009.03\mingw\bin</value>
     <value type="QString">PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.py;.pyw</value>
     <value type="QString">PCBRAND=Pavilion</value>
     <value type="QString">PLATFORM=MCD</value>
@@ -675,6 +675,7 @@
     <value type="QString">QTDIR=C:/Qt/2009.03/qt</value>
     <value type="QString">QTJAVA=C:\Program Files\Java\jre1.6.0_02\lib\ext\QTJava.zip</value>
     <value type="QString">SESSIONNAME=Console</value>
+    <value type="QString">SVN_SSH=C:\\Program Files\\TortoiseSVN\\bin\\TortoisePlink.exe</value>
     <value type="QString">SYSTEMDRIVE=C:</value>
     <value type="QString">SYSTEMROOT=C:\Windows</value>
     <value type="QString">TEMP=C:\Users\tarini\AppData\Local\Temp</value>
@@ -711,7 +712,7 @@
     <value type="QString">NUMBER_OF_PROCESSORS=2</value>
     <value type="QString">ONLINESERVICES=Servizi in linea</value>
     <value type="QString">OS=Windows_NT</value>
-    <value type="QString">PATH=C:\Qt\2009.03\mingw\bin;C:\Qt\2009.03\qt\bin;C:\Python26\\Scripts;C:\Python26\;C:\Program Files\PC Connectivity Solution\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Program Files\CyberLink\Power2Go\;C:\Program Files\TortoiseSVN\bin;C:\qt4.4.3\bin;C:\Program Files\QuickTime\QTSystem\;C:\Program Files\SlikSvn\bin\;C:\Program Files\TortoiseHg\;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Users\tarini\AppData\Roaming\Python\Scripts;C:\Program Files\MiKTeX 2.7\miktex\bin;C:\Qt\2009.03\mingw\bin</value>
+    <value type="QString">PATH=C:\Qt\2009.03\mingw\bin;C:\Qt\2009.03\qt\bin;C:\Python26\\Scripts;C:\Python26\;C:\Program Files\PC Connectivity Solution\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Program Files\CyberLink\Power2Go\;C:\Program Files\TortoiseSVN\bin;C:\qt4.4.3\bin;C:\Program Files\QuickTime\QTSystem\;C:\Program Files\SlikSvn\bin\;C:\Program Files\TortoiseHg\;C:\Windows\System32\WindowsPowerShell\v1.0\;%APPDATA%\Python\Scripts;C:\Program Files\MiKTeX 2.7\miktex\bin;C:\Qt\2009.03\mingw\bin</value>
     <value type="QString">PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.py;.pyw</value>
     <value type="QString">PCBRAND=Pavilion</value>
     <value type="QString">PLATFORM=MCD</value>
@@ -726,6 +727,7 @@
     <value type="QString">QTDIR=C:/Qt/2009.03/qt</value>
     <value type="QString">QTJAVA=C:\Program Files\Java\jre1.6.0_02\lib\ext\QTJava.zip</value>
     <value type="QString">SESSIONNAME=Console</value>
+    <value type="QString">SVN_SSH=C:\\Program Files\\TortoiseSVN\\bin\\TortoisePlink.exe</value>
     <value type="QString">SYSTEMDRIVE=C:</value>
     <value type="QString">SYSTEMROOT=C:\Windows</value>
     <value type="QString">TEMP=C:\Users\tarini\AppData\Local\Temp</value>
@@ -762,7 +764,7 @@
     <value type="QString">NUMBER_OF_PROCESSORS=2</value>
     <value type="QString">ONLINESERVICES=Servizi in linea</value>
     <value type="QString">OS=Windows_NT</value>
-    <value type="QString">PATH=C:\Qt\2009.03\mingw\bin;C:\Qt\2009.03\qt\bin;C:\Python26\\Scripts;C:\Python26\;C:\Program Files\PC Connectivity Solution\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Program Files\CyberLink\Power2Go\;C:\Program Files\TortoiseSVN\bin;C:\qt4.4.3\bin;C:\Program Files\QuickTime\QTSystem\;C:\Program Files\SlikSvn\bin\;C:\Program Files\TortoiseHg\;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Users\tarini\AppData\Roaming\Python\Scripts;C:\Program Files\MiKTeX 2.7\miktex\bin;C:\Qt\2009.03\mingw\bin</value>
+    <value type="QString">PATH=C:\Qt\2009.03\mingw\bin;C:\Qt\2009.03\qt\bin;C:\Python26\\Scripts;C:\Python26\;C:\Program Files\PC Connectivity Solution\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Program Files\CyberLink\Power2Go\;C:\Program Files\TortoiseSVN\bin;C:\qt4.4.3\bin;C:\Program Files\QuickTime\QTSystem\;C:\Program Files\SlikSvn\bin\;C:\Program Files\TortoiseHg\;C:\Windows\System32\WindowsPowerShell\v1.0\;%APPDATA%\Python\Scripts;C:\Program Files\MiKTeX 2.7\miktex\bin;C:\Qt\2009.03\mingw\bin</value>
     <value type="QString">PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.py;.pyw</value>
     <value type="QString">PCBRAND=Pavilion</value>
     <value type="QString">PLATFORM=MCD</value>
@@ -777,6 +779,7 @@
     <value type="QString">QTDIR=C:/Qt/2009.03/qt</value>
     <value type="QString">QTJAVA=C:\Program Files\Java\jre1.6.0_02\lib\ext\QTJava.zip</value>
     <value type="QString">SESSIONNAME=Console</value>
+    <value type="QString">SVN_SSH=C:\\Program Files\\TortoiseSVN\\bin\\TortoisePlink.exe</value>
     <value type="QString">SYSTEMDRIVE=C:</value>
     <value type="QString">SYSTEMROOT=C:\Windows</value>
     <value type="QString">TEMP=C:\Users\tarini\AppData\Local\Temp</value>
@@ -820,7 +823,7 @@
     <value type="QString">NUMBER_OF_PROCESSORS=2</value>
     <value type="QString">ONLINESERVICES=Servizi in linea</value>
     <value type="QString">OS=Windows_NT</value>
-    <value type="QString">PATH=C:\Qt\2009.03\mingw\bin;C:\Qt\2009.03\qt\bin;C:\Python26\\Scripts;C:\Python26\;C:\Program Files\PC Connectivity Solution\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Program Files\CyberLink\Power2Go\;C:\Program Files\TortoiseSVN\bin;C:\qt4.4.3\bin;C:\Program Files\QuickTime\QTSystem\;C:\Program Files\SlikSvn\bin\;C:\Program Files\TortoiseHg\;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Users\tarini\AppData\Roaming\Python\Scripts;C:\Program Files\MiKTeX 2.7\miktex\bin;C:\Qt\2009.03\mingw\bin</value>
+    <value type="QString">PATH=C:\Qt\2009.03\mingw\bin;C:\Qt\2009.03\qt\bin;C:\Python26\\Scripts;C:\Python26\;C:\Program Files\PC Connectivity Solution\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Program Files\CyberLink\Power2Go\;C:\Program Files\TortoiseSVN\bin;C:\qt4.4.3\bin;C:\Program Files\QuickTime\QTSystem\;C:\Program Files\SlikSvn\bin\;C:\Program Files\TortoiseHg\;C:\Windows\System32\WindowsPowerShell\v1.0\;%APPDATA%\Python\Scripts;C:\Program Files\MiKTeX 2.7\miktex\bin;C:\Qt\2009.03\mingw\bin</value>
     <value type="QString">PATHEXT=.COM;.EXE;.BAT;.CMD;.VBS;.VBE;.JS;.JSE;.WSF;.WSH;.MSC;.py;.pyw</value>
     <value type="QString">PCBRAND=Pavilion</value>
     <value type="QString">PLATFORM=MCD</value>
@@ -835,6 +838,7 @@
     <value type="QString">QTDIR=C:/Qt/2009.03/qt</value>
     <value type="QString">QTJAVA=C:\Program Files\Java\jre1.6.0_02\lib\ext\QTJava.zip</value>
     <value type="QString">SESSIONNAME=Console</value>
+    <value type="QString">SVN_SSH=C:\\Program Files\\TortoiseSVN\\bin\\TortoisePlink.exe</value>
     <value type="QString">SYSTEMDRIVE=C:</value>
     <value type="QString">SYSTEMROOT=C:\Windows</value>
     <value type="QString">TEMP=C:\Users\tarini\AppData\Local\Temp</value>

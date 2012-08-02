@@ -1,7 +1,7 @@
 
 
 #include <QtGui>
-#include "brfdata.h"
+#include "brfData.h"
 #include "selector.h"
 #include "iniData.h"
 #include "tablemodel.h"

@@ -2,7 +2,7 @@
 #define GLWIDGETS_H
 
 #include <QGLWidget>
-#include <QTGui>
+#include <QtGui>
 #include "brfData.h"
 #include "iniData.h"
 #include "ddsData.h"

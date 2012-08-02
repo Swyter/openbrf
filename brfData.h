@@ -13,14 +13,14 @@
 using namespace std;
 using namespace vcg;
 
-#include "BrfToken.h"
-#include "BrfMesh.h"
-#include "BrfTexture.h"
-#include "BrfShader.h"
-#include "BrfMaterial.h"
-#include "BrfSkeleton.h"
-#include "BrfAnimation.h"
-#include "BrfBody.h"
+#include "brfToken.h"
+#include "brfMesh.h"
+#include "brfTexture.h"
+#include "brfShader.h"
+#include "brfMaterial.h"
+#include "brfSkeleton.h"
+#include "brfAnimation.h"
+#include "brfBody.h"
 
 #include <vector>
 using namespace std;

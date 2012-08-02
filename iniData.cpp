@@ -17,6 +17,7 @@ char* txtFileName[N_TXTFILES] = {
   "flora_kinds.txt",      // TXTFILE_FLORA_KINDS,
   "ground_specs.txt",     // TXTFILE_GROUND_SPECS,
   "skyboxes.txt",         // TXTFILE_SKYBOXES,
+  "scenes.txt",           // TXTFILE_SCENES,
 };
 
 template <class T> int _findByName( const vector<T> &v, const QString &s){
@@ -226,6 +227,9 @@ void IniData::ModuleTxtNameList::appendLRx(const QString &s){
 
 void IniData::ModuleTxtNameList::appendNon0(const QString &s){
   if (s!="0") name.append(s);
+}
+void IniData::ModuleTxtNameList::appendNonNone(const QString &s){
+  if (s!="none") name.append(s);
 }
 
 QString IniData::ModuleTxtNameList::test(){
@@ -474,6 +478,31 @@ bool IniData::readModuleTxts(const QString &pathMod, const QString& pathData){
       txtNameList.push_back(list);
       tf.close();
     }
+    {
+      // READING SCENES
+      int txtFile = TXTFILE_SCENES;
+      tf.open(txtFileName[txtFile]);
+      ModuleTxtNameList listB(BODY, txtFile);
+      ModuleTxtNameList listM(MESH, txtFile);
+
+      tf.expectLine("scenesfile version 1");
+      tf.nextLine();
+      int n = tf.intT(1);
+      for  (int i=0; i<n; i++) {
+        tf.nextLine();
+        listM.appendNonNone( tf.stringT(4) );
+        listB.appendNonNone( tf.stringT(5) );
+        tf.nextLine();
+        tf.nextLine();
+        tf.nextLine();
+        listM.appendNon0( tf.stringT(1) );
+      }
+      //errorStringOnScan = list.test(); return false;
+      txtNameList.push_back(listM);
+      txtNameList.push_back(listB);
+      tf.close();
+    }
+
 
     // data path
     ///////////////////////
@@ -547,9 +576,7 @@ bool IniData::readModuleTxts(const QString &pathMod, const QString& pathData){
         } catch (int) {
           break;
         }
-        list.append( QString(tf.stringT(3)) );
-        QString s = QString(tf.stringT(3));
-        if (s!="none") list.append(s);
+        list.appendNonNone( QString(tf.stringT(3)) );
       }
 
       //errorStringOnScan = list.test(); return false;
@@ -1062,6 +1089,7 @@ QString IniData::name() const{
   return modPath;
 }
 
+
 bool IniData::loadAll(int howFast){
 
   errorStringOnScan = QString("Unspecified error");
@@ -1122,12 +1150,36 @@ bool IniData::loadAll(int howFast){
         txtNameList[i].name=txtNameList[i].name.toSet().toList();
       updateUsedIn();
       propagateUsedIn();
+
+      //debugShowUsedFlags();
     }
   }
 
   return res;
 }
 
+
+#include <set>
+
+void IniData::debugShowUsedFlags(){
+  // temp...
+  std::set<uint> cap, sph, fac; std::set<int> man;
+  for (uint i=0; i<file.size(); i++)
+  for (uint j=0; j<file[i].body.size(); j++)
+  for (uint k=0; k<file[i].body[j].part.size(); k++){
+    BrfBodyPart &p(file[i].body[j].part[k]);
+    switch (p.type){
+    case BrfBodyPart::MANIFOLD: man.insert(p.ori);break;
+    case BrfBodyPart::CAPSULE: cap.insert(p.flags);break;
+    case BrfBodyPart::SPHERE: sph.insert(p.flags);break;
+    case BrfBodyPart::FACE: fac.insert(p.flags);break;
+    }
+  }
+  qDebug("CAP");for (std::set<uint>::iterator i = cap.begin(); i!=cap.end(); i++) qDebug("%x",*i);
+  qDebug("SPH");for (std::set<uint>::iterator i = sph.begin(); i!=sph.end(); i++) qDebug("%x",*i);
+  qDebug("MAN");for (std::set< int>::iterator i = man.begin(); i!=man.end(); i++) qDebug("%x",*i);
+  qDebug("FAC");for (std::set<uint>::iterator i = fac.begin(); i!=fac.end(); i++) qDebug("%x",*i);
+}
 
 void IniData::updateUsedIn(){
   setAllUsedInNone();
