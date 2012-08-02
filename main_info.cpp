@@ -70,7 +70,7 @@ void MainWindow::about()
               .arg("<br>[amade], [Swyter]!")
               .arg(QString("<br> [foxyman] <i>(%1)</i><br>"
                            " [Swyter] <i>(Español)</i>").arg(tr("additional code and Chinese")))
-              .arg("0.0.44")
+              .arg("0.0.45")
             ,QMessageBox::Ok, this);
     msg.setLocale(QLocale::system());
   //msg.layout()->addWidget(&lab);
@@ -131,7 +131,7 @@ void MainWindow::aboutCheckboard(){
     mot = QString(tr("I cannot understand the texture format of  file \"%1\".")).arg(glWidget->lastMatErr.texName);
     longmot = QString(tr("I'm supposed to understand .dds textures of formats DXT1 (maybe), DXT3, and DXT5.<br>"
                       "But some kinds of DXT1 texture confuse me, and too big textures too."
-                      "The problem could be fixed if you enable the autofix DXT option above."));
+                      ));
     cure = QString(tr("Maybe just accept the fact... it should still show the texture in game."));
     ingame=false;
   }

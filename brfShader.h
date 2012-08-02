@@ -28,6 +28,7 @@ public:
 
   void SetDefault();
 
+
   BrfShader();
   unsigned int flags;
   unsigned int requires;

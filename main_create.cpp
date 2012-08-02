@@ -54,9 +54,15 @@ void MainWindow::createMenus()
 
     QMenu* moduleMenu=menuBar()->addMenu(tr("Module"));
     moduleMenu->addAction(refreshIniAct);
+    moduleMenu->addAction(computeUsedByAct);
+    moduleMenu->addAction(selectBrfDataAct);
+    moduleMenu->addAction(showModuleStatsAct);
+    moduleMenu->addSeparator();
     moduleMenu->addAction(checkIniAct);
     moduleMenu->addAction(searchIniAct);
+    moduleMenu->addAction(showUnrefTexturesAct);
     //moduleMenu->addAction(searchBrfAct);
+    moduleMenu->addSeparator();
     QMenu* navMenu = moduleMenu->addMenu(tr("Navigate"));
     navMenu->addAction(navigateRightAct);
     navMenu->addAction(navigateLeftAct);
@@ -339,9 +345,12 @@ void MainWindow::createActions()
     navigateUpAct = new QAction(tr("prev back-link"),this);
     searchBrfAct = new QAction(tr("Find"),this);
     searchBrfAct->setShortcut(tr("ctrl+F"));
-    refreshIniAct = new QAction(tr("Refresh ini"),this);
+    refreshIniAct = new QAction(tr("Refresh"),this);
     refreshIniAct->setStatusTip(tr("Reload ini files, brf files inside it, and dds textures"));
     refreshIniAct->setShortcut(tr("F5"));
+    computeUsedByAct = new QAction(tr("Scan module for usages"),this);
+    computeUsedByAct->setStatusTip(tr("Scans module content and txt files, to compute what uses what"));
+    computeUsedByAct->setShortcut(tr("F3"));
 
     checkIniAct = new QAction(tr("Scan module for errors"),this);
     checkIniAct->setShortcut(tr("ctrl+E"));
@@ -351,6 +360,16 @@ void MainWindow::createActions()
     searchIniAct->setShortcut(tr("ctrl+F"));
     searchIniAct->setStatusTip(tr("Look for an object in all brf listed inside current module.ini."));
 
+    selectBrfDataAct = new QAction(tr("Select a BRF in module"),this);
+    selectBrfDataAct->setStatusTip(tr("Select a BRF file of this module."));
+    selectBrfDataAct->setShortcut(tr("F7"));
+    showUnrefTexturesAct = new QAction(tr("Show unreferenced texture files"),this);
+    showUnrefTexturesAct->setStatusTip(tr("Show texture files non referenced in any brf"));
+
+
+    showModuleStatsAct = new QAction(tr("Show module stats"),this);
+    showModuleStatsAct->setStatusTip(tr("Show statistics for current Module"));
+
     connect(navigateRightAct, SIGNAL(triggered()), this, SLOT(navigateRight()));
     connect(navigateLeftAct, SIGNAL(triggered()), this, SLOT(navigateLeft()));
     connect(navigateUpAct, SIGNAL(triggered()), this, SLOT(navigateUp()));
@@ -359,6 +378,11 @@ void MainWindow::createActions()
     connect(refreshIniAct, SIGNAL(triggered()), this, SLOT(refreshIni()));
     connect(checkIniAct, SIGNAL(triggered()), this, SLOT(checkIni()));
     connect(searchIniAct, SIGNAL(triggered()), this, SLOT(searchIni()));
+    connect(computeUsedByAct, SIGNAL(triggered()), this, SLOT(computeUsedBy()));
+    connect(selectBrfDataAct, SIGNAL(triggered()), this, SLOT(selectBrfData()));
+    connect(showUnrefTexturesAct, SIGNAL(triggered()), this, SLOT(showUnrefTextures()));
+    connect(showModuleStatsAct, SIGNAL(triggered()), this, SLOT(showModuleStats()));
+
 
     registerMime = new QAction(tr("Register BRF extension"),this);
     registerMime->setStatusTip(tr("Make so that clicking on a brf file opens OpenBRF."));

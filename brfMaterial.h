@@ -11,6 +11,7 @@ public:
   static int tokenIndex(){return MATERIAL;}
   char name[255];
   unsigned int flags;
+
   char shader[255];
   char diffuseA[255];
   char diffuseB[255];

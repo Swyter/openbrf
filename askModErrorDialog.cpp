@@ -19,8 +19,8 @@ void AskModErrorDialog::moreErrors(){
 }
 
 void AskModErrorDialog::getIniDataReady(){
-  //inidata->updated=false;
-  inidata->loadAll(false);
+  inidata->loadAll(4);
+
   iniDataReady=true;
 
   if (!isSearch) {

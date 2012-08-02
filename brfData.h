@@ -55,6 +55,12 @@ public:
   int getOneSkeleton(int nbones, int after);
   int Find(char* name, int token);
   void ForgetTextureLocations();
+  //const vector<ObjCoord>& GetUsedBy(int i, int token) const;
+
+  unsigned int size(int token) const;
+
+  template<class BrfType> vector<BrfType>& Vector();
+
   int version;
 private:
   //template<class BrfType> bool LoadAll(FILE *f, vector<BrfType> &v, int k);
@@ -63,5 +69,21 @@ private:
   void LoadVersion(FILE *f,int imposeVers);
 
 };
+
+
+template<class BrfType> vector<BrfType>& BrfData::Vector(){
+  switch (BrfType::tokenIndex()){
+  case MESH: return mesh;
+  case MATERIAL: return material;
+  case SHADER: return shader;
+  case TEXTURE: return texture;
+  case BODY: return body;
+  case SKELETON: return skeleton;
+  case ANIMATION: return animation;
+  }
+  assert(0);
+  static vector<BrfType> v(0);
+  return v;
+}
 
 #endif

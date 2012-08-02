@@ -11,6 +11,7 @@ public:
   static int tokenIndex(){return TEXTURE;}
   char name[255];
   unsigned int flags;
+
   bool Load(FILE*f,int verbose=1);
   void Save(FILE*f) const;
   static bool IsAnimable() { return false; }
