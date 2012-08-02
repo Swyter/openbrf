@@ -18,6 +18,7 @@ INPUT(
 ./release\askBoneDialog.o
 ./release\plylib.o
 ./release\xmldocumentmanaging.o
+./release\ioSMD.o
 ./release\moc_mainwindow.o
 ./release\moc_glwidgets.o
 ./release\moc_selector.o

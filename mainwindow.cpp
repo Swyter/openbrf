@@ -6,7 +6,7 @@
 #include "ui_guipanel.h"
 #include "vcgmesh.h"
 #include "askBoneDialog.h"
-
+#include "ioSMD.h"
 #include <QtGui>
 
 bool MainWindow::scanBrfDataForMaterials(const BrfData& tmp){
@@ -60,6 +60,7 @@ void MainWindow::onChangeMeshMaterial(QString st){
     }
   }
   statusBar()->showMessage( tr("Set %1 mesh materials to \"%2\"").arg(n).arg(sta) );
+  glWidget->update();
   setModified(true);
 }
 
@@ -120,9 +121,7 @@ void MainWindow::tryLoadMaterials(){
   //scanBrfForMaterials("C:/games/Mount&Blade1011/CommonRes/body_meshes.brf");
 }
 
-MainWindow::MainWindow(QWidget *parent)
-    :QMainWindow(parent)
-   // : QWidget(parent)//, ui(new Ui::MainWindow)
+MainWindow::MainWindow(QWidget *parent):QMainWindow(parent)
 {
 
 
@@ -162,6 +161,8 @@ MainWindow::MainWindow(QWidget *parent)
   connect(guiPanel->ui->buStop         ,SIGNAL(clicked()),glWidget,SLOT(setStop()));
   connect(guiPanel->ui->boxMaterial    ,SIGNAL(textEdited(QString)),
           this,SLOT(onChangeMeshMaterial(QString)));
+  connect(guiPanel->ui->boxMaterial    ,SIGNAL(textEdited(QString)),
+          guiPanel,SLOT(updateMaterial(QString)));
   connect(guiPanel->ui->boxFlags       ,SIGNAL(textEdited(QString)),
           this,SLOT(onChangeFlags(QString)));
   //connect(guiPanel->ui->boxAnimationFlags,SIGNAL(textEdited(QString)),
@@ -170,7 +171,10 @@ MainWindow::MainWindow(QWidget *parent)
           this,SLOT(onChangeFlags(QString)));
   connect(guiPanel->ui->cbRefani,SIGNAL(currentIndexChanged(int)), glWidget, SLOT(setRefAnimation(int)) );
   connect(guiPanel->ui->cbSkin,SIGNAL(currentIndexChanged(int)), glWidget, SLOT(setRefSkin(int)) );
+  connect(guiPanel->ui->frameNumber,SIGNAL(valueChanged(int)),guiPanel,SLOT(updateFrameNumber(int)));
 
+  connect(guiPanel->ui->frameNumber,SIGNAL(valueChanged(int)),glWidget,SLOT(setFrameNumber(int)));
+  connect(glWidget,SIGNAL(signalFrameNumber(int)),guiPanel,SLOT(updateFrameNumber(int)));
 
   connect( selector,SIGNAL(setSelection(QModelIndexList,int)) ,
            guiPanel,  SLOT(setSelection(QModelIndexList,int)) );
@@ -232,7 +236,7 @@ bool MainWindow::importBrf(){
   return true;
 }
 
-bool MainWindow::importMeshPly(){
+bool MainWindow::importStaticMesh(){
   QString fn = askImportFilename(
     tr("mesh file ("
       "*.ply "
@@ -280,8 +284,275 @@ bool MainWindow::importMeshPly(){
   return true;
 }
 
+bool MainWindow::importAnimation(){
+  QString fn = askImportFilename("Studiomdl Data (*.SMD)");
 
-bool MainWindow::exportSkelMod(){
+  BrfSkeleton s;
+  BrfAnimation a;
+
+  int res = ioSMD::Import(fn.toAscii().data(), a, s);
+  if (res!=0) {
+     QMessageBox::information(this,
+      tr("Open Brf"),
+      tr("Cannot import animation:\n %1\n").arg( ioSMD::LastErrorString() )
+    );
+    return false;
+  }
+
+
+  QString name=QFileInfo(fn).baseName();
+  name.truncate(254);
+  sprintf( a.name, "%s", name.toAscii().data());
+
+  brfdata.animation.push_back(a);
+  setModified(true);
+  selector->updateData(brfdata);
+
+  return true;
+
+}
+
+bool MainWindow::importSkeleton(){
+
+  QString fn = askImportFilename("Studiomdl Data (*.SMD)");
+  BrfSkeleton s;
+  BrfMesh m;
+  int res = ioSMD::Import(fn.toAscii().data(), m, s);
+  if (res!=0) {
+     QMessageBox::information(this,
+      tr("Open Brf"),
+      tr("Cannot import skeleton:\n %1\n").arg( ioSMD::LastErrorString() )
+    );
+    return false;
+  }
+
+  QString name=QFileInfo(fn).baseName();
+  name.truncate(254);
+  sprintf( s.name, "%s", name.toAscii().data());
+
+  brfdata.skeleton.push_back(s);
+  setModified(true);
+  selector->updateData(brfdata);
+
+  statusBar()->showMessage(tr("Imported skeleton \"%1\"--- nbones:%2")
+    .arg( s.name )
+    .arg( s.bone.size() )
+  );
+  return true;
+}
+
+bool MainWindow::importRiggedMesh(){
+  QString fn = askImportFilename("Studiomdl Data (*.SMD)");
+  BrfSkeleton s;
+  BrfMesh m;
+  int res = ioSMD::Import(fn.toAscii().data(), m, s);
+
+  if (res!=0) {
+     QMessageBox::information(this,
+      tr("Open Brf"),
+      tr("Cannot import rigged mesh:\n %1\n").arg( ioSMD::LastErrorString() )
+    );
+    return false;
+  }
+
+  QString name=QFileInfo(fn).baseName();
+  name.truncate(254);
+  sprintf( m.name, "%s", name.toAscii().data());
+
+
+  statusBar()->showMessage(tr("Imported rigged mesh \"%1\"")
+    .arg( m.name )
+  );
+
+  brfdata.mesh.push_back(m);
+  selector->updateData(brfdata);
+  setModified(true);
+  return true;
+}
+
+int MainWindow::askRefSkin(){
+  QStringList items;
+  int n = reference.GetFirstUnusedLetter();
+  if (n==0) {
+    QMessageBox::information(this,
+        tr("Open Brf"),
+        tr("Oops... no skin is currently available...\n")
+      );
+    return -1;
+  }
+  for (int i=0; i<n; i++)
+    items.append(tr("Skin %1").arg( char('A'+i) ));
+
+  bool ok;
+  QString resSt = QInputDialog::getItem(
+      this, tr("Select a skin"),
+      tr("Select a skin:"), items, 0, false, &ok
+  );
+
+  if (ok && !resSt.isEmpty())
+     return resSt.toAscii().data()[6]-'A';
+  else return -1;
+}
+
+int MainWindow::currentDisplaySkin(){
+  return glWidget->getRefSkin();
+}
+int MainWindow::currentDisplaySkeleton(){
+  return glWidget->getRefSkeleton();
+}
+int MainWindow::currentDisplayFrame(){
+  return glWidget->getFrameNumber();
+}
+
+bool MainWindow::exportRiggedMesh(){
+  int i = selector->firstSelected();
+  if (i<0) return false;
+  if (i>(int)brfdata.mesh.size()) return false;
+  int si = currentDisplaySkeleton();
+  if (si<0) {
+    QMessageBox::information(this,
+      tr("Open Brf"),
+      tr("Cannot export animation without a proper skeleton!\n")
+    );
+    return false;
+  }
+  const BrfMesh &m(brfdata.mesh[i]);
+  const BrfSkeleton& s(reference.skeleton[si]);
+
+  QString fn = askExportFilename(brfdata.mesh[ i ].name,"Studiomdl Data rigged mesh (*.SMD)");
+  if (fn.isEmpty()) return false;
+
+  int res = ioSMD::Export(fn.toAscii().data(), m, s, currentDisplayFrame() );
+
+  if (res) {
+    QMessageBox::information(this,
+      tr("Open Brf"),
+      tr("Cannot export rest-pose:\n %1\n").arg( ioSMD::LastErrorString() )
+    );
+    return false;
+  } else {
+    return true;
+  }
+}
+
+bool MainWindow::exportSkeletonAndSkin(){
+  BrfSkeleton s;
+  BrfMesh m;
+  int i = selector->firstSelected();
+  if (selector->currentTabName()==SKELETON) {
+    assert(i>=0 && i<(int)brfdata.skeleton.size());
+    s = brfdata.skeleton[i];
+    int res = askRefSkin();
+    if (res<0) return false;
+    m = reference.GetCompleteSkin(res);
+  }
+  else if (selector->currentTabName()==ANIMATION) {
+    int si = currentDisplaySkeleton();
+    if (si<0) {
+      QMessageBox::information(this,
+        tr("Open Brf"),
+        tr("Cannot export animation without a proper skeleton!\n")
+      );
+      return false;
+    }
+    s = reference.skeleton[si];
+
+    int mi = currentDisplaySkin();
+    if (mi>=0) m = reference.GetCompleteSkin(mi);
+    else {
+      QMessageBox::information(this,
+        tr("Open Brf"),
+        tr("First select a valid skin.\n")
+      );
+      return false;
+    }
+  }
+  else assert(0);
+
+  QString fn = askExportFilename(
+    QString(s.name)+"_skin_"+char(currentDisplaySkin()+'A'),
+    "Studiomdl Data skinned rest-pose (*.SMD)"
+  );
+  if (fn.isEmpty()) return false;
+
+  int res = ioSMD::Export(fn.toAscii().data(), m, s, 0);
+  if (res) {
+    QMessageBox::information(this,
+      tr("Open Brf"),
+      tr("Cannot export rest-pose:\n %1\n").arg( ioSMD::LastErrorString() )
+    );
+    return false;
+  } else {
+    return true;
+  }
+}
+
+bool MainWindow::exportAnimation(){
+  int i = selector->firstSelected();
+  assert(selector->currentTabName()==ANIMATION);
+  assert(i>=0 && i<(int)brfdata.animation.size());
+  BrfAnimation &a(brfdata.animation[ i ]);
+  int si = currentDisplaySkeleton();
+  if (si<0) {
+    QMessageBox::information(this,
+      tr("Open Brf"),
+      tr("Cannot export animation without a proper skeleton!\n")
+    );
+    return false;
+  }
+  BrfSkeleton const &s( reference.skeleton[ si ] );
+
+  QString fn = askExportFilename(brfdata.animation[ i ].name,"Studiomdl Data Animation (*.SMD)");
+  if (fn.isEmpty()) return false;
+
+  int res = ioSMD::Export(fn.toAscii().data(), a, s);
+  if (res) {
+    QMessageBox::information(this,
+      tr("Open Brf"),
+      tr("Cannot export animation:\n %1\n").arg( ioSMD::LastErrorString() )
+    );
+    return false;
+  } else {
+    return true;
+  }
+}
+
+
+
+
+bool MainWindow::exportSkeleton(){
+  int i = selector->firstSelected();
+  assert(selector->currentTabName()==SKELETON);
+  assert(i>=0 && i<(int)brfdata.skeleton.size());
+
+  BrfSkeleton const &s( brfdata.skeleton[ i ] );
+  BrfMesh m;
+
+  int mi = currentDisplaySkin();
+  if (mi<0) s.BuildDefaultMesh(m);
+  else {
+    m = reference.GetCompleteSkin( mi );
+  }
+
+  QString fn = askExportFilename(brfdata.skeleton[ i ].name,"Studiomdl Data Skeleton (*.SMD)");
+  if (fn.isEmpty()) return false;
+
+  BrfData tmp; tmp.mesh.push_back(m); tmp.Save((fn+"_tmp.brf").toAscii().data());
+
+  int res = ioSMD::Export(fn.toAscii().data(), m, s, 0);
+  if (res) {
+    QMessageBox::information(this,
+      tr("Open Brf"),
+      tr("Cannot export skeleton:\n %1\n").arg( ioSMD::LastErrorString() )
+    );
+    return false;
+  } else {
+    return true;
+  }
+
+}
+
+bool MainWindow::exportSkeletonMod(){
   int i = selector->firstSelected();
   assert(selector->currentTabName()==SKELETON);
   assert(i>=0 && i<(int)brfdata.skeleton.size());
@@ -299,14 +570,31 @@ bool MainWindow::exportSkelMod(){
   return true;
 }
 
-bool MainWindow::importSkelMod(){
+bool MainWindow::importSkeletonMod(){
     QMessageBox::information(this,
       tr("Open Brf"),
-      tr("Import skeleton:: to do")
-    );  return false;
+      tr("Import skeleton modifications:: to do")
+    );
+    return false;
 }
 
-bool MainWindow::exportPly(){
+bool MainWindow::exportMovingMesh(){
+    QMessageBox::information(this,
+      tr("Open Brf"),
+      tr("Export vertex animation:: to do")
+    );
+    return false;
+}
+bool MainWindow::importMovingMesh(){
+    QMessageBox::information(this,
+      tr("Open Brf"),
+      tr("Import vertex animation:: to do")
+    );
+    return false;
+}
+
+
+bool MainWindow::exportStaticMesh(){
   int i = selector->firstSelected();
   if (i<0) return false;
   if (i>(int)brfdata.mesh.size()) return false;
@@ -316,7 +604,7 @@ bool MainWindow::exportPly(){
     case MESH:
       // save mesh as Ply
       if (fn.isEmpty()) return false;
-      VcgMesh::add(brfdata.mesh[ i ]);
+      VcgMesh::add(brfdata.mesh[ i ], this->currentDisplayFrame() );
       return VcgMesh::save(fn.toAscii().data());
     break;
     default: assert(0); // how was this signal sent?!
@@ -348,7 +636,12 @@ static char* _name(T &t, int i){
   if (i<0 || i>=(int)t.size()) return NULL;
   return t[i].name;
 }
-
+template< class T >
+static bool _copy(vector<T> &t, int i, vector<T> &d){
+  if (i<0 || i>=(int)t.size()) return false;
+  d.push_back(t[i]);
+  return true;
+}
 
 void MainWindow::moveUpSel(){
   int i = selector->firstSelected();
@@ -429,6 +722,36 @@ void MainWindow::deleteSel(){
   selector->updateData(brfdata);
   setModified(true);
 }
+
+
+void MainWindow::editCut(){
+  editCopy(false);
+  editPasteAct->setEnabled(true);
+  deleteSel();
+}
+
+void MainWindow::editCopy(bool deselect){
+  clipboard.Clear();
+  int i = selector->firstSelected();
+  switch (selector->currentTabName()) {
+    case MESH: _copy(brfdata.mesh, i, clipboard.mesh); break;
+    case TEXTURE: _copy(brfdata.texture, i, clipboard.texture); break;
+    case SHADER: _copy(brfdata.shader, i, clipboard.shader); break;
+    case MATERIAL:  _copy(brfdata.material, i, clipboard.material); break;
+    case SKELETON: _copy(brfdata.skeleton, i, clipboard.skeleton); break;
+    case ANIMATION: _copy(brfdata.animation, i, clipboard.animation); break;
+    case BODY: _copy(brfdata.body, i, clipboard.body); break;
+    default: assert(0);
+  }
+}
+
+void MainWindow::editPaste(){
+  //deleteSel();
+  brfdata.Merge(clipboard);
+  selector->updateData(brfdata);
+  setModified(true);
+}
+
 void MainWindow::duplicateSel(){
   int i = selector->firstSelected();
   switch (selector->currentTabName()) {
@@ -459,10 +782,7 @@ void MainWindow::addToRef(){
 
 }
 
-
-
 typedef QPair<int, int> Pair;
-
 Pair MainWindow::askRefBoneInt(){
   if (!reference.skeleton.size()) return Pair(-1,-1);
   AskBoneDialog d(this,reference.skeleton);
@@ -646,11 +966,10 @@ void MainWindow::dragEnterEvent(QDragEnterEvent *event)
 }
 
 void MainWindow::about()
-//! [13] //! [14]
 {
 
    QMessageBox::about(this, tr("Open-Brf"),
-            tr("<b>ver 0.0.6 pre-alpha</b><br>"
+            tr("<b>ver 0.0.7 alpha</b><br>"
                "(%1)<br>"
                "by mtarini --- Marco Tarini ").arg(__DATE__) );
 }
@@ -678,7 +997,7 @@ void MainWindow::dropEvent(QDropEvent *event)
 void MainWindow::createMenus()
 {
     fileMenu = menuBar()->addMenu(tr("&File"));
-    //fileMenu->addAction(newAct);
+    fileMenu->addAction(newAct);
     fileMenu->addAction(openAct);
     fileMenu->addAction(saveAct);
     fileMenu->addAction(saveAsAct);
@@ -690,6 +1009,10 @@ void MainWindow::createMenus()
     updateRecentFileActions();
 
     //menuBar()->addSeparator();
+    QMenu *editMenu = menuBar()->addMenu(tr("&Edit"));
+    editMenu->addAction(editCutAct);
+    editMenu->addAction(editCopyAct);
+    editMenu->addAction(editPasteAct);
 
     helpMenu = menuBar()->addMenu(tr("&Tools"));
     helpMenu->addAction(editRefAct);
@@ -742,6 +1065,7 @@ bool MainWindow::editRef()
 
 bool MainWindow::loadFile(const QString &fileName)
 {
+  if (!maybeSave()) return false;
   setEditingRef(false);
   setCurrentFile(fileName);
   if (!brfdata.Load(fileName.toAscii().data())) {
@@ -881,12 +1205,21 @@ void MainWindow::closeEvent(QCloseEvent *event)
   }
 }
 
+void MainWindow::newFile(){
+  if (maybeSave()) {
+    brfdata.Clear();
+    curFile.clear();
+    selector->setup( brfdata );
+    updateTitle();
+  }
+
+}
 void MainWindow::createActions()
 {
-    //newAct = new QAction(tr("&New"), this);
-    //newAct->setShortcuts(QKeySequence::New);
-    //newAct->setStatusTip(tr("Create a new file"));
-    //connect(newAct, SIGNAL(triggered()), this, SLOT(newFile()));
+    newAct = new QAction(tr("&New"), this);
+    newAct->setShortcuts(QKeySequence::New);
+    newAct->setStatusTip(tr("Create a new file"));
+    connect(newAct, SIGNAL(triggered()), this, SLOT(newFile()));
 
     openAct = new QAction(tr("&Open..."), this);
     openAct->setShortcuts(QKeySequence::Open);
@@ -897,6 +1230,18 @@ void MainWindow::createActions()
     saveAct->setShortcuts(QKeySequence::Save);
     saveAct->setStatusTip(tr("Save the document to disk"));
     connect(saveAct, SIGNAL(triggered()), this, SLOT(save()));
+
+    editCutAct = new QAction(tr("Cut"), this);
+    editCutAct->setShortcuts(QKeySequence::Cut);
+    editCopyAct = new QAction(tr("Copy"), this);
+    editCopyAct->setShortcuts(QKeySequence::Copy);
+    editPasteAct = new QAction(tr("Paste"), this);
+    editPasteAct->setShortcuts(QKeySequence::Paste);
+    editPasteAct->setEnabled(true);
+
+    connect(editCutAct, SIGNAL(triggered()), this, SLOT(editCut()));
+    connect(editCopyAct, SIGNAL(triggered()), this, SLOT(editCopy()));
+    connect(editPasteAct, SIGNAL(triggered()), this, SLOT(editPaste()));
 
     saveAsAct = new QAction(tr("Save &As..."), this);
     saveAsAct->setShortcuts(QKeySequence::SaveAs);
@@ -928,6 +1273,7 @@ void MainWindow::createActions()
     //aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));
     //connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 }
+
 
 bool MainWindow::openRecentFile()
 {

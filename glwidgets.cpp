@@ -9,6 +9,14 @@
 #include <vcg\math\matrix44.h>
 #include <wrap\gl\space.h>
 
+void GLWidget::setFrameNumber(int i){
+  if (i<0) return;
+  if (selFrameN==i) return;
+  selFrameN = i;
+  if (!skeletalAnimation()) runningState=PAUSE;
+  update();
+}
+
 void GLWidget::setRefAnimation(int i){
 
   selRefAnimation = i-1; // -1 for the "none"
@@ -27,6 +35,19 @@ void GLWidget::setRefSkin(int i){
   selRefSkin = i-1; // -1 for the "none"
   update();
 }
+
+int GLWidget::getRefSkin() const{
+  return selRefSkin;
+}
+
+int GLWidget::getRefSkeleton() const{
+  return selRefSkel;
+}
+
+void GLWidget::setRefSkeleton(int i){
+  selRefSkel = i;
+}
+
 
 static float floatMod(float a,int b){
   if (b<=0) return 0;
@@ -60,19 +81,34 @@ void GLWidget::renderFloor(){
   glDisable(GL_FOG);
 }
 
+int GLWidget::getFrameNumber() const{
+  return selFrameN;
+}
+
 void GLWidget::renderBrfItem (const BrfMesh& p){
   float fi = 0;
   if (p.HasVertexAni()) {
-    if (runningState==STOP) fi=1;
-    else fi = floatMod( relTime*runningSpeed, p.frame.size()-3) +2;
+    if (!skeletalAnimation() && runningState==PLAY) {
+      fi = floatMod( relTime*runningSpeed, p.frame.size()-3) +2;
+      if (fi<0) fi=0;
+      if (selFrameN != (int)fi) {
+        selFrameN = (int)fi;
+        if (selFrameN>=(int)p.frame.size()) selFrameN = p.frame.size()-1;
+        emit(signalFrameNumber(selFrameN));
+      }
+    } else fi=selFrameN;
     if (fi>=(float)p.frame.size()) fi=(float)p.frame.size()-1;
+    if (fi<0) fi=0;
+
   }
   BrfAnimation* a=NULL;
   BrfSkeleton* s=NULL;
   if (p.isRigged) {
     if (selRefAnimation>=0) {
       a=&(reference->animation[selRefAnimation]);
-      s=reference->getOneSkeleton( int(a->nbones ) );
+      int si = reference->getOneSkeleton( int(a->nbones ) );
+      if (si>=0) s=&(reference->skeleton[si]);
+      selRefSkel = si;
     }
   }
 
@@ -90,15 +126,23 @@ void GLWidget::renderBrfItem (const BrfBody& p){
 void GLWidget::renderBrfItem (const BrfAnimation& a){
   float fi = floatMod( relTime*runningSpeed , a.frame.size() );
   if (!reference) return;
-  BrfSkeleton *s=reference->getOneSkeleton( int(a.nbones ) );
+
+
+  int si = selRefSkel = reference->getOneSkeleton( int(a.nbones ) );
+  if (si==-1) return ; // no skel, no render
+  const BrfSkeleton &s(reference->skeleton[si]);
+
+
   if (selRefSkin>=0) {
     for (unsigned int i=0; i<reference->mesh.size(); i++){
       if (reference->mesh[i].name[4]==char('A'+selRefSkin))
-        renderRiggedMesh(reference->mesh[i],*s,a,fi);
+        renderRiggedMesh(reference->mesh[i],s,a,fi);
     }
+    //BrfMesh tmp = reference->GetCompleteSkin(selRefSkin);
+    //renderRiggedMesh(tmp,s,a,fi);
   } else {
     // naked bones
-    renderAnimation(a,*s,fi);
+    renderAnimation(a,s,fi);
   }
 }
 void GLWidget::renderBrfItem (const BrfSkeleton& p){
@@ -208,6 +252,10 @@ void GLWidget::setPause(){
 void GLWidget::setStop(){
   runningState=STOP;
   relTime=0;
+  if (!skeletalAnimation()) {
+    selFrameN = 1;
+    emit(signalFrameNumber(selFrameN));
+  }
   update();
 }
 void GLWidget::setColorPerVert(){
@@ -256,7 +304,8 @@ GLWidget::GLWidget(QWidget *parent, MapSS* mm)
   colorMode=1;
   selRefAnimation = -1;
   selRefSkin = -1;
-
+  selFrameN = 0;
+  selRefSkel = 0;
 
   relTime=0;
   runningState = STOP;
@@ -339,12 +388,28 @@ void BrfRigging::SetColorGl()const{
   //glColor3f(boneColor[2][0],boneColor[2][1],boneColor[2][2]);
 }
 
+bool GLWidget::skeletalAnimation(){
+  if (displaying==MESH) {
+    int max=data->mesh.size();
+    if (max>MAXSEL) max=MAXSEL;
+
+    for (int i=0; i<max; i++) if (selGroup[i]) {
+      if (data->mesh[i].isRigged) return true;
+    }
+  }
+  return false;
+
+}
 
 void GLWidget::renderRiggedMesh(const BrfMesh& m,  const BrfSkeleton& s, const BrfAnimation& a, float frame){
+  int fv =selFrameN;
 
+  if (fv>=(int)m.frame.size()) fv= m.frame.size()-1;
+  if (fv<0) fv= 0;
 
   if ((int)s.bone.size()!=a.nbones || m.maxBone>a.nbones) {
-    renderMesh(m,frame); // give up rigging mesh
+
+    renderMesh(m,fv); // give up rigging mesh
     return;
   }
 
@@ -356,7 +421,6 @@ void GLWidget::renderRiggedMesh(const BrfMesh& m,  const BrfSkeleton& s, const B
   int fi= (int)frame;
   vector<Matrix44f> bonepos = s.GetBoneMatrices( a.frame[fi] );
 
-  int fv =0;
   for (int pass=(useWireframe)?0:1; pass<2; pass++) {
   setWireframeLightingMode(pass==0, useLighting, useTexture);
   if (useTexture) setTextureName(m.material);
@@ -505,13 +569,9 @@ void GLWidget::renderBone(const BrfAnimation &a,const BrfSkeleton &s, float fram
   //int fi= (glWidget->frame/100)%(int)frame.size();
   vcg::Matrix44f mat = a.frame[fi].getRotationMatrix(i);
   mat = mat.transpose();
-
   glPushMatrix();
-
   glTranslate(s.bone[i].t);
-
   if (lvl!=0); glMultMatrixf((const GLfloat *) mat.V());
-
 
   glPushMatrix();
     glColor3ub(255-lvl*30,255-lvl*30,255);
@@ -617,13 +677,12 @@ void GLWidget::renderSelected(const std::vector<BrfType>& v){
   if (max>MAXSEL) max=MAXSEL;
 
   for (int i=0; i<max; i++) if (selGroup[i]) {
-      bbox.Add( v[i].bbox );
+    bbox.Add( v[i].bbox );
   }
 
   float s = 5/bbox.Diag();
   glScalef(s,s,s);
   glTranslate(-bbox.Center() );
-
 
   animating=false;
   for (int i=0; i<max; i++) if (selGroup[i]) {
@@ -674,19 +733,12 @@ void GLWidget::paintGL()
 
   if (data) {
 
-    if ( (displaying == ANIMATION) && reference) {
-      int si = selIndex();
-      if (si>=0 && si<(int)data->animation.size()) {
-        BrfAnimation::SetSkeleton( reference->getOneSkeleton( int(data->animation[si].nbones ) ) );
-      }
-    }
-
     if (displaying == BODY ) renderSelected(data->body);
     if (displaying == MESH ) renderSelected(data->mesh);
     if (displaying == SKELETON ) renderSelected(data->skeleton);
     if (displaying == ANIMATION )  renderSelected(data->animation);
 
-    if (useFloor || displaying == ANIMATION || displaying == SKELETON || displaying == BODY)
+    if (useFloor || displaying == ANIMATION || displaying == SKELETON )
       renderFloor();
   }
 

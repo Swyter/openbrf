@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading ui file 'guipanel.ui'
 **
-** Created: Thu Aug 6 19:12:16 2009
+** Created: Tue Aug 11 16:08:36 2009
 **      by: Qt User Interface Compiler version 4.5.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling ui file!
@@ -51,7 +51,7 @@ public:
     QWidget *meshDataAni;
     QLabel *label_5;
     QSpinBox *frameNumber;
-    QLineEdit *boxFlags_2;
+    QLineEdit *timeOfFrame;
     QLabel *label_4;
     QGroupBox *generalView;
     QVBoxLayout *verticalLayout;
@@ -181,16 +181,16 @@ public:
         meshDataAni->setGeometry(QRect(0, 160, 181, 41));
         label_5 = new QLabel(meshDataAni);
         label_5->setObjectName(QString::fromUtf8("label_5"));
-        label_5->setGeometry(QRect(10, 10, 71, 16));
+        label_5->setGeometry(QRect(10, 12, 71, 16));
         frameNumber = new QSpinBox(meshDataAni);
         frameNumber->setObjectName(QString::fromUtf8("frameNumber"));
-        frameNumber->setGeometry(QRect(80, 7, 40, 22));
+        frameNumber->setGeometry(QRect(78, 7, 41, 22));
         frameNumber->setFrame(false);
         frameNumber->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-        boxFlags_2 = new QLineEdit(meshDataAni);
-        boxFlags_2->setObjectName(QString::fromUtf8("boxFlags_2"));
-        boxFlags_2->setGeometry(QRect(130, 7, 41, 21));
-        boxFlags_2->setReadOnly(true);
+        timeOfFrame = new QLineEdit(meshDataAni);
+        timeOfFrame->setObjectName(QString::fromUtf8("timeOfFrame"));
+        timeOfFrame->setGeometry(QRect(130, 7, 41, 21));
+        timeOfFrame->setReadOnly(false);
         label_4 = new QLabel(meshDataAni);
         label_4->setObjectName(QString::fromUtf8("label_4"));
         label_4->setGeometry(QRect(121, 10, 20, 20));
@@ -418,10 +418,12 @@ public:
 #endif // QT_NO_TOOLTIP
         label_11->setText(QApplication::translate("GuiPanel", "frames:", 0, QApplication::UnicodeUTF8));
         label_5->setText(QApplication::translate("GuiPanel", "Time of frame", 0, QApplication::UnicodeUTF8));
+        frameNumber->setSuffix(QString());
+        frameNumber->setPrefix(QString());
 #ifndef QT_NO_TOOLTIP
-        boxFlags_2->setToolTip(QString());
+        timeOfFrame->setToolTip(QString());
 #endif // QT_NO_TOOLTIP
-        boxFlags_2->setText(QString());
+        timeOfFrame->setText(QString());
         label_4->setText(QApplication::translate("GuiPanel", ":", 0, QApplication::UnicodeUTF8));
         generalView->setTitle(QApplication::translate("GuiPanel", "View", 0, QApplication::UnicodeUTF8));
         label->setText(QApplication::translate("GuiPanel", "Skin:", 0, QApplication::UnicodeUTF8));

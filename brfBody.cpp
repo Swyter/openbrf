@@ -75,8 +75,8 @@ bool BrfBodyPart::Load(FILE*f, char* _firstWord, int verbose ){
     LoadInt(f,k); // # faces
     for (int i=0; i<k; i++) {
       int h;
-      LoadInt(f,h);
-      assert(h==-1);
+      LoadInt(f,ori); // orientation? -1 or 1 apparently.
+      assert(ori==1 || ori==-1);
       LoadInt(f,h);
       assert(h==0);
       LoadInt(f,h); // # verts
@@ -115,7 +115,7 @@ bool BrfBodyPart::Load(FILE*f, char* _firstWord, int verbose ){
     LoadUint(f,flags);
 
   } else {
-    printf("Unknown body (coll mesh) type `%s`\n",firstWord);
+    printf("Unknown body (collision mesh) type `%s`\n",firstWord);
     assert(0);
   }
 
@@ -132,7 +132,7 @@ void BrfBodyPart::Save(FILE *f) const {
 
       SaveUint(f,face.size());
       for (unsigned int i=0; i<face.size(); i++) {
-        SaveInt(f,-1);
+        SaveInt(f,ori);
         SaveInt(f,0);
         SaveUint(f,face[i].size());
         for (unsigned int j=0; j<face[i].size(); j++) {

@@ -38,12 +38,14 @@ Selector::Selector(QWidget *parent)
   renameAct = new QAction(tr("Rename"), this);
   removeAct = new QAction(tr("Remove"), this);
   duplicateAct = new QAction(tr("Duplicate"), this);
+
   moveUpAct = new QAction(tr("Move up"), this);
-  moveUpAct->setShortcut(QString("F3"));
-  //moveUpAct->setShortcutContext(Qt::ApplicationShortcut);
-  //this->setShortcutEnabled();
+  moveUpAct->setShortcut(QString("Alt+up"));
+  addAction(moveUpAct);
+
   moveDownAct = new QAction(tr("Move down"), this);
-  moveDownAct->setShortcut(QString("Alt+d"));
+  moveDownAct->setShortcut(QString("Alt+down"));
+  addAction(moveDownAct);
 
   addToRefAniAct = new QAction(tr("Add to reference animations"), this);
   addToRefAniAct->setStatusTip(tr("Add this animation to reference animations (which OpenBrf can use while showing rigged meshes)."));
@@ -66,27 +68,62 @@ Selector::Selector(QWidget *parent)
   connect(this, SIGNAL(addToRefMesh(int)), parent, SLOT(addToRefMesh(int)));
 
   exportImportMeshInfoAct = new QAction(tr("Info on mesh import/export"), this);
-  exportStaticMeshAct = new QAction(tr("as a mesh"), this);
-  exportStaticMeshAct->setStatusTip(tr("Export this model as a 3D static mesh (common formats)."));
-  exportSkeletonModAct = new QAction(tr("as skeletal-modification-mesh"), this);
 
-  exportAnyBrfAct = new QAction(tr("in a BRF"), this);
-  exportAnyBrfAct->setStatusTip(tr("Export this object in a BRF file."));
+  exportStaticMeshAct = new QAction(tr("Export static mesh"), this);
+  exportStaticMeshAct->setStatusTip(tr("Export this model (or this frame) as a 3D static mesh."));
 
-  importAnyBrfAct = new QAction(tr("from a BRF"), this);
-  importStaticMeshAct = new QAction(tr("from a mesh"), this);
-  importSkeletonModAct = new QAction(tr("modify with a skeletal-modification-mesh"), this);
+  exportMovingMeshAct = new QAction(tr("Export vertex ani"), this);
+  exportMovingMeshAct->setStatusTip(tr("Export this model as a mesh with vertex animation."));
+
+  exportRiggedMeshAct = new QAction(tr("Export rigged mesh"), this);
+  exportRiggedMeshAct->setStatusTip(tr("Export this model (or this frame) as a rigged mesh."));
+
+  exportSkeletonModAct = new QAction(tr("Export skeletal-modification-mesh"), this);
+  exportSkeletonAct = new QAction(tr("Export (nude) skeleton"), this);
+  exportSkeletonAct ->setStatusTip(tr("Export this skeleton (as a set of nude bones)."));
+  exportSkinAct = new QAction(tr("Export skeleton with skin"), this);
+  exportSkinAct->setStatusTip(tr("Export this skeleton (as a rigged skin)."));
+  exportSkinForAnimationAct     = new QAction(tr("Export a skin for this ani"), this);
+  exportSkinForAnimationAct->setStatusTip(tr("Export a rigged skin which can be used for this animation."));
+
+  exportAnimationAct = new QAction(tr("Export animation"), this);
+  exportAnimationAct->setStatusTip(tr("Export this animation."));
+
+  //exportAnyBrfAct = new QAction(tr("in a BRF"), this);
+  //exportAnyBrfAct->setStatusTip(tr("Export this object in a BRF file."));
+
+  //importAnyBrfAct = new QAction(tr("from a BRF"), this);
+  importStaticMeshAct = new QAction(tr("a static mesh"), this);
+  importRiggedMeshAct = new QAction(tr("a rigged mesh"), this);
+  importMovingMeshAct = new QAction(tr("a vertex-animated mesh"), this);
+
+  importSkeletonModAct = new QAction(tr("Modify with a skeletal-modification-mesh"), this);
+  importSkeletonAct = new QAction(tr("Import skeleton"), this);
+  importAnimationAct = new QAction(tr("Import animation"), this);
+
+
 
   connect(breakAniAct, SIGNAL(triggered()),this,SLOT(onBreakAni()));
   connect(breakAniWithIniAct, SIGNAL(triggered()),this,SLOT(onBreakAniWithIni()));
 
-  connect(exportAnyBrfAct, SIGNAL(triggered()),parent,SLOT(exportBrf()));
-  connect(exportStaticMeshAct, SIGNAL(triggered()),parent,SLOT(exportPly()));
-  connect(exportSkeletonModAct, SIGNAL(triggered()),parent,SLOT(exportSkelMod()));
+  //connect(exportAnyBrfAct, SIGNAL(triggered()),parent,SLOT(exportBrf()));
+  connect(exportStaticMeshAct, SIGNAL(triggered()),parent,SLOT(exportStaticMesh()));
+  connect(exportRiggedMeshAct, SIGNAL(triggered()),parent,SLOT(exportRiggedMesh()));
+  connect(exportMovingMeshAct, SIGNAL(triggered()),parent,SLOT(exportMovingMesh()));
+  connect(exportSkeletonModAct, SIGNAL(triggered()),parent,SLOT(exportSkeletonMod()));
+  connect(exportSkeletonAct, SIGNAL(triggered()),parent,SLOT(exportSkeleton()));
+  connect(exportAnimationAct, SIGNAL(triggered()),parent,SLOT(exportAnimation()));
 
-  connect(importStaticMeshAct, SIGNAL(triggered()),parent,SLOT(importMeshPly()));
-  connect(importAnyBrfAct, SIGNAL(triggered()),parent,SLOT(importBrf()));
-  connect(importSkeletonModAct, SIGNAL(triggered()),parent,SLOT(importSkelMod()));
+  connect(exportSkinAct, SIGNAL(triggered()), parent, SLOT(exportSkeletonAndSkin()));
+  connect(exportSkinForAnimationAct, SIGNAL(triggered()), parent, SLOT(exportSkeletonAndSkin()));
+
+  connect(importStaticMeshAct, SIGNAL(triggered()),parent,SLOT(importStaticMesh()));
+  connect(importRiggedMeshAct, SIGNAL(triggered()),parent,SLOT(importRiggedMesh()));
+  connect(importMovingMeshAct, SIGNAL(triggered()),parent,SLOT(importMovingMesh()));
+  //connect(importAnyBrfAct, SIGNAL(triggered()),parent,SLOT(importBrf()));
+  connect(importSkeletonModAct, SIGNAL(triggered()),parent,SLOT(importSkeletonMod()));
+  connect(importSkeletonAct, SIGNAL(triggered()),parent,SLOT(importSkeleton()));
+  connect(importAnimationAct, SIGNAL(triggered()),parent,SLOT(importAnimation()));
 
   connect(moveUpAct, SIGNAL(triggered()), parent, SLOT(moveUpSel()));
   connect(moveDownAct, SIGNAL(triggered()), parent, SLOT(moveDownSel()));
@@ -94,6 +131,7 @@ Selector::Selector(QWidget *parent)
   connect(duplicateAct, SIGNAL(triggered()), parent, SLOT(duplicateSel()));
   //
   connect(renameAct, SIGNAL(triggered()), parent, SLOT(renameSel()));
+
 
   connect(addToRefAniAct, SIGNAL(triggered()), parent, SLOT(addToRef()));
   this->setMinimumWidth(200);
@@ -188,6 +226,8 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
 
    bool onesel = sel.size()==1;
    bool nosel = sel.size()==0;
+   int seli = 0;
+   if (!nosel) seli = sel[0].row();
    int t = currentTabName();
 
 
@@ -206,20 +246,43 @@ void Selector::contextMenuEvent(QContextMenuEvent *event)
    if (onesel) {
 
      menu.addSeparator();
-     QMenu* exportMenu=menu.addMenu("Export");
-     exportMenu->addAction(exportAnyBrfAct);
-     if (t==MESH) exportMenu->addAction(exportStaticMeshAct);
-     if (t==SKELETON) exportMenu->addAction(exportSkeletonModAct);
+
+     if (t==MESH) {
+       menu.addAction(exportStaticMeshAct);
+       if (data->mesh[ seli ].isRigged)
+         menu.addAction(exportRiggedMeshAct);
+       if (data->mesh[ seli ].frame.size()>0)
+         menu.addAction(exportMovingMeshAct);
+     }
+
+     if (t==SKELETON) {
+       menu.addAction(exportSkeletonAct);
+       menu.addAction(exportSkeletonModAct);
+       menu.addAction(exportSkinAct);
+     }
+     if (t==ANIMATION){
+       menu.addAction(exportAnimationAct);
+       menu.addAction(exportSkinForAnimationAct);
+     }
    }
    if (onesel || nosel) {
-     QMenu* importMenu=menu.addMenu("Import");
-     importMenu->addAction(importAnyBrfAct);
+
+
      if (t==MESH) {
+       QMenu* importMenu=menu.addMenu("Import");
        importMenu->addAction(importStaticMeshAct);
-       //importMenu->addSeparator();
-       //importMenu->addAction(exportImportMeshInfoAct);
+       importMenu->addAction(importRiggedMeshAct);
+       importMenu->addAction(importMovingMeshAct);
      }
-     if (onesel) if (t==SKELETON) importMenu->addAction(importSkeletonModAct);
+     if (t==ANIMATION) {
+       menu.addAction(importAnimationAct);
+     }
+     if (onesel) {
+       if (t==SKELETON) menu.addAction(importSkeletonModAct);
+     }
+     if (t==SKELETON) menu.addAction(importSkeletonAct);
+
+
    }
 
    if (onesel && t==MESH) {
@@ -330,17 +393,18 @@ void Selector::onChanged(){
 
 
 
-void Selector::setup(const BrfData &data){
+void Selector::setup(const BrfData &_data){
 
   this->clear();
 
-  addBrfTab<BrfMesh> (data.mesh);
-  addBrfTab<BrfShader> (data.shader);
-  addBrfTab<BrfTexture> (data.texture);
-  addBrfTab<BrfMaterial> (data.material);
-  addBrfTab<BrfSkeleton> (data.skeleton);
-  addBrfTab<BrfAnimation> (data.animation);
-  addBrfTab<BrfBody> (data.body);
+  addBrfTab<BrfMesh> (_data.mesh);
+  addBrfTab<BrfShader> (_data.shader);
+  addBrfTab<BrfTexture> (_data.texture);
+  addBrfTab<BrfMaterial> (_data.material);
+  addBrfTab<BrfSkeleton> (_data.skeleton);
+  addBrfTab<BrfAnimation> (_data.animation);
+  addBrfTab<BrfBody> (_data.body);
+  data = &_data;
 
   //static QModelIndexList *empty = new QModelIndexList();
   //emit setSelection(*empty , NONE );

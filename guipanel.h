@@ -35,6 +35,8 @@ private slots:
     void updateVisibility();
 public slots:
     void setSelection(const QModelIndexList &, int k);
+    void updateFrameNumber(int i);
+    void updateMaterial(QString st);
 };
 
 #endif // GUIPANEL_H

@@ -43,6 +43,21 @@ int BrfData::GetFirstUnusedLetter() const{
   return -1;
 }
 
+BrfMesh BrfData::GetCompleteSkin(int pos) const{
+  BrfMesh res;
+  bool first = true;
+  for (unsigned int i=0; i<mesh.size(); i++) {
+    char let = mesh[i].name[4];
+    if (let==char(pos+'A')) {
+      BrfMesh a = mesh[i];
+      a.KeepOnlyFrame(0);
+      if (first) res=a; else res.Merge(a);
+      first=false;
+    }
+  }
+  return res;
+}
+
 template <class T>
 static void mergeVec(vector<T> &a, const vector<T> &b){
   for (unsigned int i=0; i<b.size(); i++) a.push_back(b[i]);
@@ -87,11 +102,11 @@ template<class BrfType> void BrfData::SaveAll(FILE *f, const vector<BrfType> &v)
   }
 }
 
-BrfSkeleton* BrfData::getOneSkeleton(int nbones){
+int BrfData::getOneSkeleton(int nbones){
   for (unsigned int i=0; i<skeleton.size(); i++){
-    if ((int)skeleton[i].bone.size()==nbones) return &(skeleton[i]);
+    if ((int)skeleton[i].bone.size()==nbones) return i;
   }
-  return NULL;
+  return -1;
 }
 
 bool BrfData::Save(const char*fn) const{
@@ -112,7 +127,7 @@ bool BrfData::Save(const char*fn) const{
   return true;
 }
 
-bool BrfData::LoadMat(FILE *f){
+void BrfData::Clear(){
   mesh.clear();
   texture.clear();
   shader.clear();
@@ -120,6 +135,10 @@ bool BrfData::LoadMat(FILE *f){
   skeleton.clear();
   animation.clear();
   body.clear();
+}
+
+bool BrfData::LoadMat(FILE *f){
+  Clear();
   while (1) {
     char str[255];
     LoadString(f, str);
@@ -149,15 +168,7 @@ bool BrfData::LoadMat(FILE *f){
 
 bool BrfData::Load(FILE*f,int verbose, int stopAt){
 
-  mesh.clear();
-  texture.clear();
-  shader.clear();
-  material.clear();
-  skeleton.clear();
-  animation.clear();
-  body.clear();
-
-
+  Clear();
 
   while (1) {
     char str[255];
