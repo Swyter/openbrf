@@ -17,6 +17,7 @@ public:
     void setSkeleton(const BrfSkeleton &s);
     int getSkel() const;
     int getBone() const;
+    bool pieceAtOrigin() const;
     void sayNotRigged(bool say);
 
 protected:

@@ -1,3 +1,6 @@
+#include <qfiledialog.h>
+#include <qmessagebox.h>
+
 #include "brfdata.h"
 #include "selector.h"
 #include "mainwindow.h"
@@ -30,6 +33,37 @@ bool MainWindow::exportMeshGroup(){
     IoOBJ::writeMesh(f,m,0);
   }
   f.close();
+  return true;
+}
+
+bool MainWindow::exportMeshGroupManyFiles(){
+  int i = selector->firstSelected();
+  if (i<0) return false;
+  if (i>(int)brfdata.mesh.size()) return false;
+
+  QString path = settings->value("LastExpImpPath").toString();
+  if (path.isEmpty()) path = QDir::currentPath();
+
+  QString dir = QFileDialog::getExistingDirectory ( this, tr("Select a folder to export all meshes"),path,QFileDialog::ShowDirsOnly);
+
+  if (dir.isEmpty()) return false;
+
+  for (int k=0; k<selector->selectedList().size(); k++){
+    QFile f;
+    const BrfMesh &m(brfdata.mesh[ selector->selectedList()[k].row() ]);
+    QString fn = QString("%1/%2.obj").arg(dir,m.name);
+    if (!IoOBJ::open(f,fn)) {
+      QMessageBox::information(this,
+        tr("Open Brf"),
+        tr("Cannot open file %1 for writing;").arg(fn)
+      );
+      return false;
+    }
+    IoOBJ::reset();
+    IoOBJ::writeMesh(f,m,0);
+    f.close();
+
+  }
   return true;
 }
 
@@ -596,6 +630,9 @@ bool MainWindow::importMovingMesh(){
           ,7000
       );
       allOk = false;
+    }
+    if (assembleAniMode()==2) {
+      res = brfdata.mesh[i].AddFrameMatchPosOrDie(m[h],j);
     }
     if (!res) brfdata.mesh[i].AddFrameMatchTc(m[h],j);
     setModified(true);

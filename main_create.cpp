@@ -29,6 +29,7 @@ void MainWindow::createMenus()
     editMenu->addAction(editPasteFrameAct);
     editMenu->addSeparator();
     editMenu->addAction(editPasteRiggingAct);
+    editMenu->addAction(editPasteModificationAct);
 
     QMenu* importMenu=menuBar()->addMenu("&Import");
 
@@ -58,20 +59,43 @@ void MainWindow::createMenus()
     //navMenu->addAction(navigateDownAct);
     //navMenu->addAction(navigateUpAct);
 
+    QMenu* toolMenu = menuBar()->addMenu("&Tools");
+    toolMenu->addAction(sortEntriesAct);
+
     QMenu* optionMenu=menuBar()->addMenu("&Settings");
     QMenu* onImport = optionMenu->addMenu("On import meshes");
 
     QMenu* onAssemble = optionMenu->addMenu("On assemble vertex animations");
 
 
-    QMenu *tldSpecial = menuBar()->addMenu("TLD easteregg");
-    mab2tldAct = new QAction("Make head TLD mode",this);
-    tld2mabAct = new QAction("And back",this);
-    connect(tld2mabAct,SIGNAL(triggered()),this,SLOT(tld2mab()));
-    connect(mab2tldAct,SIGNAL(triggered()),this,SLOT(mab2tld()));
-    tldSpecial->addAction(mab2tldAct);
-    tldSpecial->addAction(tld2mabAct);
-    tldSpecial->hide();
+    QMenu *tldSpecial = new QMenu("TLD easteregg");
+    mab2tldHeadAct = new QAction("Make head TLD mode",this);
+    tld2mabHeadAct = new QAction("And back",this);
+    connect(tld2mabHeadAct,SIGNAL(triggered()),this,SLOT(tld2mabHead()));
+    connect(mab2tldHeadAct,SIGNAL(triggered()),this,SLOT(mab2tldHead()));
+    tldSpecial->addAction(mab2tldHeadAct);
+    tldSpecial->addAction(tld2mabHeadAct);
+
+    tldSpecial->addSeparator();
+
+    mab2tldArmorAct = new QAction("Make TLD armour",this);
+    tld2mabArmorAct = new QAction("Unmake it",this);
+    connect(tld2mabArmorAct,SIGNAL(triggered()),this,SLOT(tld2mabArmor()));
+    connect(mab2tldArmorAct,SIGNAL(triggered()),this,SLOT(mab2tldArmor()));
+    tldSpecial->addAction(mab2tldArmorAct);
+    //tldSpecial->addAction(tld2mabArmorAct);
+
+    tldMakeDwarfSlimAct = new QAction("Make dwarf slim",this);
+    connect(tldMakeDwarfSlimAct,SIGNAL(triggered()),this,SLOT(tldMakeDwarfSlim()));
+    tldSpecial->addAction(tldMakeDwarfSlimAct);
+
+    QAction* tldMakeDwarfBoot = new QAction("Make dwarf boots out of this pair",this);
+    connect(tldMakeDwarfBoot,SIGNAL(triggered()),this,SLOT(tldMakeDwarfBoots()));
+    tldSpecial->addAction(tldMakeDwarfBoot);
+
+    tldMenuAction = menuBar()->addMenu(tldSpecial);
+    menuBar()->removeAction(tldMenuAction);
+    //tldSpecial->hide();
 
     optionAfterMeshLoadMerge = new QAction("merge vertices and pos",this);
     optionAfterMeshLoadMerge->setCheckable(true);
@@ -97,6 +121,9 @@ void MainWindow::createMenus()
     optionAssembleAniMatchTc->setCheckable(true);
     optionAssembleAniMatchTc->setStatusTip("Use this option if you think that each vertex can be identified uniquely by its texture coords (best option)");
 
+    optionAssembleAniQuiverMode = new QAction("quiver mode - start with max arrows",this);
+    optionAssembleAniQuiverMode->setStatusTip("When you add a frame: what is not in the exact same position as the 1st frame disappears");
+    optionAssembleAniQuiverMode->setCheckable(true);
     /*
     QMenu* autoFix = optionMenu->addMenu("Auto fix DDX1 textures");
     optionAutoFixTextureOn = new QAction("On",this);
@@ -127,9 +154,11 @@ void MainWindow::createMenus()
     QActionGroup* group2=new QActionGroup(this);
     group2->addAction(optionAssembleAniMatchTc);
     group2->addAction(optionAssembleAniMatchVert);
+    group2->addAction(optionAssembleAniQuiverMode);
     group2->setExclusive(true);
 
     onAssemble->addActions(group2->actions());
+
 
     optionMenu->addSeparator();
     optionMenu->addAction(editRefAct);
@@ -181,6 +210,10 @@ void MainWindow::createActions()
     editPasteRiggingAct->setStatusTip(tr("Make a rigging for current mesh(-es) similar to one of the meshes in the clipboard."));
     editPasteRiggingAct->setEnabled(false);
 
+    editPasteModificationAct = new QAction(tr("Paste modifications"), this);
+    editPasteModificationAct->setStatusTip(tr("Move vertices of current mesh according to a 2 frame mesh animation."));
+    editPasteModificationAct->setEnabled(false);
+
     connect(editCutAct, SIGNAL(triggered()), this, SLOT(editCut()));
     connect(editCopyAct, SIGNAL(triggered()), this, SLOT(editCopy()));
     connect(editPasteAct, SIGNAL(triggered()), this, SLOT(editPaste()));
@@ -189,6 +222,7 @@ void MainWindow::createActions()
     connect(editCopyFrameAct, SIGNAL(triggered()), this, SLOT(editCopyFrame()));
     connect(editPasteFrameAct, SIGNAL(triggered()), this, SLOT(editPasteFrame()));
     connect(editPasteRiggingAct, SIGNAL(triggered()), this, SLOT(editPasteRigging()));
+    connect(editPasteModificationAct, SIGNAL(triggered()), this, SLOT(editPasteMod()));
 
     saveAsAct = new QAction(tr("Save &As..."), this);
     saveAsAct->setShortcuts(QKeySequence::SaveAs);
@@ -222,6 +256,9 @@ void MainWindow::createActions()
 
     connect(editRefAct, SIGNAL(triggered()), this, SLOT(editRef()));
 
+    sortEntriesAct = new QAction(tr("Sort entries"), this);
+    sortEntriesAct->setStatusTip(tr("Sort current entries alphabetically"));
+    connect(sortEntriesAct, SIGNAL(triggered()), this, SLOT(sortEntries()));
 
     importStaticMeshAct = new QAction(tr("Static mesh"), this);
     importStaticMeshAct->setStatusTip("Import a static Mesh");
@@ -231,6 +268,8 @@ void MainWindow::createActions()
     importMovingMeshAct->setStatusTip("Import a static mesh and add it as a vertex-animation frame of current Mesh");
     importSkeletonAct = new QAction(tr("Skeleton"), this);
     importSkeletonAct->setStatusTip("Import a Skeleton");
+
+
 
     importAnimationAct = new QAction(tr("Skeletal animation"), this);
     importAnimationAct->setStatusTip("Import a skeletal Animation");

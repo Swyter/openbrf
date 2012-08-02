@@ -45,6 +45,13 @@ int GLWidget::getRefSkin() const{
 }
 
 int GLWidget::getRefSkeleton() const{
+  if (displaying == MESH ) {
+    if (selRefAnimation>=0) {
+      BrfAnimation *a=&(reference->animation[selRefAnimation]);
+      int si = reference->getOneSkeleton( int(a->nbones ), selRefSkel );
+      return si;
+    }
+  }
   return selRefSkel;
 }
 
@@ -267,8 +274,8 @@ void GLWidget::renderBrfItem (const BrfMesh& p){
   BrfSkeleton* s=NULL;
   if (p.isRigged) {
     if (selRefAnimation>=0) {
-      a=&(reference->animation[selRefAnimation]);
-      int si = reference->getOneSkeleton( int(a->nbones ), getRefSkeleton() );
+      a = &(reference->animation[selRefAnimation]);
+      int si = getRefSkeleton();
       if (si>=0) s=&(reference->skeleton[si]);
       //selRefSkel = si;
     }
@@ -296,7 +303,7 @@ void GLWidget::renderBrfItem (const BrfAnimation& a){
   if (!reference) return;
 
 
-  int si = reference->getOneSkeleton( int(a.nbones ), getRefSkeleton() );
+  int si = reference->getOneSkeleton( int(a.nbones ), selRefSkel );
   if (si==-1) return ; // no skel, no render
   const BrfSkeleton &s(reference->skeleton[si]);
 
@@ -577,7 +584,7 @@ GLWidget::GLWidget(QWidget *parent, IniData &_inidata)
   //grabKeyboard ();
   selectNone();
   phi=theta=0;
-  dist = 5;
+  dist = 3.9;
   zoom = 1;
   cx = cy = 0;
   currViewmodeHelmet=currViewmodeInterior=viewmode=0;
@@ -1126,6 +1133,25 @@ void GLWidget::renderBody(const BrfBody& b){
 }
 
 
+void _subdivideScreen(int nsel,int w,int h, int *ncol, int *nrow){
+  if (w<h) { _subdivideScreen( nsel,h,w, nrow, ncol); }
+  else {
+    int best = 0;
+    for (int n=(int)(ceil(sqrt(nsel))); n>=1; n--) {
+      int m = (nsel+n-1)/n;
+      int score;
+      score = (w/m<h/n)? w/m : h/n;
+      if (score>best) {
+        *ncol = m;
+        *nrow = n;
+        best=score;
+      }
+
+    }
+  }
+}
+
+
 template<class BrfType>
 void GLWidget::renderSelected(const std::vector<BrfType>& v){
   Box3f bbox;
@@ -1170,20 +1196,18 @@ void GLWidget::renderSelected(const std::vector<BrfType>& v){
 
   }
 
-  glPushMatrix();
-  glMultMatrixf(extraMatrix);
 
   bool _viewmodeMult = viewmodeMult;
   if (displaying==TEXTURE || displaying==MATERIAL) _viewmodeMult=true;
 
+  int ncol=1, nrow=1;
+  _subdivideScreen(nsel,w,h, &ncol, &nrow);
   for (int i=0,seli=0; i<max; i++) if (selGroup[i]) {
+    glPushMatrix();
+    glMultMatrixf(extraMatrix);
     {
+
       if (_viewmodeMult) {
-        int ncol; ncol = (int)(ceil(sqrt(nsel)));
-        int nrow = ncol;
-        if (ncol*(ncol-1)>=nsel) {
-          if (w<h) ncol--; else nrow--;
-        }
         // multiple object view mode
         int x = seli%ncol;
         int y = seli/ncol;
@@ -1199,13 +1223,13 @@ void GLWidget::renderSelected(const std::vector<BrfType>& v){
       }
     }
     renderBrfItem(v[i]);
+    glPopMatrix();
     if (v[i].IsAnimable()) animating=true;
 
     if (_viewmodeMult) renderFloorMaybe();
   }
   if (!_viewmodeMult) renderFloorMaybe();
 
-  glPopMatrix();
 
 
 }
@@ -1221,6 +1245,7 @@ void GLWidget::glClearCheckBoard(){
   glDisable(GL_LIGHTING);
   glDisable(GL_TEXTURE_2D);
 
+  glViewport(0,0,w,h);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   gluOrtho2D(0,w,0,h);
@@ -1254,6 +1279,8 @@ void GLWidget::mySetViewport(int x,int y,int w,int h){
       gluOrtho2D(-wh,+wh,-1,+1);
   } else {
     gluPerspective(60-closingUp*40,wh,0.2,20+currViewmodeInterior*500);
+    if (wh<1) glScalef(wh,wh,1);
+    glScalef(0.2,0.2,0.2);
   }
 
   glMatrixMode(GL_MODELVIEW);
@@ -1261,6 +1288,8 @@ void GLWidget::mySetViewport(int x,int y,int w,int h){
 
 void GLWidget::paintGL()
 {
+  makeCurrent();
+  if (!isValid ()) return;
   glViewport(0,0,w,h);
 
   glClearColor(bg_r,bg_g,bg_b,1);

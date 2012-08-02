@@ -19,6 +19,7 @@ public:
 
     ErrListModel *model;
     int i, j, kind; // file i, object j, of kind kind
+    int maxErr;
     IniData *inidata;
     QTextBrowser *te;
     QString searchString;
@@ -33,7 +34,9 @@ public slots:
 protected slots:
     void linkClicked(const QUrl &l);
     void performSearch();
+    void performErrorSearch();
     void refresh();
+    void moreErrors();
 protected:
     void changeEvent(QEvent *e);
     void paintEvent ( QPaintEvent * event );

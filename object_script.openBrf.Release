@@ -31,6 +31,7 @@ INPUT(
 ./release\main_info.o
 ./release\main_create.o
 ./release\main_ImpExp.o
+./release\brfHitBox.o
 ./release\moc_mainwindow.o
 ./release\moc_glwidgets.o
 ./release\moc_selector.o

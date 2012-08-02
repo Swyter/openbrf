@@ -12,11 +12,12 @@ namespace Ui {
 class AskSkelDialog : public QDialog {
     Q_OBJECT
 public:
-    AskSkelDialog(QWidget *parent, const std::vector<BrfSkeleton> &sv );
+    AskSkelDialog(QWidget *parent, const std::vector<BrfSkeleton> &sv, int fr, int to, int res, int meth);
     ~AskSkelDialog();
     int getSkelFrom() const;
     int getSkelTo() const;
-    bool asFrame() const;
+    int getOutputType() const;
+    int getMethodType() const;
 
 protected:
     void changeEvent(QEvent *e);

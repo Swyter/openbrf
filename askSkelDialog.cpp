@@ -3,7 +3,7 @@
 
 #include "brfSkeleton.h"
 
-AskSkelDialog::AskSkelDialog(QWidget *parent, const std::vector<BrfSkeleton> &sv) :
+AskSkelDialog::AskSkelDialog(QWidget *parent, const std::vector<BrfSkeleton> &sv, int fr, int to, int out, int method) :
     QDialog(parent),
     m_ui(new Ui::AskSkelDialog)
 {
@@ -14,8 +14,13 @@ AskSkelDialog::AskSkelDialog(QWidget *parent, const std::vector<BrfSkeleton> &sv
     m_ui->cbSkelFrom->addItem( sv[i].name );
     m_ui->cbSkelTo->addItem( sv[i].name );
   }
-  m_ui->cbSkelFrom->setCurrentIndex(0);
-  m_ui->cbSkelTo->setCurrentIndex(1);
+  m_ui->radioButtonA0->setChecked(method==0);
+  m_ui->radioButtonA1->setChecked(method==1);
+  m_ui->radioButtonB0->setChecked(out==0);
+  m_ui->radioButtonB1->setChecked(out==1);
+  m_ui->radioButtonB2->setChecked(out==2);
+  m_ui->cbSkelFrom->setCurrentIndex(fr);
+  m_ui->cbSkelTo->setCurrentIndex(to);
 
 }
 
@@ -25,8 +30,11 @@ int AskSkelDialog::getSkelFrom() const{
 int AskSkelDialog::getSkelTo() const{
   return m_ui->cbSkelTo->currentIndex();
 }
-bool AskSkelDialog::asFrame() const{
-  return m_ui->checkBox->isChecked();
+int AskSkelDialog::getMethodType() const{
+  return m_ui->radioButtonA1->isChecked();
+}
+int AskSkelDialog::getOutputType() const{
+  return (m_ui->radioButtonB2->isChecked())?2:m_ui->radioButtonB1->isChecked();
 }
 
 AskSkelDialog::~AskSkelDialog()

@@ -17,6 +17,43 @@ using namespace vcg;
 #include "saveLoad.h"
 typedef vcg::Point3f Pos;
 
+void BrfMesh::TowardZero(float x,float y, float z){
+  for (unsigned int f=0; f<frame.size(); f++) {
+    for (unsigned int i=0; i<frame[f].pos.size(); i++) {
+      frame[f].pos[i][0]+=(frame[f].pos[i][0]<0)?x:-x;
+      frame[f].pos[i][1]+=(frame[f].pos[i][1]<0)?y:-y;
+      frame[f].pos[i][2]+=(frame[f].pos[i][2]<0)?z:-z;
+    }
+  }
+}
+
+void BrfMesh::Scale(float xNeg, float xPos, float yPos, float yNeg, float zNeg, float zPos){
+  for (unsigned int f=0; f<frame.size(); f++) {
+    for (unsigned int i=0; i<frame[f].pos.size(); i++) {
+      frame[f].pos[i][0]*=(frame[f].pos[i][0]<0)?xNeg:xPos;
+      frame[f].pos[i][1]*=(frame[f].pos[i][1]<0)?yNeg:yPos;
+      frame[f].pos[i][2]*=(frame[f].pos[i][2]<0)?zNeg:zPos;
+    }
+  }
+  ComputeNormals();
+  AdjustNormDuplicates();
+}
+
+bool BrfMesh::AddFrameMatchPosOrDie(const BrfMesh &b, int k){
+  BrfFrame fa = frame[0];
+  Point3f p = bbox.Center();
+  BrfFrame fb = b.frame[0];
+  for (unsigned int i=0; i<fa.pos.size(); i++) {
+    bool found = false;
+    for (unsigned int j=0; j<fb.pos.size(); j++) {
+      if ((fa.pos[i]-fb.pos[j]).Norm()<0.01) {found=true;}
+    }
+    if (!found) fa.pos[i] = p;
+  }
+  frame.insert(frame.begin()+k+1, 1, fa);
+  return true;
+}
+
 bool BrfMesh::AddFrameMatchTc(const BrfMesh &b, int k){
 
   BrfFrame nf;
@@ -27,11 +64,15 @@ bool BrfMesh::AddFrameMatchTc(const BrfMesh &b, int k){
   for (unsigned int i=0; i<vert.size(); i++) {
     // find vertex closet
     int jMin=0;
-    float scoreMin = 10e10;
+    float scoreMinA = 10e20;
+    float scoreMinB = 10e20;
     for (unsigned int j=0; j<b.vert.size(); j++) {
-      float score = (b.vert[j].ta - vert[i].ta).Norm()*10000000.0+fabs(i-j);
-      if (score<scoreMin) {
-        scoreMin=score;
+      float scoreA = (b.vert[j].ta - vert[i].ta).SquaredNorm();
+      float scoreB = (b.frame[0].pos[b.vert[j].index] - frame[0].pos[vert[i].index ]).SquaredNorm() ;
+      if ((scoreA<scoreMinA) ||
+          ((scoreA==scoreMinA) && (scoreB<scoreMinB)) ) {
+        scoreMinA=scoreA;
+        scoreMinB=scoreB;
         jMin=j;
       }
     }
@@ -41,6 +82,19 @@ bool BrfMesh::AddFrameMatchTc(const BrfMesh &b, int k){
 
   }
   frame.insert(frame.begin()+k+1, 1, nf);
+  return true;
+}
+
+bool BrfMesh::CopyModification(const BrfMesh& b){
+  if (b.frame.size()!=2) return false;
+
+  for (unsigned int i=0; i<frame[0].pos.size(); i++)
+    for (unsigned int f=frame.size()-1; f>0; f--){
+      for (unsigned int j=0; j<b.frame[0].pos.size(); j++)
+        if ((frame[0].pos[i]-b.frame[0].pos[j]).SquaredNorm()<0.0001)
+          if (b.frame[1].pos[j]!=b.frame[0].pos[j])
+            frame[f].pos[i]=b.frame[1].pos[j];
+    }
   return true;
 }
 
@@ -158,6 +212,41 @@ void BrfMesh::Transform(float *f){
 
 }
 
+void BrfMesh::Unskeletonize(const BrfSkeleton& from){
+
+  vector<Matrix44f> mat = from.GetBoneMatrices();
+/*
+  for (int bi=0; bi<(int)mat.size(); bi++) {
+    Matrix44f inv = vcg::Inverse(mat[bi]);
+    mat[bi]=inv;
+  }*/
+  int k = rigging[0].boneIndex[0];
+  Matrix44f m = vcg::Inverse(mat[k]);
+  vcg::Transpose(m);
+  Transform(&(m[0][0]));
+  return;
+
+  if (!rigging.size()) return;
+  assert (rigging.size()==frame[0].pos.size());
+
+  for (int pi=0; pi<(int)rigging.size(); pi++){
+    Matrix44f matTot;
+    matTot.SetZero();
+    const BrfRigging &rig(rigging[pi]);
+    for (int k=0; k<4; k++) {
+      int i = rig.boneIndex[k];
+      if (i>=0) matTot+=mat[i]* rig.boneWeight[k];
+    }
+    for (int fi=0; fi<(int)frame.size(); fi++) {
+      BrfFrame &f(frame[fi]);
+
+      f.pos[pi]=matTot*f.pos[pi];
+
+    }
+  }
+  UpdateBBox();
+
+}
 
 void BrfMesh::Reskeletonize(const BrfSkeleton& from, const BrfSkeleton& to){
 
@@ -186,6 +275,108 @@ void BrfMesh::Reskeletonize(const BrfSkeleton& from, const BrfSkeleton& to){
 
     }
   }
+  UpdateBBox();
+}
+
+void BrfFrame::MakeSlim(float ratioX, float ratioZ, const BrfSkeleton* s){
+  vector<Matrix44f> m = s->GetBoneMatrices();
+  float y3 = m[ s->FindBoneByName("shoulder.L") ].GetColumn3(3)[1]-0.075;
+  float y1 = m[ s->FindBoneByName("abdomen") ].GetColumn3(3)[1];
+  float y0 = m[ s->FindBoneByName("calf.L") ].GetColumn3(3)[1];
+  //float y1 = (y0*5 + y3)/6;
+  //float y2 = (y3*5 + y0)/6;
+  for (int i=0; i<(int)pos.size(); i++){
+    float y = pos[i][1];
+    float t;
+    if (y>y1)
+      t = (y-y1)/(y3-y1);
+    else {
+      t = (y-y1)/(y0-y1);
+      t = (t<0.5)?t*t:(1-(1-t)*(1-t));
+    }
+    if (t<0) t=0;
+    if (t>1) t=1;
+    pos[i][0]*=t + (1-t)*ratioX;
+    pos[i][2]*=t + (1-t)*ratioZ;
+  }
+}
+
+class Grid{
+public:
+  enum {X=9, Y=10};
+  float x[X],y[Y];
+  Point3f ToLocal(Point3f p) const;
+  Point3f ToGlobal(Point3f p) const;
+  void FromSkeleton(const BrfSkeleton &s);
+};
+void Grid::FromSkeleton(const BrfSkeleton &s){
+  vector<Matrix44f> m = s.GetBoneMatrices();
+
+  x[0] = m[ s.FindBoneByName("hand.L") ].GetColumn3(3)[0]-0.05;
+  x[1] = m[ s.FindBoneByName("forearm.L") ].GetColumn3(3)[0];
+  x[2] = m[ s.FindBoneByName("upperarm.L") ].GetColumn3(3)[0];
+  x[3] = m[ s.FindBoneByName("shoulder.L") ].GetColumn3(3)[0];
+  x[4] = 0;
+  x[5] = m[ s.FindBoneByName("shoulder.R") ].GetColumn3(3)[0];
+  x[6] = m[ s.FindBoneByName("upperarm.R") ].GetColumn3(3)[0];
+  x[7] = m[ s.FindBoneByName("forearm.R") ].GetColumn3(3)[0];
+  x[8] = m[ s.FindBoneByName("hand.R") ].GetColumn3(3)[0]+0.05;
+
+  y[0] = -0.05;
+  y[1] = m[ s.FindBoneByName("foot.L") ].GetColumn3(3)[1];
+  y[2] = m[ s.FindBoneByName("calf.L") ].GetColumn3(3)[1];
+  y[3] = m[ s.FindBoneByName("thigh.L") ].GetColumn3(3)[1];
+  //y[3] = m[ s.FindBoneByName("abdomen") ].GetColumn3(3)[1];
+  y[4] = m[ s.FindBoneByName("spine") ].GetColumn3(3)[1];
+  y[5] = m[ s.FindBoneByName("torax") ].GetColumn3(3)[1];
+  y[6] = m[ s.FindBoneByName("shoulder.L") ].GetColumn3(3)[1]-0.075;
+  y[7] = m[ s.FindBoneByName("shoulder.L") ].GetColumn3(3)[1];
+  y[8] = m[ s.FindBoneByName("shoulder.L") ].GetColumn3(3)[1]+0.15;
+  y[9] = m[ s.FindBoneByName("head") ].GetColumn3(3)[1]+0.15;
+  //for (int i=0; i<Y; i++) //qDegug();//if (y[i]>=y[i++]) {assert(false);}
+}
+
+Point3f Grid::ToGlobal(Point3f p) const{
+  int x0 = (int)floor(p[0]), y0 = (int)floor( p[1] );
+  float x1 = p[0]-x0, y1 = p[1]-y0;
+  //C:\Users\tarini\AppData\Roaming\Skype\Pictures\shotsy1=0;
+  return ( Point3f(
+    x[x0]*(1-x1)+ x[x0+1]*(x1),
+    y[y0]*(1-y1)+ y[y0+1]*(y1),
+    //y0*0.2//
+    p[2]
+  ) );
+}
+Point3f Grid::ToLocal(Point3f p) const{
+  int x0, y0;
+  for (x0=0; x0<X-1; x0++) if (x[ x0+1 ]>p[0]) break;
+  for (y0=0; y0<Y-1; y0++) if (y[ y0+1 ]>p[1]) break;
+  return (Point3f(
+    x0 + (p[0]-x[x0])/(x[x0+1]-x[x0]),
+    y0 + (p[1]-y[y0])/(y[y0+1]-y[y0]),
+    p[2]
+  ));
+}
+
+void BrfMesh::ReskeletonizeHuman(const BrfSkeleton& from, const BrfSkeleton& to, float bonusArm ){
+
+  Grid a,b;
+  a.FromSkeleton(from);
+  b.FromSkeleton(to);
+
+  if (bonusArm) {
+    b.y[5]-=bonusArm*3/5/2; //0.03*0.5;
+    b.y[6]-=bonusArm*3/5;   //0.03
+    b.y[8]+=bonusArm*2/5;   //0.02;
+    b.y[9]+=bonusArm*2/5;   //0.02;
+  }
+
+  int fi=0;
+
+  for (int pi=0; pi<(int)frame[fi].pos.size(); pi++){
+    frame[fi].pos[pi] = b.ToGlobal( a.ToLocal( frame[fi].pos[pi] ) );
+  }
+  UpdateBBox();
 }
 
 
@@ -1492,8 +1683,14 @@ bool BrfMesh::Skip(FILE* f){
   return true;
 }
 
+void BrfMesh::DiscardRigging(){
+  rigging.clear();
+  isRigged = false;
+}
+
+
 void BrfMesh::KeepOnlyFrame(int i){
-  if (i==0) frame.resize(1); else {
+  if (i<=0 || i>=(int)frame.size()) frame.resize(1); else {
     frame[0]=frame[i];
     frame.resize(1);
     AdjustNormDuplicates();
@@ -1836,6 +2033,15 @@ void BrfMesh::Translate(Point3f p){
   bbox.min+=p;
   bbox.max+=p;
 }
+
+void BrfMesh::ColorAll(unsigned int newcol){
+  //unsigned int col =(unsigned int)r<<8+(unsigned int)g<<16+(unsigned int)b<<24+(unsigned int)a;
+  for (int i=0; i<(int)vert.size(); i++){
+    vert[i].col = newcol;
+  }
+  hasVertexColor = (newcol != 0xFFFFFFFF);
+}
+
 
 void BrfMesh::CollapseBetweenFrames(int fi,int fj){
   Point3f point = frame[0].MinPos();

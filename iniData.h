@@ -41,13 +41,13 @@ public:
   BrfMaterial* findMaterial(const QString &name, Pair startFrom=Pair(0,0) );
 
   QStringList errorList; // list all error strings
-  void findErrors();
+  bool findErrors(int maxErr); // true if there's more
   QString searchAllNames(const QString &s,bool commonResToo, int token) const;
 private:
   QString link(int i, int j, int kind) const; // given an object j of kind kind in file i, returns a strig link
   QString linkShort(int i, int j, int kind) const;
   QString shortFileName(int i) const;
-  template<class T> bool checkDuplicated(std::vector<T> &v, int fi);
+  template<class T> bool checkDuplicated(std::vector<T> &v, int fi, int maxErr);
   void checkUses(int i, int j, int kind, char* usedName, int usedKind);
   void checkFile(int i, int j, int kind, char* fileName, QDir* d0, QDir* d1);
   std::map<QString, Pair> indexing[N_TOKEN];
