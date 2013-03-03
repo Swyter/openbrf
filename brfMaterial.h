@@ -20,6 +20,7 @@ public:
   char bump[255];
   char enviro[255];
   char spec[255];
+
   float specular;
   float r,g,b;
   int RenderOrder() const;
@@ -33,6 +34,10 @@ public:
   bool HasBump() const;
   bool HasSpec() const;
   static Box3f bbox;
+
+	typedef enum{DIFFUSEA, DIFFUSEB, BUMP, ENVIRO, SPECULAR } TextureType;
+	char* getTextureName(int i);
+	const char* getTextureName(int i) const;
 
   typedef enum {UNKNOWN, NOWHERE, COMMON, MODULE, LOCAL} Location; // where the texture dss file is
   Location rgbLocation, bumpLocation, specLocation;

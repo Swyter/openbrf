@@ -35,6 +35,7 @@ int main(int argc, char* argv[])
 
 
   char* argv_2[]={"OpenBrf"}; int argc_2=1;
+
   QApplication app(argc_2,argv_2); //argc, argv);
   QStringList arguments = QCoreApplication::arguments();
   app.setApplicationVersion(applVersion);

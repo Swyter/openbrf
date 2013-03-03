@@ -271,11 +271,29 @@ static unsigned int _del(vector<T> &t, const QModelIndexList &l){
 
 	return t.size();
 }
+
 template< class T >
-static char* _name(T &t, int i){
+static char* _getName(T &t, int i){
 	if (i<0 || i>=(int)t.size()) return NULL;
 	return t[i].name;
 }
+template< class T >
+void _setName(T &t, QString s){
+	s.truncate(254);
+	sprintf(t.name, "%s", s.toAscii().data());
+}
+template<>
+void _setName(BrfMesh &t, QString s){
+	s.truncate(254);
+	sprintf(t.name, "%s", s.toAscii().data());
+	t.AnalyzeName();
+}
+void _setNameOnCharStar(char* st, QString s){
+	s.truncate(254);
+	sprintf(st, "%s", s.toAscii().data());
+}
+
+
 template< class T >
 static bool _copy(vector<T> &t, const QModelIndexList &l, vector<T> &d){
 	for (int k=0; k<l.size(); k++) {
@@ -507,7 +525,7 @@ void MainWindow::tldMakeDwarfBoots(){
 
 		int indof = tmp.indexOf(".",0); if (indof == -1) indof = tmp.length();
 		QString tmp2 = tmp.left(indof)+"_dwarf"+tmp.right(tmp.length()-indof);
-		sprintf(m.name,"%s",tmp2.toAscii().data());
+		m.SetName(tmp2.toAscii().data());
 
 		//res.push_back(m);
 		setModified();
@@ -764,6 +782,17 @@ QString MainWindow::referenceFilename(bool modSpecific) const
 	else return  modPath()+"/reference.brf";
 }
 
+// just a replacement for reference data: from "skinA_(...)" to "skinA.(...)
+static void quickHackFixName( BrfData &ref ){
+	for (uint i=0; i<ref.mesh.size(); i++) {
+		BrfMesh &m(ref.mesh[i]);
+		if (m.name[5]=='_') {
+			m.name[5]='.';
+			m.AnalyzeName();
+		}
+	}
+}
+
 void MainWindow::refreshReference(){
 	bool loaded = false;
 	if (usingModReference()) {
@@ -773,6 +802,7 @@ void MainWindow::refreshReference(){
 		if (reference.Load(fn.toStdWString().c_str())) {
 			loadedModReference = true;
 			loaded = true;
+			quickHackFixName( reference );
 		}
 	}
 	if (!loaded) {
@@ -780,6 +810,7 @@ void MainWindow::refreshReference(){
 		QString fn = referenceFilename(0);
 		//qDebug("Trying to standard load '%s'",fn.toAscii().data());
 		if (reference.Load(fn.toStdWString().c_str()))  loaded = true;
+		quickHackFixName( reference );( reference );
 	}
 	if (loaded) {
 		guiPanel->setReference(&reference);
@@ -822,6 +853,8 @@ MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),inidata(brfdata)
 
 	setEditingRef(false);
 
+	setEditingVertexData( false);
+
 	main->addWidget(selector);
 	main->addWidget(guiPanel);
 	main->addWidget(glWidget);
@@ -855,6 +888,8 @@ MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),inidata(brfdata)
 	if (optionFeminizerUseDefault->isChecked()) optionFemininzationUseDefault();
 	else optionFemininzationUseCustom();
 
+	loadCarryPositions();
+
 	setLanguage( curLanguage );
 
 	glWidget->setDefaultBgColor(background,true);
@@ -876,6 +911,13 @@ MainWindow::MainWindow(QWidget *parent):QMainWindow(parent),inidata(brfdata)
 }
 
 
+bool MainWindow::setEditingVertexData(bool mode){
+	editingVertexData = mode;
+	enterVertexDataMode->setVisible( !mode );
+	exitVertexDataMode->setVisible( mode );
+	guiPanel->ui->attributeData->setVisible( mode );
+	return mode;
+}
 
 
 bool MainWindow::setEditingRef(bool mode){
@@ -967,11 +1009,6 @@ template<class BrfType> void MainWindow::insertOrReplace( vector<BrfType> &v, co
 	else insert(v,o);
 }
 
-void _setName(char* st, QString s){
-	s.truncate(254);
-	sprintf(st, "%s", s.toAscii().data());
-}
-
 bool MainWindow::addNewUiPicture(){
 	AskNewUiPictureDialog d(this);
 	d.setBrowsable(mabPath+"/Modules/"+modName+"/Textures");
@@ -1051,24 +1088,23 @@ bool MainWindow::addNewGeneral(QStringList defaultst ){
 
 		for (int i=0; i<newName.size(); i++) {
 			TT m;
-			_setName(m.name,newName[i]);
+			_setName(m,newName[i]);
 			m.SetDefault();
 			insert(m);
 			if (d.alsoAdd()) {
 				if (tok==MATERIAL) {
 					BrfTexture t;
-					_setName(t.name,newName[i]);
+					_setName(t,newName[i]);
 					t.SetDefault();
 					insert(t);
 				}
 				if (tok==TEXTURE) {
 					BrfMaterial t;
-					_setName(t.name,newName[i]);
+					_setName(t,newName[i]);
 					t.SetDefault();
 					insert(t);
 				}
 			}
-			//selector->updateData(brfdata);
 			setModified();
 		}
 		return true;
@@ -1099,6 +1135,7 @@ bool MainWindow::addNewShader(){
 }
 
 void MainWindow::applyAfterMeshImport(BrfMesh &m){
+	m.AnalyzeName();
 	switch (this->afterMeshImport()) {
 	case 1:
 		m.UnifyPos();
@@ -1242,7 +1279,9 @@ void MainWindow::meshAniSplit(){
 			BrfMesh m2 = m;
 			m2.frame[0]=m.frame[i];
 			m2.frame.resize(1);
-			sprintf( m2.name, "%s_frame%d", m.name, i);
+			char newName[1024];
+			sprintf( newName, "%s_frame%d", m.name, i);
+			m2.SetName(newName);
 			res.push_back( m2 );
 
 		}
@@ -1346,7 +1385,7 @@ void MainWindow::objectMergeSelected(vector<BrfType> &v){
 	}
 	if (commonPrefix.endsWith(".")) commonPrefix.chop(1);
 	else commonPrefix+="_combined";
-	sprintf(res.name,"%s",commonPrefix.toAscii().data());
+	_setName(res,commonPrefix.toAscii().data());
 	insert(res);
 	setModified();
 }
@@ -1522,10 +1561,49 @@ void MainWindow::hitboxReset(){
 
 }
 
+bool MainWindow::loadCarryPositions(QString filename){
+	QFile f(filename);
+	if (!f.open(QIODevice::ReadOnly)) return false;
+
+	carryPositionSet.clear();
+
+	char line[1024];
+	while (f.readLine(line,1023)>=0) {
+
+		//qDebug("adding line \"%s\"...\n",line);
+		if (!QString(line).trimmed().isEmpty())
+		if (!(line[0]=='#')) {
+			CarryPosition cp;
+			if (cp.Load(line)) {
+				carryPositionSet.push_back(cp);
+				//qDebug("Added position %s",cp.name);
+			} else {
+				QMessageBox::warning(this,"OpenBRF",tr("Error loading line of file %2:\n\n%1").
+				                     arg(line).arg(filename));
+				return false;
+			}
+		}
+	}
+	//qDebug("done adding");
+	return true;
+}
+
+bool MainWindow::loadCarryPositions(){
+	const char* filename = "carry_positions.txt";
+	QString fn1 = QString("%1/%2").arg(QCoreApplication::applicationDirPath()).arg(filename);
+	QString fn2 = QString(":/%1").arg(filename);
+
+	//qDebug("%s",fn1.toAscii().data());
+	if (loadCarryPositions(fn1)) return true;
+  if (loadCarryPositions(fn2)) return true;
+	QMessageBox::warning(this,"OpenBRF",tr("Failed loading carry positions"));
+	return false;
+}
+
 
 
 void MainWindow::optionFemininzationUseCustom(){
-	QFile f("customFemininizer.morpher");
+	QFile f(QCoreApplication::applicationDirPath()+"customFemininizer.morpher");
 	QByteArray r;
 	bool ok = false;
 	if (f.open(QIODevice::ReadOnly)){
@@ -2113,7 +2191,7 @@ void MainWindow::meshFreezeFrame(){
 			int f = currentDisplaySkelAniFrame();
 			if (s && a && (f>=0))
 				m.FreezeFrame(*s,*a,f);
-			else assert(0);
+			//else assert(0);
 			m.DiscardRigging();
 			setModified();
 		}
@@ -2506,7 +2584,9 @@ void MainWindow::reskeletonize(){
 		else
 			m.Reskeletonize( reference.skeleton[a], reference.skeleton[b]);
 		if (output==1) {
-			sprintf(m.name,"%s_%s",m.name,reference.skeleton[b].name);
+			char newName[1024];
+			sprintf(newName,"%s_%s",m.name,reference.skeleton[b].name);
+			m.SetName(newName);
 			insert(m);
 			k++;
 		}
@@ -2585,13 +2665,13 @@ void MainWindow::renameSel(){
 		int i = selector->selectedList()[j].row();
 		char* name=NULL;
 		switch (t) {
-		case MESH: name=_name(brfdata.mesh,i); break;
-		case TEXTURE: name=_name(brfdata.texture,i); break;
-		case SHADER: name=_name(brfdata.shader,i); break;
-		case MATERIAL:  name=_name(brfdata.material, i ); break;
-		case SKELETON: name=_name(brfdata.skeleton, i); break;
-		case ANIMATION: name=_name(brfdata.animation,i); break;
-		case BODY: name=_name(brfdata.body, i); break;
+		case MESH: name=_getName(brfdata.mesh,i); break;
+		case TEXTURE: name=_getName(brfdata.texture,i); break;
+		case SHADER: name=_getName(brfdata.shader,i); break;
+		case MATERIAL:  name=_getName(brfdata.material, i ); break;
+		case SKELETON: name=_getName(brfdata.skeleton, i); break;
+		case ANIMATION: name=_getName(brfdata.animation,i); break;
+		case BODY: name=_getName(brfdata.body, i); break;
 		default: assert(0);
 		}
 		if (name) {
@@ -2632,19 +2712,20 @@ void MainWindow::renameSel(){
 				char* name=NULL;
 
 				switch (t) {
-				case MESH: name=_name(brfdata.mesh,i); break;
-				case TEXTURE: name=_name(brfdata.texture,i); break;
-				case SHADER: name=_name(brfdata.shader,i); break;
-				case MATERIAL:  name=_name(brfdata.material, i ); break;
-				case SKELETON: name=_name(brfdata.skeleton, i); break;
-				case ANIMATION: name=_name(brfdata.animation,i); break;
-				case BODY: name=_name(brfdata.body, i); break;
+				case MESH: name=_getName(brfdata.mesh,i); break;
+				case TEXTURE: name=_getName(brfdata.texture,i); break;
+				case SHADER: name=_getName(brfdata.shader,i); break;
+				case MATERIAL:  name=_getName(brfdata.material, i ); break;
+				case SKELETON: name=_getName(brfdata.skeleton, i); break;
+				case ANIMATION: name=_getName(brfdata.animation,i); break;
+				case BODY: name=_getName(brfdata.body, i); break;
 				default: assert(0);
 				}
 				QString newName = QString("%1").arg(name);
 				int ps = commonPrefix.size();
 				newName =newPrefix + newName.remove( 0,ps );
-				_setName(name,newName);
+				_setNameOnCharStar(name,newName);
+				if (t==MESH) brfdata.mesh[i].AnalyzeName();
 			}
 			setModified();
 			inidataChanged();
@@ -2692,7 +2773,7 @@ void MainWindow::editCutFrame(){
 		m.AdjustNormDuplicates();
 		selector->selectOne(MESH,i);
 		setModified();
-		//guiPanel->ui->frameNumber->setMaximum(m.frame.size()-1);
+		//guiPanel->ui->frameNumber->ximum(m.frame.size()-1);
 	}
 }
 
@@ -2718,7 +2799,7 @@ void MainWindow::editCopyHitbox(){
 	clipboard.Clear();
 	clipboard.skeleton.push_back(s);
 	clipboard.body.push_back(*b);
-	sprintf(clipboard.body[0].name,"%s",s.name);
+	_setName(clipboard.body[0],s.name);
 	saveSystemClipboard();
 
 }
@@ -2764,7 +2845,7 @@ void MainWindow::editPasteHitbox(){
 		return;
 	}
 
-	sprintf(res.name,"%s",s2.name); // copy name of new skeleton
+	_setName(res,s2.name); // copy name of new skeleton
 	int bi = hitboxSet.Find(res.name, BODY);
 	if (bi>=0) hitboxSet.body[bi] = res; // substitute hitboxes in set
 	else hitboxSet.body.push_back(res); // add hitbox to set
@@ -3288,7 +3369,7 @@ void MainWindow::editPaste(){
 void MainWindow::duplicateSel(){
 	int i = selector->firstSelected();
 	switch (selector->currentTabName()) {
-	case MESH: _dup(brfdata.mesh, i); break;
+	case MESH: _dup(brfdata.mesh, i); brfdata.mesh[i].AnalyzeName(); break;
 	case TEXTURE: _dup(brfdata.texture, i); break;
 	case SHADER: _dup(brfdata.shader, i); break;
 	case MATERIAL:  _dup(brfdata.material, i); break;
@@ -3319,19 +3400,6 @@ Pair MainWindow:: askRefSkel(int nbones,  int &method, int &output){
 		lastB = output = d.getOutputType();
 		return Pair(from=d.getSkelFrom (),to=d.getSkelTo());
 	}
-	else
-		return Pair(-1,-1);
-}
-
-Pair MainWindow::askRefBoneInt(bool sayNotRigged, bool &isAtOrigin){
-
-	if (!reference.skeleton.size()) return Pair(-1,-1);
-	AskBoneDialog d(this,reference.skeleton);
-	d.sayNotRigged(sayNotRigged);
-	int res=d.exec();
-	isAtOrigin = d.pieceAtOrigin();
-
-	if (res==QDialog::Accepted) return Pair(d.getSkel(),d.getBone());
 	else
 		return Pair(-1,-1);
 }
@@ -3372,46 +3440,6 @@ void MainWindow::meshAddBack(){
 	}
 }
 
-void MainWindow::meshMountOnBone(){
-	bool isOri;
-	Pair p = askRefBoneInt(false, isOri);
-
-
-	if (p.first==-1) {
-		statusBar()->showMessage(tr("Canceled."), 2000);
-		return;
-	}
-
-	int k=0;
-	for (int j=0; j<selector->selectedList().size(); j++) {
-		BrfMesh &m(getSelected<BrfMesh>(j));
-		if (!&m) continue;
-
-		//m.ResizeTextCoords(Point2f(0.75,0.75),Point2f(1,1)); return;
-		//m.ResizeTextCoords();
-
-		qDebug("rigging on bone %d out of %d...",p.second,reference.skeleton[p.first].bone.size());
-		m.SetUniformRig(p.second);
-
-		if (isOri)
-			m.Apply(
-			      BrfSkeleton::adjustCoordSystHalf(
-			        reference.skeleton[p.first].GetBoneMatrices()[p.second].transpose()
-			        ).transpose()
-			      );
-
-		k++;
-	}
-	if (k>0) {
-		setModified();
-		updateGl(); updateGui();
-	}
-	//selector->setCurrentIndex(2);
-
-	statusBar()->showMessage(tr("Mounted %1 mesh%2 on bone %3").arg(k).arg((k>1)?"es":"s").arg(p.second), 8000);
-
-}
-
 void MainWindow::addToRef(){
 	int i = selector->firstSelected();
 	assert(i>=0);
@@ -3432,33 +3460,156 @@ void MainWindow::addToRef(){
 }
 
 
+void MainWindow::meshMountOnBone(){
+
+	/* produce ALL carry positions
+	BrfMesh &m(getSelected<BrfMesh>(0));
+	if (!&m) return;
+	BrfMesh m3 = m;
+	for (uint i=0; i<carryPositionSet.size(); i++) {
+		CarryPosition &cp(carryPositionSet.at(i));
+		BrfMesh m2 = m3;
+		sprintf(m2.name,"%s_%s",m3.name,cp.name);
+		m2.Apply(cp,reference.skeleton[0],1.0,true);
+		insert(m2);
+		//break;
+	}
+	setModified();
+	updateGl(); updateGui();
+	return;*/
+
+	/*
+	bool isOri;
+	int selectedCarryPos;
+
+	Pair p = askRefBoneInt(false, isOri, selectedCarryPos);
+
+	if (p.first==-1) {
+		statusBar()->showMessage(tr("Canceled."), 2000);
+		return;
+	}*/
+
+	int k=0;
+	for (int j=0; j<selector->selectedList().size(); j++) {
+		BrfMesh &m(getSelected<BrfMesh>(j));
+		if (!&m) continue;
+		if (!makeMeshRigged(m,false, j==0)) break;
+		k++;
+	}
+	if (k>0) {
+		setModified();
+		updateGl();
+		updateGui();
+		updateSel();
+	}
+
+	//statusBar()->showMessage(tr("Mounted %1 mesh%2 on bone %3").arg(k).arg((k>1)?"es":"s").arg(p.second), 8000);
+
+}
+
+void MainWindow::meshUnmount(){
+	int i = guiPanel->getCurrentSkeletonIndex();
+	if (i<0 || i>=(int)reference.skeleton.size()) {
+		QMessageBox::warning(this,"OpenBRF",tr("I need to know from which skeleton to Unmount. Select a skeleton in the panel."));
+		return;
+	}
+	BrfSkeleton &s(reference.skeleton[i]);
+
+	int k=0;
+	for (int i=0; i<getNumSelected(); i++) {
+		BrfMesh &m( getSelected<BrfMesh>(i));
+		if (!&m) continue;
+		m.Unmount(s);
+		m.DiscardRigging();
+		k++;
+	}
+	if (k) {
+		setModified(true);
+		updateGl();
+	}
+
+}
+
+bool MainWindow::makeMeshRigged(BrfMesh &m, bool sayNotRigged,  bool askUserAgain){
+
+	if (!reference.skeleton.size()) {
+		QMessageBox::warning(this, "OpenBRF", tr("Not a single skeleton found in reference data! Cancelling operation."));
+		return false;
+	}
+	static bool isAtOrigin = false;
+	static int carryPosIndex = 0;
+	static int boneIndex = 0;
+	static int skelIndex = 0;
+
+	if (askUserAgain) {
+		AskBoneDialog d(this,reference.skeleton, carryPositionSet );
+		d.sayNotRigged(sayNotRigged);
+
+		int res=d.exec();
+		if (res!=QDialog::Accepted) {
+			statusBar()->showMessage(tr("Canceled."), 2000);
+			return false;
+		}
+
+		isAtOrigin = d.pieceAtOrigin();
+		carryPosIndex = d.getCarryPos();
+		skelIndex = d.getSkel();
+		boneIndex = d.getBone();
+	}
+
+
+	BrfSkeleton &s(reference.skeleton[skelIndex]);
+	if (!&s) return false;
+
+	if (carryPosIndex==-1) {
+		m.SetUniformRig(boneIndex);
+		if (isAtOrigin) {
+			m.MountOnBone(s,boneIndex);
+
+			char newname[255];
+			sprintf(newname,"%s_on_%s",m.name,s.bone.at(boneIndex).name );
+			m.SetName(newname);
+		}
+	} else {
+		CarryPosition &cp(carryPositionSet[carryPosIndex]);
+		if (cp.needExtraTrasl) {
+			if (!guiPanel->ui->rulerSpin->isVisible()) {
+				int answ = QMessageBox::warning(this, "OpenBrf",tr("To apply carry position '%1', I need to know the weapon lenght.\nUse the ruler tool to tell me the lenght of weapon '%2'.\n\nActivate ruler tool?")
+				   .arg(cp.name).arg(m.name),
+				   QMessageBox::Yes|QMessageBox::Cancel,QMessageBox::Yes
+				);
+				if (answ==QMessageBox::Yes) {
+					guiPanel->setMeasuringTool(0);
+				}
+				return false;
+			}
+		}
+		float weaponLenght = guiPanel->ui->rulerSpin->value()/100.0;
+		m.Apply( cp, s, weaponLenght, isAtOrigin );
+		char newname[255];
+		sprintf(newname,"%s_carried_on_%s",m.name,cp.name );
+		m.SetName(newname);
+
+	}
+	return true;
+
+}
+
 void MainWindow::addToRefMesh(int k){
 	int i=selector->firstSelected();
 	assert (selector->currentTabName()==MESH);
 	assert(i<(int)brfdata.mesh.size());
 	BrfMesh m = brfdata.mesh[i];
+	m.KeepOnlyFrame(guiPanel->getCurrentSubpieceIndex(MESH));
+
 	if (!m.IsRigged()) {
-		m.KeepOnlyFrame(guiPanel->getCurrentSubpieceIndex(MESH));
-		bool isAtOrigin;
-		Pair p = askRefBoneInt(true,isAtOrigin);
-
-
-		if (p.first==-1) {
-			statusBar()->showMessage(tr("Canceled."), 2000);
-			return;
-		}
-
-		if (isAtOrigin)
-			m.Apply(
-			      BrfSkeleton::adjustCoordSystHalf(
-			        reference.skeleton[p.first].GetBoneMatrices()[p.second].transpose()
-			        ).transpose()
-			      );
-		m.SetUniformRig(p.second);
+		if (!makeMeshRigged( m,true, true)) return;
 
 	}
 	char ch =char('A'+k);
-	sprintf(m.name, "Skin%c_%s", ch , brfdata.mesh[i].name);
+	char newname[500];
+	sprintf(newname, "skin%c.%s", ch , brfdata.mesh[i].name);
+	m.SetName(newname);
 	reference.mesh.push_back(m);
 	//bool wasModified = isModified;
 	saveReference();
@@ -3755,6 +3906,7 @@ void MainWindow::loadOptions(){
 		glWidget->setViewmodeMult(k);
 		comboViewmodeBG->button(0)->setChecked(k==0);
 		comboViewmodeBG->button(1)->setChecked(k==1);
+		comboViewmodeBG->button(2)->setChecked(k==2);
 	}
 
 	{
@@ -3937,10 +4089,12 @@ int MainWindow::GetFirstUnusedRefLetter() const{
 	return reference.GetFirstUnusedLetter();
 }
 
+void MainWindow::enterOrExitVertexDataMode(){
+  setEditingVertexData( !editingVertexData );
+}
+
 bool MainWindow::editRef()
 {
-	//if (editingRef) reference = brfdata;
-
 	if (!maybeSave()) return false;
 
 	if (editingRef) {
@@ -4379,8 +4533,8 @@ void MainWindow::undoHistoryAddAction(QAction *q){
 	if (q && q->menu()!=NULL) return;
 
 
-	if (q) qDebug("Action was triggered: %s",q->text().toAscii().data());
-	else qDebug("Action was triggered: NULL");
+	//if (q) qDebug("Action was triggered: %s",q->text().toAscii().data());
+	//else qDebug("Action was triggered: NULL");
 
 
 	if (numModifics!=0) {
@@ -4401,9 +4555,9 @@ void MainWindow::undoHistoryAddAction(QAction *q){
 		//if (undoLvlLast<undoLvlCurr)
 		undoLvlLast=undoLvlCurr;
 
-		qDebug() << "-- stored! (lvl=" << undoLvlCurr
-		         <<" last=" << undoLvlLast
-		         <<" index="<< undoHistoryRingIndex(undoLvlCurr)<<"/"<<undoHistoryRing.size()<< ")";
+		//qDebug() << "-- stored! (lvl=" << undoLvlCurr
+		//         <<" last=" << undoLvlLast
+		//         <<" index="<< undoHistoryRingIndex(undoLvlCurr)<<"/"<<undoHistoryRing.size()<< ")";
 
 
 		UndoLevel * storeHere = undoHistory(undoLvlCurr);
@@ -4429,7 +4583,7 @@ void MainWindow::undoHistoryAddAction(QAction *q){
 void MainWindow::setModified(bool repeatable){
 	isModified = true;
 	if (repeatable) setNextActionAsRepeatable = true; // action becomes repetable
-	qDebug("set Modified!");
+	//qDebug("set Modified!");
 	updateTitle();
 
 	numModifics++; // one more modific done
@@ -4771,6 +4925,7 @@ bool MainWindow::refreshIni(){
 	brfdata.ForgetTextureLocations();
 	glWidget->forgetChachedTextures();
 	glWidget->readCustomShaders();
+	loadCarryPositions();
 	//refreshSkeletonBodiesXml();
 
 	bool res = loadIni(tmp);

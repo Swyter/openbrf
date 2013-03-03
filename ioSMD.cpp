@@ -418,7 +418,7 @@ int ioSMD::Import(const wchar_t*filename, BrfAnimation &a, BrfSkeleton &s){
 }
 
 
-char* ioSMD::LastErrorString(){
+const char* ioSMD::LastErrorString(){
   static char res[255];
   switch(lastErr) {
   case 1: return "File not found"; break;

@@ -92,6 +92,7 @@ void MainWindow::meshComputeLod(){
       sprintf(res.material,"%s", m.material);
       res.hasVertexColor = m.hasVertexColor;
       sprintf(res.name,"%s.lod%d%s",partname.toAscii().data(),lod,partnumber.toAscii().data());
+      res.AnalyzeName();
       res.RemoveUnreferenced();
       res.UnifyPos();
       res.UnifyVert(false,0);
@@ -199,7 +200,7 @@ bool MainWindow::exportRiggedMesh(){
   if (fn.isEmpty()) return false;
 
   int res;
-  char *errorSt;
+  const char *errorSt;
   if (fn.endsWith(".ma",Qt::CaseInsensitive)) {
     res = IoMB::Export(fn.toStdWString().c_str(), m, *s, currentDisplayFrame() );
     errorSt = IoMB::LastErrorString();
@@ -909,6 +910,7 @@ bool MainWindow::importRiggedMesh(){
       QString name2 ;
       if (i>0) name2=QString("%1.%2").arg(name).arg(i); else name2=name;
       sprintf( m[i].name, "%s", name2.toAscii().data());
+
       applyAfterMeshImport(m[i]);
       insert(m[i]);
     }

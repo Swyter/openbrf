@@ -35,6 +35,26 @@ bool BrfMaterial::HasBump() const {
 bool BrfMaterial::HasSpec() const {
   return (strcmp(spec,"none")!=0);
 }
+const char* BrfMaterial::getTextureName(int i) const{
+	switch (i){
+	default:
+	case DIFFUSEA: return diffuseA;
+	case DIFFUSEB: return diffuseB;
+	case BUMP: return bump;
+	case ENVIRO: return enviro;
+	case SPECULAR: return spec;
+	}
+}
+char* BrfMaterial::getTextureName(int i){
+	switch (i){
+	default:
+	case DIFFUSEA: return diffuseA;
+	case DIFFUSEB: return diffuseB;
+	case BUMP: return bump;
+	case ENVIRO: return enviro;
+	case SPECULAR: return spec;
+	}
+}
 
 bool BrfMaterial::Skip(FILE*f
                        ){

@@ -7,18 +7,18 @@
 #include <QPalette>
 #include <QFont>
 
-TableModel::TableModel(QObject *parent)
+MyTableModel::MyTableModel(QObject *parent)
     : QAbstractListModel(parent)
 {
 }
 
-void TableModel::updateChanges(){
+void MyTableModel::updateChanges(){
   int t=vec.size();
   emit(this->dataChanged(createIndex(0,0),createIndex(1,t+100)));
   emit(layoutChanged());
 }
 
-void TableModel::clear()
+void MyTableModel::clear()
 {
   int t=vec.size();
   vec.clear();
@@ -26,23 +26,23 @@ void TableModel::clear()
   this->dataChanged(createIndex(0,0),createIndex(1,t));
 }
 
-int TableModel::rowCount(const QModelIndex &parent) const
+int MyTableModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
     return vec.size();
 }
 
-int TableModel::columnCount(const QModelIndex &parent) const
+int MyTableModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
     return 1;
 }
 
-Qt::DropActions TableModel::supportedDropActions() const{
+Qt::DropActions MyTableModel::supportedDropActions() const{
     return Qt::CopyAction | Qt::MoveAction;
 }
 
-QVariant TableModel::data(const QModelIndex &index, int role) const
+QVariant MyTableModel::data(const QModelIndex &index, int role) const
 {
   static QFont alternate;
   static bool firstTime=true;
@@ -79,7 +79,7 @@ QVariant TableModel::data(const QModelIndex &index, int role) const
   return QVariant();
 }
 
-QVariant TableModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant MyTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
   return tr("HEADER");
 

@@ -31,62 +31,65 @@ class BrfHitBoxSet;
 
 class BrfData {
 public:
-  BrfData();
-  BrfData(const wchar_t*f,int verbose=0);
-  BrfData(FILE*f,int verbose=0);
-  vector<BrfMesh> mesh;
-  vector<BrfTexture> texture;
-  vector<BrfShader> shader;
-  vector<BrfMaterial> material;
-  vector<BrfSkeleton> skeleton;
-  vector<BrfAnimation> animation;
-  vector<BrfBody> body;
-  bool Load(FILE*f,int verbose=0, int imposeVers = -1);
-  bool Load(const wchar_t*filename,int verbose=1, int imposeVers = -1);
+	BrfData();
+	BrfData(const wchar_t*f,int verbose=0);
+	BrfData(FILE*f,int verbose=0);
+	vector<BrfMesh> mesh;
+	vector<BrfTexture> texture;
+	vector<BrfShader> shader;
+	vector<BrfMaterial> material;
+	vector<BrfSkeleton> skeleton;
+	vector<BrfAnimation> animation;
+	vector<BrfBody> body;
+	bool Load(FILE*f,int verbose=0, int imposeVers = -1);
+	bool Load(const wchar_t*filename,int verbose=1, int imposeVers = -1);
 
-  int LoadHitBoxesFromXml(const wchar_t*filename); // loads all hitboxes as collision meshes form skeleton_data.xml
-  int SaveHitBoxesToXml(const wchar_t *fin, const wchar_t *fout);
-  static char* LastHitBoxesLoadSaveError(const char* st=NULL,const wchar_t* subst1=NULL,const char* subst2=NULL,const char* subst3=NULL); // sets or reads the error
+	int LoadHitBoxesFromXml(const wchar_t*filename); // loads all hitboxes as collision meshes form skeleton_data.xml
+	int SaveHitBoxesToXml(const wchar_t *fin, const wchar_t *fout);
+	static char* LastHitBoxesLoadSaveError(const char* st=NULL,const wchar_t* subst1=NULL,const char* subst2=NULL,const char* subst3=NULL); // sets or reads the error
 
-  bool LoadFast(const wchar_t*filename, bool ultrafast); // skips most data
-  bool LoadMat(FILE *f);
-  void Clear();
-  int FirstToken() const;
+	bool LoadFast(const wchar_t*filename, bool ultrafast); // skips most data
+	bool LoadMat(FILE *f);
+	void Clear();
+	int FirstToken() const;
 
-  bool Save(const wchar_t* f) const;
-  bool Save(FILE* f) const;
-  void  Merge(const BrfData& b);
-  const char* GetName(int i, int token) const;
+	bool Save(const wchar_t* f) const;
+	bool Save(FILE* f) const;
+	void  Merge(const BrfData& b);
+	const char* GetName(int i, int token) const;
 
-  int GetFirstUnusedLetter() const; // return first unused alphabet letter in meshes
-  BrfMesh GetCompleteSkin(int i) const; // returns a mesh composed of all skin pieces
-  const char* GetFirstObjectName() const; // returns name of first object
+	int GetFirstUnusedLetter() const; // return first unused alphabet letter in meshes
+	BrfMesh GetCompleteSkin(int i) const; // returns a mesh composed of all skin pieces
+	const char* GetFirstObjectName() const; // returns name of first object
 
-  int getOneSkeleton(int nbones, int after);
-  int Find(const char* name, int token) const;
+	int getOneSkeleton(int nbones, int after);
+	int Find(const char* name, int token) const;
 
-  BrfBody* FindBody(const char* name);
-  BrfMesh* FindMesh(const char* name);
+	BrfBody* FindBody(const char* name);
+	BrfMesh* FindMesh(const char* name);
 
-  int FindTextureWithExt(const char* name);
-  bool HasAnyTangentDirs() const;
-  void ForgetTextureLocations();
-  //const vector<ObjCoord>& GetUsedBy(int i, int token) const;
+	int FindTextureWithExt(const char* name);
+	bool HasAnyTangentDirs() const;
+	void ForgetTextureLocations();
+	//const vector<ObjCoord>& GetUsedBy(int i, int token) const;
 
-  unsigned int size(int token) const;
-  unsigned int totSize() const;
+	unsigned int size(int token) const;
+	unsigned int totSize() const;
 
-  template<class BrfType> vector<BrfType>& Vector();
+	template<class BrfType> vector<BrfType>& Vector();
 
-  //bool AddExtraSkelData(const BrfHitBoxSet &s);
+	//bool AddExtraSkelData(const BrfHitBoxSet &s);
 
-  bool IsOneSkelOneHitbox() const;
-  int version;
+	bool IsOneSkelOneHitbox() const;
+
+	void UpdateMetadata();
+
+	int version;
 private:
-  //template<class BrfType> bool LoadAll(FILE *f, vector<BrfType> &v, int k);
-  template<class BrfType> void SaveAll(FILE *f, const vector<BrfType> &v) const;
-  int lastLoaded;
-  void LoadVersion(FILE *f,int imposeVers);
+	//template<class BrfType> bool LoadAll(FILE *f, vector<BrfType> &v, int k);
+	template<class BrfType> void SaveAll(FILE *f, const vector<BrfType> &v) const;
+	int lastLoaded;
+	void LoadVersion(FILE *f,int imposeVers);
 
 };
 

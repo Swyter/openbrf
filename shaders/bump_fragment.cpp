@@ -15,6 +15,7 @@ varying vec3 tany;
 uniform sampler2D samplRgb;
 uniform sampler2D samplBump;
 uniform sampler2D samplSpec;
+uniform float alphaLimit;
 
 void main(){
 	vec4 tex = texture2D( samplRgb,tc);
@@ -46,7 +47,7 @@ void main(){
 #endif
 	);
 #ifdef ALPHA_CUTOUTS
-	if (tex.a<0.1) discard;
+	if (tex.a<alphaLimit) discard;
 	gl_FragColor.a = tex.a;
 #else
 	gl_FragColor.a = 1.0;

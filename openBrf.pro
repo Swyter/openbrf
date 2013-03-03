@@ -50,7 +50,8 @@ SOURCES += main.cpp \
     askLodOptionsDialog.cpp \
     askUvTransformDialog.cpp \
     askSkelPairDialog.cpp \
-    askColorDialog.cpp
+    askColorDialog.cpp \
+    myselectionmodel.cpp
 HEADERS += mainwindow.h \
     glwidgets.h \
     saveLoad.h \
@@ -91,7 +92,9 @@ HEADERS += mainwindow.h \
     askLodOptionsDialog.h \
     askUvTransformDialog.h \
     askSkelPairDialog.h \
-    askColorDialog.h
+    askColorDialog.h \
+    carryPosition.h \
+    myselectionmodel.h
 FORMS += guipanel.ui \
     askBoneDialog.ui \
     askSkelDialog.ui \

@@ -11,7 +11,7 @@ class BrfData;
 class IniData;
 class QListView;
 class QMenu;
-class TableModel;
+class MyTableModel;
 
 class Selector : public QTabWidget
 {
@@ -37,6 +37,7 @@ public:
 	void selectOne(int kind, int i);
 	void selectOneSilent(int kind, int i);
 	void updateContextMenu();
+	void keyPressEvent(QKeyEvent *);
 	QMenu *contextMenu;
 
 	static void addDataToAllActions(QMenu* m, QString s);
@@ -47,6 +48,7 @@ public slots:
 
 private slots:
 	void onChanged();
+	void onClicked(const QModelIndex & i);
 	void onBreakAni();
 	void onBreakAniWithIni();
 	void addToRefMeshA();
@@ -71,10 +73,11 @@ private:
 	void hideEmpty();
 	template<class BrfType> void addBrfTab(const std::vector<BrfType> &x);
 	QListView * tab[N_TOKEN];
-	TableModel * tableModel[N_TOKEN];
+	MyTableModel * tableModel[N_TOKEN];
 	void contextMenuEvent(QContextMenuEvent *event);
 	enum {MAX_USED_BY = 50};
 	void addShortCuttedAction(QAction *act);
+	int currentIndexOnList() const;
 public:
 	QAction
 	*goNextTabAct,
@@ -107,6 +110,7 @@ public:
 	*meshComputeLodAct,
 	*meshTellBoundingBoxAct,
 	*meshFreezeFrameAct,
+	*meshUnmountAct,
 	*meshUvTransformAct,
 
 	*meshAniMergeAct,
@@ -168,9 +172,6 @@ public:
 
 	*sortEntriesAct,
 	*noSelectionDummyAct,
-
-
-
 
 	*addToRefSkelAct,
 	*addToRefAnimAct,

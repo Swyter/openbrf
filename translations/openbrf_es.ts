@@ -18,9 +18,13 @@
         <translation>Esqueleto de referencia:</translation>
     </message>
     <message>
-        <location line="+16"/>
         <source>Bone:</source>
-        <translation>Hueso:</translation>
+        <translation type="obsolete">Hueso:</translation>
+    </message>
+    <message>
+        <location line="+16"/>
+        <source>bone:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location line="+21"/>
@@ -49,6 +53,16 @@
         <location line="+13"/>
         <source>Piece currently centered:</source>
         <translation>La pieza se centrará en:</translation>
+    </message>
+    <message>
+        <location line="+26"/>
+        <source>(optional) carry location:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../askBoneDialog.cpp" line="+91"/>
+        <source>&lt;none&gt;</source>
+        <translation type="unfinished">&lt;vacio&gt;</translation>
     </message>
 </context>
 <context>
@@ -940,7 +954,7 @@ Ni siquiera serán cargadas por el juego...</translation>
 <context>
     <name>GLWidget</name>
     <message>
-        <location filename="../glwidgets.cpp" line="+569"/>
+        <location filename="../glwidgets.cpp" line="+585"/>
         <source>&lt;br /&gt;Vertex compilation: &lt;br /&gt;</source>
         <translation>&lt;br /&gt;Compilación de vértice: &lt;br /&gt;</translation>
     </message>
@@ -960,7 +974,7 @@ Ni siquiera serán cargadas por el juego...</translation>
         <translation>&lt;br /&gt;Vinculando: &lt;br /&gt;</translation>
     </message>
     <message>
-        <location line="+571"/>
+        <location line="+645"/>
         <source>&quot;green&quot; NM</source>
         <translation>Mapa de normales Verde (&quot;green&quot; NM)</translation>
     </message>
@@ -2173,7 +2187,7 @@ p, li { white-space: pre-wrap; }
         <translation>No parece que contenga un módulo de Mount&amp;Blade</translation>
     </message>
     <message>
-        <location line="+111"/>
+        <location line="+112"/>
         <location line="+32"/>
         <location line="+20"/>
         <location line="+25"/>
@@ -2196,14 +2210,14 @@ p, li { white-space: pre-wrap; }
         <location line="+42"/>
         <location line="+93"/>
         <location line="+17"/>
-        <location line="+18"/>
+        <location line="+19"/>
         <location line="+84"/>
         <location line="+60"/>
         <source>Open Brf</source>
         <translation>OpenBRF | Traducido al Castellano por Swyter</translation>
     </message>
     <message>
-        <location line="-924"/>
+        <location line="-925"/>
         <source>Cannot open file for writing;</source>
         <translation>No se puede abrir con permisos de escritura;</translation>
     </message>
@@ -2404,7 +2418,7 @@ p, li { white-space: pre-wrap; }
     <message>
         <location filename="../mainwindow.ui" line="+14"/>
         <location filename="../main_ImpExp.cpp" line="+65"/>
-        <location filename="../mainwindow.cpp" line="+1587"/>
+        <location filename="../mainwindow.cpp" line="+1665"/>
         <location line="+23"/>
         <location line="+3"/>
         <source>OpenBRF</source>
@@ -2430,7 +2444,7 @@ Import a separate mesh per material\object?</source>
 </translation>
     </message>
     <message>
-        <location line="+59"/>
+        <location line="+60"/>
         <source>Import vertex animation frame</source>
         <translation>Importar fotograma de animación por vértices</translation>
     </message>
@@ -2448,7 +2462,7 @@ al que añadir un fotograma o cuadro.</translation>
     </message>
     <message>
         <location line="+10"/>
-        <location filename="../mainwindow.cpp" line="+1470"/>
+        <location filename="../mainwindow.cpp" line="+1473"/>
         <source>Vertex number mismatch... using texture-coord matching instead of vertex-ordering</source>
         <translation>El número de vértices no concuerda... se usarán las coordenadas de textura para ordenarlos.</translation>
     </message>
@@ -2490,7 +2504,7 @@ al que añadir un fotograma o cuadro.</translation>
         <translation>Esqueleto &quot;%1&quot; Importado--- número de huesos:%2</translation>
     </message>
     <message>
-        <location line="-174"/>
+        <location line="-175"/>
         <source>Cannot import mesh %2:
 %1
 </source>
@@ -2499,7 +2513,7 @@ al que añadir un fotograma o cuadro.</translation>
 </translation>
     </message>
     <message>
-        <location line="+18"/>
+        <location line="+19"/>
         <source>%1
 </source>
         <translation></translation>
@@ -2547,7 +2561,7 @@ al que añadir un fotograma o cuadro.</translation>
         <translation type="obsolete">Usar OpenGL 2.0</translation>
     </message>
     <message>
-        <location line="+116"/>
+        <location line="+119"/>
         <source>Allows to preview bumpmapping etc. This can create compatibility problems on some (older?) graphic card</source>
         <translation>Permite la previsualización de mapas de relieve (Bump maps). Esto puede desencadenar problemas con tarjetas gráficas antiguas</translation>
     </message>
@@ -2567,7 +2581,7 @@ al que añadir un fotograma o cuadro.</translation>
         <translation>Unir vértices y posiciones</translation>
     </message>
     <message>
-        <location line="-191"/>
+        <location line="-194"/>
         <source>&amp;Selected</source>
         <translation>&amp;Selección</translation>
     </message>
@@ -2582,7 +2596,7 @@ al que añadir un fotograma o cuadro.</translation>
         <translation>Co&amp;nfiguración</translation>
     </message>
     <message>
-        <location line="+190"/>
+        <location line="+193"/>
         <source>recompute normals and merge</source>
         <translation>Recalcular normales</translation>
     </message>
@@ -3014,7 +3028,17 @@ al que añadir un fotograma o cuadro.</translation>
         <translation>Pegar cuerpos de colisión en el esqueleto actual.</translation>
     </message>
     <message>
-        <location line="+86"/>
+        <location line="+70"/>
+        <source>Edit vertex-data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Stop editing vertex-data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+20"/>
         <source>Measure with ruler</source>
         <translation>Medir con regla</translation>
     </message>
@@ -3109,11 +3133,31 @@ al que añadir un fotograma o cuadro.</translation>
         <translation>Cambiar módulo actual...</translation>
     </message>
     <message>
+        <location line="+95"/>
+        <source>See objects combined (when multiple things are selected)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+2"/>
+        <source>See object side-to-side (when multiple things are selected)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>auto</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>See sub-parts combined (when multiple things are selected)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Copy the texture coordiante from the mesh in the clipboard.</source>
         <translation type="obsolete">Copia las coordenadas de texturas desde el modelo en el portapapeles.</translation>
     </message>
     <message>
-        <location line="-162"/>
+        <location line="-266"/>
         <source>Paste vert colors</source>
         <translation>Pegar colores de Vértice</translation>
     </message>
@@ -3234,7 +3278,7 @@ al que añadir un fotograma o cuadro.</translation>
         <translation></translation>
     </message>
     <message>
-        <location line="+4"/>
+        <location line="+9"/>
         <source>Sort entries</source>
         <translation>Ordenar la lista</translation>
     </message>
@@ -3626,22 +3670,20 @@ al que añadir un fotograma o cuadro.</translation>
         <translation>juntos</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>See objects combined, when selecting multiple things</source>
-        <translation>Muestra los objetos seleccionados combinados, en la misma vista.</translation>
+        <translation type="obsolete">Muestra los objetos seleccionados combinados, en la misma vista.</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>aside</source>
         <translation>a parte</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>See object side-to-side, when selecting multiple things</source>
-        <translation>Cada objeto seleccionado tiene su propia vista previa</translation>
+        <translation type="obsolete">Cada objeto seleccionado tiene su propia vista previa</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+5"/>
         <source>mult-view:</source>
         <translation>v. multiple:</translation>
     </message>
@@ -3727,7 +3769,7 @@ al que añadir un fotograma o cuadro.</translation>
         <translation>&lt;p&gt;&amp;nbsp; &amp;nbsp; &lt;b&gt;OpenBRF&lt;/b&gt;&lt;br&gt;&amp;nbsp; &amp;nbsp; por &lt;b&gt;%2&lt;/b&gt;&lt;/p&gt;&lt;p&gt;&amp;nbsp; &amp;nbsp; &lt;b&gt;versión %6&lt;/b&gt;&lt;br&gt;&amp;nbsp; &amp;nbsp; (%1)&lt;br&gt;&lt;/p&gt;&lt;p&gt;&lt;i&gt;Pruebas, Reporte de errores y Sugerencias por:&lt;/i&gt; %3&lt;/p&gt;&lt;p&gt;&lt;i&gt;Arte Adicional:&lt;/i&gt; %4&lt;/p&gt;&lt;p&gt;&lt;i&gt;Traducciones:&lt;/i&gt; %5&lt;/p&gt;</translation>
     </message>
     <message>
-        <location line="+70"/>
+        <location line="+71"/>
         <source>&lt;p&gt;&lt;b&gt;Info on mesh recoloring:&lt;/b&gt;&lt;br/&gt;when activating any tool which assigns&lt;br/&gt;new vertex-colors to an entire mesh: &lt;ul&gt;&lt;li&gt; keep &lt;b&gt;Shift&lt;/b&gt; pressed:&lt;br/&gt;new colors will &lt;i&gt;multiply&lt;/i&gt; existing ones&lt;/li&gt;&lt;/ul&gt;(by &lt;b&gt;default&lt;/b&gt;, new colors &lt;i&gt;replace&lt;/i&gt; existing ones).&lt;/p&gt;</source>
         <translation>&lt;p&gt;&lt;b&gt;Información sobre recolorear modelos:&lt;/b&gt;&lt;br/&gt;al activar cualquier herramienta que asigne&lt;br/&gt;nuevos colores de vértices a un modelo entero: &lt;ul&gt;&lt;li&gt; mantén &lt;b&gt;Mayús&lt;/b&gt; pulsado:&lt;br/&gt;los colores nuevos &lt;i&gt;multiplicarán&lt;/i&gt; los existentes&lt;/li&gt;&lt;/ul&gt;(por &lt;b&gt;defecto&lt;/b&gt;, los colores nuevos &lt;i&gt;reemplazan&lt;/i&gt; los originales).&lt;/p&gt;</translation>
     </message>
@@ -3857,19 +3899,19 @@ al que añadir un fotograma o cuadro.</translation>
         <translation>&lt;i&gt;No puedo mostrar la textura real porque:&lt;/i&gt;&lt;br&gt;&lt;b&gt;%1&lt;/b&gt;&lt;br&gt;&lt;br&gt;%2&lt;br&gt;&lt;br&gt;&lt;b&gt;Solución: &lt;/b&gt;%3</translation>
     </message>
     <message>
-        <location filename="../mainwindow.cpp" line="-2996"/>
-        <location line="+1187"/>
-        <location line="+255"/>
+        <location filename="../mainwindow.cpp" line="-3077"/>
+        <location line="+1226"/>
+        <location line="+294"/>
         <location line="+24"/>
-        <location line="+1050"/>
+        <location line="+1052"/>
         <location line="+12"/>
-        <location line="+627"/>
-        <location line="+1593"/>
+        <location line="+628"/>
+        <location line="+1668"/>
         <source>OpenBrf</source>
         <translation>OpenBRF</translation>
     </message>
     <message>
-        <location line="-4747"/>
+        <location line="-4903"/>
         <source>%1 been modified.
 Save changes?</source>
         <translation>%1 ha sido modificado.
@@ -3886,7 +3928,7 @@ Save changes?</source>
         <translation>El conjunto de datos</translation>
     </message>
     <message>
-        <location line="+318"/>
+        <location line="+336"/>
         <source>Set %1 mesh materials to &quot;%2&quot;</source>
         <translation>Asignados los materiales del modelo %1 a &quot;%2&quot;</translation>
     </message>
@@ -3925,7 +3967,7 @@ Save changes?</source>
         <translation>Asignar indicador(es) a &quot;%1&quot;</translation>
     </message>
     <message>
-        <location line="+144"/>
+        <location line="+168"/>
         <source>Stop editing reference data</source>
         <translation>Detener la edición de datos de referencia</translation>
     </message>
@@ -3949,7 +3991,7 @@ Save changes?</source>
         <translation type="obsolete">Nombre:</translation>
     </message>
     <message>
-        <location line="+153"/>
+        <location line="+148"/>
         <source>New %1</source>
         <translation>Nuevo %1</translation>
     </message>
@@ -4012,7 +4054,7 @@ en Z=%5 hasta %6
 (datos copiados al portapapeles)</translation>
     </message>
     <message>
-        <location line="+31"/>
+        <location line="+33"/>
         <location line="+37"/>
         <source>Only one component found</source>
         <translation>Sólo se ha encontrado un único componente</translation>
@@ -4051,7 +4093,7 @@ o discordancia en la vinculación esqueletal).
 </translation>
     </message>
     <message>
-        <location line="+899"/>
+        <location line="+938"/>
         <source>Computed AO%1</source>
         <translation>AO calculado %1</translation>
     </message>
@@ -4166,7 +4208,7 @@ reskeletonization canceled.
         <translation>Número diferente de huesos: no se puede ajustar el esqueleto.</translation>
     </message>
     <message>
-        <location line="+120"/>
+        <location line="+122"/>
         <source>Renaming %1...
 new name:</source>
         <translation>Renombrando %1... nuevo nombre:</translation>
@@ -4189,7 +4231,7 @@ Escribe el nuevo aquí:</translation>
         <translation>Añadiendo un</translation>
     </message>
     <message>
-        <location line="+376"/>
+        <location line="+377"/>
         <source>Copy Rigging into another mesh</source>
         <translation>Copiar vinculación esquetal a otro modelo</translation>
     </message>
@@ -4241,18 +4283,16 @@ Escribe el nuevo aquí:</translation>
         <translation>Para usar la función de pegar modificaciones de modelo primero copia un modelo con una animación de 2 fotogramas. Después, selecciona uno o varios objetos de destino y, finalmente &quot;pega la modificación&quot; en cualquier cuadro de cualquier animación de vértices.</translation>
     </message>
     <message>
-        <location line="+132"/>
-        <location line="+66"/>
+        <location line="+220"/>
         <source>Canceled.</source>
         <translation>Cancelado.</translation>
     </message>
     <message>
-        <location line="-36"/>
         <source>Mounted %1 mesh%2 on bone %3</source>
-        <translation>Montada %1 modelo%2 en el hueso %3</translation>
+        <translation type="obsolete">Montada %1 modelo%2 en el hueso %3</translation>
     </message>
     <message>
-        <location line="+56"/>
+        <location line="+68"/>
         <source>Added mesh %1 to set %2.</source>
         <translation>Añadido modelo %1 al Conjunto %2.</translation>
     </message>
@@ -4297,7 +4337,7 @@ Escribe el nuevo aquí:</translation>
         <translation>La animación %2 se ha dividido en %1 trozos -- ¡Nuevo actions.txt guardado en &quot;%3&quot;!</translation>
     </message>
     <message>
-        <location line="+1213"/>
+        <location line="+1217"/>
         <source>Navigate: cannot find &quot;%1&quot; in current module</source>
         <translation>Navegar: no se puede encontrar &quot;%1&quot; en el módulo actual</translation>
     </message>
@@ -4306,12 +4346,12 @@ Escribe el nuevo aquí:</translation>
         <translation type="obsolete">Open BRF</translation>
     </message>
     <message>
-        <location line="-803"/>
+        <location line="-806"/>
         <source>Cannot save reference file!</source>
         <translation>¡No se puede guardar el archivo de referencia!</translation>
     </message>
     <message>
-        <location line="+32"/>
+        <location line="+34"/>
         <source>Editing reference file...</source>
         <translation>Editando archivo de referencia...</translation>
     </message>
@@ -4399,7 +4439,7 @@ Las direcciones tangentes no se guardarán...</translation>
         <translation type="obsolete">%1 - editando datos de referencias internas%2</translation>
     </message>
     <message>
-        <location line="+327"/>
+        <location line="+328"/>
         <source>%5 %1 brf files from module.ini of &quot;%3&quot;-- %2 msec total [%4 text/mat/shad]</source>
         <translation>%5 %1 archivos brf en module.ini de &quot;%3&quot;-- %2 msec en total [%4 text/mat/sombread]</translation>
     </message>
@@ -4426,7 +4466,7 @@ Las direcciones tangentes no se guardarán...</translation>
         <translation type="obsolete">Navegar derecha: pos = %1</translation>
     </message>
     <message>
-        <location line="+414"/>
+        <location line="+415"/>
         <source>&amp;%1 %2</source>
         <translation></translation>
     </message>
@@ -4649,7 +4689,7 @@ Las direcciones tangentes no se guardarán...</translation>
         <translation>Indicadores de textura</translation>
     </message>
     <message>
-        <location line="-5148"/>
+        <location line="-5304"/>
         <source>Skeleton hitboxes have been modified.&lt;br/&gt;Save changes in /Data/skeleton_bodies.xml?</source>
         <translation>Los cuerpos de colisión han sido modificados. &lt;br/&gt;¿Guardar cambios en /Data/skeleton_bodies.xml?</translation>
     </message>
@@ -4698,7 +4738,19 @@ archivo %2
 </translation>
     </message>
     <message>
-        <location line="+1402"/>
+        <location line="+1396"/>
+        <source>Error loading line of file %2:
+
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+18"/>
+        <source>Failed loading carry positions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+66"/>
         <source>No mesh found to learn how to femininize an armour.
 
 You must select meshes with feminine frame, and I&apos;ll try to learn the way to build a femenine frame from a given armour</source>
@@ -4773,7 +4825,7 @@ Overwrite it?</source>
         <translation>Color uniforme para modelo</translation>
     </message>
     <message>
-        <location line="+527"/>
+        <location line="+530"/>
         <location line="+21"/>
         <source>%1: Select one skeleton with a hitbox first</source>
         <translation>%1: Selecciona un esqueleto con cuerpo de colisión primero</translation>
@@ -4833,12 +4885,30 @@ Overwrite it?</source>
         <translation>Transferir vinculación a %1 modelo(s) desde %2 esqueletos.</translation>
     </message>
     <message>
-        <location line="+893"/>
+        <location line="+408"/>
+        <source>I need to know from which skeleton to Unmount. Select a skeleton in the panel.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+23"/>
+        <source>Not a single skeleton found in reference data! Cancelling operation.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+41"/>
+        <source>To apply carry position &apos;%1&apos;, I need to know the weapon lenght.
+Use the ruler tool to tell me the lenght of weapon &apos;%2&apos;.
+
+Activate ruler tool?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+492"/>
         <source>&lt;p&gt;You are saving into the generic OpenBRF reference file &lt;br&gt;&quot;%1&quot;&lt;/p&gt;&lt;p&gt;Would you rather save in the reference file &lt;i&gt;specific&lt;/i&gt; for Module %3&lt;br&gt;&quot;%2&quot;&lt;br&gt;?&lt;/p&gt;</source>
         <translation>&lt;p&gt;Estás guardando en el archivo de referencia genérico de OpenBRF &lt;br&gt;&quot;%1&quot;&lt;/p&gt;&lt;p&gt;¿Querrías guardarlo en un archivo de referencia para utilizarlo &lt;i&gt;exclusivamente&lt;/i&gt; en el &lt;/i&gt; módulo %3&lt;br&gt;&quot;%2&quot;&lt;br&gt;?&lt;/p&gt;</translation>
     </message>
     <message>
-        <location line="+111"/>
+        <location line="+113"/>
         <source>You are trying to save meshes with tangent directions in M&amp;B 1.011 file format.
 Unfortunately, tangent directions can only be saved in Warband file format.
 Tangent directions will not be saved...</source>
@@ -4885,7 +4955,7 @@ Tangent directions will not be saved...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+937"/>
+        <location line="+939"/>
         <location line="+1"/>
         <source>Unclear meaining, usually only set for facial textures</source>
         <translation>El significado no está claro, normalmente solo se utiliza para las texturas de caras</translation>
@@ -5179,6 +5249,14 @@ Desplazamiento</translation>
         <location line="+7"/>
         <source>Shader flags</source>
         <translation>Indicadores del sombreador</translation>
+    </message>
+</context>
+<context>
+    <name>MyTableModel</name>
+    <message>
+        <location filename="../tablemodel.cpp" line="+84"/>
+        <source>HEADER</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5763,7 +5841,7 @@ en la línea %3:
         <translation>Ver dimensiones...</translation>
     </message>
     <message>
-        <location line="+12"/>
+        <location line="+6"/>
         <source>Color uniform...</source>
         <translation>Color uniforme...</translation>
     </message>
@@ -5793,11 +5871,16 @@ en la línea %3:
         <translation>Descarta el conjunto de cuerpos de colisión con este mismo nombre</translation>
     </message>
     <message>
+        <location line="+14"/>
+        <source>Discard rigging (per-verex bone attachments)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>discard: </source>
         <translation type="obsolete">descartar: </translation>
     </message>
     <message>
-        <location line="+11"/>
+        <location line="+6"/>
         <source>Discard vertex animation (keep only current frame)</source>
         <translation>Descartar animación de vértices (mantiene únicamente el fotograma actual)</translation>
     </message>
@@ -5812,12 +5895,12 @@ en la línea %3:
         <translation>Realizar una modificación del esqueleto a través de un modelo 3D...</translation>
     </message>
     <message>
-        <location line="+101"/>
+        <location line="+104"/>
         <source>[Right-Click]: tools for %1. Multiple selections with [Shift] or [Ctrl].</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location line="+225"/>
+        <location line="+194"/>
         <source>Group rename...</source>
         <translation>Renombrar en grupo...</translation>
     </message>
@@ -5827,7 +5910,7 @@ en la línea %3:
         <translation>Usado por:</translation>
     </message>
     <message>
-        <location line="-598"/>
+        <location line="-573"/>
         <location line="+158"/>
         <source>Mirror</source>
         <translation>Volteo Simétrico</translation>
@@ -5839,12 +5922,12 @@ en la línea %3:
     </message>
     <message>
         <location line="+19"/>
-        <location line="+577"/>
+        <location line="+552"/>
         <source>Rename...</source>
         <translation>Renombrar...</translation>
     </message>
     <message>
-        <location line="-555"/>
+        <location line="-530"/>
         <source>Move up in the list</source>
         <translation>Subir un puesto en la lista</translation>
     </message>
@@ -6116,17 +6199,16 @@ en la línea %3:
         <translation>Dime el tamaño que ocupa el objeto u objetos seleccionados</translation>
     </message>
     <message>
-        <location line="+2"/>
         <source>rigging (keep current pose)</source>
-        <translation>Vinculación esqueletal (mantener la posición actual)</translation>
+        <translation type="obsolete">Vinculación esqueletal (mantener la posición actual)</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+18"/>
         <source>Discard rigging, but freeze mesh in its current pose</source>
         <translation>Quita la vinculación pero mantiene la pose actual</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="+5"/>
         <source>Merge as frames in a vertex ani</source>
         <translation>Unir como fotogramas en una animación de vértices</translation>
     </message>
@@ -6136,7 +6218,7 @@ en la línea %3:
         <translation>Une estos modelos, por su orden actual, como fotogramas en una animación por vértices</translation>
     </message>
     <message>
-        <location line="+2"/>
+        <location line="-22"/>
         <source>Separate all frames</source>
         <translation>Separar todos los fotogramas</translation>
     </message>
@@ -6173,6 +6255,21 @@ en la línea %3:
     </message>
     <message>
         <location line="+5"/>
+        <source>rigging (freeze current pose)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+3"/>
+        <source>rigging (un-mount from bone)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+1"/>
+        <source>Discard rigging, and move object back at origin.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location line="+5"/>
         <source>per-vertex color</source>
         <translation>Color de Vértice</translation>
     </message>
@@ -6187,12 +6284,11 @@ en la línea %3:
         <translation>Vinculación Esqueletal</translation>
     </message>
     <message>
-        <location line="+1"/>
         <source>Remove rigging (per-verex bone attachments)</source>
-        <translation>Elimina la vinculación esqueletal (las ataduras por vértice de cada hueso)</translation>
+        <translation type="obsolete">Elimina la vinculación esqueletal (las ataduras por vértice de cada hueso)</translation>
     </message>
     <message>
-        <location line="+1"/>
+        <location line="+2"/>
         <source>tangent directions</source>
         <translation>Direcciones tangentes</translation>
     </message>
@@ -6233,7 +6329,7 @@ en la línea %3:
         <translation type="obsolete">[Click Derecho]: Herramientas para %1. Selecciones múltiples con [Máyus]-[Ctrl]</translation>
     </message>
     <message>
-        <location line="+110"/>
+        <location line="+115"/>
         <source>[Right-Click]: tools for %1.</source>
         <translation>[Click Derecho]: Herramientas para %1.</translation>
     </message>
@@ -6246,7 +6342,7 @@ en la línea %3:
         <translation type="obsolete">Usado por...</translation>
     </message>
     <message>
-        <location line="+357"/>
+        <location line="+324"/>
         <source>Backfacing faces</source>
         <translation>Caras Internas</translation>
     </message>
@@ -6256,7 +6352,7 @@ en la línea %3:
         <translation>Descartar</translation>
     </message>
     <message>
-        <location line="+52"/>
+        <location line="+54"/>
         <source>Add to reference skins</source>
         <translation>Añadir a los modelos de referencia:</translation>
     </message>
@@ -6269,14 +6365,6 @@ en la línea %3:
         <location line="+4"/>
         <source>to Skin Set %1 [new set]</source>
         <translation>Conjunto %1  [Crear Nuevo Conjunto]</translation>
-    </message>
-</context>
-<context>
-    <name>TableModel</name>
-    <message>
-        <location filename="../tablemodel.cpp" line="+84"/>
-        <source>HEADER</source>
-        <translation></translation>
     </message>
 </context>
 <context>
