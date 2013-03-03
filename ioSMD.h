@@ -11,7 +11,7 @@ public:
   static int Import(const wchar_t*filename, BrfMesh &m , BrfSkeleton &s);
   static int Export(const wchar_t*filename, const BrfAnimation &a, const BrfSkeleton &s);
   static int Import(const wchar_t*filename, BrfAnimation &a, BrfSkeleton &s);
-  static char* LastErrorString();
+  static const char* LastErrorString();
   static char* LastWarningString();
   static bool Warning();
 

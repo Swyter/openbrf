@@ -290,12 +290,6 @@ Selector::Selector(QWidget *parent)
 	meshTellBoundingBoxAct = new QAction(tr("Get dimensions..."), this);
 	meshTellBoundingBoxAct->setStatusTip(tr("Tell me the dimension of selected object(s)"));
 
-	meshFreezeFrameAct = new QAction(tr("rigging (keep current pose)"), this);
-	meshFreezeFrameAct->setStatusTip(tr("Discard rigging, but freeze mesh in its current pose"));
-
-	meshAniMergeAct = new QAction(tr("Merge as frames in a vertex ani"), this);
-	meshAniMergeAct->setStatusTip(tr("Merge these meshes, in their current order, as frames in a mesh ani"));
-
 	meshAniSplitAct = new QAction(tr("Separate all frames"), this);
 	meshAniSplitAct->setStatusTip(tr("Split all frames, making 1 mesh per frame"));
 
@@ -311,10 +305,19 @@ Selector::Selector(QWidget *parent)
 	discardHitboxAct = new QAction(tr("Discard hit-boxes"), this);
 	discardHitboxAct->setStatusTip(tr("Discard hit-box set associated to skeletons with this name"));
 
+	meshFreezeFrameAct = new QAction(tr("rigging (freeze current pose)"), this);
+	meshFreezeFrameAct->setStatusTip(tr("Discard rigging, but freeze mesh in its current pose"));
+
+	meshUnmountAct = new QAction(tr("rigging (un-mount from bone)"),this);
+	meshUnmountAct->setStatusTip(tr("Discard rigging, and move object back at origin."));
+
+	meshAniMergeAct = new QAction(tr("Merge as frames in a vertex ani"), this);
+	meshAniMergeAct->setStatusTip(tr("Merge these meshes, in their current order, as frames in a mesh ani"));
+
 	discardColAct = new QAction(tr("per-vertex color"), this);
 	discardColAct->setStatusTip(tr("Reset per-vertex coloring (i.e. turn all full-white)"));
 	discardRigAct = new QAction(tr("rigging"), this);
-	discardRigAct->setStatusTip(tr("Remove rigging (per-verex bone attachments)"));
+	discardRigAct->setStatusTip(tr("Discard rigging (per-verex bone attachments)"));
 	discardTanAct = new QAction(tr("tangent directions"), this);
 	discardTanAct->setStatusTip(tr("Remove tangent directions (saves space, they are needed mainly for bumbmapping)"));
 	discardNorAct = new QAction(tr("normals"), this);
@@ -398,6 +401,7 @@ Selector::Selector(QWidget *parent)
 	connect(discardRigAct,SIGNAL(triggered()),parent,SLOT(meshDiscardRig()));
 	connect(discardTanAct,SIGNAL(triggered()),parent,SLOT(meshDiscardTan()));
 	connect(meshFreezeFrameAct,SIGNAL(triggered()),parent,SLOT(meshFreezeFrame()));
+	connect(meshUnmountAct,SIGNAL(triggered()),parent,SLOT(meshUnmount()));
 
 	connect(discardHitboxAct, SIGNAL(triggered()), parent, SLOT(skeletonDiscardHitbox()));
 
@@ -420,16 +424,24 @@ Selector::Selector(QWidget *parent)
 		tab[ti] =// new QListWidget;
 		    new QListView;
 
-		tableModel[ti] = new TableModel(this);
+		tableModel[ti] = new MyTableModel(this);
 
 		tab[ti]->setModel(tableModel[ti]);
 
+		//if (ti==MESH) tab[ti]->setSelectionModel(new MySelectionModel() );
+
 		if (ti==MESH || ti==MATERIAL || ti==BODY || ti==TEXTURE || ti==SKELETON || ti==ANIMATION) {
 			tab[ti]->setSelectionMode(QAbstractItemView::ExtendedSelection);
-			tab[ti]->setStatusTip(QString(tr("[Right-Click]: tools for %1. Multiple selections with [Shift] or [Ctrl].")).arg(IniData::tokenFullName(ti)));
+			QString msg =  tr("[Right-Click]: tools for %1. Multiple selections with [Shift] or [Ctrl].").arg(IniData::tokenFullName(ti));
+			if (ti==MESH) { if (msg.endsWith('.')) msg.chop(1);  msg.append(" or [Alt]."); }
+			tab[ti]->setStatusTip(msg);
 		}
 		else
 			tab[ti]->setStatusTip(QString(tr("[Right-Click]: tools for %1.")).arg(IniData::tokenFullName(ti)));
+
+		if (ti==MESH) connect(tab[ti],
+		        SIGNAL(clicked(QModelIndex)),
+		        this, SLOT(onClicked(QModelIndex)) );
 
 		connect(tab[ti]->selectionModel(),
 		        SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
@@ -460,6 +472,7 @@ void Selector::moveSel(int dx){
 			c->clearSelection();
 			c->selectionModel()->select(lj,QItemSelectionModel::Select);
 			c->selectionModel()->setCurrentIndex(lj,QItemSelectionModel::NoUpdate);
+			c->setCurrentIndex( lj );
 			c->setFocus();
 			c->selectionModel()->blockSignals(false);
 		}
@@ -537,7 +550,7 @@ void Selector::selectAll(){
 	int kind = currentTabName();
 	assert(kind>=0 && kind<N_TOKEN);
 	QListView* c=tab[kind];
-	TableModel* m = tableModel[kind];
+	MyTableModel* m = tableModel[kind];
 
 	if (c) {
 		QModelIndex li0 = m->pleaseCreateIndex(0,0);
@@ -551,50 +564,12 @@ void Selector::invertSelection(){
 	int kind = currentTabName();
 	assert(kind>=0 && kind<N_TOKEN);
 	QListView* c=tab[kind];
-	TableModel* m = tableModel[kind];
+	MyTableModel* m = tableModel[kind];
 
 	if (c) {
 		QModelIndex li0 = m->pleaseCreateIndex(0,0);
 		QModelIndex li1 = m->pleaseCreateIndex(m->size()-1,0);
 		c->selectionModel()->select(QItemSelection(li0,li1), QItemSelectionModel::Toggle);
-	}
-	onChanged();
-}
-
-void Selector::selectOne(int kind, int i){
-
-	assert(kind>=0 && kind<N_TOKEN);
-	QListView* c=tab[kind];
-	if (c) {
-		c->clearSelection();
-		QModelIndex li = tableModel[kind]->pleaseCreateIndex(i,0);
-		c->selectionModel()->setCurrentIndex(li,QItemSelectionModel::NoUpdate);
-		c->selectionModel()->select(li,QItemSelectionModel::Select);
-		c->scrollTo(li,QAbstractItemView::PositionAtCenter);
-
-		this->setCurrentWidget(c);
-		c->setFocus();
-
-	}
-	onChanged();
-}
-
-void Selector::selectOneSilent(int kind, int i){
-
-	assert(kind>=0 && kind<N_TOKEN);
-	QListView* c=tab[kind];
-	if (c) {
-		c->selectionModel()->blockSignals(true);
-		c->clearSelection();
-		QModelIndex li = tableModel[kind]->pleaseCreateIndex(i,0);
-		c->selectionModel()->setCurrentIndex(li,QItemSelectionModel::NoUpdate);
-		c->selectionModel()->select(li,QItemSelectionModel::Select);
-		c->scrollTo(li,QAbstractItemView::PositionAtCenter);
-
-		this->setCurrentWidget(c);
-		c->setFocus();
-		c->selectionModel()->blockSignals(false);
-
 	}
 	onChanged();
 }
@@ -798,11 +773,13 @@ void Selector::updateContextMenu(){
 			m->addAction(discardNorAct);
 			m->addAction(discardRigAct);
 			m->addAction(meshFreezeFrameAct);
+			m->addAction(meshUnmountAct);
 			addDataToAllActions(m,"Discard ");
 
 			discardRigAct->setEnabled(mulsel || mesh.IsRigged());
 			discardAniAct->setEnabled(mulsel || mesh.HasVertexAni());
 			meshFreezeFrameAct->setEnabled(mulsel || mesh.IsRigged());
+			meshUnmountAct->setEnabled(mulsel || mesh.IsRigged());
 			discardColAct->setEnabled(mulsel || mesh.hasVertexColor);
 			discardNorAct->setEnabled( true );
 			discardTanAct->setEnabled(mulsel || mesh.HasTangentField());
@@ -909,11 +886,13 @@ void Selector::addBrfTab(const vector<BrfType>  &v){
 
 		//tab[ti]->viewport()->update();
 
-		if (tab[ti]->selectionModel()->selectedIndexes().size()==0)
+		if (tab[ti]->selectionModel()->selectedIndexes().size()==0) {
 			tab[ti]->selectionModel()->select(
 			      tableModel[ti]->pleaseCreateIndex(0,0),
 			      QItemSelectionModel::Select
 			      );
+			tab[ti]->setCurrentIndex(tableModel[ti]->pleaseCreateIndex(0,0));
+		}
 
 
 	} else {
@@ -983,19 +962,134 @@ void Selector::onBreakAni(){
 	emit breakAni(s,false);
 }
 
+int Selector::currentIndexOnList() const{
+	int k = currentIndex();
+	if (k<0) return -1;
+	if (k>=N_TOKEN) return -1;
+	return tab[k]->currentIndex().row();
+}
+
+
+void Selector::selectOne(int kind, int i){
+	assert(kind>=0 && kind<N_TOKEN);
+	QListView* c=tab[kind];
+	if (c) {
+		c->clearSelection();
+		QModelIndex li = tableModel[kind]->pleaseCreateIndex(i,0);
+		c->selectionModel()->setCurrentIndex(li,QItemSelectionModel::NoUpdate);
+		c->selectionModel()->select(li,QItemSelectionModel::Select);
+		c->setCurrentIndex(li);
+		c->scrollTo(li,QAbstractItemView::PositionAtCenter);
+
+		this->setCurrentWidget(c);
+		c->setFocus();
+
+	}
+	onChanged();
+}
+
+void Selector::selectOneSilent(int kind, int i){
+
+	assert(kind>=0 && kind<N_TOKEN);
+	QListView* c=tab[kind];
+	if (c) {
+		c->selectionModel()->blockSignals(true);
+		c->clearSelection();
+		QModelIndex li = tableModel[kind]->pleaseCreateIndex(i,0);
+		c->selectionModel()->setCurrentIndex(li,QItemSelectionModel::NoUpdate);
+		c->selectionModel()->select(li,QItemSelectionModel::Select);
+		c->setCurrentIndex(li);
+		c->scrollTo(li,QAbstractItemView::PositionAtCenter);
+
+		this->setCurrentWidget(c);
+		c->setFocus();
+		c->selectionModel()->blockSignals(false);
+
+	}
+	onChanged();
+}
+
+void Selector::onClicked(const QModelIndex & mi){
+	qDebug("click");
+
+	bool alt = QApplication::keyboardModifiers()&Qt::AltModifier;
+
+	if(!alt) return;
+
+
+	if (!data) return;
+
+	int ti = currentTabName();
+	if (ti==NONE) return;
+
+	MyTableModel *tm = tableModel[ti];
+	if (!tm) return;
+
+	QListView* t = tab[ti]; //
+	if (!t) return;
+
+	QItemSelectionModel *m = t->selectionModel();
+	if (!m) return;
+
+	bool selected = m->isSelected( mi );
+	int i = mi.row();
+	if (i<0) return;
+	if (i>=(int) data->mesh.size()) return;
+
+
+	QString meshName(data->mesh[i].name);
+	int p = meshName.indexOf('.');
+	if (p!=-1) meshName.truncate(p);
+	QString meshNamePlusDot = meshName;
+	meshNamePlusDot.append('.');
+
+
+	QItemSelection newSel;
+	for (uint j=0; j<data->mesh.size(); j++) if (j!=(uint)i){
+		QString nameJ(data->mesh.at(j).name);
+		if ( (nameJ == meshName) || nameJ.startsWith(meshNamePlusDot) ) {
+			QModelIndex mj = tm->pleaseCreateIndex(j,0);
+			newSel.select(mj,mj);
+		}
+	}
+	if (!newSel.isEmpty()) {
+		//newSel.select(mi,mi); // to let clicked one be the last selected.
+
+		m->select(newSel,QItemSelectionModel::Toggle);
+
+	}
+	//t->grabKeyboard();
+
+	qDebug("Alt-click on %d (%s) (%s): selected %d items (%d)",i,
+	   meshName.toAscii().data(),
+	  (selected)?"select":"deselect",
+	  newSel.count(),
+	  m->selectedIndexes().size()
+	);
+
+}
+
+void Selector::keyPressEvent(QKeyEvent * e){
+	QTabWidget::keyPressEvent(e);
+	//qDebug("Selector::KeypressEvent!!!");
+	//e->text();
+}
+
 void Selector::onChanged(){
-	//static QModelIndexList empty;
+	//qDebug("OnCHANGED?");
 	for(int ti=0; ti<N_TOKEN; ti++) if (tab[ti]) {
 		//if (tab[ti]) tab[ti]->clearSelection();
 		if (this->currentWidget()==tab[ti]) {
 			QItemSelectionModel * tmp = tab[ti]->selectionModel();
 			assert(tmp);
+			//qDebug("OnCHANGED! (%d)",tmp->selectedIndexes().size());
 			emit setSelection(
 			      tmp->selectedIndexes()
 			      , ti );
 			return;
 		}
 	}
+	//static QModelIndexList empty;
 	//emit setSelection(empty , NONE );
 }
 

@@ -12,6 +12,7 @@
 #include "selector.h"
 #include "guipanel.h"
 #include "brfHitBox.h"
+#include "carryPosition.h"
 
 
 class AskTransformDialog;
@@ -58,9 +59,11 @@ private:
 	BrfData brfdataTmp;
 	IniData inidata;
 	MeshMorpher femininizer;
+	std::vector<CarryPosition> carryPositionSet;
 	BrfData hitboxSet;
 
 	bool editingRef;
+	bool editingVertexData;
 	template<class BrfType> bool addNewGeneral(QStringList def);
 
 	bool useAlphaCommands;
@@ -74,6 +77,7 @@ private slots:
 
 	void notifyCheckboardChanged();
 	bool setEditingRef(bool mode);
+	bool setEditingVertexData(bool mode);
 
 	void closeEvent(QCloseEvent *event);
 	void newFile();
@@ -84,6 +88,7 @@ private slots:
 	bool openRecentFile();
 	bool openRecentMod();
 	bool editRef();
+	void enterOrExitVertexDataMode();
 
 	void registerExtension();
 
@@ -226,6 +231,7 @@ private slots:
 	void meshTellBoundingBox();
 	void meshUvTransform();
 	void meshUvTransformDoIt();
+	void meshUnmount();
 	void learnFemininzation(); // from current selection
 	void optionFemininzationUseDefault();
 	void optionFemininzationUseCustom();
@@ -304,6 +310,8 @@ public slots:
 	void activateFloatingProbe(bool mode);
 
 private:
+	bool loadCarryPositions();
+	bool loadCarryPositions(QString filename);
 	bool executingRepeatedCommand;
 	bool askIfUseOpenGL2(bool extra);
 	bool goTo(ObjCoord o);
@@ -348,10 +356,10 @@ private:
 	template<class BrfType> void getAllFlags(const vector<BrfType> &v, unsigned int &orr, unsigned int &andd);
 	template<class BrfType> bool setAllFlags(vector<BrfType> &v, unsigned int toZero, unsigned int toOne);
 
+	bool makeMeshRigged( BrfMesh &m, bool becauseAddToRef , bool askUserAgain );
 
 	bool mustOverwriteColors(); // if false, must multiply colors instead
 
-	QPair<int, int>  askRefBoneInt(bool sayNotRigged, bool &isOri); // ask user to specify a skel and bone
 	QPair<int, int>  askRefSkel(int nbones, int &method, int &res); // ask user to specify two skel
 	int askRefSkin(); //  ask user to specify a skin
 	int currentDisplaySkin(); // returns skin currently used as display
@@ -442,6 +450,8 @@ private:
 	QAction *saveHitboxAct;
 	QAction *exitAct;
 	QAction *sortEntriesAct;
+	QAction *enterVertexDataMode;
+	QAction *exitVertexDataMode;
 	QAction *invertSelectionAct;
 	QAction *selectAllAct;
 	QAction *aboutCheckboardAct;

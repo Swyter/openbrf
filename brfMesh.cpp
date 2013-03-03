@@ -19,11 +19,138 @@ using namespace vcg;
 #include "brfAnimation.h"
 #include "brfBody.h"
 
+#include "carryPosition.h"
+
 #include "saveLoad.h"
 typedef vcg::Point3f Pos;
 typedef unsigned int uint;
 
 extern int globVersion;
+
+
+#include "QDebug"
+
+static char* nextToken(char c, const char* p, int& i){
+	static char res[256];
+	int par = 0;
+	int j=0;
+	while (1) {
+		char cc = *(p+i);
+		i++;
+		if (cc=='(') par++;
+		if (cc==')') par--;
+		if (i>255) cc = 0;
+		if ((cc==c) && (par<=0)) cc = 0;
+		res[j++] = cc;
+		if (cc=='\n') cc = 0;
+		if (cc==0) break;
+	}
+	if (!res[0]) return NULL;
+	return res;
+}
+
+bool CarryPosition::Load(const char* line){
+	int pos = 0;
+
+	needExtraTrasl = false;
+	name[0] = 0;
+	boneName[0] = 0;
+	matPre.SetIdentity();
+	matPost.SetIdentity();
+
+	vcg::Point3f offset(0,0,0);
+	vcg::Matrix44f rot;
+	rot.SetIdentity();
+
+
+	char* t;
+	t = ::nextToken(':',line,pos);
+	if (!t) return false;
+	if (sscanf(t,"itcf_carry_%s",name)!=1) return false;
+	while (1) {
+		float x,y,z;
+		char oneChar;
+		char unity[255];
+		vcg::Matrix44f m;
+
+		t = ::nextToken(',',line,pos);
+		if (!t) break;
+
+		if (sscanf(t," attach on hb_%s",boneName)==1) {
+			continue;
+		} else if (sscanf(t," offset by (%f, %f, %f)",&x,&y,&z)==3) {
+			//offset = vcg::Point3f(z,-y,x);
+			offset = vcg::Point3f(x,z,y);
+			//m.SetTranslate(x,y,z);
+			//matPost = m*matPost;
+		} else if (sscanf(t," rotate %c by %f %s",&oneChar,&x,unity)==3) {
+			vcg::Point3f axis(0,0,0);
+			if (oneChar=='x') axis.X() = 1.0; else
+		  if (oneChar=='y') axis.Z() = 1.0; else
+			if (oneChar=='z') axis.Y() = 1.0; else return false;
+			if (unity[0]=='d') m.SetRotateDeg(-x,axis); else
+			if (unity[0]=='r') m.SetRotateRad(-x,axis); else return false;
+			rot = rot*m;
+			//qDebug(" - rotation by %f of %f %f %f ",x,axis[0],axis[1],axis[2]);
+		} else if (sscanf(t," move on forward axis by -(weapon_length %c %f)",&oneChar, &x)==2) {
+			if (oneChar == '+') x = -x;
+			else if (oneChar != '-') return false;
+			m.SetTranslate(0,0,x);
+			matPre = matPre*m;
+			needExtraTrasl = true;
+		}  else if (sscanf(t," move on forward axis by %f", &x)==1) {
+			m.SetTranslate(0,0,x);
+			matPre = matPre*m;
+		} else return false;
+	}
+
+	vcg::Matrix44f mOffset;
+	mOffset.SetTranslate(offset);
+
+	matPre = rot * matPre;
+	matPost = mOffset;
+
+	return true;
+}
+
+bool BrfMesh::Apply(const CarryPosition &cp, const BrfSkeleton &s, float weapLen, bool isOrigin){
+	int i = s.FindBoneByName( cp.boneName );
+	if (i==-1) return false;
+	if (isOrigin) {
+		vcg::Matrix44f m = //s.GetBoneMatrices().at(i);
+		BrfSkeleton::adjustCoordSystHalf(
+			s.GetBoneMatrices()[i].transpose()
+		).transpose();
+
+		vcg::Matrix44f mr(m) , mt; // rotational, translational part of m
+		mt.SetIdentity();
+		mt.SetColumn( 3, m.GetColumn3(3) ) ;
+
+		mr.SetColumn(3, vcg::Point3f(0,0,0)) ;
+		//m = mt * cp.matPost *  cp.matPre * mr;
+
+		vcg::Matrix44f matPre = cp.matPre;
+		vcg::Matrix44f matPost = cp.matPost;
+
+		if (cp.needExtraTrasl) {
+			vcg::Matrix44f e;
+			e.SetTranslate(0,0,-weapLen);
+			matPre = matPre*e;
+		}
+
+		vcg::Matrix44f final =  matPost *  matPre ;
+		//final =  BrfSkeleton::adjustCoordSystHalf( final );
+		final = m * final;
+
+		Apply(final);
+	}
+	SetUniformRig(i);
+	return true;
+}
+
+bool BrfMesh::LoadCarryPosition(CarryPosition &cp, const char* line){
+	return cp.Load(line);
+}
 
 void MeshMorpher::ResetLearning(){
   for (int i=0; i<MAX_BONES; i++) {
@@ -62,6 +189,8 @@ void MeshMorpher::LearnFrom(BrfMesh& a, int framei, int framej){
 
   }
 }
+
+
 
 void MeshMorpher::FinishLearning(){
   for (int bi=0; bi<MAX_BONES; bi++) {
@@ -286,6 +415,61 @@ void BrfMesh::FixRigidObjectsInRigging(){
 	}
 }
 
+
+void BrfMesh::MountOnBone(const BrfSkeleton &s, int boneIndex){
+	Apply(
+		BrfSkeleton::adjustCoordSystHalf(
+			s.GetBoneMatrices()[boneIndex].transpose()
+		).transpose()
+	);
+}
+
+void BrfMesh::Unmount(const BrfSkeleton &s){
+
+  std::vector<Matrix44f> bonepos = s.GetBoneMatricesInverse();
+
+	for (uint i=0; i<bonepos.size(); i++)
+		bonepos[i] =  BrfSkeleton::adjustCoordSystHalf( bonepos[i] );
+
+	for (unsigned int fv=0; fv<frame.size(); fv++) {
+		std::vector<bool> done(frame[fv].pos.size(),false);
+
+		for (unsigned int vi=0; vi<vert.size(); vi++) {
+
+			const BrfRigging &rig (rigging[ vert[ vi ].index ]);
+
+			//glNormal(vert[face[i].index[j]].__norm);
+			Point3f &norm(frame[fv].norm[      vi        ]);
+			Point3f &tang(vert[                vi        ].tang);
+
+			Point3f &pos (frame[fv].pos [ vert[vi].index ]);
+
+			Point3f p(0,0,0);
+			Point3f n(0,0,0);
+			Point3f t(0,0,0);
+			for (int k=0; k<4; k++){
+				float wieght = rig.boneWeight[k];
+				int       bi = rig.boneIndex [k];
+				if (bi>=0 && bi<(int)bonepos.size()) {
+					p += (bonepos[bi]* pos  )*wieght;
+					n += (bonepos[bi]* norm - bonepos[bi]*Point3f(0,0,0) )*wieght;
+					t += (bonepos[bi]* tang - bonepos[bi]*Point3f(0,0,0) )*wieght;
+				}
+			}
+			norm = n;
+
+			tang = t;
+			if (!done[vert[vi].index]) {
+				pos = p;
+				done[vert[vi].index]=true;
+			}
+		}
+  }
+	AdjustNormDuplicates();
+	UpdateBBox();
+
+}
+
 void BrfMesh::FreezeFrame(const BrfSkeleton& s, const BrfAnimation& a, float frameN){
 
   int fv = 0;
@@ -335,6 +519,8 @@ void BrfMesh::FreezeFrame(const BrfSkeleton& s, const BrfAnimation& a, float fra
     }
 
   }
+	AdjustNormDuplicates();
+	UpdateBBox();
 }
 
 bool MeshMorpher::Save(const char* filename) const{
@@ -785,7 +971,18 @@ void BrfMesh::Transform(float *f){
       vert[j].tang=(m*vert[j].tang - z).Normalize();
   AdjustNormDuplicates();
   UpdateBBox();
+}
 
+void BrfMesh::Apply(Matrix44<float> m){
+  for (int i=0; i<(int)frame.size(); i++) frame[i].Apply(m);
+
+  Point3f t = m*Point3f(0,0,0);
+  for (int i=0; i<(int)vert.size(); i++){
+    vert[i].tang=(m*vert[i].tang - t).normalized();
+  }
+
+  UpdateBBox();
+  AdjustNormDuplicates();
 }
 
 void BrfMesh::ShrinkAroundBones(const BrfSkeleton& s, int nframe){
@@ -992,17 +1189,7 @@ void BrfMesh::ReskeletonizeHuman(const BrfSkeleton& from, const BrfSkeleton& to,
 }
 
 
-void BrfMesh::Apply(Matrix44<float> m){
-  for (int i=0; i<(int)frame.size(); i++) frame[i].Apply(m);
 
-  Point3f t = m*Point3f(0,0,0);
-  for (int i=0; i<(int)vert.size(); i++){
-    vert[i].tang=(m*vert[i].tang - t).normalized();
-  }
-
-  this->UpdateBBox();
-  this->AdjustNormDuplicates();
-}
 
 void BrfMesh::SetUniformRig(int nbone){
 
@@ -1436,8 +1623,9 @@ void BrfMesh::FixTextcoord(const BrfMesh &brf,BrfMesh &ref, int fi){
   
 }
 
-void BrfMesh::SetName(char* st){
-  sprintf(name,st);
+void BrfMesh::SetName(const char* st){
+  sprintf(name,"%s",st);
+	AnalyzeName();
 }
 
 void BrfMesh::DeleteSelected(){
@@ -1922,6 +2110,33 @@ bool BrfMesh::HasTangentField() const{
   return flags & (1<<16);
 }
 
+void BrfMesh::AnalyzeName() {
+	int posFirstDot = -1;
+
+	for (int i=0; i<256; i++) {
+		if (name[i]=='.') {
+			posFirstDot = i;
+			break;
+		}
+		if (name[i]==0) break;
+	}
+	sprintf(baseName,"%s", name);
+	pieceIndex = -1;
+	lodLevel = 0;
+	if (posFirstDot>=0) {
+
+		baseName[ posFirstDot ]=0; // truncate baseName
+		char lodStr[256];
+		sprintf(lodStr, "%s", name+posFirstDot );
+		if (lodStr[1]=='L') lodStr[1]='l';
+		if (lodStr[2]=='O') lodStr[2]='o';
+		if (lodStr[3]=='D') lodStr[3]='d';
+		if (sscanf(lodStr,".lod%d.%d",&lodLevel,&pieceIndex)==2) return;
+		if (sscanf(lodStr,".%d",&pieceIndex)==1) return;
+		if (sscanf(lodStr,".lod%d",&lodLevel)==1) return;
+	}
+
+}
 
 // quick hack: true if name ends with ".LOD<n>[.<m>]", <n> and <m> being 1 or 2 digits
 int BrfMesh::IsNamedAsLOD() const{
@@ -2611,6 +2826,7 @@ void BrfMesh::AfterLoad(){
 
 bool BrfMesh::Load(FILE*f){
   if (!LoadString(f, name)) return false;
+	AnalyzeName();
 
   LoadUint(f , flags);
   if (!LoadString(f, material)) return false; // material used

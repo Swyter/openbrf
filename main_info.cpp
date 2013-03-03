@@ -5,7 +5,7 @@
 
 #include <QtGui>
 
-const char* applVersion = "0.0.78";
+const char* applVersion = "0.0.79";
 QString IniData::tokenFullName(int k){
 
   switch (k){
@@ -73,14 +73,14 @@ void MainWindow::about()
                    "[Merlkir], [mr.master], "
                    "[mysstick], [N0body], [newaxekub], "
                    "[octoburn], [OrangeKnight], [pagan], [Percus], [qlithe], [Rath0s], [RATMdude92], [Red River], "
-                   "[rgcotl], [Romainoir], [Septa Scarabae], [Sayd Ûthman], [Silesian], [Shik], "
+                   "[rgcotl], [Roemerboy], [Romainoir], [Septa Scarabae], [Sayd Ûthman], [Silesian], [Shik], "
                    "[Silver Wolf], [Shredzorz], [Slawomir of Aaarrghh], [Somebody], [SonKidd], [Spak], [Specialist], [Stefano], [Sunnetci_Dede], [Swyter], "
                    "[Triglav], [Tul], [Ursca], [Vincenzo], [Vlejundo], [Vornne], [WilliamBerne], "
                    "[yellowmosquito], [Yoshiboy], [xenoargh], [Zimke Zlovoljni]")
               .arg("<br>[amade], [Swyter]!")
               .arg(QString("<br> [foxyman] <i>(%1)</i><br>"
                            " [Swyter] <i>(Español)</i><br>"
-                           " [Vlejundo] <i>(Deutsche)</i><").arg(tr("additional code and Chinese")))
+                           " [Vlejundo] and [Roemerboy] <i>(Deutsche)</i><").arg(tr("additional code and Chinese")))
               .arg(applVersion)
             ,QMessageBox::Ok, this);
     msg.setLocale(QLocale::system());

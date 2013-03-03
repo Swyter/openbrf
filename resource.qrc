@@ -13,5 +13,6 @@
         <file>icons/ico_mid.png</file>
         <file>icons/ico_right.png</file>
         <file>translations/openbrf_es.qm</file>
+        <file>carry_positions.txt</file>
     </qresource>
 </RCC>

@@ -113,6 +113,9 @@ void MainWindow::createMenus()
 	moduleMenu->addSeparator();
 	moduleMenu->addAction(saveHitboxAct);
 
+	toolMenu->addAction(enterVertexDataMode);
+	toolMenu->addAction(exitVertexDataMode);
+	toolMenu->addSeparator();
 	toolMenu->addAction(sortEntriesAct);
 	toolMenu->addSeparator();
 	toolMenu->addAction(invertSelectionAct);
@@ -575,6 +578,11 @@ void MainWindow::createActions()
 
 	editRefAct = new QAction(tr("_"), this);
 
+	enterVertexDataMode = new QAction(tr("Edit vertex-data"), this);
+	exitVertexDataMode = new QAction(tr("Stop editing vertex-data"), this);
+	connect(enterVertexDataMode, SIGNAL(triggered()), this, SLOT(enterOrExitVertexDataMode()));
+	connect(exitVertexDataMode, SIGNAL(triggered()), this, SLOT(enterOrExitVertexDataMode()));
+
 	connect(editRefAct, SIGNAL(triggered()), this, SLOT(editRef()));
 
 	sortEntriesAct = new QAction(tr("Sort entries"), this);
@@ -738,19 +746,21 @@ void MainWindow::createMiniViewOptions(){
 	comboViewmodeSelector->layout()->setAlignment(w,Qt::AlignRight);
 	comboViewmodeSelector->layout()->setSpacing(0);
 
-	QPushButton* viewmodemult[2];
+	QPushButton* viewmodemult[3];
 	comboViewmodeBG=new QButtonGroup(this);
 	viewmodemult[0] = new QPushButton(tr("combo"),this);
-	viewmodemult[0]->setStatusTip(tr("See objects combined, when selecting multiple things"));
+	viewmodemult[0]->setStatusTip(tr("See objects combined (when multiple things are selected)"));
 	viewmodemult[1] = new QPushButton(tr("aside"),this);
-	viewmodemult[1]->setStatusTip(tr("See object side-to-side, when selecting multiple things"));
+	viewmodemult[1]->setStatusTip(tr("See object side-to-side (when multiple things are selected)"));
+	viewmodemult[2] = new QPushButton(tr("auto"),this);
+	viewmodemult[2]->setStatusTip(tr("See sub-parts combined (when multiple things are selected)"));
 	comboViewmodeBG->setExclusive(true);
 	QLabel* viewmodemultLabel = new QLabel(tr("mult-view:"));
 	comboViewmodeSelector->layout()->addWidget(viewmodemultLabel);
 
 
 
-	for (int i=0; i<2; i++) {
+	for (int i=0; i<3; i++) {
 		viewmodemult[i]->setCheckable(true);
 		viewmodemult[i]->setChecked(i==0);
 		viewmodemult[i]->setFlat(true);

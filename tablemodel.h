@@ -27,12 +27,12 @@ public:
 
 
 //! [0]
-class TableModel : public QAbstractListModel
+class MyTableModel : public QAbstractListModel
 {
     Q_OBJECT
     
 public:
-    TableModel(QObject *parent=0);
+    MyTableModel(QObject *parent=0);
 
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;

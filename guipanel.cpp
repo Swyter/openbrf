@@ -466,6 +466,9 @@ void GuiPanel::setReference(BrfData* r){
 }
 
 
+int GuiPanel::getCurrentSkeletonIndex() const{
+	return ui->cbRefSkel->currentIndex();
+}
 
 int GuiPanel::getCurrentSubpieceIndex(int type) const{
 
